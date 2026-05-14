@@ -1,0 +1,676 @@
+{
+  "title": "Three-storey mixed Frame2D + Truss2D structure",
+  "description": "Three-storey two-bay frame with axial-only diagonal braces. Designed as a rich visualization test model with nodal forces, inclined loads decomposed into global components, point loads on members, uniform distributed loads, trapezoidal distributed loads and multiple load cases.",
+  "loadCaseId": "LC_COMBO_VISUAL",
+  "nodes": [
+    {
+      "id": "A0",
+      "x": 0.0,
+      "y": 0.0,
+      "label": "A0"
+    },
+    {
+      "id": "B0",
+      "x": 4.0,
+      "y": 0.0,
+      "label": "B0"
+    },
+    {
+      "id": "C0",
+      "x": 8.0,
+      "y": 0.0,
+      "label": "C0"
+    },
+    {
+      "id": "A1",
+      "x": 0.0,
+      "y": 3.0,
+      "label": "A1"
+    },
+    {
+      "id": "B1",
+      "x": 4.0,
+      "y": 3.0,
+      "label": "B1"
+    },
+    {
+      "id": "C1",
+      "x": 8.0,
+      "y": 3.0,
+      "label": "C1"
+    },
+    {
+      "id": "A2",
+      "x": 0.0,
+      "y": 6.0,
+      "label": "A2"
+    },
+    {
+      "id": "B2",
+      "x": 4.0,
+      "y": 6.0,
+      "label": "B2"
+    },
+    {
+      "id": "C2",
+      "x": 8.0,
+      "y": 6.0,
+      "label": "C2"
+    },
+    {
+      "id": "A3",
+      "x": 0.0,
+      "y": 9.0,
+      "label": "A3"
+    },
+    {
+      "id": "B3",
+      "x": 4.0,
+      "y": 9.0,
+      "label": "B3"
+    },
+    {
+      "id": "C3",
+      "x": 8.0,
+      "y": 9.0,
+      "label": "C3"
+    }
+  ],
+  "materials": [
+    {
+      "id": "STEEL",
+      "name": "Generic structural steel",
+      "elasticModulus": 210000000.0
+    }
+  ],
+  "sections": [
+    {
+      "id": "COL_HEAVY",
+      "name": "Heavy column section",
+      "area": 0.0045,
+      "momentOfInertia": 4.5e-05
+    },
+    {
+      "id": "BEAM_MEDIUM",
+      "name": "Medium beam section",
+      "area": 0.0032,
+      "momentOfInertia": 2.8e-05
+    },
+    {
+      "id": "BRACE_ROD",
+      "name": "Axial brace section",
+      "area": 0.0018,
+      "momentOfInertia": 1e-06
+    }
+  ],
+  "members": [
+    {
+      "id": "CA1",
+      "startNodeId": "A0",
+      "endNodeId": "A1",
+      "materialId": "STEEL",
+      "sectionId": "COL_HEAVY",
+      "type": "Frame2D",
+      "label": "Left column L1"
+    },
+    {
+      "id": "CA2",
+      "startNodeId": "A1",
+      "endNodeId": "A2",
+      "materialId": "STEEL",
+      "sectionId": "COL_HEAVY",
+      "type": "Frame2D",
+      "label": "Left column L2"
+    },
+    {
+      "id": "CA3",
+      "startNodeId": "A2",
+      "endNodeId": "A3",
+      "materialId": "STEEL",
+      "sectionId": "COL_HEAVY",
+      "type": "Frame2D",
+      "label": "Left column L3"
+    },
+    {
+      "id": "CB1",
+      "startNodeId": "B0",
+      "endNodeId": "B1",
+      "materialId": "STEEL",
+      "sectionId": "COL_HEAVY",
+      "type": "Frame2D",
+      "label": "Middle column L1"
+    },
+    {
+      "id": "CB2",
+      "startNodeId": "B1",
+      "endNodeId": "B2",
+      "materialId": "STEEL",
+      "sectionId": "COL_HEAVY",
+      "type": "Frame2D",
+      "label": "Middle column L2"
+    },
+    {
+      "id": "CB3",
+      "startNodeId": "B2",
+      "endNodeId": "B3",
+      "materialId": "STEEL",
+      "sectionId": "COL_HEAVY",
+      "type": "Frame2D",
+      "label": "Middle column L3"
+    },
+    {
+      "id": "CC1",
+      "startNodeId": "C0",
+      "endNodeId": "C1",
+      "materialId": "STEEL",
+      "sectionId": "COL_HEAVY",
+      "type": "Frame2D",
+      "label": "Right column L1"
+    },
+    {
+      "id": "CC2",
+      "startNodeId": "C1",
+      "endNodeId": "C2",
+      "materialId": "STEEL",
+      "sectionId": "COL_HEAVY",
+      "type": "Frame2D",
+      "label": "Right column L2"
+    },
+    {
+      "id": "CC3",
+      "startNodeId": "C2",
+      "endNodeId": "C3",
+      "materialId": "STEEL",
+      "sectionId": "COL_HEAVY",
+      "type": "Frame2D",
+      "label": "Right column L3"
+    },
+    {
+      "id": "B1L",
+      "startNodeId": "A1",
+      "endNodeId": "B1",
+      "materialId": "STEEL",
+      "sectionId": "BEAM_MEDIUM",
+      "type": "Frame2D",
+      "label": "Floor 1 left beam"
+    },
+    {
+      "id": "B1R",
+      "startNodeId": "B1",
+      "endNodeId": "C1",
+      "materialId": "STEEL",
+      "sectionId": "BEAM_MEDIUM",
+      "type": "Frame2D",
+      "label": "Floor 1 right beam"
+    },
+    {
+      "id": "B2L",
+      "startNodeId": "A2",
+      "endNodeId": "B2",
+      "materialId": "STEEL",
+      "sectionId": "BEAM_MEDIUM",
+      "type": "Frame2D",
+      "label": "Floor 2 left beam"
+    },
+    {
+      "id": "B2R",
+      "startNodeId": "B2",
+      "endNodeId": "C2",
+      "materialId": "STEEL",
+      "sectionId": "BEAM_MEDIUM",
+      "type": "Frame2D",
+      "label": "Floor 2 right beam"
+    },
+    {
+      "id": "B3L",
+      "startNodeId": "A3",
+      "endNodeId": "B3",
+      "materialId": "STEEL",
+      "sectionId": "BEAM_MEDIUM",
+      "type": "Frame2D",
+      "label": "Roof left beam"
+    },
+    {
+      "id": "B3R",
+      "startNodeId": "B3",
+      "endNodeId": "C3",
+      "materialId": "STEEL",
+      "sectionId": "BEAM_MEDIUM",
+      "type": "Frame2D",
+      "label": "Roof right beam"
+    },
+    {
+      "id": "T1L",
+      "startNodeId": "A0",
+      "endNodeId": "B1",
+      "materialId": "STEEL",
+      "sectionId": "BRACE_ROD",
+      "type": "Truss2D",
+      "label": "Brace L1 up"
+    },
+    {
+      "id": "T1R",
+      "startNodeId": "C0",
+      "endNodeId": "B1",
+      "materialId": "STEEL",
+      "sectionId": "BRACE_ROD",
+      "type": "Truss2D",
+      "label": "Brace R1 up"
+    },
+    {
+      "id": "T2L",
+      "startNodeId": "B1",
+      "endNodeId": "A2",
+      "materialId": "STEEL",
+      "sectionId": "BRACE_ROD",
+      "type": "Truss2D",
+      "label": "Brace L2 up"
+    },
+    {
+      "id": "T2R",
+      "startNodeId": "B1",
+      "endNodeId": "C2",
+      "materialId": "STEEL",
+      "sectionId": "BRACE_ROD",
+      "type": "Truss2D",
+      "label": "Brace R2 up"
+    },
+    {
+      "id": "T3L",
+      "startNodeId": "A2",
+      "endNodeId": "B3",
+      "materialId": "STEEL",
+      "sectionId": "BRACE_ROD",
+      "type": "Truss2D",
+      "label": "Brace L3 up"
+    },
+    {
+      "id": "T3R",
+      "startNodeId": "C2",
+      "endNodeId": "B3",
+      "materialId": "STEEL",
+      "sectionId": "BRACE_ROD",
+      "type": "Truss2D",
+      "label": "Brace R3 up"
+    }
+  ],
+  "supports": [
+    {
+      "id": "SA0",
+      "nodeId": "A0",
+      "type": "Fixed",
+      "restrainedUx": true,
+      "restrainedUy": true,
+      "restrainedRz": true
+    },
+    {
+      "id": "SB0",
+      "nodeId": "B0",
+      "type": "Fixed",
+      "restrainedUx": true,
+      "restrainedUy": true,
+      "restrainedRz": true
+    },
+    {
+      "id": "SC0",
+      "nodeId": "C0",
+      "type": "Fixed",
+      "restrainedUx": true,
+      "restrainedUy": true,
+      "restrainedRz": true
+    }
+  ],
+  "loadCases": [
+    {
+      "id": "G",
+      "name": "Permanent vertical loads"
+    },
+    {
+      "id": "Q",
+      "name": "Variable floor loads"
+    },
+    {
+      "id": "WIND_X",
+      "name": "Wind from left to right"
+    },
+    {
+      "id": "WIND_NEG_X",
+      "name": "Wind from right to left"
+    },
+    {
+      "id": "INCLINED",
+      "name": "Inclined machinery / facade point load"
+    },
+    {
+      "id": "LC_COMBO_VISUAL",
+      "name": "Visualization combination with many load directions"
+    }
+  ],
+  "loads": [
+    {
+      "id": "G_B1L",
+      "loadCaseId": "G",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "B1L",
+      "direction": "GlobalY",
+      "label": "G floor 1 L",
+      "value": -8.0
+    },
+    {
+      "id": "G_B1R",
+      "loadCaseId": "G",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "B1R",
+      "direction": "GlobalY",
+      "label": "G floor 1 R",
+      "value": -8.0
+    },
+    {
+      "id": "G_B2L",
+      "loadCaseId": "G",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "B2L",
+      "direction": "GlobalY",
+      "label": "G floor 2 L",
+      "value": -7.5
+    },
+    {
+      "id": "G_B2R",
+      "loadCaseId": "G",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "B2R",
+      "direction": "GlobalY",
+      "label": "G floor 2 R",
+      "value": -7.5
+    },
+    {
+      "id": "G_B3L",
+      "loadCaseId": "G",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "B3L",
+      "direction": "GlobalY",
+      "label": "G roof L",
+      "value": -5.5
+    },
+    {
+      "id": "G_B3R",
+      "loadCaseId": "G",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "B3R",
+      "direction": "GlobalY",
+      "label": "G roof R",
+      "value": -5.5
+    },
+    {
+      "id": "Q_B1L",
+      "loadCaseId": "Q",
+      "type": "LinearDistributedLoad",
+      "targetType": "Member",
+      "targetId": "B1L",
+      "direction": "GlobalY",
+      "label": "Q trapezoid 1L",
+      "value": -3.0,
+      "endValue": -4.5
+    },
+    {
+      "id": "Q_B2R",
+      "loadCaseId": "Q",
+      "type": "LinearDistributedLoad",
+      "targetType": "Member",
+      "targetId": "B2R",
+      "direction": "GlobalY",
+      "label": "Q trapezoid 2R",
+      "value": -4.0,
+      "endValue": -2.0
+    },
+    {
+      "id": "Q_POINT_B2L",
+      "loadCaseId": "Q",
+      "type": "PointLoadOnMember",
+      "targetType": "Member",
+      "targetId": "B2L",
+      "direction": "GlobalY",
+      "position": 0.35,
+      "value": -12.0,
+      "label": "P floor 2"
+    },
+    {
+      "id": "Q_POINT_B3R",
+      "loadCaseId": "Q",
+      "type": "PointLoadOnMember",
+      "targetType": "Member",
+      "targetId": "B3R",
+      "direction": "GlobalY",
+      "position": 0.65,
+      "value": -9.0,
+      "label": "P roof equipment"
+    },
+    {
+      "id": "WX_A1",
+      "loadCaseId": "WIND_X",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "A1",
+      "direction": "GlobalX",
+      "value": 5.0,
+      "label": "Wind A1"
+    },
+    {
+      "id": "WX_A2",
+      "loadCaseId": "WIND_X",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "A2",
+      "direction": "GlobalX",
+      "value": 8.0,
+      "label": "Wind A2"
+    },
+    {
+      "id": "WX_A3",
+      "loadCaseId": "WIND_X",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "A3",
+      "direction": "GlobalX",
+      "value": 11.0,
+      "label": "Wind A3"
+    },
+    {
+      "id": "WX_B3",
+      "loadCaseId": "WIND_X",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "B3",
+      "direction": "GlobalX",
+      "value": 6.0,
+      "label": "Wind B3"
+    },
+    {
+      "id": "WNEG_C1",
+      "loadCaseId": "WIND_NEG_X",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "C1",
+      "direction": "GlobalX",
+      "value": -4.0,
+      "label": "Wind -X C1"
+    },
+    {
+      "id": "WNEG_C2",
+      "loadCaseId": "WIND_NEG_X",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "C2",
+      "direction": "GlobalX",
+      "value": -7.0,
+      "label": "Wind -X C2"
+    },
+    {
+      "id": "WNEG_C3",
+      "loadCaseId": "WIND_NEG_X",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "C3",
+      "direction": "GlobalX",
+      "value": -10.0,
+      "label": "Wind -X C3"
+    },
+    {
+      "id": "INC_B2_X",
+      "loadCaseId": "INCLINED",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "B2",
+      "direction": "GlobalX",
+      "value": 16.383,
+      "label": "Inclined 20kN X"
+    },
+    {
+      "id": "INC_B2_Y",
+      "loadCaseId": "INCLINED",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "B2",
+      "direction": "GlobalY",
+      "value": -11.472,
+      "label": "Inclined 20kN Y"
+    },
+    {
+      "id": "VIS_B1L_G",
+      "loadCaseId": "LC_COMBO_VISUAL",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "B1L",
+      "direction": "GlobalY",
+      "label": "Visual G 1L",
+      "value": -8.0
+    },
+    {
+      "id": "VIS_B1R_TRAP",
+      "loadCaseId": "LC_COMBO_VISUAL",
+      "type": "LinearDistributedLoad",
+      "targetType": "Member",
+      "targetId": "B1R",
+      "direction": "GlobalY",
+      "label": "Visual trapezoid 1R",
+      "value": -3.0,
+      "endValue": -6.0
+    },
+    {
+      "id": "VIS_B2L_POINT",
+      "loadCaseId": "LC_COMBO_VISUAL",
+      "type": "PointLoadOnMember",
+      "targetType": "Member",
+      "targetId": "B2L",
+      "direction": "GlobalY",
+      "position": 0.3,
+      "value": -14.0,
+      "label": "Visual point 2L"
+    },
+    {
+      "id": "VIS_B3R_POINT_X",
+      "loadCaseId": "LC_COMBO_VISUAL",
+      "type": "PointLoadOnMember",
+      "targetType": "Member",
+      "targetId": "B3R",
+      "direction": "GlobalX",
+      "position": 0.7,
+      "value": 6.0,
+      "label": "Horizontal member point"
+    },
+    {
+      "id": "VIS_A3_WIND",
+      "loadCaseId": "LC_COMBO_VISUAL",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "A3",
+      "direction": "GlobalX",
+      "value": 12.0,
+      "label": "Visual wind +X"
+    },
+    {
+      "id": "VIS_C2_WIND_NEG",
+      "loadCaseId": "LC_COMBO_VISUAL",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "C2",
+      "direction": "GlobalX",
+      "value": -7.0,
+      "label": "Visual wind -X"
+    },
+    {
+      "id": "VIS_B2_INCL_X",
+      "loadCaseId": "LC_COMBO_VISUAL",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "B2",
+      "direction": "GlobalX",
+      "value": 16.383,
+      "label": "Inclined X"
+    },
+    {
+      "id": "VIS_B2_INCL_Y",
+      "loadCaseId": "LC_COMBO_VISUAL",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "B2",
+      "direction": "GlobalY",
+      "value": -11.472,
+      "label": "Inclined Y"
+    },
+    {
+      "id": "VIS_M_C3",
+      "loadCaseId": "LC_COMBO_VISUAL",
+      "type": "NodalMoment",
+      "targetType": "Node",
+      "targetId": "C3",
+      "direction": "MomentZ",
+      "value": 18.0,
+      "label": "Roof moment"
+    }
+  ],
+  "loadCombinations": [
+    {
+      "id": "ULS_1",
+      "name": "ULS 1.35G + 1.50Q + 0.60W",
+      "terms": [
+        {
+          "loadCaseId": "G",
+          "factor": 1.35
+        },
+        {
+          "loadCaseId": "Q",
+          "factor": 1.5
+        },
+        {
+          "loadCaseId": "WIND_X",
+          "factor": 0.6
+        }
+      ]
+    },
+    {
+      "id": "SLS_WIND",
+      "name": "SLS G + Q + Wind",
+      "terms": [
+        {
+          "loadCaseId": "G",
+          "factor": 1.0
+        },
+        {
+          "loadCaseId": "Q",
+          "factor": 1.0
+        },
+        {
+          "loadCaseId": "WIND_X",
+          "factor": 1.0
+        }
+      ]
+    }
+  ]
+}

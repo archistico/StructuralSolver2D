@@ -1,0 +1,930 @@
+{
+  "title": "Twenty-metre truss bridge with deck loads",
+  "description": "2D steel truss bridge, about 20 m span, with bottom deck beams used for gravity and traffic loads. The visualization load case shows classic downward deck loads, concentrated axle loads and a small top wind action.",
+  "loadCaseId": "LC_VISUAL",
+  "nodes": [
+    {
+      "id": "B0",
+      "x": 0.0,
+      "y": 0.0,
+      "label": "B0"
+    },
+    {
+      "id": "B1",
+      "x": 2.5,
+      "y": 0.0,
+      "label": "B1"
+    },
+    {
+      "id": "B2",
+      "x": 5.0,
+      "y": 0.0,
+      "label": "B2"
+    },
+    {
+      "id": "B3",
+      "x": 7.5,
+      "y": 0.0,
+      "label": "B3"
+    },
+    {
+      "id": "B4",
+      "x": 10.0,
+      "y": 0.0,
+      "label": "B4"
+    },
+    {
+      "id": "B5",
+      "x": 12.5,
+      "y": 0.0,
+      "label": "B5"
+    },
+    {
+      "id": "B6",
+      "x": 15.0,
+      "y": 0.0,
+      "label": "B6"
+    },
+    {
+      "id": "B7",
+      "x": 17.5,
+      "y": 0.0,
+      "label": "B7"
+    },
+    {
+      "id": "B8",
+      "x": 20.0,
+      "y": 0.0,
+      "label": "B8"
+    },
+    {
+      "id": "T0",
+      "x": 0.0,
+      "y": 3.0,
+      "label": "T0"
+    },
+    {
+      "id": "T1",
+      "x": 2.5,
+      "y": 3.0,
+      "label": "T1"
+    },
+    {
+      "id": "T2",
+      "x": 5.0,
+      "y": 3.0,
+      "label": "T2"
+    },
+    {
+      "id": "T3",
+      "x": 7.5,
+      "y": 3.0,
+      "label": "T3"
+    },
+    {
+      "id": "T4",
+      "x": 10.0,
+      "y": 3.0,
+      "label": "T4"
+    },
+    {
+      "id": "T5",
+      "x": 12.5,
+      "y": 3.0,
+      "label": "T5"
+    },
+    {
+      "id": "T6",
+      "x": 15.0,
+      "y": 3.0,
+      "label": "T6"
+    },
+    {
+      "id": "T7",
+      "x": 17.5,
+      "y": 3.0,
+      "label": "T7"
+    },
+    {
+      "id": "T8",
+      "x": 20.0,
+      "y": 3.0,
+      "label": "T8"
+    }
+  ],
+  "materials": [
+    {
+      "id": "STEEL",
+      "name": "Structural steel",
+      "elasticModulus": 210000000.0,
+      "unitWeight": 78.5
+    }
+  ],
+  "sections": [
+    {
+      "id": "CHORD",
+      "name": "Main chord section",
+      "area": 0.006,
+      "momentOfInertia": 2e-05
+    },
+    {
+      "id": "WEB",
+      "name": "Vertical web member",
+      "area": 0.003,
+      "momentOfInertia": 4e-06
+    },
+    {
+      "id": "DIAGONAL",
+      "name": "Diagonal web member",
+      "area": 0.0025,
+      "momentOfInertia": 3e-06
+    },
+    {
+      "id": "DECK_BEAM",
+      "name": "Deck beam section",
+      "area": 0.004,
+      "momentOfInertia": 3e-05
+    }
+  ],
+  "members": [
+    {
+      "id": "BOT_0_1",
+      "startNodeId": "B0",
+      "endNodeId": "B1",
+      "materialId": "STEEL",
+      "sectionId": "CHORD",
+      "type": "Truss2D",
+      "label": "Bottom chord 0-1"
+    },
+    {
+      "id": "BOT_1_2",
+      "startNodeId": "B1",
+      "endNodeId": "B2",
+      "materialId": "STEEL",
+      "sectionId": "CHORD",
+      "type": "Truss2D",
+      "label": "Bottom chord 1-2"
+    },
+    {
+      "id": "BOT_2_3",
+      "startNodeId": "B2",
+      "endNodeId": "B3",
+      "materialId": "STEEL",
+      "sectionId": "CHORD",
+      "type": "Truss2D",
+      "label": "Bottom chord 2-3"
+    },
+    {
+      "id": "BOT_3_4",
+      "startNodeId": "B3",
+      "endNodeId": "B4",
+      "materialId": "STEEL",
+      "sectionId": "CHORD",
+      "type": "Truss2D",
+      "label": "Bottom chord 3-4"
+    },
+    {
+      "id": "BOT_4_5",
+      "startNodeId": "B4",
+      "endNodeId": "B5",
+      "materialId": "STEEL",
+      "sectionId": "CHORD",
+      "type": "Truss2D",
+      "label": "Bottom chord 4-5"
+    },
+    {
+      "id": "BOT_5_6",
+      "startNodeId": "B5",
+      "endNodeId": "B6",
+      "materialId": "STEEL",
+      "sectionId": "CHORD",
+      "type": "Truss2D",
+      "label": "Bottom chord 5-6"
+    },
+    {
+      "id": "BOT_6_7",
+      "startNodeId": "B6",
+      "endNodeId": "B7",
+      "materialId": "STEEL",
+      "sectionId": "CHORD",
+      "type": "Truss2D",
+      "label": "Bottom chord 6-7"
+    },
+    {
+      "id": "BOT_7_8",
+      "startNodeId": "B7",
+      "endNodeId": "B8",
+      "materialId": "STEEL",
+      "sectionId": "CHORD",
+      "type": "Truss2D",
+      "label": "Bottom chord 7-8"
+    },
+    {
+      "id": "TOP_0_1",
+      "startNodeId": "T0",
+      "endNodeId": "T1",
+      "materialId": "STEEL",
+      "sectionId": "CHORD",
+      "type": "Truss2D",
+      "label": "Top chord 0-1"
+    },
+    {
+      "id": "TOP_1_2",
+      "startNodeId": "T1",
+      "endNodeId": "T2",
+      "materialId": "STEEL",
+      "sectionId": "CHORD",
+      "type": "Truss2D",
+      "label": "Top chord 1-2"
+    },
+    {
+      "id": "TOP_2_3",
+      "startNodeId": "T2",
+      "endNodeId": "T3",
+      "materialId": "STEEL",
+      "sectionId": "CHORD",
+      "type": "Truss2D",
+      "label": "Top chord 2-3"
+    },
+    {
+      "id": "TOP_3_4",
+      "startNodeId": "T3",
+      "endNodeId": "T4",
+      "materialId": "STEEL",
+      "sectionId": "CHORD",
+      "type": "Truss2D",
+      "label": "Top chord 3-4"
+    },
+    {
+      "id": "TOP_4_5",
+      "startNodeId": "T4",
+      "endNodeId": "T5",
+      "materialId": "STEEL",
+      "sectionId": "CHORD",
+      "type": "Truss2D",
+      "label": "Top chord 4-5"
+    },
+    {
+      "id": "TOP_5_6",
+      "startNodeId": "T5",
+      "endNodeId": "T6",
+      "materialId": "STEEL",
+      "sectionId": "CHORD",
+      "type": "Truss2D",
+      "label": "Top chord 5-6"
+    },
+    {
+      "id": "TOP_6_7",
+      "startNodeId": "T6",
+      "endNodeId": "T7",
+      "materialId": "STEEL",
+      "sectionId": "CHORD",
+      "type": "Truss2D",
+      "label": "Top chord 6-7"
+    },
+    {
+      "id": "TOP_7_8",
+      "startNodeId": "T7",
+      "endNodeId": "T8",
+      "materialId": "STEEL",
+      "sectionId": "CHORD",
+      "type": "Truss2D",
+      "label": "Top chord 7-8"
+    },
+    {
+      "id": "VERT_0",
+      "startNodeId": "B0",
+      "endNodeId": "T0",
+      "materialId": "STEEL",
+      "sectionId": "WEB",
+      "type": "Truss2D",
+      "label": "Vertical 0"
+    },
+    {
+      "id": "VERT_1",
+      "startNodeId": "B1",
+      "endNodeId": "T1",
+      "materialId": "STEEL",
+      "sectionId": "WEB",
+      "type": "Truss2D",
+      "label": "Vertical 1"
+    },
+    {
+      "id": "VERT_2",
+      "startNodeId": "B2",
+      "endNodeId": "T2",
+      "materialId": "STEEL",
+      "sectionId": "WEB",
+      "type": "Truss2D",
+      "label": "Vertical 2"
+    },
+    {
+      "id": "VERT_3",
+      "startNodeId": "B3",
+      "endNodeId": "T3",
+      "materialId": "STEEL",
+      "sectionId": "WEB",
+      "type": "Truss2D",
+      "label": "Vertical 3"
+    },
+    {
+      "id": "VERT_4",
+      "startNodeId": "B4",
+      "endNodeId": "T4",
+      "materialId": "STEEL",
+      "sectionId": "WEB",
+      "type": "Truss2D",
+      "label": "Vertical 4"
+    },
+    {
+      "id": "VERT_5",
+      "startNodeId": "B5",
+      "endNodeId": "T5",
+      "materialId": "STEEL",
+      "sectionId": "WEB",
+      "type": "Truss2D",
+      "label": "Vertical 5"
+    },
+    {
+      "id": "VERT_6",
+      "startNodeId": "B6",
+      "endNodeId": "T6",
+      "materialId": "STEEL",
+      "sectionId": "WEB",
+      "type": "Truss2D",
+      "label": "Vertical 6"
+    },
+    {
+      "id": "VERT_7",
+      "startNodeId": "B7",
+      "endNodeId": "T7",
+      "materialId": "STEEL",
+      "sectionId": "WEB",
+      "type": "Truss2D",
+      "label": "Vertical 7"
+    },
+    {
+      "id": "VERT_8",
+      "startNodeId": "B8",
+      "endNodeId": "T8",
+      "materialId": "STEEL",
+      "sectionId": "WEB",
+      "type": "Truss2D",
+      "label": "Vertical 8"
+    },
+    {
+      "id": "DIAG_L_0",
+      "startNodeId": "B0",
+      "endNodeId": "T1",
+      "materialId": "STEEL",
+      "sectionId": "DIAGONAL",
+      "type": "Truss2D",
+      "label": "Left diagonal 0"
+    },
+    {
+      "id": "DIAG_L_1",
+      "startNodeId": "B1",
+      "endNodeId": "T2",
+      "materialId": "STEEL",
+      "sectionId": "DIAGONAL",
+      "type": "Truss2D",
+      "label": "Left diagonal 1"
+    },
+    {
+      "id": "DIAG_L_2",
+      "startNodeId": "B2",
+      "endNodeId": "T3",
+      "materialId": "STEEL",
+      "sectionId": "DIAGONAL",
+      "type": "Truss2D",
+      "label": "Left diagonal 2"
+    },
+    {
+      "id": "DIAG_L_3",
+      "startNodeId": "B3",
+      "endNodeId": "T4",
+      "materialId": "STEEL",
+      "sectionId": "DIAGONAL",
+      "type": "Truss2D",
+      "label": "Left diagonal 3"
+    },
+    {
+      "id": "DIAG_R_4",
+      "startNodeId": "T4",
+      "endNodeId": "B5",
+      "materialId": "STEEL",
+      "sectionId": "DIAGONAL",
+      "type": "Truss2D",
+      "label": "Right diagonal 4"
+    },
+    {
+      "id": "DIAG_R_5",
+      "startNodeId": "T5",
+      "endNodeId": "B6",
+      "materialId": "STEEL",
+      "sectionId": "DIAGONAL",
+      "type": "Truss2D",
+      "label": "Right diagonal 5"
+    },
+    {
+      "id": "DIAG_R_6",
+      "startNodeId": "T6",
+      "endNodeId": "B7",
+      "materialId": "STEEL",
+      "sectionId": "DIAGONAL",
+      "type": "Truss2D",
+      "label": "Right diagonal 6"
+    },
+    {
+      "id": "DIAG_R_7",
+      "startNodeId": "T7",
+      "endNodeId": "B8",
+      "materialId": "STEEL",
+      "sectionId": "DIAGONAL",
+      "type": "Truss2D",
+      "label": "Right diagonal 7"
+    },
+    {
+      "id": "DECK_0_1",
+      "startNodeId": "B0",
+      "endNodeId": "B1",
+      "materialId": "STEEL",
+      "sectionId": "DECK_BEAM",
+      "type": "Frame2D",
+      "label": "Deck beam 0-1"
+    },
+    {
+      "id": "DECK_1_2",
+      "startNodeId": "B1",
+      "endNodeId": "B2",
+      "materialId": "STEEL",
+      "sectionId": "DECK_BEAM",
+      "type": "Frame2D",
+      "label": "Deck beam 1-2"
+    },
+    {
+      "id": "DECK_2_3",
+      "startNodeId": "B2",
+      "endNodeId": "B3",
+      "materialId": "STEEL",
+      "sectionId": "DECK_BEAM",
+      "type": "Frame2D",
+      "label": "Deck beam 2-3"
+    },
+    {
+      "id": "DECK_3_4",
+      "startNodeId": "B3",
+      "endNodeId": "B4",
+      "materialId": "STEEL",
+      "sectionId": "DECK_BEAM",
+      "type": "Frame2D",
+      "label": "Deck beam 3-4"
+    },
+    {
+      "id": "DECK_4_5",
+      "startNodeId": "B4",
+      "endNodeId": "B5",
+      "materialId": "STEEL",
+      "sectionId": "DECK_BEAM",
+      "type": "Frame2D",
+      "label": "Deck beam 4-5"
+    },
+    {
+      "id": "DECK_5_6",
+      "startNodeId": "B5",
+      "endNodeId": "B6",
+      "materialId": "STEEL",
+      "sectionId": "DECK_BEAM",
+      "type": "Frame2D",
+      "label": "Deck beam 5-6"
+    },
+    {
+      "id": "DECK_6_7",
+      "startNodeId": "B6",
+      "endNodeId": "B7",
+      "materialId": "STEEL",
+      "sectionId": "DECK_BEAM",
+      "type": "Frame2D",
+      "label": "Deck beam 6-7"
+    },
+    {
+      "id": "DECK_7_8",
+      "startNodeId": "B7",
+      "endNodeId": "B8",
+      "materialId": "STEEL",
+      "sectionId": "DECK_BEAM",
+      "type": "Frame2D",
+      "label": "Deck beam 7-8"
+    }
+  ],
+  "supports": [
+    {
+      "id": "SUP_LEFT",
+      "nodeId": "B0",
+      "type": "Hinge",
+      "restrainedUx": true,
+      "restrainedUy": true,
+      "restrainedRz": false
+    },
+    {
+      "id": "SUP_RIGHT",
+      "nodeId": "B8",
+      "type": "Roller",
+      "restrainedUx": false,
+      "restrainedUy": true,
+      "restrainedRz": false
+    }
+  ],
+  "loadCases": [
+    {
+      "id": "G",
+      "name": "Permanent deck loads"
+    },
+    {
+      "id": "TRAFFIC",
+      "name": "Traffic loads"
+    },
+    {
+      "id": "WIND",
+      "name": "Horizontal wind on upper chord"
+    },
+    {
+      "id": "LC_VISUAL",
+      "name": "Visualization load case"
+    }
+  ],
+  "loads": [
+    {
+      "id": "G_DECK_0",
+      "loadCaseId": "G",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "DECK_0_1",
+      "direction": "GlobalY",
+      "value": -18.0,
+      "label": "G deck 0"
+    },
+    {
+      "id": "G_DECK_1",
+      "loadCaseId": "G",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "DECK_1_2",
+      "direction": "GlobalY",
+      "value": -18.0,
+      "label": "G deck 1"
+    },
+    {
+      "id": "G_DECK_2",
+      "loadCaseId": "G",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "DECK_2_3",
+      "direction": "GlobalY",
+      "value": -18.0,
+      "label": "G deck 2"
+    },
+    {
+      "id": "G_DECK_3",
+      "loadCaseId": "G",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "DECK_3_4",
+      "direction": "GlobalY",
+      "value": -18.0,
+      "label": "G deck 3"
+    },
+    {
+      "id": "G_DECK_4",
+      "loadCaseId": "G",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "DECK_4_5",
+      "direction": "GlobalY",
+      "value": -18.0,
+      "label": "G deck 4"
+    },
+    {
+      "id": "G_DECK_5",
+      "loadCaseId": "G",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "DECK_5_6",
+      "direction": "GlobalY",
+      "value": -18.0,
+      "label": "G deck 5"
+    },
+    {
+      "id": "G_DECK_6",
+      "loadCaseId": "G",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "DECK_6_7",
+      "direction": "GlobalY",
+      "value": -18.0,
+      "label": "G deck 6"
+    },
+    {
+      "id": "G_DECK_7",
+      "loadCaseId": "G",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "DECK_7_8",
+      "direction": "GlobalY",
+      "value": -18.0,
+      "label": "G deck 7"
+    },
+    {
+      "id": "Q_TRAFFIC_2",
+      "loadCaseId": "TRAFFIC",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "DECK_2_3",
+      "direction": "GlobalY",
+      "value": -28.0,
+      "label": "Traffic q 2"
+    },
+    {
+      "id": "Q_TRAFFIC_3",
+      "loadCaseId": "TRAFFIC",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "DECK_3_4",
+      "direction": "GlobalY",
+      "value": -28.0,
+      "label": "Traffic q 3"
+    },
+    {
+      "id": "Q_TRAFFIC_4",
+      "loadCaseId": "TRAFFIC",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "DECK_4_5",
+      "direction": "GlobalY",
+      "value": -28.0,
+      "label": "Traffic q 4"
+    },
+    {
+      "id": "Q_TRAFFIC_5",
+      "loadCaseId": "TRAFFIC",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "DECK_5_6",
+      "direction": "GlobalY",
+      "value": -28.0,
+      "label": "Traffic q 5"
+    },
+    {
+      "id": "Q_AXLE_1",
+      "loadCaseId": "TRAFFIC",
+      "type": "PointLoadOnMember",
+      "targetType": "Member",
+      "targetId": "DECK_3_4",
+      "direction": "GlobalY",
+      "position": 0.4,
+      "value": -55.0,
+      "label": "Axle 1"
+    },
+    {
+      "id": "Q_AXLE_2",
+      "loadCaseId": "TRAFFIC",
+      "type": "PointLoadOnMember",
+      "targetType": "Member",
+      "targetId": "DECK_4_5",
+      "direction": "GlobalY",
+      "position": 0.6,
+      "value": -55.0,
+      "label": "Axle 2"
+    },
+    {
+      "id": "W_T1",
+      "loadCaseId": "WIND",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "T1",
+      "direction": "GlobalX",
+      "value": 4.0,
+      "label": "Wind T1"
+    },
+    {
+      "id": "W_T2",
+      "loadCaseId": "WIND",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "T2",
+      "direction": "GlobalX",
+      "value": 4.0,
+      "label": "Wind T2"
+    },
+    {
+      "id": "W_T3",
+      "loadCaseId": "WIND",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "T3",
+      "direction": "GlobalX",
+      "value": 4.0,
+      "label": "Wind T3"
+    },
+    {
+      "id": "W_T4",
+      "loadCaseId": "WIND",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "T4",
+      "direction": "GlobalX",
+      "value": 4.0,
+      "label": "Wind T4"
+    },
+    {
+      "id": "W_T5",
+      "loadCaseId": "WIND",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "T5",
+      "direction": "GlobalX",
+      "value": 4.0,
+      "label": "Wind T5"
+    },
+    {
+      "id": "W_T6",
+      "loadCaseId": "WIND",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "T6",
+      "direction": "GlobalX",
+      "value": 4.0,
+      "label": "Wind T6"
+    },
+    {
+      "id": "W_T7",
+      "loadCaseId": "WIND",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "T7",
+      "direction": "GlobalX",
+      "value": 4.0,
+      "label": "Wind T7"
+    },
+    {
+      "id": "VIS_DECK_0",
+      "loadCaseId": "LC_VISUAL",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "DECK_0_1",
+      "direction": "GlobalY",
+      "value": -18.0,
+      "label": "Deck load 18"
+    },
+    {
+      "id": "VIS_DECK_1",
+      "loadCaseId": "LC_VISUAL",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "DECK_1_2",
+      "direction": "GlobalY",
+      "value": -18.0,
+      "label": "Deck load 18"
+    },
+    {
+      "id": "VIS_DECK_2",
+      "loadCaseId": "LC_VISUAL",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "DECK_2_3",
+      "direction": "GlobalY",
+      "value": -18.0,
+      "label": "Deck load 18"
+    },
+    {
+      "id": "VIS_DECK_3",
+      "loadCaseId": "LC_VISUAL",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "DECK_3_4",
+      "direction": "GlobalY",
+      "value": -30.0,
+      "label": "Deck load 30"
+    },
+    {
+      "id": "VIS_DECK_4",
+      "loadCaseId": "LC_VISUAL",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "DECK_4_5",
+      "direction": "GlobalY",
+      "value": -30.0,
+      "label": "Deck load 30"
+    },
+    {
+      "id": "VIS_DECK_5",
+      "loadCaseId": "LC_VISUAL",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "DECK_5_6",
+      "direction": "GlobalY",
+      "value": -18.0,
+      "label": "Deck load 18"
+    },
+    {
+      "id": "VIS_DECK_6",
+      "loadCaseId": "LC_VISUAL",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "DECK_6_7",
+      "direction": "GlobalY",
+      "value": -18.0,
+      "label": "Deck load 18"
+    },
+    {
+      "id": "VIS_DECK_7",
+      "loadCaseId": "LC_VISUAL",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "DECK_7_8",
+      "direction": "GlobalY",
+      "value": -18.0,
+      "label": "Deck load 18"
+    },
+    {
+      "id": "VIS_AXLE_LEFT",
+      "loadCaseId": "LC_VISUAL",
+      "type": "PointLoadOnMember",
+      "targetType": "Member",
+      "targetId": "DECK_3_4",
+      "direction": "GlobalY",
+      "position": 0.35,
+      "value": -55.0,
+      "label": "Truck axle L"
+    },
+    {
+      "id": "VIS_AXLE_RIGHT",
+      "loadCaseId": "LC_VISUAL",
+      "type": "PointLoadOnMember",
+      "targetType": "Member",
+      "targetId": "DECK_4_5",
+      "direction": "GlobalY",
+      "position": 0.65,
+      "value": -55.0,
+      "label": "Truck axle R"
+    },
+    {
+      "id": "VIS_CENTER_SERVICE",
+      "loadCaseId": "LC_VISUAL",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "B4",
+      "direction": "GlobalY",
+      "value": -35.0,
+      "label": "Service load"
+    },
+    {
+      "id": "VIS_WIND_TOP",
+      "loadCaseId": "LC_VISUAL",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "T4",
+      "direction": "GlobalX",
+      "value": 8.0,
+      "label": "Wind top"
+    }
+  ],
+  "loadCombinations": [
+    {
+      "id": "SLS_BRIDGE",
+      "name": "SLS G + Traffic + Wind",
+      "terms": [
+        {
+          "loadCaseId": "G",
+          "factor": 1.0
+        },
+        {
+          "loadCaseId": "TRAFFIC",
+          "factor": 1.0
+        },
+        {
+          "loadCaseId": "WIND",
+          "factor": 0.6
+        }
+      ]
+    },
+    {
+      "id": "ULS_BRIDGE",
+      "name": "ULS 1.35G + 1.50Traffic + 0.60Wind",
+      "terms": [
+        {
+          "loadCaseId": "G",
+          "factor": 1.35
+        },
+        {
+          "loadCaseId": "TRAFFIC",
+          "factor": 1.5
+        },
+        {
+          "loadCaseId": "WIND",
+          "factor": 0.6
+        }
+      ]
+    }
+  ]
+}

@@ -148,7 +148,9 @@ public sealed class SvgStructuralResultExporter
             builder.AppendLine($"    <circle class=\"node\" cx=\"{Format(x)}\" cy=\"{Format(y)}\" r=\"3\"/>");
             if (options.IncludeNodeLabels)
             {
-                builder.AppendLine($"    <text class=\"node-label\" x=\"{Format(x + 6.0)}\" y=\"{Format(y - 6.0)}\">{EscapeXml(node.Label ?? node.NodeId)}</text>");
+                string line = node.Label ?? node.NodeId;
+                LabelPlacement placement = labelLayout.PlaceNear(x, y, new[] { line }, 12.0, 6.0, -6.0, 14.0);
+                AppendLabelBlock(builder, "node-label", placement, new[] { line }, 2.0);
             }
         }
 
@@ -257,11 +259,11 @@ public sealed class SvgStructuralResultExporter
         double y1 = mapper.MapY(arrow.Start.Y);
         double x2 = mapper.MapX(arrow.End.X);
         double y2 = mapper.MapY(arrow.End.Y);
-        double lx = x2 + 6.0;
-        double ly = y2 - 6.0;
+        string line = GetLoadLabel(arrow.Label, arrow.Value, arrow.Unit);
+        LabelPlacement placement = labelLayout.PlaceNear(x2, y2, new[] { line }, 12.0, 8.0, -6.0, 14.0);
 
         builder.AppendLine($"    <line class=\"load-arrow\" data-load-id=\"{EscapeXml(arrow.LoadId)}\" x1=\"{Format(x1)}\" y1=\"{Format(y1)}\" x2=\"{Format(x2)}\" y2=\"{Format(y2)}\" marker-end=\"url(#loadArrow)\"/>");
-        builder.AppendLine($"    <text class=\"load-label\" x=\"{Format(lx)}\" y=\"{Format(ly)}\">{EscapeXml(GetLoadLabel(arrow.Label, arrow.Value, arrow.Unit))}</text>");
+        AppendLabelBlock(builder, "load-label", placement, new[] { line }, 2.0);
     }
 
     private static void AppendLoadMoment(StringBuilder builder, CoordinateMapper mapper, VisualizationLoadMoment moment, LabelLayoutState labelLayout)
@@ -274,9 +276,11 @@ public sealed class SvgStructuralResultExporter
             : (225.0, -50.0, 0);
         (double x1, double y1) = PolarPoint(cx, cy, radius, startAngle);
         (double x2, double y2) = PolarPoint(cx, cy, radius, endAngle);
+        string line = GetLoadLabel(moment.Label, moment.Value, moment.Unit);
+        LabelPlacement placement = labelLayout.PlaceNear(cx + radius, cy - radius, new[] { line }, 12.0, 6.0, -6.0, 14.0);
 
         builder.AppendLine($"    <path class=\"load-moment\" data-load-id=\"{EscapeXml(moment.LoadId)}\" d=\"M {Format(x1)} {Format(y1)} A {Format(radius)} {Format(radius)} 0 1 {sweepFlag} {Format(x2)} {Format(y2)}\" marker-end=\"url(#loadArrow)\"/>");
-        builder.AppendLine($"    <text class=\"load-label\" x=\"{Format(cx + radius + 4.0)}\" y=\"{Format(cy - radius)}\">{EscapeXml(GetLoadLabel(moment.Label, moment.Value, moment.Unit))}</text>");
+        AppendLabelBlock(builder, "load-label", placement, new[] { line }, 2.0);
     }
 
     private static void AppendDistributedLoad(StringBuilder builder, CoordinateMapper mapper, VisualizationDistributedLoad load, LabelLayoutState labelLayout)
@@ -289,6 +293,8 @@ public sealed class SvgStructuralResultExporter
         double oy1 = mapper.MapY(load.StartOffsetPoint.Y);
         double ox2 = mapper.MapX(load.EndOffsetPoint.X);
         double oy2 = mapper.MapY(load.EndOffsetPoint.Y);
+        string line = GetDistributedLoadLabel(load);
+        LabelPlacement placement = labelLayout.PlaceNear((ox1 + ox2) / 2.0, (oy1 + oy2) / 2.0, new[] { line }, 12.0, 8.0, -6.0, 14.0);
 
         builder.AppendLine($"    <polygon class=\"distributed-load-shape\" data-load-id=\"{EscapeXml(load.LoadId)}\" points=\"{Format(x1)},{Format(y1)} {Format(x2)},{Format(y2)} {Format(ox2)},{Format(oy2)} {Format(ox1)},{Format(oy1)}\"/>");
         builder.AppendLine($"    <line class=\"distributed-load-arrow\" x1=\"{Format(ox1)}\" y1=\"{Format(oy1)}\" x2=\"{Format(x1)}\" y2=\"{Format(y1)}\" marker-end=\"url(#loadArrow)\"/>");
@@ -304,9 +310,7 @@ public sealed class SvgStructuralResultExporter
             builder.AppendLine($"    <line class=\"distributed-load-arrow\" x1=\"{Format(bx)}\" y1=\"{Format(by)}\" x2=\"{Format(ax)}\" y2=\"{Format(ay)}\" marker-end=\"url(#loadArrow)\"/>");
         }
 
-        double lx = (ox1 + ox2) / 2.0 + 6.0;
-        double ly = (oy1 + oy2) / 2.0 - 6.0;
-        builder.AppendLine($"    <text class=\"load-label\" x=\"{Format(lx)}\" y=\"{Format(ly)}\">{EscapeXml(GetDistributedLoadLabel(load))}</text>");
+        AppendLabelBlock(builder, "load-label", placement, new[] { line }, 2.0);
     }
 
     private static string GetLoadLabel(string? label, double value, string unit) =>
@@ -469,17 +473,14 @@ public sealed class SvgStructuralResultExporter
         double y1 = mapper.MapY(annotation.UndeformedPoint.Y);
         double x2 = mapper.MapX(annotation.DeformedPoint.X);
         double y2 = mapper.MapY(annotation.DeformedPoint.Y);
-        double tx = ((x1 + x2) / 2.0) + 6.0;
-        double ty = ((y1 + y2) / 2.0) - 8.0;
         string line1 = $"umax = {FormatMillimeters(annotation.Magnitude)} @ {annotation.NodeId}";
         string line2 = $"Ux = {FormatMillimeters(annotation.Ux)}, Uy = {FormatMillimeters(annotation.Uy)}";
         string line3 = $"Rz = {Format(annotation.Rz)} rad ({FormatRadiansAsDegrees(annotation.Rz)}°)";
+        LabelPlacement placement = labelLayout.PlaceNear((x1 + x2) / 2.0, (y1 + y2) / 2.0, new[] { line1, line2, line3 }, 12.0, 6.0, -8.0, 14.0);
 
         builder.AppendLine($"    <line class=\"annotation-line\" x1=\"{Format(x1)}\" y1=\"{Format(y1)}\" x2=\"{Format(x2)}\" y2=\"{Format(y2)}\" marker-end=\"url(#reactionArrow)\"/>");
         builder.AppendLine($"    <circle class=\"annotation-point\" cx=\"{Format(x2)}\" cy=\"{Format(y2)}\" r=\"3.5\" style=\"stroke:#dc2626\"/>");
-        builder.AppendLine($"    <text class=\"annotation-label\" x=\"{Format(tx)}\" y=\"{Format(ty)}\">{EscapeXml(line1)}</text>");
-        builder.AppendLine($"    <text class=\"annotation-label\" x=\"{Format(tx)}\" y=\"{Format(ty + 14.0)}\">{EscapeXml(line2)}</text>");
-        builder.AppendLine($"    <text class=\"annotation-label\" x=\"{Format(tx)}\" y=\"{Format(ty + 28.0)}\">{EscapeXml(line3)}</text>");
+        AppendLabelBlock(builder, "annotation-label", placement, new[] { line1, line2, line3 }, 2.0);
     }
 
     private static void AppendNodeDisplacementLabel(StringBuilder builder, CoordinateMapper mapper, VisualizationNodeDisplacementLabel label, double deformationScale, LabelLayoutState labelLayout)
@@ -488,12 +489,14 @@ public sealed class SvgStructuralResultExporter
         double y = mapper.MapY(label.Position.Y);
         (double deltaX, double deltaY) = GetDisplayDisplacement(mapper, label.Position, label.Ux, label.Uy, deformationScale);
         string name = string.IsNullOrWhiteSpace(label.Label) ? label.NodeId : label.Label!;
+        string line1 = $"{name}: u = {FormatMillimeters(label.ResultantDisplacement)}";
+        string line2 = $"Ux = {FormatMillimeters(label.Ux)}, Uy = {FormatMillimeters(label.Uy)}";
+        string line3 = $"Rz = {Format(label.Rz)} rad";
+        LabelPlacement placement = labelLayout.PlaceNear(x, y, new[] { line1, line2, line3 }, 11.0, 8.0, 12.0, 13.0);
 
         builder.AppendLine($"    <g class=\"displacement-label\" data-deformation-label=\"true\" data-dx=\"{Format(deltaX)}\" data-dy=\"{Format(deltaY)}\" data-node-id=\"{EscapeXml(label.NodeId)}\">");
         builder.AppendLine($"      <circle class=\"displacement-label-anchor\" cx=\"{Format(x)}\" cy=\"{Format(y)}\" r=\"3\"/>");
-        builder.AppendLine($"      <text class=\"displacement-label\" x=\"{Format(x + 8.0)}\" y=\"{Format(y + 12.0)}\">{EscapeXml(name)}: u = {FormatMillimeters(label.ResultantDisplacement)}</text>");
-        builder.AppendLine($"      <text class=\"displacement-label\" x=\"{Format(x + 8.0)}\" y=\"{Format(y + 25.0)}\">Ux = {FormatMillimeters(label.Ux)}, Uy = {FormatMillimeters(label.Uy)}</text>");
-        builder.AppendLine($"      <text class=\"displacement-label\" x=\"{Format(x + 8.0)}\" y=\"{Format(y + 38.0)}\">Rz = {Format(label.Rz)} rad</text>");
+        AppendLabelBlock(builder, "displacement-label", placement, new[] { line1, line2, line3 }, 2.0);
         builder.AppendLine("    </g>");
     }
 
@@ -502,12 +505,14 @@ public sealed class SvgStructuralResultExporter
         double x = mapper.MapX(label.Position.X);
         double y = mapper.MapY(label.Position.Y);
         (double deltaX, double deltaY) = GetDisplayDisplacement(mapper, label.Position, label.GlobalUx, label.GlobalUy, deformationScale);
+        string line1 = $"{label.MemberId} {label.StationLabel}: u = {FormatMillimeters(label.ResultantDisplacement)}";
+        string line2 = $"Ux = {FormatMillimeters(label.GlobalUx)}, Uy = {FormatMillimeters(label.GlobalUy)}";
+        string line3 = $"x = {Format(label.Distance)} m, Rz = {Format(label.LocalRz)} rad";
+        LabelPlacement placement = labelLayout.PlaceNear(x, y, new[] { line1, line2, line3 }, 10.5, 7.0, -6.0, 13.0);
 
         builder.AppendLine($"    <g class=\"member-displacement-label\" data-deformation-label=\"true\" data-dx=\"{Format(deltaX)}\" data-dy=\"{Format(deltaY)}\" data-member-id=\"{EscapeXml(label.MemberId)}\" data-station=\"{EscapeXml(label.StationLabel)}\">");
         builder.AppendLine($"      <circle class=\"member-displacement-label-anchor\" cx=\"{Format(x)}\" cy=\"{Format(y)}\" r=\"3\"/>");
-        builder.AppendLine($"      <text class=\"member-displacement-label\" x=\"{Format(x + 7.0)}\" y=\"{Format(y - 6.0)}\">{EscapeXml(label.MemberId)} {EscapeXml(label.StationLabel)}: u = {FormatMillimeters(label.ResultantDisplacement)}</text>");
-        builder.AppendLine($"      <text class=\"member-displacement-label\" x=\"{Format(x + 7.0)}\" y=\"{Format(y + 7.0)}\">Ux = {FormatMillimeters(label.GlobalUx)}, Uy = {FormatMillimeters(label.GlobalUy)}</text>");
-        builder.AppendLine($"      <text class=\"member-displacement-label\" x=\"{Format(x + 7.0)}\" y=\"{Format(y + 20.0)}\">x = {Format(label.Distance)} m, Rz = {Format(label.LocalRz)} rad</text>");
+        AppendLabelBlock(builder, "member-displacement-label", placement, new[] { line1, line2, line3 }, 2.0);
         builder.AppendLine("    </g>");
     }
 
@@ -523,9 +528,11 @@ public sealed class SvgStructuralResultExporter
             _ => "Mmax",
         };
         string unit = annotation.Kind == VisualizationDiagramKind.BendingMoment ? "kNm" : "kN";
+        string line = $"{prefix} = {Format(annotation.Value)} {unit}";
+        LabelPlacement placement = labelLayout.PlaceNear(x, y, new[] { line }, 12.0, 8.0, -6.0, 14.0);
 
         builder.AppendLine($"    <circle class=\"annotation-point {cssKind}\" cx=\"{Format(x)}\" cy=\"{Format(y)}\" r=\"4\"/>");
-        builder.AppendLine($"    <text class=\"annotation-label\" x=\"{Format(x + 8.0)}\" y=\"{Format(y - 6.0)}\">{prefix} = {Format(annotation.Value)} {unit}</text>");
+        AppendLabelBlock(builder, "annotation-label", placement, new[] { line }, 2.0);
     }
 
     private static string GetDiagramCssClass(VisualizationDiagramKind kind) =>
@@ -727,17 +734,23 @@ public sealed class SvgStructuralResultExporter
             double width = EstimateWidth(lines, fontSize);
             double height = Math.Max(lineHeight, lines.Count * lineHeight);
             double leftDx = -width - 8.0;
+            double centerDx = -(width / 2.0);
+            double aboveDy = -height - 8.0;
+            double belowDy = 18.0;
 
             (double Dx, double Dy)[] candidates =
             {
                 (defaultDx, defaultDy),
-                (defaultDx, defaultDy + height + 6.0),
+                (defaultDx, belowDy),
                 (leftDx, defaultDy),
-                (leftDx, defaultDy + height + 6.0),
-                (defaultDx, defaultDy - height - 6.0),
-                (leftDx, defaultDy - height - 6.0),
-                (12.0, 24.0 + (_rects.Count % 3) * 10.0),
-                (-width - 12.0, 24.0 + (_rects.Count % 3) * 10.0),
+                (leftDx, belowDy),
+                (centerDx, aboveDy),
+                (centerDx, belowDy + 6.0),
+                (defaultDx + 18.0, defaultDy),
+                (leftDx - 18.0, defaultDy),
+                (defaultDx, defaultDy - height - 10.0),
+                (leftDx, defaultDy - height - 10.0),
+                (centerDx, defaultDy),
             };
 
             foreach ((double dx, double dy) in candidates)

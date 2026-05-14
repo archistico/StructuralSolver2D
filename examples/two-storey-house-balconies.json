@@ -1,0 +1,775 @@
+{
+  "title": "Two-storey house with balconies",
+  "description": "Classical two-storey house frame with side balconies, roof beams, vertical gravity loads, balcony loads, horizontal wind actions and one inclined nodal load. Prepared to test StructuralSolver2D visualization of loads, labels, deformed shape and diagrams.",
+  "loadCaseId": "LC_VISUAL",
+  "nodes": [
+    {
+      "id": "A0",
+      "x": 0.0,
+      "y": 0.0,
+      "label": "A0"
+    },
+    {
+      "id": "B0",
+      "x": 4.0,
+      "y": 0.0,
+      "label": "B0"
+    },
+    {
+      "id": "C0",
+      "x": 8.0,
+      "y": 0.0,
+      "label": "C0"
+    },
+    {
+      "id": "L1",
+      "x": -1.4,
+      "y": 3.0,
+      "label": "Balcony L1"
+    },
+    {
+      "id": "A1",
+      "x": 0.0,
+      "y": 3.0,
+      "label": "A1"
+    },
+    {
+      "id": "B1",
+      "x": 4.0,
+      "y": 3.0,
+      "label": "B1"
+    },
+    {
+      "id": "C1",
+      "x": 8.0,
+      "y": 3.0,
+      "label": "C1"
+    },
+    {
+      "id": "R1",
+      "x": 9.4,
+      "y": 3.0,
+      "label": "Balcony R1"
+    },
+    {
+      "id": "L2",
+      "x": -1.4,
+      "y": 6.0,
+      "label": "Balcony L2"
+    },
+    {
+      "id": "A2",
+      "x": 0.0,
+      "y": 6.0,
+      "label": "A2"
+    },
+    {
+      "id": "B2",
+      "x": 4.0,
+      "y": 6.0,
+      "label": "B2"
+    },
+    {
+      "id": "C2",
+      "x": 8.0,
+      "y": 6.0,
+      "label": "C2"
+    },
+    {
+      "id": "R2",
+      "x": 9.4,
+      "y": 6.0,
+      "label": "Balcony R2"
+    },
+    {
+      "id": "A3",
+      "x": 0.0,
+      "y": 6.0,
+      "label": "Eave L"
+    },
+    {
+      "id": "B3",
+      "x": 4.0,
+      "y": 7.2,
+      "label": "Ridge"
+    },
+    {
+      "id": "C3",
+      "x": 8.0,
+      "y": 6.0,
+      "label": "Eave R"
+    }
+  ],
+  "materials": [
+    {
+      "id": "CONCRETE",
+      "name": "Reinforced concrete",
+      "elasticModulus": 30000000.0,
+      "unitWeight": 25.0
+    },
+    {
+      "id": "STEEL",
+      "name": "Steel balcony tie / brace",
+      "elasticModulus": 210000000.0,
+      "unitWeight": 78.5
+    }
+  ],
+  "sections": [
+    {
+      "id": "RC_COLUMN",
+      "name": "RC column 30x40",
+      "area": 0.12,
+      "momentOfInertia": 0.0016,
+      "height": 0.4,
+      "width": 0.3
+    },
+    {
+      "id": "RC_BEAM",
+      "name": "RC beam 30x50",
+      "area": 0.15,
+      "momentOfInertia": 0.003125,
+      "height": 0.5,
+      "width": 0.3
+    },
+    {
+      "id": "BALCONY_BEAM",
+      "name": "Balcony cantilever beam",
+      "area": 0.1,
+      "momentOfInertia": 0.0012,
+      "height": 0.35,
+      "width": 0.28
+    },
+    {
+      "id": "ROOF_BEAM",
+      "name": "Roof beam",
+      "area": 0.08,
+      "momentOfInertia": 0.0009,
+      "height": 0.3,
+      "width": 0.25
+    },
+    {
+      "id": "STEEL_BRACE",
+      "name": "Light steel diagonal",
+      "area": 0.0012,
+      "momentOfInertia": 5e-07
+    }
+  ],
+  "members": [
+    {
+      "id": "COL_A_1",
+      "startNodeId": "A0",
+      "endNodeId": "A1",
+      "materialId": "CONCRETE",
+      "sectionId": "RC_COLUMN",
+      "type": "Frame2D",
+      "label": "Column A level 1"
+    },
+    {
+      "id": "COL_B_1",
+      "startNodeId": "B0",
+      "endNodeId": "B1",
+      "materialId": "CONCRETE",
+      "sectionId": "RC_COLUMN",
+      "type": "Frame2D",
+      "label": "Column B level 1"
+    },
+    {
+      "id": "COL_C_1",
+      "startNodeId": "C0",
+      "endNodeId": "C1",
+      "materialId": "CONCRETE",
+      "sectionId": "RC_COLUMN",
+      "type": "Frame2D",
+      "label": "Column C level 1"
+    },
+    {
+      "id": "COL_A_2",
+      "startNodeId": "A1",
+      "endNodeId": "A2",
+      "materialId": "CONCRETE",
+      "sectionId": "RC_COLUMN",
+      "type": "Frame2D",
+      "label": "Column A level 2"
+    },
+    {
+      "id": "COL_B_2",
+      "startNodeId": "B1",
+      "endNodeId": "B2",
+      "materialId": "CONCRETE",
+      "sectionId": "RC_COLUMN",
+      "type": "Frame2D",
+      "label": "Column B level 2"
+    },
+    {
+      "id": "COL_C_2",
+      "startNodeId": "C1",
+      "endNodeId": "C2",
+      "materialId": "CONCRETE",
+      "sectionId": "RC_COLUMN",
+      "type": "Frame2D",
+      "label": "Column C level 2"
+    },
+    {
+      "id": "B1_AB",
+      "startNodeId": "A1",
+      "endNodeId": "B1",
+      "materialId": "CONCRETE",
+      "sectionId": "RC_BEAM",
+      "type": "Frame2D",
+      "label": "First floor beam AB"
+    },
+    {
+      "id": "B1_BC",
+      "startNodeId": "B1",
+      "endNodeId": "C1",
+      "materialId": "CONCRETE",
+      "sectionId": "RC_BEAM",
+      "type": "Frame2D",
+      "label": "First floor beam BC"
+    },
+    {
+      "id": "BAL_L1",
+      "startNodeId": "A1",
+      "endNodeId": "L1",
+      "materialId": "CONCRETE",
+      "sectionId": "BALCONY_BEAM",
+      "type": "Frame2D",
+      "label": "Left balcony level 1"
+    },
+    {
+      "id": "BAL_R1",
+      "startNodeId": "C1",
+      "endNodeId": "R1",
+      "materialId": "CONCRETE",
+      "sectionId": "BALCONY_BEAM",
+      "type": "Frame2D",
+      "label": "Right balcony level 1"
+    },
+    {
+      "id": "B2_AB",
+      "startNodeId": "A2",
+      "endNodeId": "B2",
+      "materialId": "CONCRETE",
+      "sectionId": "RC_BEAM",
+      "type": "Frame2D",
+      "label": "Second floor beam AB"
+    },
+    {
+      "id": "B2_BC",
+      "startNodeId": "B2",
+      "endNodeId": "C2",
+      "materialId": "CONCRETE",
+      "sectionId": "RC_BEAM",
+      "type": "Frame2D",
+      "label": "Second floor beam BC"
+    },
+    {
+      "id": "BAL_L2",
+      "startNodeId": "A2",
+      "endNodeId": "L2",
+      "materialId": "CONCRETE",
+      "sectionId": "BALCONY_BEAM",
+      "type": "Frame2D",
+      "label": "Left balcony level 2"
+    },
+    {
+      "id": "BAL_R2",
+      "startNodeId": "C2",
+      "endNodeId": "R2",
+      "materialId": "CONCRETE",
+      "sectionId": "BALCONY_BEAM",
+      "type": "Frame2D",
+      "label": "Right balcony level 2"
+    },
+    {
+      "id": "ROOF_L",
+      "startNodeId": "A2",
+      "endNodeId": "B3",
+      "materialId": "CONCRETE",
+      "sectionId": "ROOF_BEAM",
+      "type": "Frame2D",
+      "label": "Left roof slope"
+    },
+    {
+      "id": "ROOF_R",
+      "startNodeId": "B3",
+      "endNodeId": "C2",
+      "materialId": "CONCRETE",
+      "sectionId": "ROOF_BEAM",
+      "type": "Frame2D",
+      "label": "Right roof slope"
+    },
+    {
+      "id": "BRACE_1",
+      "startNodeId": "A0",
+      "endNodeId": "B1",
+      "materialId": "STEEL",
+      "sectionId": "STEEL_BRACE",
+      "type": "Truss2D",
+      "label": "Ground floor brace"
+    },
+    {
+      "id": "BRACE_2",
+      "startNodeId": "C0",
+      "endNodeId": "B1",
+      "materialId": "STEEL",
+      "sectionId": "STEEL_BRACE",
+      "type": "Truss2D",
+      "label": "Ground floor brace R"
+    },
+    {
+      "id": "BRACE_3",
+      "startNodeId": "A1",
+      "endNodeId": "B2",
+      "materialId": "STEEL",
+      "sectionId": "STEEL_BRACE",
+      "type": "Truss2D",
+      "label": "Upper brace L"
+    },
+    {
+      "id": "BRACE_4",
+      "startNodeId": "C1",
+      "endNodeId": "B2",
+      "materialId": "STEEL",
+      "sectionId": "STEEL_BRACE",
+      "type": "Truss2D",
+      "label": "Upper brace R"
+    }
+  ],
+  "supports": [
+    {
+      "id": "SUP_A0",
+      "nodeId": "A0",
+      "type": "Fixed",
+      "restrainedUx": true,
+      "restrainedUy": true,
+      "restrainedRz": true
+    },
+    {
+      "id": "SUP_B0",
+      "nodeId": "B0",
+      "type": "Fixed",
+      "restrainedUx": true,
+      "restrainedUy": true,
+      "restrainedRz": true
+    },
+    {
+      "id": "SUP_C0",
+      "nodeId": "C0",
+      "type": "Fixed",
+      "restrainedUx": true,
+      "restrainedUy": true,
+      "restrainedRz": true
+    }
+  ],
+  "loadCases": [
+    {
+      "id": "G",
+      "name": "Permanent loads"
+    },
+    {
+      "id": "Q",
+      "name": "Live loads"
+    },
+    {
+      "id": "BALCONY",
+      "name": "Balcony loads"
+    },
+    {
+      "id": "WIND",
+      "name": "Wind from left"
+    },
+    {
+      "id": "ROOF",
+      "name": "Roof loads"
+    },
+    {
+      "id": "LC_VISUAL",
+      "name": "Visualization load case"
+    }
+  ],
+  "loads": [
+    {
+      "id": "G_B1_AB",
+      "loadCaseId": "G",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "B1_AB",
+      "direction": "GlobalY",
+      "value": -9.0,
+      "label": "G slab 1 AB"
+    },
+    {
+      "id": "G_B1_BC",
+      "loadCaseId": "G",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "B1_BC",
+      "direction": "GlobalY",
+      "value": -9.0,
+      "label": "G slab 1 BC"
+    },
+    {
+      "id": "G_B2_AB",
+      "loadCaseId": "G",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "B2_AB",
+      "direction": "GlobalY",
+      "value": -8.0,
+      "label": "G slab 2 AB"
+    },
+    {
+      "id": "G_B2_BC",
+      "loadCaseId": "G",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "B2_BC",
+      "direction": "GlobalY",
+      "value": -8.0,
+      "label": "G slab 2 BC"
+    },
+    {
+      "id": "Q_B1_AB",
+      "loadCaseId": "Q",
+      "type": "LinearDistributedLoad",
+      "targetType": "Member",
+      "targetId": "B1_AB",
+      "direction": "GlobalY",
+      "value": -3.0,
+      "endValue": -4.5,
+      "label": "Q trapezoid 1 AB"
+    },
+    {
+      "id": "Q_B2_BC",
+      "loadCaseId": "Q",
+      "type": "LinearDistributedLoad",
+      "targetType": "Member",
+      "targetId": "B2_BC",
+      "direction": "GlobalY",
+      "value": -2.5,
+      "endValue": -5.0,
+      "label": "Q trapezoid 2 BC"
+    },
+    {
+      "id": "Q_POINT_B1",
+      "loadCaseId": "Q",
+      "type": "PointLoadOnMember",
+      "targetType": "Member",
+      "targetId": "B1_BC",
+      "direction": "GlobalY",
+      "position": 0.55,
+      "value": -10.0,
+      "label": "Partition point"
+    },
+    {
+      "id": "Q_POINT_B2",
+      "loadCaseId": "Q",
+      "type": "PointLoadOnMember",
+      "targetType": "Member",
+      "targetId": "B2_AB",
+      "direction": "GlobalY",
+      "position": 0.35,
+      "value": -8.0,
+      "label": "Water tank"
+    },
+    {
+      "id": "BAL_L1_LOAD",
+      "loadCaseId": "BALCONY",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "BAL_L1",
+      "direction": "GlobalY",
+      "value": -5.5,
+      "label": "Balcony L1 q"
+    },
+    {
+      "id": "BAL_R1_LOAD",
+      "loadCaseId": "BALCONY",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "BAL_R1",
+      "direction": "GlobalY",
+      "value": -5.5,
+      "label": "Balcony R1 q"
+    },
+    {
+      "id": "BAL_L2_LOAD",
+      "loadCaseId": "BALCONY",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "BAL_L2",
+      "direction": "GlobalY",
+      "value": -4.5,
+      "label": "Balcony L2 q"
+    },
+    {
+      "id": "BAL_R2_LOAD",
+      "loadCaseId": "BALCONY",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "BAL_R2",
+      "direction": "GlobalY",
+      "value": -4.5,
+      "label": "Balcony R2 q"
+    },
+    {
+      "id": "BAL_R2_EDGE",
+      "loadCaseId": "BALCONY",
+      "type": "PointLoadOnMember",
+      "targetType": "Member",
+      "targetId": "BAL_R2",
+      "direction": "GlobalY",
+      "position": 0.9,
+      "value": -3.0,
+      "label": "Parapet end"
+    },
+    {
+      "id": "W_A1",
+      "loadCaseId": "WIND",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "A1",
+      "direction": "GlobalX",
+      "value": 4.0,
+      "label": "Wind floor 1"
+    },
+    {
+      "id": "W_A2",
+      "loadCaseId": "WIND",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "A2",
+      "direction": "GlobalX",
+      "value": 7.0,
+      "label": "Wind floor 2"
+    },
+    {
+      "id": "W_B3",
+      "loadCaseId": "WIND",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "B3",
+      "direction": "GlobalX",
+      "value": 6.0,
+      "label": "Wind roof"
+    },
+    {
+      "id": "ROOF_L_G",
+      "loadCaseId": "ROOF",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "ROOF_L",
+      "direction": "GlobalY",
+      "value": -4.0,
+      "label": "Roof global q L"
+    },
+    {
+      "id": "ROOF_R_G",
+      "loadCaseId": "ROOF",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "ROOF_R",
+      "direction": "GlobalY",
+      "value": -4.0,
+      "label": "Roof global q R"
+    },
+    {
+      "id": "ROOF_WIND_L",
+      "loadCaseId": "ROOF",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "ROOF_L",
+      "direction": "LocalY",
+      "value": -1.5,
+      "label": "Roof local wind L"
+    },
+    {
+      "id": "ROOF_WIND_R",
+      "loadCaseId": "ROOF",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "ROOF_R",
+      "direction": "LocalY",
+      "value": 1.2,
+      "label": "Roof local wind R"
+    },
+    {
+      "id": "VIS_B1_AB_G",
+      "loadCaseId": "LC_VISUAL",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "B1_AB",
+      "direction": "GlobalY",
+      "value": -9.0,
+      "label": "Visual slab 1"
+    },
+    {
+      "id": "VIS_B1_BC_Q",
+      "loadCaseId": "LC_VISUAL",
+      "type": "LinearDistributedLoad",
+      "targetType": "Member",
+      "targetId": "B1_BC",
+      "direction": "GlobalY",
+      "value": -3.0,
+      "endValue": -5.0,
+      "label": "Visual variable"
+    },
+    {
+      "id": "VIS_B2_AB_POINT",
+      "loadCaseId": "LC_VISUAL",
+      "type": "PointLoadOnMember",
+      "targetType": "Member",
+      "targetId": "B2_AB",
+      "direction": "GlobalY",
+      "position": 0.35,
+      "value": -8.0,
+      "label": "Visual tank"
+    },
+    {
+      "id": "VIS_BAL_L1",
+      "loadCaseId": "LC_VISUAL",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "BAL_L1",
+      "direction": "GlobalY",
+      "value": -5.5,
+      "label": "Visual balcony L"
+    },
+    {
+      "id": "VIS_BAL_R2_EDGE",
+      "loadCaseId": "LC_VISUAL",
+      "type": "PointLoadOnMember",
+      "targetType": "Member",
+      "targetId": "BAL_R2",
+      "direction": "GlobalY",
+      "position": 0.9,
+      "value": -3.0,
+      "label": "Visual parapet"
+    },
+    {
+      "id": "VIS_W_A2",
+      "loadCaseId": "LC_VISUAL",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "A2",
+      "direction": "GlobalX",
+      "value": 7.0,
+      "label": "Visual wind"
+    },
+    {
+      "id": "VIS_W_B3",
+      "loadCaseId": "LC_VISUAL",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "B3",
+      "direction": "GlobalX",
+      "value": 6.0,
+      "label": "Visual roof wind"
+    },
+    {
+      "id": "VIS_ROOF_L",
+      "loadCaseId": "LC_VISUAL",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "ROOF_L",
+      "direction": "LocalY",
+      "value": -1.5,
+      "label": "Visual roof local"
+    },
+    {
+      "id": "VIS_ROOF_R",
+      "loadCaseId": "LC_VISUAL",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "ROOF_R",
+      "direction": "LocalY",
+      "value": 1.2,
+      "label": "Visual roof suction"
+    },
+    {
+      "id": "VIS_INCL_C2_X",
+      "loadCaseId": "LC_VISUAL",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "C2",
+      "direction": "GlobalX",
+      "value": 10.876,
+      "label": "Inclined X"
+    },
+    {
+      "id": "VIS_INCL_C2_Y",
+      "loadCaseId": "LC_VISUAL",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "C2",
+      "direction": "GlobalY",
+      "value": -5.071,
+      "label": "Inclined Y"
+    },
+    {
+      "id": "VIS_BAL_MOMENT",
+      "loadCaseId": "LC_VISUAL",
+      "type": "NodalMoment",
+      "targetType": "Node",
+      "targetId": "R2",
+      "direction": "MomentZ",
+      "value": -4.0,
+      "label": "Balcony torsion approx"
+    }
+  ],
+  "loadCombinations": [
+    {
+      "id": "SLS_HOUSE",
+      "name": "SLS G + Q + Balcony + Wind + Roof",
+      "terms": [
+        {
+          "loadCaseId": "G",
+          "factor": 1.0
+        },
+        {
+          "loadCaseId": "Q",
+          "factor": 1.0
+        },
+        {
+          "loadCaseId": "BALCONY",
+          "factor": 1.0
+        },
+        {
+          "loadCaseId": "WIND",
+          "factor": 1.0
+        },
+        {
+          "loadCaseId": "ROOF",
+          "factor": 1.0
+        }
+      ]
+    },
+    {
+      "id": "ULS_HOUSE",
+      "name": "ULS 1.35G + 1.5Q + 1.5 Balcony + 0.6 Wind + 1.35 Roof",
+      "terms": [
+        {
+          "loadCaseId": "G",
+          "factor": 1.35
+        },
+        {
+          "loadCaseId": "Q",
+          "factor": 1.5
+        },
+        {
+          "loadCaseId": "BALCONY",
+          "factor": 1.5
+        },
+        {
+          "loadCaseId": "WIND",
+          "factor": 0.6
+        },
+        {
+          "loadCaseId": "ROOF",
+          "factor": 1.35
+        }
+      ]
+    }
+  ]
+}

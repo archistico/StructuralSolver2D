@@ -34,6 +34,8 @@ public sealed class InteractiveHtmlStructuralViewerExporterTests
         Assert.Contains("data-animation=\"speed\"", html, StringComparison.Ordinal);
         Assert.Contains("data-layer=\"#undeformed-model\"", html, StringComparison.Ordinal);
         Assert.Contains("data-layer=\"#deformed-shape\"", html, StringComparison.Ordinal);
+        Assert.Contains("data-layer=\"#loads\"", html, StringComparison.Ordinal);
+        Assert.Contains("Loads", html, StringComparison.Ordinal);
         Assert.Contains("data-layer=\".diagram.normal-force,.annotation-point.normal-force\"", html, StringComparison.Ordinal);
         Assert.Contains("data-layer=\".diagram.shear-force,.annotation-point.shear-force\"", html, StringComparison.Ordinal);
         Assert.Contains("data-layer=\".diagram.bending-moment,.annotation-point.bending-moment\"", html, StringComparison.Ordinal);
