@@ -30,6 +30,9 @@ The first prototype supports:
 - pointer drag pan;
 - reset view;
 - layer toggles for undeformed model, deformed shape, diagrams, supports, reactions, dimensions, nodal displacement labels and member station displacement labels;
+- separate visibility toggles for `N`, `V` and `M`;
+- a deformation scale control that recomputes the displayed deformed coordinates from the embedded displacement data;
+- deformation animation playback with amplitude and speed controls;
 - summary values for nodes, members, supports, reactions, diagrams, deformation scale and maximum displacement.
 
 The viewer reuses the same SVG result geometry produced by the reporting visualization layer.
@@ -47,14 +50,14 @@ The viewer does not contain solver logic and does not modify the structural mode
 
 ## Intentional limitations
 
-This first prototype does not yet provide:
+This prototype still does not provide:
 
 - editable model geometry;
 - dynamic recomputation;
-- diagram scale sliders;
-- animation playback controls;
 - point inspection tooltips;
 - OpenCad2D integration.
+
+The deformation scale and animation controls are viewer-side controls. They do not recompute the structural analysis, but they do recompute the displayed deformed coordinates from embedded base-point and displacement-point data. This avoids the incorrect behavior of simply scaling the entire SVG group around its visual centre.
 
 Those features remain reserved for later milestones.
 
@@ -79,3 +82,17 @@ The labels are expressed in engineering-friendly units:
 - station labels report member id, station, distance from member start, `u`, `Ux`, `Uy` and local `Rz` when available.
 
 This remains a visualization feature only: it does not change solver results.
+
+
+## Viewer scale and animation controls
+
+Milestone 48 adds controls for result readability:
+
+- `Deformed scale` changes the displayed amplitude of the deformed shape by recomputing deformed polyline coordinates from undeformed base points plus displacement vectors;
+- `N`, `V` and `M` remain separate visibility toggles, not scale sliders;
+- `Play deformation` starts a cyclic deformation playback based on the same displacement vectors;
+- `Pause` stops playback and restores the current static deformation scale;
+- `Anim. amplitude` controls the playback amplitude;
+- `Anim. speed` controls the playback speed.
+
+These controls are intentionally implemented inside the standalone HTML viewer. The solver result remains unchanged.

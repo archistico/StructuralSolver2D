@@ -1346,3 +1346,15 @@ Implemented:
 - summary values displayed beside the scene.
 
 The viewer is generated as a static HTML file and does not introduce WPF, Avalonia or browser framework dependencies.
+
+
+### Milestone 48 — Viewer controls for scales and animation playback
+
+Added standalone HTML viewer controls for:
+
+- corrected deformed-shape scale based on base points plus displacement vectors;
+- separate `N`, `V` and `M` visibility toggles;
+- play/pause deformation animation;
+- animation amplitude and speed.
+
+The controls are visualization-only and do not modify solver results.

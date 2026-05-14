@@ -177,16 +177,24 @@ public sealed class SvgStructuralResultExporter
     private static void AppendDeformedShape(StringBuilder builder, StructuralVisualizationModel model, SvgExportOptions options, CoordinateMapper mapper)
     {
         builder.AppendLine("  <g id=\"deformed-shape\">");
+        Dictionary<string, VisualizationMember> membersById = model.Members.ToDictionary(member => member.MemberId, StringComparer.OrdinalIgnoreCase);
+
         foreach (DeformedMemberShape shape in model.DeformedShapes)
         {
-            builder.AppendLine($"    <polyline class=\"member deformed\" points=\"{BuildPoints(shape.Points, mapper)}\"/>");
+            string deformationData = string.Empty;
+            if (membersById.TryGetValue(shape.MemberId, out VisualizationMember? member))
+            {
+                deformationData = $" data-base-points=\"{BuildInterpolatedBasePoints(member, shape.Points.Count, mapper)}\" data-displacement-points=\"{BuildDisplacementPoints(member, shape.Points, mapper)}\"";
+            }
+
+            builder.AppendLine($"    <polyline class=\"member deformed\" data-deformed-polyline=\"true\"{deformationData} points=\"{BuildPoints(shape.Points, mapper)}\"/>");
         }
 
         if (options.IncludeNodeDisplacementLabels)
         {
             foreach (VisualizationNodeDisplacementLabel label in model.NodeDisplacementLabels)
             {
-                AppendNodeDisplacementLabel(builder, mapper, label);
+                AppendNodeDisplacementLabel(builder, mapper, label, model.DeformationScale);
             }
         }
 
@@ -194,7 +202,7 @@ public sealed class SvgStructuralResultExporter
         {
             foreach (VisualizationMemberDisplacementLabel label in model.MemberDisplacementLabels)
             {
-                AppendMemberDisplacementLabel(builder, mapper, label);
+                AppendMemberDisplacementLabel(builder, mapper, label, model.DeformationScale);
             }
         }
 
@@ -354,13 +362,14 @@ public sealed class SvgStructuralResultExporter
         builder.AppendLine($"    <text class=\"annotation-label\" x=\"{Format(tx)}\" y=\"{Format(ty + 28.0)}\">{EscapeXml(line3)}</text>");
     }
 
-    private static void AppendNodeDisplacementLabel(StringBuilder builder, CoordinateMapper mapper, VisualizationNodeDisplacementLabel label)
+    private static void AppendNodeDisplacementLabel(StringBuilder builder, CoordinateMapper mapper, VisualizationNodeDisplacementLabel label, double deformationScale)
     {
         double x = mapper.MapX(label.Position.X);
         double y = mapper.MapY(label.Position.Y);
+        (double deltaX, double deltaY) = GetDisplayDisplacement(mapper, label.Position, label.Ux, label.Uy, deformationScale);
         string name = string.IsNullOrWhiteSpace(label.Label) ? label.NodeId : label.Label!;
 
-        builder.AppendLine($"    <g class=\"displacement-label\" data-node-id=\"{EscapeXml(label.NodeId)}\">");
+        builder.AppendLine($"    <g class=\"displacement-label\" data-deformation-label=\"true\" data-dx=\"{Format(deltaX)}\" data-dy=\"{Format(deltaY)}\" data-node-id=\"{EscapeXml(label.NodeId)}\">");
         builder.AppendLine($"      <circle class=\"displacement-label-anchor\" cx=\"{Format(x)}\" cy=\"{Format(y)}\" r=\"3\"/>");
         builder.AppendLine($"      <text class=\"displacement-label\" x=\"{Format(x + 8.0)}\" y=\"{Format(y + 12.0)}\">{EscapeXml(name)}: u = {FormatMillimeters(label.ResultantDisplacement)}</text>");
         builder.AppendLine($"      <text class=\"displacement-label\" x=\"{Format(x + 8.0)}\" y=\"{Format(y + 25.0)}\">Ux = {FormatMillimeters(label.Ux)}, Uy = {FormatMillimeters(label.Uy)}</text>");
@@ -368,12 +377,13 @@ public sealed class SvgStructuralResultExporter
         builder.AppendLine("    </g>");
     }
 
-    private static void AppendMemberDisplacementLabel(StringBuilder builder, CoordinateMapper mapper, VisualizationMemberDisplacementLabel label)
+    private static void AppendMemberDisplacementLabel(StringBuilder builder, CoordinateMapper mapper, VisualizationMemberDisplacementLabel label, double deformationScale)
     {
         double x = mapper.MapX(label.Position.X);
         double y = mapper.MapY(label.Position.Y);
+        (double deltaX, double deltaY) = GetDisplayDisplacement(mapper, label.Position, label.GlobalUx, label.GlobalUy, deformationScale);
 
-        builder.AppendLine($"    <g class=\"member-displacement-label\" data-member-id=\"{EscapeXml(label.MemberId)}\" data-station=\"{EscapeXml(label.StationLabel)}\">");
+        builder.AppendLine($"    <g class=\"member-displacement-label\" data-deformation-label=\"true\" data-dx=\"{Format(deltaX)}\" data-dy=\"{Format(deltaY)}\" data-member-id=\"{EscapeXml(label.MemberId)}\" data-station=\"{EscapeXml(label.StationLabel)}\">");
         builder.AppendLine($"      <circle class=\"member-displacement-label-anchor\" cx=\"{Format(x)}\" cy=\"{Format(y)}\" r=\"3\"/>");
         builder.AppendLine($"      <text class=\"member-displacement-label\" x=\"{Format(x + 7.0)}\" y=\"{Format(y - 6.0)}\">{EscapeXml(label.MemberId)} {EscapeXml(label.StationLabel)}: u = {FormatMillimeters(label.ResultantDisplacement)}</text>");
         builder.AppendLine($"      <text class=\"member-displacement-label\" x=\"{Format(x + 7.0)}\" y=\"{Format(y + 7.0)}\">Ux = {FormatMillimeters(label.GlobalUx)}, Uy = {FormatMillimeters(label.GlobalUy)}</text>");
@@ -472,6 +482,70 @@ public sealed class SvgStructuralResultExporter
         }
 
         builder.AppendLine("  </g>");
+    }
+
+    private static string BuildInterpolatedBasePoints(VisualizationMember member, int pointCount, CoordinateMapper mapper)
+    {
+        if (pointCount <= 0)
+        {
+            return string.Empty;
+        }
+
+        StringBuilder builder = new();
+        for (int index = 0; index < pointCount; index++)
+        {
+            if (index > 0)
+            {
+                builder.Append(' ');
+            }
+
+            double t = pointCount == 1 ? 0.0 : (double)index / (pointCount - 1);
+            double x = member.Start.X + ((member.End.X - member.Start.X) * t);
+            double y = member.Start.Y + ((member.End.Y - member.Start.Y) * t);
+            builder.Append(Format(mapper.MapX(x)));
+            builder.Append(',');
+            builder.Append(Format(mapper.MapY(y)));
+        }
+
+        return builder.ToString();
+    }
+
+    private static string BuildDisplacementPoints(VisualizationMember member, IReadOnlyList<VisualizationPoint> deformedPoints, CoordinateMapper mapper)
+    {
+        StringBuilder builder = new();
+        for (int index = 0; index < deformedPoints.Count; index++)
+        {
+            if (index > 0)
+            {
+                builder.Append(' ');
+            }
+
+            double t = deformedPoints.Count == 1 ? 0.0 : (double)index / (deformedPoints.Count - 1);
+            double baseX = member.Start.X + ((member.End.X - member.Start.X) * t);
+            double baseY = member.Start.Y + ((member.End.Y - member.Start.Y) * t);
+            VisualizationPoint deformed = deformedPoints[index];
+            double dx = mapper.MapX(deformed.X) - mapper.MapX(baseX);
+            double dy = mapper.MapY(deformed.Y) - mapper.MapY(baseY);
+            builder.Append(Format(dx));
+            builder.Append(',');
+            builder.Append(Format(dy));
+        }
+
+        return builder.ToString();
+    }
+
+    private static (double DeltaX, double DeltaY) GetDisplayDisplacement(
+        CoordinateMapper mapper,
+        VisualizationPoint deformedPosition,
+        double ux,
+        double uy,
+        double deformationScale)
+    {
+        double baseX = deformedPosition.X - (ux * deformationScale);
+        double baseY = deformedPosition.Y - (uy * deformationScale);
+        return (
+            mapper.MapX(deformedPosition.X) - mapper.MapX(baseX),
+            mapper.MapY(deformedPosition.Y) - mapper.MapY(baseY));
     }
 
     private static string BuildPoints(IReadOnlyList<VisualizationPoint> points, CoordinateMapper mapper)

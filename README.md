@@ -920,3 +920,8 @@ docs/structural/json-input.md
 ```
 
 It explains nodes, materials, sections, members, supports, load cases, loads, load combinations and how to model inclined single forces by decomposing them into global components.
+
+
+## Milestone 48 - Viewer scale controls and animation playback
+
+Milestone 48 extends the standalone HTML viewer with a corrected deformed-shape scale, separate `N`/`V`/`M` visibility toggles and deformation animation playback. The deformed scale now recomputes displayed coordinates from undeformed base points plus displacement vectors instead of scaling the whole SVG group.

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Cantilever with inclined nodal force</title>
+  <title>Mixed Frame2D + Truss2D braced portal</title>
   <style>
     :root { color-scheme: light; }
     body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #0f172a; color: #e5e7eb; }
@@ -15,6 +15,10 @@
     .toolbar button { border: 1px solid #475569; background: #1f2937; color: #f8fafc; border-radius: 8px; padding: 7px 10px; cursor: pointer; }
     .toolbar button:hover { background: #374151; }
     .toolbar label { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; color: #e2e8f0; }
+    .control-group { display: inline-flex; align-items: center; gap: 7px; padding: 6px 8px; border: 1px solid #334155; border-radius: 10px; background: #0f172a; }
+    .control-group span { color: #cbd5e1; font-size: 12px; min-width: 34px; text-align: right; }
+    .toolbar input[type=range] { width: 96px; }
+    .hint { color: #94a3b8; font-size: 12px; }
     .viewer-shell { max-width: 1500px; margin: 0 auto; border: 1px solid #334155; border-radius: 14px; background: #020617; overflow: hidden; box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35); }
     .viewer-canvas { height: min(78vh, 920px); overflow: hidden; cursor: grab; touch-action: none; }
     .viewer-canvas.dragging { cursor: grabbing; }
@@ -29,27 +33,35 @@
 <body>
   <main class="viewer-page">
     <header class="viewer-header">
-      <h1>Cantilever with inclined nodal force</h1>
-      <p>L = 4 m. A 10 kN force is applied at node B, 30 degrees downward from the positive global X axis. The inclined force is represented by its global X and Y components.</p>
+      <h1>Mixed Frame2D + Truss2D braced portal</h1>
+      <p>Single-bay portal frame with one axial-only diagonal brace. Used to validate the mixed plane-structure analyzer.</p>
     </header>
     <nav class="toolbar" aria-label="Viewer controls">
       <button type="button" data-action="zoom-in">Zoom +</button>
       <button type="button" data-action="zoom-out">Zoom -</button>
       <button type="button" data-action="reset">Reset view</button>
+      <button type="button" data-action="play-animation">Play deformation</button>
+      <button type="button" data-action="pause-animation">Pause</button>
+      <label class="control-group">Deformed scale <input type="range" min="0" max="300" step="5" value="100" data-scale="deformed" /> <span data-scale-output="deformed">100%</span></label>
+      <label class="control-group">Anim. amplitude <input type="range" min="0" max="200" step="5" value="100" data-animation="amplitude" /> <span data-animation-output="amplitude">100%</span></label>
+      <label class="control-group">Anim. speed <input type="range" min="0.25" max="4" step="0.25" value="1" data-animation="speed" /> <span data-animation-output="speed">1x</span></label>
       <label><input type="checkbox" data-layer="#undeformed-model" checked /> Undeformed</label>
       <label><input type="checkbox" data-layer="#deformed-shape" checked /> Deformed</label>
-      <label><input type="checkbox" data-layer="#diagrams" checked /> Diagrams</label>
+      <label><input type="checkbox" data-layer=".diagram.normal-force,.annotation-point.normal-force" checked /> N</label>
+      <label><input type="checkbox" data-layer=".diagram.shear-force,.annotation-point.shear-force" checked /> V</label>
+      <label><input type="checkbox" data-layer=".diagram.bending-moment,.annotation-point.bending-moment" checked /> M</label>
+      <label><input type="checkbox" data-layer="#diagrams" checked /> Diagrams group</label>
       <label><input type="checkbox" data-layer=".support" checked /> Supports</label>
       <label><input type="checkbox" data-layer=".reaction,.reaction-label" checked /> Reactions</label>
       <label><input type="checkbox" data-layer=".dimension,.dimension-extension,.dimension-label" checked /> Dimensions</label>
       <label><input type="checkbox" data-layer=".displacement-label,.displacement-label-anchor" /> Nodal displacement labels</label>
       <label><input type="checkbox" data-layer=".member-displacement-label,.member-displacement-label-anchor" /> Member station labels</label>
-      <span class="hint">Wheel to zoom, drag to pan.</span>
+      <span class="hint">Wheel to zoom, drag to pan. Deformed scale recomputes deformed coordinates from displacement data; N/V/M toggles only show or hide diagrams.</span>
     </nav>
     <section class="viewer-shell" aria-label="Interactive structural result viewer">
       <div class="viewer-canvas" id="viewerCanvas">
 <svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900" role="img" aria-labelledby="title desc">
-  <title id="title">Cantilever with inclined nodal force</title>
+  <title id="title">Mixed Frame2D + Truss2D braced portal</title>
   <desc id="desc">Static structural result preview exported from StructuralSolver2D.</desc>
   <defs>
     <marker id="reactionArrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse">
@@ -90,78 +102,204 @@
   </style>
   <rect class="background" x="0" y="0" width="1400" height="900"/>
   <rect class="frame" x="0.5" y="0.5" width="1399" height="899"/>
-  <text class="title" x="32" y="26">Cantilever with inclined nodal force</text>
-  <text class="caption" x="32" y="44">Deformation scale: 100 | Nodes: 2 | Members: 1</text>
+  <text class="title" x="32" y="26">Mixed Frame2D + Truss2D braced portal</text>
+  <text class="caption" x="32" y="44">Deformation scale: 100 | Nodes: 4 | Members: 4</text>
   <g id="undeformed-model">
-    <line class="member undeformed" x1="217.497" y1="233.497" x2="1041.929" y2="233.497"/>
-    <line class="dimension-extension" x1="217.497" y1="233.497" x2="217.497" y2="261.497"/>
-    <line class="dimension-extension" x1="1041.929" y1="233.497" x2="1041.929" y2="261.497"/>
-    <line class="dimension" x1="217.497" y1="251.497" x2="1041.929" y2="251.497" marker-start="url(#dimensionArrow)" marker-end="url(#dimensionArrow)"/>
-    <text class="dimension-label" x="629.713" y="247.497">L = 4 m</text>
+    <line class="member undeformed" x1="186.988" y1="722.263" x2="186.988" y2="201.861"/>
+    <line class="member undeformed" x1="186.988" y1="201.861" x2="880.857" y2="201.861"/>
+    <line class="member undeformed" x1="880.857" y1="722.263" x2="880.857" y2="201.861"/>
+    <line class="member undeformed" x1="186.988" y1="722.263" x2="880.857" y2="201.861"/>
+    <line class="dimension-extension" x1="186.988" y1="722.263" x2="214.988" y2="722.263"/>
+    <line class="dimension-extension" x1="186.988" y1="201.861" x2="214.988" y2="201.861"/>
+    <line class="dimension" x1="204.988" y1="722.263" x2="204.988" y2="201.861" marker-start="url(#dimensionArrow)" marker-end="url(#dimensionArrow)"/>
+    <text class="dimension-label" x="204.988" y="458.062">L = 3 m</text>
+    <line class="dimension-extension" x1="186.988" y1="201.861" x2="186.988" y2="229.861"/>
+    <line class="dimension-extension" x1="880.857" y1="201.861" x2="880.857" y2="229.861"/>
+    <line class="dimension" x1="186.988" y1="219.861" x2="880.857" y2="219.861" marker-start="url(#dimensionArrow)" marker-end="url(#dimensionArrow)"/>
+    <text class="dimension-label" x="533.922" y="215.861">L = 4 m</text>
+    <line class="dimension-extension" x1="880.857" y1="722.263" x2="908.857" y2="722.263"/>
+    <line class="dimension-extension" x1="880.857" y1="201.861" x2="908.857" y2="201.861"/>
+    <line class="dimension" x1="898.857" y1="722.263" x2="898.857" y2="201.861" marker-start="url(#dimensionArrow)" marker-end="url(#dimensionArrow)"/>
+    <text class="dimension-label" x="898.857" y="458.062">L = 3 m</text>
+    <line class="dimension-extension" x1="186.988" y1="722.263" x2="203.788" y2="744.663"/>
+    <line class="dimension-extension" x1="880.857" y1="201.861" x2="897.657" y2="224.261"/>
+    <line class="dimension" x1="197.788" y1="736.663" x2="891.657" y2="216.261" marker-start="url(#dimensionArrow)" marker-end="url(#dimensionArrow)"/>
+    <text class="dimension-label" x="544.722" y="472.462">L = 5 m</text>
     <g class="support" data-support-id="SA" data-orientation-degrees="0">
-      <g class="support-symbol" transform="rotate(-0 217.497 233.497)">
-        <line class="support-line" x1="217.497" y1="221.497" x2="217.497" y2="245.497"/>
-        <line class="support-line" x1="205.497" y1="219.497" x2="217.497" y2="227.497"/>
-        <line class="support-line" x1="205.497" y1="224.497" x2="217.497" y2="232.497"/>
-        <line class="support-line" x1="205.497" y1="229.497" x2="217.497" y2="237.497"/>
-        <line class="support-line" x1="205.497" y1="234.497" x2="217.497" y2="242.497"/>
-        <line class="support-line" x1="205.497" y1="239.497" x2="217.497" y2="247.497"/>
+      <g class="support-symbol" transform="rotate(-0 186.988 722.263)">
+        <line class="support-line" x1="186.988" y1="710.263" x2="186.988" y2="734.263"/>
+        <line class="support-line" x1="174.988" y1="708.263" x2="186.988" y2="716.263"/>
+        <line class="support-line" x1="174.988" y1="713.263" x2="186.988" y2="721.263"/>
+        <line class="support-line" x1="174.988" y1="718.263" x2="186.988" y2="726.263"/>
+        <line class="support-line" x1="174.988" y1="723.263" x2="186.988" y2="731.263"/>
+        <line class="support-line" x1="174.988" y1="728.263" x2="186.988" y2="736.263"/>
       </g>
-      <text class="support-label" x="231.497" y="249.497">Incastro (Fixed)</text>
+      <text class="support-label" x="200.988" y="738.263">Fixed</text>
     </g>
-    <circle class="node" cx="217.497" cy="233.497" r="3"/>
-    <text class="node-label" x="223.497" y="227.497">Fixed end</text>
-    <circle class="node" cx="1041.929" cy="233.497" r="3"/>
-    <text class="node-label" x="1047.929" y="227.497">Loaded end</text>
-    <line class="reaction" x1="217.497" y1="233.497" x2="181.798" y2="233.497" marker-end="url(#reactionArrow)"/>
-    <text class="reaction-label" x="205.648" y="227.497">Rx = -8.66 kN</text>
-    <line class="reaction" x1="217.497" y1="233.497" x2="217.497" y2="212.886" marker-end="url(#reactionArrow)"/>
-    <text class="reaction-label" x="223.497" y="217.192">Ry = 5 kN</text>
-    <path class="reaction" d="M 159.201 175.201 A 82.443 82.443 0 1 0 270.491 170.342" marker-end="url(#reactionArrow)"/>
-    <text class="reaction-label" x="303.94" y="151.054">Mz = 20 kNm</text>
+    <g class="support" data-support-id="SB" data-orientation-degrees="0">
+      <g class="support-symbol" transform="rotate(-0 880.857 722.263)">
+        <line class="support-line" x1="880.857" y1="710.263" x2="880.857" y2="734.263"/>
+        <line class="support-line" x1="868.857" y1="708.263" x2="880.857" y2="716.263"/>
+        <line class="support-line" x1="868.857" y1="713.263" x2="880.857" y2="721.263"/>
+        <line class="support-line" x1="868.857" y1="718.263" x2="880.857" y2="726.263"/>
+        <line class="support-line" x1="868.857" y1="723.263" x2="880.857" y2="731.263"/>
+        <line class="support-line" x1="868.857" y1="728.263" x2="880.857" y2="736.263"/>
+      </g>
+      <text class="support-label" x="894.857" y="738.263">Fixed</text>
+    </g>
+    <circle class="node" cx="186.988" cy="722.263" r="3"/>
+    <text class="node-label" x="192.988" y="716.263">A</text>
+    <circle class="node" cx="880.857" cy="722.263" r="3"/>
+    <text class="node-label" x="886.857" y="716.263">B</text>
+    <circle class="node" cx="186.988" cy="201.861" r="3"/>
+    <text class="node-label" x="192.988" y="195.861">C</text>
+    <circle class="node" cx="880.857" cy="201.861" r="3"/>
+    <text class="node-label" x="886.857" y="195.861">D</text>
+    <line class="reaction" x1="186.988" y1="722.263" x2="118.734" y2="722.263" marker-end="url(#reactionArrow)"/>
+    <text class="reaction-label" x="158.861" y="716.263">Rx = -19.673 kN</text>
+    <line class="reaction" x1="186.988" y1="722.263" x2="186.988" y2="773.266" marker-end="url(#reactionArrow)"/>
+    <text class="reaction-label" x="192.988" y="741.765">Ry = -14.701 kN</text>
+    <line class="reaction" x1="880.857" y1="722.263" x2="879.724" y2="722.263" marker-end="url(#reactionArrow)"/>
+    <text class="reaction-label" x="886.291" y="716.263">Rx = -0.327 kN</text>
+    <line class="reaction" x1="880.857" y1="722.263" x2="880.857" y2="671.259" marker-end="url(#reactionArrow)"/>
+    <text class="reaction-label" x="886.857" y="690.761">Ry = 14.701 kN</text>
+    <path class="reaction" d="M 168.589 703.864 A 26.02 26.02 0 1 0 203.713 702.33" marker-end="url(#reactionArrow)"/>
+    <text class="reaction-label" x="217.008" y="696.243">Mz = 0.596 kNm</text>
+    <path class="reaction" d="M 862.458 703.864 A 26.02 26.02 0 1 0 897.583 702.33" marker-end="url(#reactionArrow)"/>
+    <text class="reaction-label" x="910.877" y="696.243">Mz = 0.6 kNm</text>
   </g>
   <g id="diagrams">
-    <polyline class="diagram normal-force" points="217.497,197.798 258.719,197.798 299.94,197.798 341.162,197.798 382.384,197.798 423.605,197.798 464.827,197.798 506.048,197.798 547.27,197.798 588.492,197.798 629.713,197.798 670.935,197.798 712.156,197.798 753.378,197.798 794.6,197.798 835.821,197.798 877.043,197.798 918.264,197.798 959.486,197.798 1000.707,197.798 1041.929,197.798"/>
-    <polyline class="diagram shear-force" points="217.497,212.886 258.719,212.886 299.94,212.886 341.162,212.886 382.384,212.886 423.605,212.886 464.827,212.886 506.048,212.886 547.27,212.886 588.492,212.886 629.713,212.886 670.935,212.886 712.156,212.886 753.378,212.886 794.6,212.886 835.821,212.886 877.043,212.886 918.264,212.886 959.486,212.886 1000.707,212.886 1041.929,212.886"/>
-    <polyline class="diagram bending-moment" points="217.497,315.94 258.719,311.818 299.94,307.696 341.162,303.574 382.384,299.452 423.605,295.33 464.827,291.207 506.048,287.085 547.27,282.963 588.492,278.841 629.713,274.719 670.935,270.597 712.156,266.474 753.378,262.352 794.6,258.23 835.821,254.108 877.043,249.986 918.264,245.864 959.486,241.741 1000.707,237.619 1041.929,233.497"/>
-    <circle class="annotation-point normal-force" cx="1041.929" cy="197.798" r="4"/>
-    <text class="annotation-label" x="1049.929" y="191.798">Nmax = 8.66 kN</text>
-    <circle class="annotation-point shear-force" cx="1041.929" cy="212.886" r="4"/>
-    <text class="annotation-label" x="1049.929" y="206.886">Vmax = 5 kN</text>
-    <circle class="annotation-point bending-moment" cx="217.497" cy="315.94" r="4"/>
-    <text class="annotation-label" x="225.497" y="309.94">Mmax = -20 kNm</text>
+    <polyline class="diagram normal-force" points="186.329,722.263 186.329,696.243 186.329,670.223 186.329,644.203 186.329,618.182 186.329,592.162 186.329,566.142 186.329,540.122 186.329,514.102 186.329,488.082 186.329,462.062 186.329,436.042 186.329,410.022 186.329,384.001 186.329,357.981 186.329,331.961 186.329,305.941 186.329,279.921 186.329,253.901 186.329,227.881 186.329,201.861"/>
+    <polyline class="diagram shear-force" points="185.861,722.263 185.861,696.243 185.861,670.223 185.861,644.203 185.861,618.182 185.861,592.162 185.861,566.142 185.861,540.122 185.861,514.102 185.861,488.082 185.861,462.062 185.861,436.042 185.861,410.022 185.861,384.001 185.861,357.981 185.861,331.961 185.861,305.941 185.861,279.921 185.861,253.901 185.861,227.881 185.861,201.861"/>
+    <polyline class="diagram bending-moment" points="189.055,722.263 188.886,696.243 188.717,670.223 188.548,644.203 188.379,618.182 188.21,592.162 188.041,566.142 187.872,540.122 187.703,514.102 187.533,488.082 187.364,462.062 187.195,436.042 187.026,410.022 186.857,384.001 186.688,357.981 186.519,331.961 186.35,305.941 186.181,279.921 186.012,253.901 185.843,227.881 185.674,201.861"/>
+    <polyline class="diagram normal-force" points="186.988,200.734 221.681,200.734 256.375,200.734 291.068,200.734 325.762,200.734 360.455,200.734 395.149,200.734 429.842,200.734 464.535,200.734 499.229,200.734 533.922,200.734 568.616,200.734 603.309,200.734 638.003,200.734 672.696,200.734 707.39,200.734 742.083,200.734 776.777,200.734 811.47,200.734 846.164,200.734 880.857,200.734"/>
+    <polyline class="diagram shear-force" points="186.988,202.519 221.681,202.519 256.375,202.519 291.068,202.519 325.762,202.519 360.455,202.519 395.149,202.519 429.842,202.519 464.535,202.519 499.229,202.519 533.922,202.519 568.616,202.519 603.309,202.519 638.003,202.519 672.696,202.519 707.39,202.519 742.083,202.519 776.777,202.519 811.47,202.519 846.164,202.519 880.857,202.519"/>
+    <polyline class="diagram bending-moment" points="186.988,200.547 221.681,200.679 256.375,200.81 291.068,200.942 325.762,201.074 360.455,201.205 395.149,201.337 429.842,201.469 464.535,201.6 499.229,201.732 533.922,201.863 568.616,201.995 603.309,202.127 638.003,202.258 672.696,202.39 707.39,202.522 742.083,202.653 776.777,202.785 811.47,202.917 846.164,203.048 880.857,203.18"/>
+    <polyline class="diagram normal-force" points="931.861,722.263 931.861,696.243 931.861,670.223 931.861,644.203 931.861,618.182 931.861,592.162 931.861,566.142 931.861,540.122 931.861,514.102 931.861,488.082 931.861,462.062 931.861,436.042 931.861,410.022 931.861,384.001 931.861,357.981 931.861,331.961 931.861,305.941 931.861,279.921 931.861,253.901 931.861,227.881 931.861,201.861"/>
+    <polyline class="diagram shear-force" points="879.724,722.263 879.724,696.243 879.724,670.223 879.724,644.203 879.724,618.182 879.724,592.162 879.724,566.142 879.724,540.122 879.724,514.102 879.724,488.082 879.724,462.062 879.724,436.042 879.724,410.022 879.724,384.001 879.724,357.981 879.724,331.961 879.724,305.941 879.724,279.921 879.724,253.901 879.724,227.881 879.724,201.861"/>
+    <polyline class="diagram bending-moment" points="882.937,722.263 882.767,696.243 882.597,670.223 882.427,644.203 882.257,618.182 882.087,592.162 881.917,566.142 881.747,540.122 881.578,514.102 881.408,488.082 881.238,462.062 881.068,436.042 880.898,410.022 880.728,384.001 880.558,357.981 880.388,331.961 880.218,305.941 880.048,279.921 879.878,253.901 879.708,227.881 879.538,201.861"/>
+    <polyline class="diagram normal-force" points="136.642,655.136 171.336,629.116 206.029,603.096 240.723,577.076 275.416,551.055 310.11,525.035 344.803,499.015 379.497,472.995 414.19,446.975 448.884,420.955 483.577,394.935 518.271,368.915 552.964,342.895 587.658,316.874 622.351,290.854 657.045,264.834 691.738,238.814 726.432,212.794 761.125,186.774 795.818,160.754 830.512,134.734"/>
+    <polyline class="diagram shear-force" points="186.988,722.263 221.681,696.243 256.375,670.223 291.068,644.203 325.762,618.182 360.455,592.162 395.149,566.142 429.842,540.122 464.535,514.102 499.229,488.082 533.922,462.062 568.616,436.042 603.309,410.022 638.003,384.001 672.696,357.981 707.39,331.961 742.083,305.941 776.777,279.921 811.47,253.901 846.164,227.881 880.857,201.861"/>
+    <polyline class="diagram bending-moment" points="186.988,722.263 221.681,696.243 256.375,670.223 291.068,644.203 325.762,618.182 360.455,592.162 395.149,566.142 429.842,540.122 464.535,514.102 499.229,488.082 533.922,462.062 568.616,436.042 603.309,410.022 638.003,384.001 672.696,357.981 707.39,331.961 742.083,305.941 776.777,279.921 811.47,253.901 846.164,227.881 880.857,201.861"/>
+    <circle class="annotation-point normal-force" cx="186.329" cy="201.861" r="4"/>
+    <text class="annotation-label" x="194.329" y="195.861">Nmax = 0.19 kN</text>
+    <circle class="annotation-point shear-force" cx="185.861" cy="201.861" r="4"/>
+    <text class="annotation-label" x="193.861" y="195.861">Vmax = 0.325 kN</text>
+    <circle class="annotation-point bending-moment" cx="189.055" cy="722.263" r="4"/>
+    <text class="annotation-label" x="197.055" y="716.263">Mmax = -0.596 kNm</text>
+    <circle class="annotation-point normal-force" cx="880.857" cy="200.734" r="4"/>
+    <text class="annotation-label" x="888.857" y="194.734">Nmax = 0.325 kN</text>
+    <circle class="annotation-point shear-force" cx="880.857" cy="202.519" r="4"/>
+    <text class="annotation-label" x="888.857" y="196.519">Vmax = -0.19 kN</text>
+    <circle class="annotation-point bending-moment" cx="880.857" cy="203.18" r="4"/>
+    <text class="annotation-label" x="888.857" y="197.18">Mmax = -0.38 kNm</text>
+    <circle class="annotation-point normal-force" cx="931.861" cy="201.861" r="4"/>
+    <text class="annotation-label" x="939.861" y="195.861">Nmax = -14.701 kN</text>
+    <circle class="annotation-point shear-force" cx="879.724" cy="201.861" r="4"/>
+    <text class="annotation-label" x="887.724" y="195.861">Vmax = 0.327 kN</text>
+    <circle class="annotation-point bending-moment" cx="882.937" cy="722.263" r="4"/>
+    <text class="annotation-label" x="890.937" y="716.263">Mmax = -0.6 kNm</text>
+    <circle class="annotation-point normal-force" cx="830.512" cy="134.734" r="4"/>
+    <text class="annotation-label" x="838.512" y="128.734">Nmax = 24.186 kN</text>
+    <circle class="annotation-point shear-force" cx="880.857" cy="201.861" r="4"/>
+    <text class="annotation-label" x="888.857" y="195.861">Vmax = 0 kN</text>
+    <circle class="annotation-point bending-moment" cx="880.857" cy="201.861" r="4"/>
+    <text class="annotation-label" x="888.857" y="195.861">Mmax = 0 kNm</text>
   </g>
   <g id="deformed-shape">
-    <polyline class="member deformed" points="217.497,233.497 258.775,235.427 300.054,241.087 341.332,250.28 382.61,262.81 423.888,278.481 465.167,297.096 506.445,318.459 547.723,342.375 589.002,368.645 630.28,397.075 671.558,427.468 712.836,459.627 754.115,493.357 795.393,528.461 836.671,564.742 877.949,602.005 919.228,640.053 960.506,678.69 1001.784,717.72 1043.062,756.946"/>
-    <g class="displacement-label" data-node-id="B">
-      <circle class="displacement-label-anchor" cx="1043.062" cy="756.946" r="3"/>
-      <text class="displacement-label" x="1051.062" y="768.946">Loaded end: u = 25.397 mm</text>
-      <text class="displacement-label" x="1051.062" y="781.946">Ux = 0.055 mm, Uy = -25.397 mm</text>
-      <text class="displacement-label" x="1051.062" y="794.946">Rz = -0.01 rad</text>
+    <polyline class="member deformed" data-deformed-polyline="true" data-base-points="186.988,722.263 186.988,696.243 186.988,670.223 186.988,644.203 186.988,618.182 186.988,592.162 186.988,566.142 186.988,540.122 186.988,514.102 186.988,488.082 186.988,462.062 186.988,436.042 186.988,410.022 186.988,384.001 186.988,357.981 186.988,331.961 186.988,305.941 186.988,279.921 186.988,253.901 186.988,227.881 186.988,201.861" data-displacement-points="-0,0 0.027,-0.001 0.105,-0.002 0.229,-0.002 0.395,-0.003 0.598,-0.004 0.834,-0.005 1.098,-0.005 1.386,-0.006 1.692,-0.007 2.014,-0.008 2.346,-0.009 2.683,-0.009 3.021,-0.01 3.356,-0.011 3.682,-0.012 3.997,-0.013 4.294,-0.013 4.569,-0.014 4.818,-0.015 5.037,-0.016" points="186.988,722.263 187.015,696.242 187.092,670.221 187.216,644.2 187.382,618.179 187.585,592.158 187.821,566.138 188.085,540.117 188.373,514.096 188.68,488.075 189.002,462.054 189.333,436.033 189.67,410.012 190.009,383.991 190.343,357.97 190.67,331.949 190.984,305.929 191.281,279.908 191.557,253.887 191.806,227.866 192.025,201.845"/>
+    <polyline class="member deformed" data-deformed-polyline="true" data-base-points="186.988,201.861 221.681,201.861 256.375,201.861 291.068,201.861 325.762,201.861 360.455,201.861 395.149,201.861 429.842,201.861 464.535,201.861 499.229,201.861 533.922,201.861 568.616,201.861 603.309,201.861 638.003,201.861 672.696,201.861 707.39,201.861 742.083,201.861 776.777,201.861 811.47,201.861 846.164,201.861 880.857,201.861" data-displacement-points="5.037,-0.016 5.039,0.223 5.041,0.406 5.043,0.538 5.044,0.627 5.046,0.679 5.048,0.699 5.05,0.694 5.051,0.671 5.053,0.635 5.055,0.593 5.057,0.551 5.059,0.516 5.06,0.493 5.062,0.489 5.064,0.51 5.066,0.563 5.068,0.654 5.069,0.788 5.071,0.973 5.073,1.214" points="192.025,201.845 226.72,202.084 261.415,202.267 296.111,202.399 330.806,202.488 365.501,202.539 400.196,202.56 434.892,202.555 469.587,202.531 504.282,202.496 538.977,202.454 573.673,202.412 608.368,202.376 643.063,202.353 677.759,202.35 712.454,202.371 747.149,202.424 781.844,202.514 816.54,202.649 851.235,202.834 885.93,203.075"/>
+    <polyline class="member deformed" data-deformed-polyline="true" data-base-points="880.857,722.263 880.857,696.243 880.857,670.223 880.857,644.203 880.857,618.182 880.857,592.162 880.857,566.142 880.857,540.122 880.857,514.102 880.857,488.082 880.857,462.062 880.857,436.042 880.857,410.022 880.857,384.001 880.857,357.981 880.857,331.961 880.857,305.941 880.857,279.921 880.857,253.901 880.857,227.881 880.857,201.861" data-displacement-points="0,-0 0.027,0.061 0.105,0.121 0.23,0.182 0.397,0.243 0.602,0.304 0.839,0.364 1.105,0.425 1.394,0.486 1.703,0.546 2.027,0.607 2.361,0.668 2.7,0.729 3.041,0.789 3.378,0.85 3.707,0.911 4.024,0.971 4.323,1.032 4.601,1.093 4.852,1.154 5.073,1.214" points="880.857,722.263 880.884,696.303 880.963,670.344 881.087,644.385 881.254,618.425 881.459,592.466 881.696,566.507 881.962,540.547 882.252,514.588 882.56,488.628 882.884,462.669 883.218,436.71 883.557,410.75 883.898,384.791 884.235,358.831 884.564,332.872 884.881,306.913 885.18,280.953 885.458,254.994 885.709,229.034 885.93,203.075"/>
+    <polyline class="member deformed" data-deformed-polyline="true" data-base-points="186.988,722.263 880.857,201.861" data-displacement-points="-0,0 5.073,1.214" points="186.988,722.263 885.93,203.075"/>
+    <g class="displacement-label" data-deformation-label="true" data-dx="5.037" data-dy="-0.016" data-node-id="C">
+      <circle class="displacement-label-anchor" cx="192.025" cy="201.845" r="3"/>
+      <text class="displacement-label" x="200.025" y="213.845">C: u = 0.29 mm</text>
+      <text class="displacement-label" x="200.025" y="226.845">Ux = 0.29 mm, Uy = 0.001 mm</text>
+      <text class="displacement-label" x="200.025" y="239.845">Rz = -0 rad</text>
     </g>
-    <g class="member-displacement-label" data-member-id="M1" data-station="L/4">
-      <circle class="member-displacement-label-anchor" cx="423.888" cy="278.481" r="3"/>
-      <text class="member-displacement-label" x="430.888" y="272.481">M1 L/4: u = 2.183 mm</text>
-      <text class="member-displacement-label" x="430.888" y="285.481">Ux = 0.014 mm, Uy = -2.183 mm</text>
-      <text class="member-displacement-label" x="430.888" y="298.481">x = 1 m, Rz = -0.004 rad</text>
+    <g class="displacement-label" data-deformation-label="true" data-dx="5.073" data-dy="1.214" data-node-id="D">
+      <circle class="displacement-label-anchor" cx="885.93" cy="203.075" r="3"/>
+      <text class="displacement-label" x="893.93" y="215.075">D: u = 0.301 mm</text>
+      <text class="displacement-label" x="893.93" y="228.075">Ux = 0.292 mm, Uy = -0.07 mm</text>
+      <text class="displacement-label" x="893.93" y="241.075">Rz = -0 rad</text>
     </g>
-    <g class="member-displacement-label" data-member-id="M1" data-station="L/2">
-      <circle class="member-displacement-label-anchor" cx="630.28" cy="397.075" r="3"/>
-      <text class="member-displacement-label" x="637.28" y="391.075">M1 L/2: u = 7.937 mm</text>
-      <text class="member-displacement-label" x="637.28" y="404.075">Ux = 0.027 mm, Uy = -7.937 mm</text>
-      <text class="member-displacement-label" x="637.28" y="417.075">x = 2 m, Rz = -0.007 rad</text>
+    <g class="member-displacement-label" data-deformation-label="true" data-dx="0.598" data-dy="-0.004" data-member-id="F1" data-station="L/4">
+      <circle class="member-displacement-label-anchor" cx="187.585" cy="592.158" r="3"/>
+      <text class="member-displacement-label" x="194.585" y="586.158">F1 L/4: u = 0.034 mm</text>
+      <text class="member-displacement-label" x="194.585" y="599.158">Ux = 0.034 mm, Uy = 0 mm</text>
+      <text class="member-displacement-label" x="194.585" y="612.158">x = 0.75 m, Rz = -0 rad</text>
     </g>
-    <g class="member-displacement-label" data-member-id="M1" data-station="3L/4">
-      <circle class="member-displacement-label-anchor" cx="836.671" cy="564.742" r="3"/>
-      <text class="member-displacement-label" x="843.671" y="558.742">M1 3L/4: u = 16.071 mm</text>
-      <text class="member-displacement-label" x="843.671" y="571.742">Ux = 0.041 mm, Uy = -16.071 mm</text>
-      <text class="member-displacement-label" x="843.671" y="584.742">x = 3 m, Rz = -0.009 rad</text>
+    <g class="member-displacement-label" data-deformation-label="true" data-dx="2.014" data-dy="-0.008" data-member-id="F1" data-station="L/2">
+      <circle class="member-displacement-label-anchor" cx="189.002" cy="462.054" r="3"/>
+      <text class="member-displacement-label" x="196.002" y="456.054">F1 L/2: u = 0.116 mm</text>
+      <text class="member-displacement-label" x="196.002" y="469.054">Ux = 0.116 mm, Uy = 0 mm</text>
+      <text class="member-displacement-label" x="196.002" y="482.054">x = 1.5 m, Rz = -0 rad</text>
     </g>
-    <line class="annotation-line" x1="1041.929" y1="233.497" x2="1043.062" y2="756.946" marker-end="url(#reactionArrow)"/>
-    <circle class="annotation-point" cx="1043.062" cy="756.946" r="3.5" style="stroke:#dc2626"/>
-    <text class="annotation-label" x="1048.496" y="487.222">umax = 25.397 mm @ B</text>
-    <text class="annotation-label" x="1048.496" y="501.222">Ux = 0.055 mm, Uy = -25.397 mm</text>
-    <text class="annotation-label" x="1048.496" y="515.222">Rz = -0.01 rad (-0.546°)</text>
+    <g class="member-displacement-label" data-deformation-label="true" data-dx="3.682" data-dy="-0.012" data-member-id="F1" data-station="3L/4">
+      <circle class="member-displacement-label-anchor" cx="190.67" cy="331.949" r="3"/>
+      <text class="member-displacement-label" x="197.67" y="325.949">F1 3L/4: u = 0.212 mm</text>
+      <text class="member-displacement-label" x="197.67" y="338.949">Ux = 0.212 mm, Uy = 0.001 mm</text>
+      <text class="member-displacement-label" x="197.67" y="351.949">x = 2.25 m, Rz = -0 rad</text>
+    </g>
+    <g class="member-displacement-label" data-deformation-label="true" data-dx="5.046" data-dy="0.679" data-member-id="F2" data-station="L/4">
+      <circle class="member-displacement-label-anchor" cx="365.501" cy="202.539" r="3"/>
+      <text class="member-displacement-label" x="372.501" y="196.539">F2 L/4: u = 0.294 mm</text>
+      <text class="member-displacement-label" x="372.501" y="209.539">Ux = 0.291 mm, Uy = -0.039 mm</text>
+      <text class="member-displacement-label" x="372.501" y="222.539">x = 1 m, Rz = -0 rad</text>
+    </g>
+    <g class="member-displacement-label" data-deformation-label="true" data-dx="5.055" data-dy="0.593" data-member-id="F2" data-station="L/2">
+      <circle class="member-displacement-label-anchor" cx="538.977" cy="202.454" r="3"/>
+      <text class="member-displacement-label" x="545.977" y="196.454">F2 L/2: u = 0.293 mm</text>
+      <text class="member-displacement-label" x="545.977" y="209.454">Ux = 0.291 mm, Uy = -0.034 mm</text>
+      <text class="member-displacement-label" x="545.977" y="222.454">x = 2 m, Rz = 0 rad</text>
+    </g>
+    <g class="member-displacement-label" data-deformation-label="true" data-dx="5.064" data-dy="0.51" data-member-id="F2" data-station="3L/4">
+      <circle class="member-displacement-label-anchor" cx="712.454" cy="202.371" r="3"/>
+      <text class="member-displacement-label" x="719.454" y="196.371">F2 3L/4: u = 0.293 mm</text>
+      <text class="member-displacement-label" x="719.454" y="209.371">Ux = 0.292 mm, Uy = -0.029 mm</text>
+      <text class="member-displacement-label" x="719.454" y="222.371">x = 3 m, Rz = -0 rad</text>
+    </g>
+    <g class="member-displacement-label" data-deformation-label="true" data-dx="0.602" data-dy="0.304" data-member-id="F3" data-station="L/4">
+      <circle class="member-displacement-label-anchor" cx="881.459" cy="592.466" r="3"/>
+      <text class="member-displacement-label" x="888.459" y="586.466">F3 L/4: u = 0.039 mm</text>
+      <text class="member-displacement-label" x="888.459" y="599.466">Ux = 0.035 mm, Uy = -0.018 mm</text>
+      <text class="member-displacement-label" x="888.459" y="612.466">x = 0.75 m, Rz = -0 rad</text>
+    </g>
+    <g class="member-displacement-label" data-deformation-label="true" data-dx="2.027" data-dy="0.607" data-member-id="F3" data-station="L/2">
+      <circle class="member-displacement-label-anchor" cx="882.884" cy="462.669" r="3"/>
+      <text class="member-displacement-label" x="889.884" y="456.669">F3 L/2: u = 0.122 mm</text>
+      <text class="member-displacement-label" x="889.884" y="469.669">Ux = 0.117 mm, Uy = -0.035 mm</text>
+      <text class="member-displacement-label" x="889.884" y="482.669">x = 1.5 m, Rz = -0 rad</text>
+    </g>
+    <g class="member-displacement-label" data-deformation-label="true" data-dx="3.707" data-dy="0.911" data-member-id="F3" data-station="3L/4">
+      <circle class="member-displacement-label-anchor" cx="884.564" cy="332.872" r="3"/>
+      <text class="member-displacement-label" x="891.564" y="326.872">F3 3L/4: u = 0.22 mm</text>
+      <text class="member-displacement-label" x="891.564" y="339.872">Ux = 0.214 mm, Uy = -0.053 mm</text>
+      <text class="member-displacement-label" x="891.564" y="352.872">x = 2.25 m, Rz = -0 rad</text>
+    </g>
+    <g class="member-displacement-label" data-deformation-label="true" data-dx="1.268" data-dy="0.304" data-member-id="T1" data-station="L/4">
+      <circle class="member-displacement-label-anchor" cx="361.723" cy="592.466" r="3"/>
+      <text class="member-displacement-label" x="368.723" y="586.466">T1 L/4: u = 0.075 mm</text>
+      <text class="member-displacement-label" x="368.723" y="599.466">Ux = 0.073 mm, Uy = -0.018 mm</text>
+      <text class="member-displacement-label" x="368.723" y="612.466">x = 1.25 m, Rz = -0 rad</text>
+    </g>
+    <g class="member-displacement-label" data-deformation-label="true" data-dx="2.536" data-dy="0.607" data-member-id="T1" data-station="L/2">
+      <circle class="member-displacement-label-anchor" cx="536.459" cy="462.669" r="3"/>
+      <text class="member-displacement-label" x="543.459" y="456.669">T1 L/2: u = 0.15 mm</text>
+      <text class="member-displacement-label" x="543.459" y="469.669">Ux = 0.146 mm, Uy = -0.035 mm</text>
+      <text class="member-displacement-label" x="543.459" y="482.669">x = 2.5 m, Rz = -0 rad</text>
+    </g>
+    <g class="member-displacement-label" data-deformation-label="true" data-dx="3.805" data-dy="0.911" data-member-id="T1" data-station="3L/4">
+      <circle class="member-displacement-label-anchor" cx="711.194" cy="332.872" r="3"/>
+      <text class="member-displacement-label" x="718.194" y="326.872">T1 3L/4: u = 0.226 mm</text>
+      <text class="member-displacement-label" x="718.194" y="339.872">Ux = 0.219 mm, Uy = -0.053 mm</text>
+      <text class="member-displacement-label" x="718.194" y="352.872">x = 3.75 m, Rz = -0 rad</text>
+    </g>
+    <line class="annotation-line" x1="880.857" y1="201.861" x2="885.93" y2="203.075" marker-end="url(#reactionArrow)"/>
+    <circle class="annotation-point" cx="885.93" cy="203.075" r="3.5" style="stroke:#dc2626"/>
+    <text class="annotation-label" x="889.394" y="194.468">umax = 0.301 mm @ D</text>
+    <text class="annotation-label" x="889.394" y="208.468">Ux = 0.292 mm, Uy = -0.07 mm</text>
+    <text class="annotation-label" x="889.394" y="222.468">Rz = -0 rad (-0.004°)</text>
   </g>
   <g id="legend">
     <text class="legend-label" x="1170" y="36">Legend</text>
@@ -183,23 +321,23 @@
     <dl class="summary">
       <div>
         <dt>Nodes</dt>
-        <dd>2</dd>
+        <dd>4</dd>
       </div>
       <div>
         <dt>Members</dt>
-        <dd>1</dd>
+        <dd>4</dd>
       </div>
       <div>
         <dt>Supports</dt>
-        <dd>1</dd>
+        <dd>2</dd>
       </div>
       <div>
         <dt>Reactions</dt>
-        <dd>3</dd>
+        <dd>6</dd>
       </div>
       <div>
         <dt>Diagrams</dt>
-        <dd>3</dd>
+        <dd>12</dd>
       </div>
       <div>
         <dt>Deform. scale</dt>
@@ -207,7 +345,7 @@
       </div>
       <div>
         <dt>Max disp.</dt>
-        <dd>25.397 mm</dd>
+        <dd>0.301 mm</dd>
       </div>
     </dl>
   </main>
@@ -219,6 +357,8 @@
       let viewBox = { x: original.x, y: original.y, width: original.width, height: original.height };
       let dragging = false;
       let last = { x: 0, y: 0 };
+      let animationRunning = false;
+      let animationStart = 0;
       function applyViewBox() { svg.setAttribute('viewBox', `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`); }
       function zoom(factor, clientX, clientY) {
         const rect = svg.getBoundingClientRect();
@@ -226,23 +366,56 @@
         const py = clientY === undefined ? rect.top + rect.height / 2 : clientY;
         const mx = viewBox.x + ((px - rect.left) / rect.width) * viewBox.width;
         const my = viewBox.y + ((py - rect.top) / rect.height) * viewBox.height;
-        const newWidth = viewBox.width * factor;
-        const newHeight = viewBox.height * factor;
         viewBox.x = mx - ((mx - viewBox.x) * factor);
         viewBox.y = my - ((my - viewBox.y) * factor);
-        viewBox.width = newWidth;
-        viewBox.height = newHeight;
+        viewBox.width *= factor;
+        viewBox.height *= factor;
         applyViewBox();
+      }
+      function setOutput(selector, value, suffix) { const output = document.querySelector(selector); if (output) output.textContent = `${value}${suffix}`; }
+      function parsePointList(value) {
+        return (value || '').trim().split(/\s+/).filter(Boolean).map(pair => {
+          const parts = pair.split(',').map(Number);
+          return { x: parts[0], y: parts[1] };
+        });
+      }
+      function formatPointList(points) { return points.map(point => `${point.x.toFixed(3)},${point.y.toFixed(3)}`).join(' '); }
+      function getDeformationScaleValue() { const input = document.querySelector('[data-scale=deformed]'); return input ? Number(input.value) / 100 : 1; }
+      function applyDeformation(factor) {
+        svg.querySelectorAll('[data-deformed-polyline=true]').forEach(polyline => {
+          const base = parsePointList(polyline.dataset.basePoints);
+          const displacement = parsePointList(polyline.dataset.displacementPoints);
+          if (base.length === 0 || base.length !== displacement.length) return;
+          const points = base.map((point, index) => ({ x: point.x + displacement[index].x * factor, y: point.y + displacement[index].y * factor }));
+          polyline.setAttribute('points', formatPointList(points));
+        });
+        svg.querySelectorAll('[data-deformation-label=true]').forEach(label => {
+          const dx = Number(label.dataset.dx || '0');
+          const dy = Number(label.dataset.dy || '0');
+          label.setAttribute('transform', `translate(${(dx * (factor - 1)).toFixed(3)} ${(dy * (factor - 1)).toFixed(3)})`);
+        });
+      }
+      function applyVisualScales(animationFactor) {
+        const factor = animationFactor ?? getDeformationScaleValue();
+        applyDeformation(factor);
+      }
+      function animationAmplitude() { const input = document.querySelector('[data-animation=amplitude]'); return input ? Number(input.value) / 100 : 1; }
+      function animationSpeed() { const input = document.querySelector('[data-animation=speed]'); return input ? Number(input.value) : 1; }
+      function animationLoop(timestamp) {
+        if (!animationRunning) return;
+        if (!animationStart) animationStart = timestamp;
+        const elapsed = (timestamp - animationStart) / 1000;
+        const factor = getDeformationScaleValue() * animationAmplitude() * Math.sin(elapsed * animationSpeed() * Math.PI * 2);
+        applyVisualScales(factor);
+        requestAnimationFrame(animationLoop);
       }
       canvas.addEventListener('wheel', event => { event.preventDefault(); zoom(event.deltaY < 0 ? 0.9 : 1.1, event.clientX, event.clientY); }, { passive: false });
       canvas.addEventListener('pointerdown', event => { dragging = true; last = { x: event.clientX, y: event.clientY }; canvas.classList.add('dragging'); canvas.setPointerCapture(event.pointerId); });
       canvas.addEventListener('pointermove', event => {
         if (!dragging) return;
         const rect = svg.getBoundingClientRect();
-        const dx = (event.clientX - last.x) / rect.width * viewBox.width;
-        const dy = (event.clientY - last.y) / rect.height * viewBox.height;
-        viewBox.x -= dx;
-        viewBox.y -= dy;
+        viewBox.x -= (event.clientX - last.x) / rect.width * viewBox.width;
+        viewBox.y -= (event.clientY - last.y) / rect.height * viewBox.height;
         last = { x: event.clientX, y: event.clientY };
         applyViewBox();
       });
@@ -250,6 +423,18 @@
       document.querySelector('[data-action=zoom-in]').addEventListener('click', () => zoom(0.85));
       document.querySelector('[data-action=zoom-out]').addEventListener('click', () => zoom(1.15));
       document.querySelector('[data-action=reset]').addEventListener('click', () => { viewBox = { x: original.x, y: original.y, width: original.width, height: original.height }; applyViewBox(); });
+      document.querySelector('[data-action=play-animation]').addEventListener('click', () => { animationRunning = true; animationStart = 0; requestAnimationFrame(animationLoop); });
+      document.querySelector('[data-action=pause-animation]').addEventListener('click', () => { animationRunning = false; applyVisualScales(); });
+      document.querySelectorAll('[data-scale]').forEach(input => {
+        function applyScaleInput() { setOutput(`[data-scale-output=${input.dataset.scale}]`, input.value, '%'); if (!animationRunning) applyVisualScales(); }
+        input.addEventListener('input', applyScaleInput);
+        applyScaleInput();
+      });
+      document.querySelectorAll('[data-animation]').forEach(input => {
+        function applyAnimationInput() { const suffix = input.dataset.animation === 'speed' ? 'x' : '%'; setOutput(`[data-animation-output=${input.dataset.animation}]`, input.value, suffix); }
+        input.addEventListener('input', applyAnimationInput);
+        applyAnimationInput();
+      });
       document.querySelectorAll('[data-layer]').forEach(control => {
         function applyLayerVisibility() {
           control.dataset.layer.split(',').forEach(selector => {
@@ -259,6 +444,7 @@
         control.addEventListener('change', applyLayerVisibility);
         applyLayerVisibility();
       });
+      applyVisualScales();
       applyViewBox();
     })();
   </script>

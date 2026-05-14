@@ -163,13 +163,12 @@ Goal: add controls to the viewer.
 
 Controls:
 
-- deformation scale;
-- normal-force diagram scale;
-- shear-force diagram scale;
-- bending-moment diagram scale;
+- corrected deformation scale based on displacement vectors;
 - show/hide undeformed model;
 - show/hide deformed shape;
+- separate `N`, `V` and `M` visibility toggles;
 - play/pause animation;
+- animation amplitude;
 - animation speed.
 
 ---

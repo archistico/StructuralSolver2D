@@ -27,14 +27,26 @@ public sealed class InteractiveHtmlStructuralViewerExporterTests
         Assert.Contains("id=\"viewerCanvas\"", html, StringComparison.Ordinal);
         Assert.Contains("data-action=\"zoom-in\"", html, StringComparison.Ordinal);
         Assert.Contains("data-action=\"reset\"", html, StringComparison.Ordinal);
+        Assert.Contains("data-action=\"play-animation\"", html, StringComparison.Ordinal);
+        Assert.Contains("data-action=\"pause-animation\"", html, StringComparison.Ordinal);
+        Assert.Contains("data-scale=\"deformed\"", html, StringComparison.Ordinal);
+        Assert.Contains("data-animation=\"amplitude\"", html, StringComparison.Ordinal);
+        Assert.Contains("data-animation=\"speed\"", html, StringComparison.Ordinal);
         Assert.Contains("data-layer=\"#undeformed-model\"", html, StringComparison.Ordinal);
         Assert.Contains("data-layer=\"#deformed-shape\"", html, StringComparison.Ordinal);
+        Assert.Contains("data-layer=\".diagram.normal-force,.annotation-point.normal-force\"", html, StringComparison.Ordinal);
+        Assert.Contains("data-layer=\".diagram.shear-force,.annotation-point.shear-force\"", html, StringComparison.Ordinal);
+        Assert.Contains("data-layer=\".diagram.bending-moment,.annotation-point.bending-moment\"", html, StringComparison.Ordinal);
         Assert.Contains("Nodal displacement labels", html, StringComparison.Ordinal);
         Assert.Contains("Member station labels", html, StringComparison.Ordinal);
         Assert.Contains("data-layer=\".displacement-label,.displacement-label-anchor\"", html, StringComparison.Ordinal);
         Assert.Contains("data-layer=\".member-displacement-label,.member-displacement-label-anchor\"", html, StringComparison.Ordinal);
         Assert.Contains("Max disp.", html, StringComparison.Ordinal);
         Assert.Contains("addEventListener('wheel'", html, StringComparison.Ordinal);
+        Assert.Contains("requestAnimationFrame(animationLoop)", html, StringComparison.Ordinal);
+        Assert.Contains("applyVisualScales", html, StringComparison.Ordinal);
+        Assert.Contains("data-deformed-polyline=\"true\"", html, StringComparison.Ordinal);
+        Assert.Contains("data-base-points", html, StringComparison.Ordinal);
         Assert.Contains("pointerdown", html, StringComparison.Ordinal);
         Assert.Contains("<svg", html, StringComparison.Ordinal);
     }
