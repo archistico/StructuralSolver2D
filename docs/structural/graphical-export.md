@@ -107,3 +107,18 @@ Support orientation is now used consistently by both the static SVG/HTML renderi
 ## Interactive viewer
 
 A separate standalone HTML viewer can be generated with `export-viewer`. It embeds the SVG result scene and adds pan, zoom, reset view and layer toggles. The viewer remains read-only and uses the same `StructuralVisualizationModel` data as the static exports.
+
+
+## Applied load visualization
+
+The SVG/HTML export can now draw applied loads as a dedicated `loads` layer. Supported graphical representations include:
+
+- nodal concentrated forces as arrows;
+- concentrated member point loads as arrows at the normalized member position;
+- nodal moments as circular arrows;
+- uniform distributed loads as repeated arrows along the member;
+- linearly varying distributed loads as tapered distributed-load glyphs.
+
+Load labels show the load label when available and the numerical value with units. Concentrated forces are displayed in `kN`, moments in `kNm`, and distributed loads in `kN/m`.
+
+For load combinations, the viewer currently shows available model loads as graphical reference. It does not yet build a separately factored graphical load set for each combination term.

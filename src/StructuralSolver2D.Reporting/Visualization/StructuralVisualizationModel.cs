@@ -24,7 +24,10 @@ public sealed class StructuralVisualizationModel
         IReadOnlyList<DiagramValueAnnotation>? diagramValueAnnotations = null,
         IReadOnlyList<VisualizationAnimationFrame>? animationFrames = null,
         IReadOnlyList<VisualizationNodeDisplacementLabel>? nodeDisplacementLabels = null,
-        IReadOnlyList<VisualizationMemberDisplacementLabel>? memberDisplacementLabels = null)
+        IReadOnlyList<VisualizationMemberDisplacementLabel>? memberDisplacementLabels = null,
+        IReadOnlyList<VisualizationLoadArrow>? loadArrows = null,
+        IReadOnlyList<VisualizationLoadMoment>? loadMoments = null,
+        IReadOnlyList<VisualizationDistributedLoad>? distributedLoads = null)
     {
         Nodes = nodes;
         Members = members;
@@ -41,6 +44,9 @@ public sealed class StructuralVisualizationModel
         AnimationFrames = animationFrames ?? Array.Empty<VisualizationAnimationFrame>();
         NodeDisplacementLabels = nodeDisplacementLabels ?? Array.Empty<VisualizationNodeDisplacementLabel>();
         MemberDisplacementLabels = memberDisplacementLabels ?? Array.Empty<VisualizationMemberDisplacementLabel>();
+        LoadArrows = loadArrows ?? Array.Empty<VisualizationLoadArrow>();
+        LoadMoments = loadMoments ?? Array.Empty<VisualizationLoadMoment>();
+        DistributedLoads = distributedLoads ?? Array.Empty<VisualizationDistributedLoad>();
     }
 
     /// <summary>
@@ -112,6 +118,21 @@ public sealed class StructuralVisualizationModel
     /// Gets displacement labels at standard member stations such as L/4, L/2 and 3L/4.
     /// </summary>
     public IReadOnlyList<VisualizationMemberDisplacementLabel> MemberDisplacementLabels { get; }
+
+    /// <summary>
+    /// Gets concentrated load force arrows prepared for rendering.
+    /// </summary>
+    public IReadOnlyList<VisualizationLoadArrow> LoadArrows { get; }
+
+    /// <summary>
+    /// Gets concentrated load moment glyphs prepared for rendering.
+    /// </summary>
+    public IReadOnlyList<VisualizationLoadMoment> LoadMoments { get; }
+
+    /// <summary>
+    /// Gets distributed load glyphs prepared for rendering.
+    /// </summary>
+    public IReadOnlyList<VisualizationDistributedLoad> DistributedLoads { get; }
 
     /// <summary>
     /// Gets optional prepared animation frames for cyclic deformed-shape visualization.

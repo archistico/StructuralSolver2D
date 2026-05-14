@@ -125,6 +125,7 @@ public sealed class InteractiveHtmlStructuralViewerExporter
         AppendSummaryItem(builder, "Members", model.Members.Count.ToString(CultureInfo.InvariantCulture));
         AppendSummaryItem(builder, "Supports", model.Supports.Count.ToString(CultureInfo.InvariantCulture));
         AppendSummaryItem(builder, "Reactions", (model.ReactionArrows.Count + model.ReactionMoments.Count).ToString(CultureInfo.InvariantCulture));
+        AppendSummaryItem(builder, "Applied loads", (model.LoadArrows.Count + model.LoadMoments.Count + model.DistributedLoads.Count).ToString(CultureInfo.InvariantCulture));
         AppendSummaryItem(builder, "Diagrams", model.Diagrams.Count.ToString(CultureInfo.InvariantCulture));
         AppendSummaryItem(builder, "Deform. scale", model.DeformationScale.ToString("0.###", CultureInfo.InvariantCulture));
         if (model.MaximumDisplacement is not null)

@@ -116,4 +116,10 @@ public sealed class SvgExportOptions
     /// Gets or sets whether maximum-value labels should be drawn on internal-force diagrams.
     /// </summary>
     public bool IncludeDiagramValueLabels { get; set; } = true;
+
+
+    /// <summary>
+    /// Gets or sets whether applied loads should be drawn.
+    /// </summary>
+    public bool IncludeLoads { get; set; } = true;
 }

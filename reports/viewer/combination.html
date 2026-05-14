@@ -91,6 +91,9 @@
     .displacement-label-anchor { fill: #dc2626; stroke: #ffffff; stroke-width: 1; }
     .member-displacement-label { fill: #7f1d1d; font-size: 10.5px; }
     .member-displacement-label-anchor { fill: #f97316; stroke: #ffffff; stroke-width: 1; }
+    .load-arrow, .distributed-load-arrow, .load-moment { stroke: #ea580c; stroke-width: 1.8; fill: none; }
+    .distributed-load-shape { stroke: #ea580c; stroke-width: 1.2; fill: rgba(234, 88, 12, 0.08); }
+    .load-label { fill: #9a3412; font-family: Arial, Helvetica, sans-serif; font-size: 12px; font-weight: 600; }
     .dimension { stroke: #6b7280; stroke-width: 1.2; fill: none; }
     .dimension-extension { stroke: #9ca3af; stroke-width: 1; }
     .annotation-line { stroke: #dc2626; stroke-width: 1.2; stroke-dasharray: 4 3; fill: none; }
@@ -167,6 +170,10 @@
     <text class="reaction-label" x="217.008" y="696.243">Mz = 0.596 kNm</text>
     <path class="reaction" d="M 862.458 703.864 A 26.02 26.02 0 1 0 897.583 702.33" marker-end="url(#reactionArrow)"/>
     <text class="reaction-label" x="910.877" y="696.243">Mz = 0.6 kNm</text>
+  </g>
+  <g id="loads">
+    <line class="load-arrow" data-load-id="H1" x1="880.857" y1="201.861" x2="1019.631" y2="201.861" marker-end="url(#loadArrow)"/>
+    <text class="load-label" x="1025.631" y="195.861">20 kN</text>
   </g>
   <g id="diagrams">
     <polyline class="diagram normal-force" points="186.329,722.263 186.329,696.243 186.329,670.223 186.329,644.203 186.329,618.182 186.329,592.162 186.329,566.142 186.329,540.122 186.329,514.102 186.329,488.082 186.329,462.062 186.329,436.042 186.329,410.022 186.329,384.001 186.329,357.981 186.329,331.961 186.329,305.941 186.329,279.921 186.329,253.901 186.329,227.881 186.329,201.861"/>
@@ -334,6 +341,10 @@
       <div>
         <dt>Reactions</dt>
         <dd>6</dd>
+      </div>
+      <div>
+        <dt>Applied loads</dt>
+        <dd>1</dd>
       </div>
       <div>
         <dt>Diagrams</dt>

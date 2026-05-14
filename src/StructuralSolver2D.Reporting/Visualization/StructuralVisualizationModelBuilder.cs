@@ -85,6 +85,13 @@ public sealed class StructuralVisualizationModelBuilder
             options,
             allPoints);
 
+        (List<VisualizationLoadArrow> loadArrows, List<VisualizationLoadMoment> loadMoments, List<VisualizationDistributedLoad> distributedLoads) = CreateLoadVisualizations(
+            model,
+            nodesById,
+            result.LoadCaseId,
+            options,
+            allPoints);
+
         VisualizationDisplacementAnnotation? maximumDisplacement = CreateMaximumDisplacementAnnotation(nodes);
         IReadOnlyList<VisualizationNodeDisplacementLabel> nodeDisplacementLabels = CreateNodeDisplacementLabels(nodes);
         IReadOnlyList<VisualizationMemberDisplacementLabel> memberDisplacementLabels = CreateMemberDisplacementLabels(
@@ -120,7 +127,10 @@ public sealed class StructuralVisualizationModelBuilder
             diagramAnnotations,
             animationFrames,
             nodeDisplacementLabels,
-            memberDisplacementLabels);
+            memberDisplacementLabels,
+            loadArrows,
+            loadMoments,
+            distributedLoads);
     }
 
     private static VisualizationNode CreateVisualizationNode(
@@ -440,6 +450,187 @@ public sealed class StructuralVisualizationModelBuilder
         return (arrows, moments);
     }
 
+
+    private static (List<VisualizationLoadArrow> Arrows, List<VisualizationLoadMoment> Moments, List<VisualizationDistributedLoad> DistributedLoads) CreateLoadVisualizations(
+        StructuralModel model,
+        IReadOnlyDictionary<string, StructuralNode> nodesById,
+        string analysisId,
+        VisualizationOptions options,
+        ICollection<VisualizationPoint> allPoints)
+    {
+        Dictionary<string, StructuralMember> membersById = model.Members.ToDictionary(item => item.Id, StringComparer.OrdinalIgnoreCase);
+        List<StructuralLoad> loads = model.Loads
+            .Where(load => string.Equals(load.LoadCaseId, analysisId, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        bool analysisIsCombination = model.LoadCombinations.Any(combination => string.Equals(combination.Id, analysisId, StringComparison.OrdinalIgnoreCase));
+        if (loads.Count == 0 && analysisIsCombination)
+        {
+            loads = model.Loads.ToList();
+        }
+
+        List<VisualizationLoadArrow> arrows = new();
+        List<VisualizationLoadMoment> moments = new();
+        List<VisualizationDistributedLoad> distributedLoads = new();
+        const double tolerance = 1e-12;
+
+        foreach (StructuralLoad load in loads)
+        {
+            switch (load.Type)
+            {
+                case StructuralLoadType.NodalForce:
+                    if (load.TargetType == StructuralLoadTargetType.Node &&
+                        nodesById.TryGetValue(load.TargetId, out StructuralNode? node) &&
+                        Math.Abs(load.Value) > tolerance)
+                    {
+                        VisualizationPoint start = new(node.X, node.Y);
+                        (double dx, double dy) = GetLoadDirectionVector(load.Direction, load.Value, options.LoadForceScale, null, null);
+                        VisualizationPoint end = new(start.X + dx, start.Y + dy);
+                        arrows.Add(new VisualizationLoadArrow(load.Id, load.LoadCaseId, VisualizationLoadGlyphKind.ForceArrow, start, end, load.Value, "kN", load.Label));
+                        allPoints.Add(end);
+                    }
+
+                    break;
+
+                case StructuralLoadType.NodalMoment:
+                    if (load.TargetType == StructuralLoadTargetType.Node &&
+                        nodesById.TryGetValue(load.TargetId, out StructuralNode? momentNode) &&
+                        Math.Abs(load.Value) > tolerance)
+                    {
+                        VisualizationPoint center = new(momentNode.X, momentNode.Y);
+                        double radius = Math.Max(options.MinimumLoadMomentRadius, Math.Abs(load.Value) * options.LoadForceScale);
+                        moments.Add(new VisualizationLoadMoment(load.Id, load.LoadCaseId, center, radius, load.Value < 0.0, load.Value, "kNm", load.Label));
+                        allPoints.Add(new VisualizationPoint(center.X - radius, center.Y - radius));
+                        allPoints.Add(new VisualizationPoint(center.X + radius, center.Y + radius));
+                    }
+
+                    break;
+
+                case StructuralLoadType.PointLoadOnMember:
+                    if (load.TargetType == StructuralLoadTargetType.Member &&
+                        membersById.TryGetValue(load.TargetId, out StructuralMember? pointMember) &&
+                        TryGetMemberNodes(pointMember, nodesById, out StructuralNode? pointStartNode, out StructuralNode? pointEndNode) &&
+                        Math.Abs(load.Value) > tolerance)
+                    {
+                        StructuralNode pointStart = pointStartNode!;
+                        StructuralNode pointEnd = pointEndNode!;
+                        double position = Clamp01(load.Position ?? 0.5);
+                        VisualizationPoint start = InterpolatePoint(pointStart, pointEnd, position);
+                        (double dx, double dy) = GetLoadDirectionVector(load.Direction, load.Value, options.LoadForceScale, pointStart, pointEnd);
+                        VisualizationPoint end = new(start.X + dx, start.Y + dy);
+                        arrows.Add(new VisualizationLoadArrow(load.Id, load.LoadCaseId, VisualizationLoadGlyphKind.ForceArrow, start, end, load.Value, "kN", load.Label));
+                        allPoints.Add(end);
+                    }
+
+                    break;
+
+                case StructuralLoadType.UniformDistributedLoad:
+                case StructuralLoadType.LinearDistributedLoad:
+                    if (load.TargetType == StructuralLoadTargetType.Member &&
+                        membersById.TryGetValue(load.TargetId, out StructuralMember? distributedMember) &&
+                        TryGetMemberNodes(distributedMember, nodesById, out StructuralNode? distributedStartNode, out StructuralNode? distributedEndNode))
+                    {
+                        StructuralNode distributedStart = distributedStartNode!;
+                        StructuralNode distributedEnd = distributedEndNode!;
+                        double startValue = load.Value;
+                        double endValue = load.Type == StructuralLoadType.LinearDistributedLoad
+                            ? load.EndValue ?? load.Value
+                            : load.Value;
+
+                        if (Math.Abs(startValue) <= tolerance && Math.Abs(endValue) <= tolerance)
+                        {
+                            break;
+                        }
+
+                        VisualizationPoint startAxisPoint = new(distributedStart.X, distributedStart.Y);
+                        VisualizationPoint endAxisPoint = new(distributedEnd.X, distributedEnd.Y);
+                        (double startDx, double startDy) = GetLoadDirectionVector(load.Direction, startValue, options.DistributedLoadScale, distributedStart, distributedEnd);
+                        (double endDx, double endDy) = GetLoadDirectionVector(load.Direction, endValue, options.DistributedLoadScale, distributedStart, distributedEnd);
+                        VisualizationPoint startOffsetPoint = new(startAxisPoint.X + startDx, startAxisPoint.Y + startDy);
+                        VisualizationPoint endOffsetPoint = new(endAxisPoint.X + endDx, endAxisPoint.Y + endDy);
+
+                        distributedLoads.Add(new VisualizationDistributedLoad(
+                            load.Id,
+                            load.LoadCaseId,
+                            load.TargetId,
+                            startAxisPoint,
+                            endAxisPoint,
+                            startOffsetPoint,
+                            endOffsetPoint,
+                            startValue,
+                            endValue,
+                            "kN/m",
+                            load.Label));
+
+                        allPoints.Add(startOffsetPoint);
+                        allPoints.Add(endOffsetPoint);
+                    }
+
+                    break;
+            }
+        }
+
+        return (arrows, moments, distributedLoads);
+    }
+
+    private static bool TryGetMemberNodes(
+        StructuralMember member,
+        IReadOnlyDictionary<string, StructuralNode> nodesById,
+        out StructuralNode? startNode,
+        out StructuralNode? endNode)
+    {
+        bool hasStart = nodesById.TryGetValue(member.StartNodeId, out startNode);
+        bool hasEnd = nodesById.TryGetValue(member.EndNodeId, out endNode);
+        return hasStart && hasEnd;
+    }
+
+    private static VisualizationPoint InterpolatePoint(StructuralNode startNode, StructuralNode endNode, double position) =>
+        new(
+            Interpolate(startNode.X, endNode.X, position),
+            Interpolate(startNode.Y, endNode.Y, position));
+
+    private static (double X, double Y) GetLoadDirectionVector(
+        StructuralLoadDirection direction,
+        double value,
+        double scale,
+        StructuralNode? memberStartNode,
+        StructuralNode? memberEndNode)
+    {
+        (double ux, double uy) = direction switch
+        {
+            StructuralLoadDirection.GlobalX => (1.0, 0.0),
+            StructuralLoadDirection.GlobalY => (0.0, 1.0),
+            StructuralLoadDirection.LocalX when memberStartNode is not null && memberEndNode is not null => GetMemberUnitVector(memberStartNode, memberEndNode),
+            StructuralLoadDirection.LocalY when memberStartNode is not null && memberEndNode is not null => GetMemberNormalVector(memberStartNode, memberEndNode),
+            _ => (0.0, 0.0),
+        };
+
+        return (ux * value * scale, uy * value * scale);
+    }
+
+    private static (double X, double Y) GetMemberUnitVector(StructuralNode startNode, StructuralNode endNode)
+    {
+        double dx = endNode.X - startNode.X;
+        double dy = endNode.Y - startNode.Y;
+        double length = Math.Sqrt((dx * dx) + (dy * dy));
+
+        if (length <= 0.0)
+        {
+            return (0.0, 0.0);
+        }
+
+        return (dx / length, dy / length);
+    }
+
+    private static (double X, double Y) GetMemberNormalVector(StructuralNode startNode, StructuralNode endNode)
+    {
+        (double ux, double uy) = GetMemberUnitVector(startNode, endNode);
+        return (-uy, ux);
+    }
+
+    private static double Clamp01(double value) =>
+        Math.Max(0.0, Math.Min(1.0, value));
+
     private static VisualizationDisplacementAnnotation? CreateMaximumDisplacementAnnotation(IReadOnlyList<VisualizationNode> nodes)
     {
         VisualizationNode? maximumNode = null;
@@ -688,6 +879,13 @@ public sealed class StructuralVisualizationModelBuilder
             options.MinimumReactionMomentRadius < 0.0)
         {
             throw new ArgumentOutOfRangeException(nameof(options), "Reaction scales and minimum radius cannot be negative.");
+        }
+
+        if (options.LoadForceScale < 0.0 ||
+            options.DistributedLoadScale < 0.0 ||
+            options.MinimumLoadMomentRadius < 0.0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(options), "Load scales and minimum radius cannot be negative.");
         }
 
         if (options.BoundsPadding < 0.0)

@@ -259,3 +259,67 @@ public sealed record VisualizationMemberDisplacementLabel(
     double GlobalUy,
     double ResultantDisplacement,
     double LocalRz);
+
+
+/// <summary>
+/// Identifies the graphical load representation kind.
+/// </summary>
+public enum VisualizationLoadGlyphKind
+{
+    /// <summary>
+    /// Concentrated force represented by a straight arrow.
+    /// </summary>
+    ForceArrow,
+
+    /// <summary>
+    /// Concentrated moment represented by a circular arrow.
+    /// </summary>
+    MomentArrow,
+
+    /// <summary>
+    /// Distributed load represented by repeated arrows along a member.
+    /// </summary>
+    DistributedLoad,
+}
+
+/// <summary>
+/// Represents a concentrated nodal or member load arrow.
+/// </summary>
+public sealed record VisualizationLoadArrow(
+    string LoadId,
+    string LoadCaseId,
+    VisualizationLoadGlyphKind Kind,
+    VisualizationPoint Start,
+    VisualizationPoint End,
+    double Value,
+    string Unit,
+    string? Label);
+
+/// <summary>
+/// Represents a concentrated moment load glyph.
+/// </summary>
+public sealed record VisualizationLoadMoment(
+    string LoadId,
+    string LoadCaseId,
+    VisualizationPoint Center,
+    double Radius,
+    bool Clockwise,
+    double Value,
+    string Unit,
+    string? Label);
+
+/// <summary>
+/// Represents a distributed load along a structural member.
+/// </summary>
+public sealed record VisualizationDistributedLoad(
+    string LoadId,
+    string LoadCaseId,
+    string MemberId,
+    VisualizationPoint StartAxisPoint,
+    VisualizationPoint EndAxisPoint,
+    VisualizationPoint StartOffsetPoint,
+    VisualizationPoint EndOffsetPoint,
+    double StartValue,
+    double EndValue,
+    string Unit,
+    string? Label);

@@ -925,3 +925,8 @@ It explains nodes, materials, sections, members, supports, load cases, loads, lo
 ## Milestone 48 - Viewer scale controls and animation playback
 
 Milestone 48 extends the standalone HTML viewer with a corrected deformed-shape scale, separate `N`/`V`/`M` visibility toggles and deformation animation playback. The deformed scale now recomputes displayed coordinates from undeformed base points plus displacement vectors instead of scaling the whole SVG group.
+
+
+## Viewer update - applied loads
+
+The graphical SVG/HTML exporters and the interactive viewer can now display applied loads. Nodal forces, nodal moments, member point loads and distributed member loads are drawn as a dedicated loads layer with value labels.

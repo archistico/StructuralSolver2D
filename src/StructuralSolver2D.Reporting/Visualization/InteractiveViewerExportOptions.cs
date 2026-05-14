@@ -27,6 +27,12 @@ public sealed class InteractiveViewerExportOptions
     /// </summary>
     public bool ShowMemberDisplacementLabelsByDefault { get; set; } = false;
 
+
+
+    /// <summary>
+    /// Gets or sets whether applied loads are visible when the viewer opens.
+    /// </summary>
+    public bool ShowLoadsByDefault { get; set; } = true;
     /// <summary>
     /// Gets or sets the initial deformation amplification applied by the viewer.
     /// 100 means the scale already used when the SVG was generated.

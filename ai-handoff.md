@@ -601,3 +601,8 @@ The detailed input JSON guide is `docs/structural/json-input.md`. It documents t
 ## Recent milestone note — M48
 
 Milestone 48 adds standalone viewer controls to `InteractiveHtmlStructuralViewerExporter`: corrected deformed-shape scale, separate `N`/`V`/`M` visibility toggles, and deformation animation playback with amplitude/speed controls. The deformation scale is no longer an SVG group transform; it recomputes deformed polyline coordinates from embedded base points and displacement vectors.
+
+
+## Recent viewer note
+
+The visualization pipeline now includes applied load graphics. `StructuralVisualizationModel` carries concentrated load arrows, load moment glyphs and distributed-load glyphs. SVG/HTML exports render them in a dedicated `#loads` layer, and the interactive viewer exposes a Loads toggle.

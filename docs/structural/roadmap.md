@@ -1358,3 +1358,16 @@ Added standalone HTML viewer controls for:
 - animation amplitude and speed.
 
 The controls are visualization-only and do not modify solver results.
+
+
+### Viewer/export refinement — Applied load visualization
+
+Added graphical representation of applied loads in SVG/HTML and the interactive viewer:
+
+- nodal forces;
+- nodal moments;
+- member point loads;
+- uniform distributed member loads;
+- linearly varying distributed member loads.
+
+The loads are rendered in a dedicated `#loads` layer so they can be toggled independently in the viewer.

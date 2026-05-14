@@ -189,6 +189,9 @@ public sealed class StructuralVisualizationModelBuilderTests
         Assert.Equal(2.0, halfSpanLabel.Distance, precision: 12);
         Assert.Equal(0.001, halfSpanLabel.ResultantDisplacement, precision: 12);
         Assert.Equal(3, visualization.DiagramValueAnnotations.Count);
+        Assert.Equal(2, visualization.LoadArrows.Count);
+        Assert.Single(visualization.LoadMoments);
+        Assert.Single(visualization.DistributedLoads);
     }
 
     [Fact]
@@ -284,5 +287,9 @@ public sealed class StructuralVisualizationModelBuilderTests
     private static StructuralModel CreateSupportedModel() =>
         CreateTwoNodeModel()
             .AddSupport(StructuralSupport.Fixed("S1", "A", "Incastro"))
-            .AddSupport(StructuralSupport.SimpleSupport("S2", "B", "Carrello", orientationDegrees: 30.0));
+            .AddSupport(StructuralSupport.SimpleSupport("S2", "B", "Carrello", orientationDegrees: 30.0))
+            .AddLoad(StructuralLoad.NodalForce("P1", "LC1", "B", StructuralLoadDirection.GlobalY, -10.0, "Point P"))
+            .AddLoad(StructuralLoad.NodalMoment("M0", "LC1", "A", 3.0, "Moment M"))
+            .AddLoad(StructuralLoad.PointLoadOnMember("PM1", "LC1", "M1", StructuralLoadDirection.GlobalX, 4.0, 0.5, "Member point P"))
+            .AddLoad(StructuralLoad.UniformDistributedLoad("Q1", "LC1", "M1", StructuralLoadDirection.GlobalY, -5.0, "Distributed q"));
 }

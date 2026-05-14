@@ -67,4 +67,20 @@ public sealed class VisualizationOptions
     /// Gets or sets the minimum reaction moment glyph radius in model units.
     /// </summary>
     public double MinimumReactionMomentRadius { get; set; } = 0.15;
+
+
+    /// <summary>
+    /// Gets or sets the scale factor applied to concentrated load arrows.
+    /// </summary>
+    public double LoadForceScale { get; set; } = 0.04;
+
+    /// <summary>
+    /// Gets or sets the scale factor applied to distributed load arrows.
+    /// </summary>
+    public double DistributedLoadScale { get; set; } = 0.04;
+
+    /// <summary>
+    /// Gets or sets the minimum radius used for nodal moment load glyphs.
+    /// </summary>
+    public double MinimumLoadMomentRadius { get; set; } = 0.15;
 }

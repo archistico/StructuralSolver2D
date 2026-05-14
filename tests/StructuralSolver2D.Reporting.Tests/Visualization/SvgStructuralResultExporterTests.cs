@@ -43,6 +43,10 @@ public sealed class SvgStructuralResultExporterTests
         Assert.Contains("M1 L/2: u = 1 mm", svg, StringComparison.Ordinal);
         Assert.Contains("M1 3L/4: u = 1.5 mm", svg, StringComparison.Ordinal);
         Assert.Contains("Nmax = 12", svg, StringComparison.Ordinal);
+        Assert.Contains("id=\"loads\"", svg, StringComparison.Ordinal);
+        Assert.Contains("Point P: -10 kN", svg, StringComparison.Ordinal);
+        Assert.Contains("Distributed q: -5 kN/m", svg, StringComparison.Ordinal);
+        Assert.Contains("Moment M: 3 kNm", svg, StringComparison.Ordinal);
         Assert.Contains("Legend", svg, StringComparison.Ordinal);
     }
 
@@ -119,5 +123,17 @@ public sealed class SvgStructuralResultExporterTests
                 new VisualizationMemberDisplacementLabel("M1", "L/4", 0.25, 1.0, new VisualizationPoint(1.0, -0.05), 0.0, -0.0005, 0.0005, 0.0025),
                 new VisualizationMemberDisplacementLabel("M1", "L/2", 0.50, 2.0, new VisualizationPoint(2.0, -0.10), 0.0, -0.0010, 0.0010, 0.0050),
                 new VisualizationMemberDisplacementLabel("M1", "3L/4", 0.75, 3.0, new VisualizationPoint(3.0, -0.15), 0.0, -0.0015, 0.0015, 0.0075),
+            },
+            new[]
+            {
+                new VisualizationLoadArrow("P1", "LC1", VisualizationLoadGlyphKind.ForceArrow, new VisualizationPoint(4.0, 0.0), new VisualizationPoint(4.0, -0.5), -10.0, "kN", "Point P"),
+            },
+            new[]
+            {
+                new VisualizationLoadMoment("M1", "LC1", new VisualizationPoint(0.0, 0.0), 0.25, false, 3.0, "kNm", "Moment M"),
+            },
+            new[]
+            {
+                new VisualizationDistributedLoad("Q1", "LC1", "M1", new VisualizationPoint(0.0, 0.0), new VisualizationPoint(4.0, 0.0), new VisualizationPoint(0.0, -0.25), new VisualizationPoint(4.0, -0.25), -5.0, -5.0, "kN/m", "Distributed q"),
             });
 }

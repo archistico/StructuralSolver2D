@@ -96,3 +96,10 @@ Milestone 48 adds controls for result readability:
 - `Anim. speed` controls the playback speed.
 
 These controls are intentionally implemented inside the standalone HTML viewer. The solver result remains unchanged.
+
+
+## Applied loads layer
+
+The interactive viewer includes a `Loads` toggle. It controls the `#loads` SVG layer, which contains graphical load arrows and distributed-load glyphs generated from the structural input model.
+
+This layer is read-only and intended for inspection: it helps verify that the analysis input contains the expected point loads, nodal moments and distributed loads before reading deformed shapes and internal-force diagrams.
