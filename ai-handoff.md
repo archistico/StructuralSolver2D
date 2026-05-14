@@ -510,19 +510,58 @@ v0.1.0 - First technical release
 
 Recommended next milestones:
 
-### Milestone 39 - Future OpenCad2D integration study
+### Milestone 39 - Viewer-ready result data model
 
-Goal: define the adapter boundary between OpenCad2D and StructuralSolver2D without introducing direct solver dependencies on OpenCad2D.
+Status: implemented in `StructuralSolver2D.Reporting/Visualization`.
+
+Main entry point:
+
+```csharp
+StructuralVisualizationModelBuilder
+```
+
+It prepares undeformed geometry, deformed shapes, nodal `Ux`, `Uy`, `Rz`, N/V/M diagram polylines, bounds and optional cyclic animation frames.
+
+### Milestone 40 - SVG/HTML graphical result preview
+
+Goal: generate a static graphical preview from the visualization model.
 
 Expected output:
 
-- adapter design document;
-- model mapping notes;
-- UI-to-solver responsibility split;
-- list of data still missing from CAD entities for reliable structural analysis.
+- SVG result export or self-contained HTML preview;
+- undeformed model drawing;
+- deformed shape drawing;
+- selectable N/V/M diagram kind, at least at export-option level;
+- tests over generated SVG/HTML structure.
 
-### Milestone 40 - Experimental viewer
+### Milestone 41 - First interactive viewer prototype
 
-Goal: evaluate lightweight result visualization options such as SVG, static HTML, Avalonia or Blazor.
+Goal: evaluate a lightweight viewer, preferably downstream of the solver.
 
-This should remain downstream of the solver and must not move rendering concerns into Core or Analysis.
+Candidate front ends:
+
+- Avalonia control;
+- WPF control;
+- static HTML + JavaScript canvas;
+- OpenCad2D integration layer.
+
+Rendering concerns must not move into Core or Analysis.
+
+
+## Viewer preparation
+
+A UI-independent visualization layer has been added under `StructuralSolver2D.Reporting/Visualization`.
+
+Main class: `StructuralVisualizationModelBuilder`.
+
+It converts structural model geometry and analysis results into renderer-ready data:
+
+- undeformed nodes and members;
+- scaled deformed node positions;
+- deformed member polylines;
+- nodal `Ux`, `Uy`, `Rz`;
+- normal-force, shear-force and bending-moment diagram polylines;
+- drawing bounds;
+- optional cyclic animation frames.
+
+This is intentionally not a GUI. It is the stable data layer for a future Avalonia/WPF/SVG/OpenCad2D viewer.

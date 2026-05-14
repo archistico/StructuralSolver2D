@@ -60,7 +60,9 @@ The project currently includes:
 - parametric section helpers;
 - initial elastic material library;
 - public API facade;
-- first technical release baseline.
+- first technical release baseline;
+- UI-independent viewer-ready result data;
+- optional cyclic deformed-shape animation frames.
 
 ---
 
@@ -1173,8 +1175,47 @@ v0.1.0
 
 This milestone does not add new solver behavior. It consolidates the public-facing project state after Milestones 1-37 and documents how to validate, tag and publish the first technical release.
 
-The next recommended milestone is:
+The next recommended milestone after the release baseline is:
 
 ```text
-Milestone 39 — Future OpenCad2D integration study
+Milestone 39 — Viewer-ready result data model
+```
+
+
+## Validation hardening and viewer preparation
+
+Completed after the first technical release preparation:
+
+- validation examples for rigid-joint frames, trusses, Nielsen-type schemes and Gerber beams;
+- UI-independent viewer data model for deformed shapes, nodal displacement/rotation display and N/V/M diagram polylines;
+- optional cyclic animation-frame data for the deformed shape.
+
+### Milestone 39 — Viewer-ready result data model
+
+Milestone 39 introduces a renderer-independent visualization layer under:
+
+```text
+src/StructuralSolver2D.Reporting/Visualization
+```
+
+The layer prepares:
+
+- undeformed nodes and members;
+- scaled deformed nodal positions;
+- deformed member polylines;
+- nodal `Ux`, `Uy` and `Rz` values for labels or tooltips;
+- normal-force, shear-force and bending-moment diagram polylines;
+- drawing bounds;
+- optional cyclic deformed-shape animation frames.
+
+This is intentionally not a GUI. It is the stable data boundary for future SVG/PNG export, Avalonia/WPF viewers, web canvases or OpenCad2D integration.
+
+Recommended next milestones:
+
+```text
+Milestone 40 — SVG/HTML graphical result preview
+Milestone 41 — First interactive viewer prototype
+Milestone 42 — Viewer controls for result scale, diagram scale and animation playback
+Milestone 43 — Labels/tooltips for nodal displacements, rotations and diagram values
+Milestone 44 — OpenCad2D integration boundary study
 ```

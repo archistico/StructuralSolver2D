@@ -117,10 +117,21 @@ public sealed class Frame2DDisplacementSampler
     public IReadOnlyList<MemberDisplacementDiagram> SampleAllMembers(
         StructuralModel model,
         StructuralAnalysisResult analysisResult,
-        int sampleCount = 21) =>
-        analysisResult.MemberEndForces
+        int sampleCount = 21)
+    {
+        ArgumentNullException.ThrowIfNull(model);
+        ArgumentNullException.ThrowIfNull(analysisResult);
+
+        HashSet<string> frameMemberIds = model.Members
+            .Where(member => member.Type == MemberType.Frame2D)
+            .Select(member => member.Id)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        return analysisResult.MemberEndForces
+            .Where(memberEndForce => frameMemberIds.Contains(memberEndForce.MemberId))
             .Select(memberEndForce => SampleMember(model, analysisResult, memberEndForce.MemberId, sampleCount))
             .ToList();
+    }
 
     private static (double LocalUx, double LocalUy, double LocalRz) InterpolateLocalDisplacement(
         double[] localElementDisplacements,

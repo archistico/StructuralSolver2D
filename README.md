@@ -37,6 +37,7 @@ Supported at the current stage:
 - JSON input examples;
 - Markdown report generation, including educational guidance, executive summaries, characteristic internal-force point tables and optional preliminary deflection-check tables;
 - CSV export for spreadsheet validation and external post-processing.
+- UI-independent graphical result data for future viewers.
 
 Not supported yet:
 
@@ -804,4 +805,15 @@ Milestone 37 adds a stable high-level public facade through `StructuralSolver2DS
 
 Milestone 38 prepares the first technical release baseline `v0.1.0` with `VERSION`, `CHANGELOG.md`, release notes and a release checklist. It does not change solver behavior.
 
-Next recommended work: Milestone 39, focused on studying a future OpenCad2D integration boundary without coupling the solver to OpenCad2D.
+Milestone 39 adds the first viewer-ready result data layer through `StructuralVisualizationModelBuilder`. It prepares undeformed geometry, scaled deformed shapes, nodal displacement/rotation values, N/V/M diagram polylines, bounds and optional cyclic animation frames without adding a GUI dependency.
+
+Next recommended work: Milestone 40, focused on SVG/HTML graphical result preview export.
+
+
+## Graphical result viewer foundation
+
+StructuralSolver2D now includes a UI-independent visualization data model for graphical result viewers.
+
+It prepares undeformed geometry, scaled deformed shapes, nodal displacement/rotation data, N/V/M diagram polylines and optional animation frames without depending on Avalonia, WPF or any other UI toolkit.
+
+See `docs/structural/viewer-data.md`.
