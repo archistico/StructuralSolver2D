@@ -14,15 +14,30 @@
       "name": "Simply supported beam with uniform distributed load",
       "modelPath": "benchmarks/beams/B01-simple-supported-udl.json",
       "analysisId": "LC1",
-      "tolerance": 1e-6,
+      "tolerance": 1e-06,
       "expected": {
         "supportReactions": [
-          { "nodeId": "A", "fx": 0.0, "fy": 25.0, "mz": 0.0 },
-          { "nodeId": "B", "fx": 0.0, "fy": 25.0, "mz": 0.0 }
+          {
+            "nodeId": "A",
+            "fx": 0.0,
+            "fy": 25.0,
+            "mz": 0.0
+          },
+          {
+            "nodeId": "B",
+            "fx": 0.0,
+            "fy": 25.0,
+            "mz": 0.0
+          }
         ],
         "maxAbsShear": 25.0,
         "maxAbsMoment": 31.25,
-        "midspanDisplacementY": -0.0193769841269841
+        "nodalDisplacements": [
+          {
+            "nodeId": "C",
+            "uy": -0.0193769841269841
+          }
+        ]
       }
     },
     {
@@ -30,15 +45,30 @@
       "name": "Simply supported beam with point load at midspan",
       "modelPath": "benchmarks/beams/B02-simple-supported-point-midspan.json",
       "analysisId": "LC1",
-      "tolerance": 1e-6,
+      "tolerance": 1e-06,
       "expected": {
         "supportReactions": [
-          { "nodeId": "A", "fx": 0.0, "fy": 15.0, "mz": 0.0 },
-          { "nodeId": "B", "fx": 0.0, "fy": 15.0, "mz": 0.0 }
+          {
+            "nodeId": "A",
+            "fx": 0.0,
+            "fy": 15.0,
+            "mz": 0.0
+          },
+          {
+            "nodeId": "B",
+            "fx": 0.0,
+            "fy": 15.0,
+            "mz": 0.0
+          }
         ],
         "maxAbsShear": 15.0,
         "maxAbsMoment": 45.0,
-        "midspanDisplacementY": -0.0321428571428571
+        "nodalDisplacements": [
+          {
+            "nodeId": "C",
+            "uy": -0.0321428571428571
+          }
+        ]
       }
     },
     {
@@ -46,10 +76,15 @@
       "name": "Cantilever with tip point load",
       "modelPath": "benchmarks/beams/B03-cantilever-tip-point-load.json",
       "analysisId": "LC1",
-      "tolerance": 1e-6,
+      "tolerance": 1e-06,
       "expected": {
         "supportReactions": [
-          { "nodeId": "A", "fx": 0.0, "fy": 12.0, "mz": 48.0 }
+          {
+            "nodeId": "A",
+            "fx": 0.0,
+            "fy": 12.0,
+            "mz": 48.0
+          }
         ],
         "tipDisplacementY": -0.060952380952381,
         "tipRotationZ": -0.0228571428571429,
@@ -61,10 +96,15 @@
       "name": "Cantilever with uniform distributed load",
       "modelPath": "benchmarks/beams/B04-cantilever-udl.json",
       "analysisId": "LC1",
-      "tolerance": 1e-6,
+      "tolerance": 1e-06,
       "expected": {
         "supportReactions": [
-          { "nodeId": "A", "fx": 0.0, "fy": 32.0, "mz": 64.0 }
+          {
+            "nodeId": "A",
+            "fx": 0.0,
+            "fy": 32.0,
+            "mz": 64.0
+          }
         ],
         "tipDisplacementY": -0.060952380952381,
         "tipRotationZ": -0.0203174603174603,
@@ -76,16 +116,32 @@
       "name": "Symmetric triangular truss",
       "modelPath": "benchmarks/trusses/T01-symmetric-triangular-truss.json",
       "analysisId": "LC1",
-      "tolerance": 1e-6,
+      "tolerance": 1e-06,
       "expected": {
         "supportReactions": [
-          { "nodeId": "A", "fx": 0.0, "fy": 15.0 },
-          { "nodeId": "B", "fy": 15.0 }
+          {
+            "nodeId": "A",
+            "fx": 0.0,
+            "fy": 15.0
+          },
+          {
+            "nodeId": "B",
+            "fy": 15.0
+          }
         ],
         "memberAxialForces": [
-          { "memberId": "AC", "normalForce": -18.0277563773199 },
-          { "memberId": "BC", "normalForce": -18.0277563773199 },
-          { "memberId": "AB", "normalForce": 10.0 }
+          {
+            "memberId": "AC",
+            "normalForce": -18.0277563773199
+          },
+          {
+            "memberId": "BC",
+            "normalForce": -18.0277563773199
+          },
+          {
+            "memberId": "AB",
+            "normalForce": 10.0
+          }
         ]
       }
     },
@@ -94,7 +150,7 @@
       "name": "Portal frame with symmetric gravity load",
       "modelPath": "benchmarks/frames/F01-portal-symmetric-gravity.json",
       "analysisId": "LC1",
-      "tolerance": 1e-6,
+      "tolerance": 1e-06,
       "expected": {
         "checks": [
           "stable solution",

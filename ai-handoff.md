@@ -623,3 +623,15 @@ benchmarks/expected/expected-results.json
 ```
 
 and compare solver output against expected values with declared tolerances.
+
+## Milestone 18 - Automated benchmark runner
+
+The benchmark catalog is now executable through an xUnit test:
+
+```text
+tests/StructuralSolver2D.Analysis.Tests/Benchmarks/BenchmarkCatalogTests.cs
+```
+
+The test reads `benchmarks/expected/expected-results.json`, loads the referenced JSON models through `StructuralModelJsonReader`, selects `Frame2DAnalyzer` or `Truss2DAnalyzer` based on member types, and verifies the expected reactions, extrema, selected displacements, axial forces, and named equilibrium/symmetry checks.
+
+Important convention: the benchmark runner is intentionally in `StructuralSolver2D.Analysis.Tests` and references `StructuralSolver2D.Cli` only to reuse the CLI JSON reader. This keeps the benchmark files aligned with the command-line input format.

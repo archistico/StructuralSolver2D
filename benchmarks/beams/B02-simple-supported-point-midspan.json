@@ -1,28 +1,90 @@
 {
   "title": "B02 - Simply supported beam with point load at midspan",
-  "description": "L = 6 m, P = 30 kN downward at midspan. Reference values: RA = RB = 15 kN, Mmax = 45 kNm.",
+  "description": "L = 6 m, P = 30 kN downward at midspan. The beam is split at midspan so the load and the exact midspan displacement are nodal results. Reference values: RA = RB = 15 kN, Mmax = 45 kNm, v_mid = -PL^3/(48EI).",
   "loadCaseId": "LC1",
   "nodes": [
-    { "id": "A", "x": 0.0, "y": 0.0 },
-    { "id": "B", "x": 6.0, "y": 0.0 }
+    {
+      "id": "A",
+      "x": 0.0,
+      "y": 0.0
+    },
+    {
+      "id": "C",
+      "x": 3.0,
+      "y": 0.0
+    },
+    {
+      "id": "B",
+      "x": 6.0,
+      "y": 0.0
+    }
   ],
   "materials": [
-    { "id": "MAT", "name": "Benchmark elastic material", "elasticModulus": 210000000.0 }
+    {
+      "id": "MAT",
+      "name": "Benchmark elastic material",
+      "elasticModulus": 210000000.0
+    }
   ],
   "sections": [
-    { "id": "SEC", "name": "Benchmark frame section", "area": 0.003, "momentOfInertia": 0.00002 }
+    {
+      "id": "SEC",
+      "name": "Benchmark frame section",
+      "area": 0.003,
+      "momentOfInertia": 2e-05
+    }
   ],
   "members": [
-    { "id": "M1", "startNodeId": "A", "endNodeId": "B", "materialId": "MAT", "sectionId": "SEC", "type": "Frame2D" }
+    {
+      "id": "M1",
+      "startNodeId": "A",
+      "endNodeId": "C",
+      "materialId": "MAT",
+      "sectionId": "SEC",
+      "type": "Frame2D"
+    },
+    {
+      "id": "M2",
+      "startNodeId": "C",
+      "endNodeId": "B",
+      "materialId": "MAT",
+      "sectionId": "SEC",
+      "type": "Frame2D"
+    }
   ],
   "supports": [
-    { "id": "SA", "nodeId": "A", "restrainedUx": true, "restrainedUy": true, "restrainedRz": false, "type": "Hinge" },
-    { "id": "SB", "nodeId": "B", "restrainedUx": false, "restrainedUy": true, "restrainedRz": false, "type": "SimpleSupport" }
+    {
+      "id": "SA",
+      "nodeId": "A",
+      "restrainedUx": true,
+      "restrainedUy": true,
+      "restrainedRz": false,
+      "type": "Hinge"
+    },
+    {
+      "id": "SB",
+      "nodeId": "B",
+      "restrainedUx": false,
+      "restrainedUy": true,
+      "restrainedRz": false,
+      "type": "SimpleSupport"
+    }
   ],
   "loadCases": [
-    { "id": "LC1", "name": "Midspan point load" }
+    {
+      "id": "LC1",
+      "name": "Midspan point load"
+    }
   ],
   "loads": [
-    { "id": "P1", "loadCaseId": "LC1", "type": "PointLoadOnMember", "targetType": "Member", "targetId": "M1", "direction": "GlobalY", "value": -30.0, "position": 0.5 }
+    {
+      "id": "P1",
+      "loadCaseId": "LC1",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "C",
+      "direction": "GlobalY",
+      "value": -30.0
+    }
   ]
 }

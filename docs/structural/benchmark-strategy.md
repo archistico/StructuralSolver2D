@@ -99,3 +99,31 @@ Recommended starting tolerances:
 | Symmetry/equilibrium checks | `1e-6` |
 
 Sampling-based checks should use slightly looser tolerances when the exact maximum does not fall exactly on a sampled point.
+
+---
+
+## Automated benchmark runner
+
+Milestone 18 introduced an automated benchmark test runner in:
+
+```text
+tests/StructuralSolver2D.Analysis.Tests/Benchmarks/BenchmarkCatalogTests.cs
+```
+
+The runner reads:
+
+```text
+benchmarks/expected/expected-results.json
+```
+
+and executes each referenced JSON model using the same JSON reader used by the CLI. This means the benchmark suite validates both the solver and the example input files.
+
+The current runner checks:
+
+- support reactions;
+- global maximum absolute shear and bending moment for Frame2D benchmarks;
+- selected nodal and member-interpolated displacements;
+- Truss2D member axial forces;
+- named stability/symmetry/equilibrium checks for the first portal-frame benchmark.
+
+When new benchmark JSON files are added, their expected results should be added to `benchmarks/expected/expected-results.json`. If the new expected quantities are not yet supported by the runner, the runner should be extended before the benchmark is considered part of the automatic regression suite.
