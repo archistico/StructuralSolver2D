@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Linq;
 using System.Text;
 
 namespace StructuralSolver2D.Reporting.Visualization;
@@ -20,6 +21,7 @@ public sealed class SvgStructuralResultExporter
 
         CoordinateMapper mapper = CoordinateMapper.Create(model.Bounds, options.Width, options.Height, options.Padding);
         StringBuilder builder = new();
+        LabelLayoutState labelLayout = new();
         string title = EscapeXml(options.Title);
 
         builder.AppendLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
@@ -35,22 +37,22 @@ public sealed class SvgStructuralResultExporter
 
         if (options.IncludeUndeformedModel)
         {
-            AppendUndeformedModel(builder, model, options, mapper);
+            AppendUndeformedModel(builder, model, options, mapper, labelLayout);
         }
 
         if (options.IncludeLoads)
         {
-            AppendLoads(builder, model, mapper);
+            AppendLoads(builder, model, mapper, labelLayout);
         }
 
         if (options.IncludeInternalForceDiagrams)
         {
-            AppendDiagrams(builder, model, options, mapper);
+            AppendDiagrams(builder, model, options, mapper, labelLayout);
         }
 
         if (options.IncludeDeformedShape)
         {
-            AppendDeformedShape(builder, model, options, mapper);
+            AppendDeformedShape(builder, model, options, mapper, labelLayout);
         }
 
         if (options.IncludeLegend)
@@ -71,6 +73,9 @@ public sealed class SvgStructuralResultExporter
         builder.AppendLine("    <marker id=\"dimensionArrow\" markerWidth=\"8\" markerHeight=\"8\" refX=\"4\" refY=\"4\" orient=\"auto\" markerUnits=\"userSpaceOnUse\">");
         builder.AppendLine("      <path d=\"M8,0 L0,4 L8,8\" fill=\"none\" stroke=\"#6b7280\" stroke-width=\"1.2\" />");
         builder.AppendLine("    </marker>");
+        builder.AppendLine("    <marker id=\"loadArrow\" markerWidth=\"10\" markerHeight=\"10\" refX=\"9\" refY=\"5\" orient=\"auto\" markerUnits=\"userSpaceOnUse\">");
+        builder.AppendLine("      <path d=\"M0,0 L10,5 L0,10 z\" fill=\"#ea580c\" />");
+        builder.AppendLine("    </marker>");
         builder.AppendLine("  </defs>");
     }
 
@@ -85,7 +90,7 @@ public sealed class SvgStructuralResultExporter
         builder.AppendLine("    .diagram.shear-force { stroke: #059669; stroke-width: 1.8; fill: none; }");
         builder.AppendLine("    .diagram.bending-moment { stroke: #7c3aed; stroke-width: 1.8; fill: none; }");
         builder.AppendLine("    .node { fill: #0f172a; }");
-        builder.AppendLine("    .node-label, .support-label, .dimension-label, .annotation-label, .reaction-label, .legend-label, .displacement-label, .member-displacement-label { fill: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }");
+        builder.AppendLine("    .node-label, .support-label, .dimension-label, .annotation-label, .reaction-label, .legend-label, .displacement-label, .member-displacement-label, .load-label { fill: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 12px; paint-order: stroke; stroke: rgba(255,255,255,0.92); stroke-width: 3px; stroke-linejoin: round; }");
         builder.AppendLine("    .title { fill: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 20px; font-weight: bold; }");
         builder.AppendLine("    .caption { fill: #4b5563; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }");
         builder.AppendLine("    .support-line { stroke: #1f2937; stroke-width: 1.5; fill: none; }");
@@ -99,6 +104,7 @@ public sealed class SvgStructuralResultExporter
         builder.AppendLine("    .load-arrow, .distributed-load-arrow, .load-moment { stroke: #ea580c; stroke-width: 1.8; fill: none; }");
         builder.AppendLine("    .distributed-load-shape { stroke: #ea580c; stroke-width: 1.2; fill: rgba(234, 88, 12, 0.08); }");
         builder.AppendLine("    .load-label { fill: #9a3412; font-family: Arial, Helvetica, sans-serif; font-size: 12px; font-weight: 600; }");
+        builder.AppendLine("    .label-background { fill: rgba(255,255,255,0.82); stroke: rgba(255,255,255,0.0); }");
         builder.AppendLine("    .dimension { stroke: #6b7280; stroke-width: 1.2; fill: none; }");
         builder.AppendLine("    .dimension-extension { stroke: #9ca3af; stroke-width: 1; }");
         builder.AppendLine("    .annotation-line { stroke: #dc2626; stroke-width: 1.2; stroke-dasharray: 4 3; fill: none; }");
@@ -110,7 +116,7 @@ public sealed class SvgStructuralResultExporter
         builder.AppendLine("  </style>");
     }
 
-    private static void AppendUndeformedModel(StringBuilder builder, StructuralVisualizationModel model, SvgExportOptions options, CoordinateMapper mapper)
+    private static void AppendUndeformedModel(StringBuilder builder, StructuralVisualizationModel model, SvgExportOptions options, CoordinateMapper mapper, LabelLayoutState labelLayout)
     {
         builder.AppendLine("  <g id=\"undeformed-model\">");
 
@@ -131,7 +137,7 @@ public sealed class SvgStructuralResultExporter
         {
             foreach (VisualizationSupport support in model.Supports)
             {
-                AppendSupportGlyph(builder, mapper, support);
+                AppendSupportGlyph(builder, mapper, support, labelLayout);
             }
         }
 
@@ -150,19 +156,19 @@ public sealed class SvgStructuralResultExporter
         {
             foreach (VisualizationReactionArrow arrow in model.ReactionArrows)
             {
-                AppendReactionArrow(builder, mapper, arrow);
+                AppendReactionArrow(builder, mapper, arrow, labelLayout);
             }
 
             foreach (VisualizationReactionMoment moment in model.ReactionMoments)
             {
-                AppendReactionMoment(builder, mapper, moment);
+                AppendReactionMoment(builder, mapper, moment, labelLayout);
             }
         }
 
         builder.AppendLine("  </g>");
     }
 
-    private static void AppendDiagrams(StringBuilder builder, StructuralVisualizationModel model, SvgExportOptions options, CoordinateMapper mapper)
+    private static void AppendDiagrams(StringBuilder builder, StructuralVisualizationModel model, SvgExportOptions options, CoordinateMapper mapper, LabelLayoutState labelLayout)
     {
         builder.AppendLine("  <g id=\"diagrams\">");
         foreach (MemberDiagramPolyline diagram in model.Diagrams)
@@ -175,14 +181,14 @@ public sealed class SvgStructuralResultExporter
         {
             foreach (DiagramValueAnnotation annotation in model.DiagramValueAnnotations)
             {
-                AppendDiagramAnnotation(builder, mapper, annotation);
+                AppendDiagramAnnotation(builder, mapper, annotation, labelLayout);
             }
         }
 
         builder.AppendLine("  </g>");
     }
 
-    private static void AppendDeformedShape(StringBuilder builder, StructuralVisualizationModel model, SvgExportOptions options, CoordinateMapper mapper)
+    private static void AppendDeformedShape(StringBuilder builder, StructuralVisualizationModel model, SvgExportOptions options, CoordinateMapper mapper, LabelLayoutState labelLayout)
     {
         builder.AppendLine("  <g id=\"deformed-shape\">");
         Dictionary<string, VisualizationMember> membersById = model.Members.ToDictionary(member => member.MemberId, StringComparer.OrdinalIgnoreCase);
@@ -202,7 +208,7 @@ public sealed class SvgStructuralResultExporter
         {
             foreach (VisualizationNodeDisplacementLabel label in model.NodeDisplacementLabels)
             {
-                AppendNodeDisplacementLabel(builder, mapper, label, model.DeformationScale);
+                AppendNodeDisplacementLabel(builder, mapper, label, model.DeformationScale, labelLayout);
             }
         }
 
@@ -210,42 +216,42 @@ public sealed class SvgStructuralResultExporter
         {
             foreach (VisualizationMemberDisplacementLabel label in model.MemberDisplacementLabels)
             {
-                AppendMemberDisplacementLabel(builder, mapper, label, model.DeformationScale);
+                AppendMemberDisplacementLabel(builder, mapper, label, model.DeformationScale, labelLayout);
             }
         }
 
         if (options.IncludeMaximumDisplacementAnnotation && model.MaximumDisplacement is not null)
         {
-            AppendMaximumDisplacement(builder, mapper, model.MaximumDisplacement);
+            AppendMaximumDisplacement(builder, mapper, model.MaximumDisplacement, labelLayout);
         }
 
         builder.AppendLine("  </g>");
     }
 
 
-    private static void AppendLoads(StringBuilder builder, StructuralVisualizationModel model, CoordinateMapper mapper)
+    private static void AppendLoads(StringBuilder builder, StructuralVisualizationModel model, CoordinateMapper mapper, LabelLayoutState labelLayout)
     {
         builder.AppendLine("  <g id=\"loads\">");
 
         foreach (VisualizationDistributedLoad load in model.DistributedLoads)
         {
-            AppendDistributedLoad(builder, mapper, load);
+            AppendDistributedLoad(builder, mapper, load, labelLayout);
         }
 
         foreach (VisualizationLoadArrow arrow in model.LoadArrows)
         {
-            AppendLoadArrow(builder, mapper, arrow);
+            AppendLoadArrow(builder, mapper, arrow, labelLayout);
         }
 
         foreach (VisualizationLoadMoment moment in model.LoadMoments)
         {
-            AppendLoadMoment(builder, mapper, moment);
+            AppendLoadMoment(builder, mapper, moment, labelLayout);
         }
 
         builder.AppendLine("  </g>");
     }
 
-    private static void AppendLoadArrow(StringBuilder builder, CoordinateMapper mapper, VisualizationLoadArrow arrow)
+    private static void AppendLoadArrow(StringBuilder builder, CoordinateMapper mapper, VisualizationLoadArrow arrow, LabelLayoutState labelLayout)
     {
         double x1 = mapper.MapX(arrow.Start.X);
         double y1 = mapper.MapY(arrow.Start.Y);
@@ -258,7 +264,7 @@ public sealed class SvgStructuralResultExporter
         builder.AppendLine($"    <text class=\"load-label\" x=\"{Format(lx)}\" y=\"{Format(ly)}\">{EscapeXml(GetLoadLabel(arrow.Label, arrow.Value, arrow.Unit))}</text>");
     }
 
-    private static void AppendLoadMoment(StringBuilder builder, CoordinateMapper mapper, VisualizationLoadMoment moment)
+    private static void AppendLoadMoment(StringBuilder builder, CoordinateMapper mapper, VisualizationLoadMoment moment, LabelLayoutState labelLayout)
     {
         double cx = mapper.MapX(moment.Center.X);
         double cy = mapper.MapY(moment.Center.Y);
@@ -273,7 +279,7 @@ public sealed class SvgStructuralResultExporter
         builder.AppendLine($"    <text class=\"load-label\" x=\"{Format(cx + radius + 4.0)}\" y=\"{Format(cy - radius)}\">{EscapeXml(GetLoadLabel(moment.Label, moment.Value, moment.Unit))}</text>");
     }
 
-    private static void AppendDistributedLoad(StringBuilder builder, CoordinateMapper mapper, VisualizationDistributedLoad load)
+    private static void AppendDistributedLoad(StringBuilder builder, CoordinateMapper mapper, VisualizationDistributedLoad load, LabelLayoutState labelLayout)
     {
         double x1 = mapper.MapX(load.StartAxisPoint.X);
         double y1 = mapper.MapY(load.StartAxisPoint.Y);
@@ -322,7 +328,7 @@ public sealed class SvgStructuralResultExporter
     private static double Interpolate(double start, double end, double position) =>
         start + ((end - start) * position);
 
-    private static void AppendSupportGlyph(StringBuilder builder, CoordinateMapper mapper, VisualizationSupport support)
+    private static void AppendSupportGlyph(StringBuilder builder, CoordinateMapper mapper, VisualizationSupport support, LabelLayoutState labelLayout)
     {
         double x = mapper.MapX(support.Position.X);
         double y = mapper.MapY(support.Position.Y);
@@ -358,7 +364,9 @@ public sealed class SvgStructuralResultExporter
         }
 
         builder.AppendLine("      </g>");
-        builder.AppendLine($"      <text class=\"support-label\" x=\"{Format(x + 14.0)}\" y=\"{Format(y + 16.0)}\">{EscapeXml(GetSupportLabel(support))}</text>");
+        string line = GetSupportLabel(support);
+        LabelPlacement placement = labelLayout.PlaceNear(x, y, new[] { line }, 12.0, 14.0, 16.0, 14.0);
+        AppendLabelBlock(builder, "support-label", placement, new[] { line }, 2);
         builder.AppendLine("    </g>");
     }
 
@@ -377,7 +385,7 @@ public sealed class SvgStructuralResultExporter
             : $"{support.Label} ({typeLabel})";
     }
 
-    private static void AppendReactionArrow(StringBuilder builder, CoordinateMapper mapper, VisualizationReactionArrow arrow)
+    private static void AppendReactionArrow(StringBuilder builder, CoordinateMapper mapper, VisualizationReactionArrow arrow, LabelLayoutState labelLayout)
     {
         double x1 = mapper.MapX(arrow.Start.X);
         double y1 = mapper.MapY(arrow.Start.Y);
@@ -387,7 +395,9 @@ public sealed class SvgStructuralResultExporter
         double my = (y1 + y2) / 2.0;
 
         builder.AppendLine($"    <line class=\"reaction\" x1=\"{Format(x1)}\" y1=\"{Format(y1)}\" x2=\"{Format(x2)}\" y2=\"{Format(y2)}\" marker-end=\"url(#reactionArrow)\"/>");
-        builder.AppendLine($"    <text class=\"reaction-label\" x=\"{Format(mx + 6.0)}\" y=\"{Format(my - 6.0)}\">{EscapeXml(GetReactionLabel(arrow))}</text>");
+        string line = GetReactionLabel(arrow);
+        LabelPlacement placement = labelLayout.PlaceNear(mx, my, new[] { line }, 12.0, 6.0, -6.0, 14.0);
+        AppendLabelBlock(builder, "reaction-label", placement, new[] { line }, 2);
     }
 
     private static string GetReactionLabel(VisualizationReactionArrow arrow)
@@ -402,7 +412,7 @@ public sealed class SvgStructuralResultExporter
         return $"{prefix} = {Format(arrow.Value)} kN";
     }
 
-    private static void AppendReactionMoment(StringBuilder builder, CoordinateMapper mapper, VisualizationReactionMoment moment)
+    private static void AppendReactionMoment(StringBuilder builder, CoordinateMapper mapper, VisualizationReactionMoment moment, LabelLayoutState labelLayout)
     {
         double cx = mapper.MapX(moment.Center.X);
         double cy = mapper.MapY(moment.Center.Y);
@@ -417,7 +427,9 @@ public sealed class SvgStructuralResultExporter
         (double x2, double y2) = PolarPoint(cx, cy, radius, endAngle);
 
         builder.AppendLine($"    <path class=\"reaction\" d=\"M {Format(x1)} {Format(y1)} A {Format(radius)} {Format(radius)} 0 1 {sweepFlag} {Format(x2)} {Format(y2)}\" marker-end=\"url(#reactionArrow)\"/>");
-        builder.AppendLine($"    <text class=\"reaction-label\" x=\"{Format(cx + radius + 4.0)}\" y=\"{Format(cy - radius)}\">Mz = {Format(moment.Value)} kNm</text>");
+        string line = $"Mz = {Format(moment.Value)} kNm";
+        LabelPlacement placement = labelLayout.PlaceNear(cx + radius, cy - radius, new[] { line }, 12.0, 6.0, -6.0, 14.0);
+        AppendLabelBlock(builder, "reaction-label", placement, new[] { line }, 2);
     }
 
     private static void AppendDimension(StringBuilder builder, CoordinateMapper mapper, MemberDimensionAnnotation dimension)
@@ -451,7 +463,7 @@ public sealed class SvgStructuralResultExporter
         builder.AppendLine($"    <text class=\"dimension-label\" x=\"{Format(tx)}\" y=\"{Format(ty)}\">L = {Format(dimension.Distance)} m</text>");
     }
 
-    private static void AppendMaximumDisplacement(StringBuilder builder, CoordinateMapper mapper, VisualizationDisplacementAnnotation annotation)
+    private static void AppendMaximumDisplacement(StringBuilder builder, CoordinateMapper mapper, VisualizationDisplacementAnnotation annotation, LabelLayoutState labelLayout)
     {
         double x1 = mapper.MapX(annotation.UndeformedPoint.X);
         double y1 = mapper.MapY(annotation.UndeformedPoint.Y);
@@ -470,7 +482,7 @@ public sealed class SvgStructuralResultExporter
         builder.AppendLine($"    <text class=\"annotation-label\" x=\"{Format(tx)}\" y=\"{Format(ty + 28.0)}\">{EscapeXml(line3)}</text>");
     }
 
-    private static void AppendNodeDisplacementLabel(StringBuilder builder, CoordinateMapper mapper, VisualizationNodeDisplacementLabel label, double deformationScale)
+    private static void AppendNodeDisplacementLabel(StringBuilder builder, CoordinateMapper mapper, VisualizationNodeDisplacementLabel label, double deformationScale, LabelLayoutState labelLayout)
     {
         double x = mapper.MapX(label.Position.X);
         double y = mapper.MapY(label.Position.Y);
@@ -485,7 +497,7 @@ public sealed class SvgStructuralResultExporter
         builder.AppendLine("    </g>");
     }
 
-    private static void AppendMemberDisplacementLabel(StringBuilder builder, CoordinateMapper mapper, VisualizationMemberDisplacementLabel label, double deformationScale)
+    private static void AppendMemberDisplacementLabel(StringBuilder builder, CoordinateMapper mapper, VisualizationMemberDisplacementLabel label, double deformationScale, LabelLayoutState labelLayout)
     {
         double x = mapper.MapX(label.Position.X);
         double y = mapper.MapY(label.Position.Y);
@@ -499,7 +511,7 @@ public sealed class SvgStructuralResultExporter
         builder.AppendLine("    </g>");
     }
 
-    private static void AppendDiagramAnnotation(StringBuilder builder, CoordinateMapper mapper, DiagramValueAnnotation annotation)
+    private static void AppendDiagramAnnotation(StringBuilder builder, CoordinateMapper mapper, DiagramValueAnnotation annotation, LabelLayoutState labelLayout)
     {
         double x = mapper.MapX(annotation.Position.X);
         double y = mapper.MapY(annotation.Position.Y);
@@ -693,6 +705,76 @@ public sealed class SvgStructuralResultExporter
 
     private static string FormatRadiansAsDegrees(double radians) =>
         Format(radians * 180.0 / Math.PI);
+
+    private static void AppendLabelBlock(StringBuilder builder, string cssClass, LabelPlacement placement, IReadOnlyList<string> lines, double padding = 3.0)
+    {
+        double rectY = placement.Y - placement.FontSize;
+        builder.AppendLine($"    <rect class=\"label-background\" x=\"{Format(placement.X - padding)}\" y=\"{Format(rectY - padding)}\" width=\"{Format(placement.Width + (padding * 2.0))}\" height=\"{Format(placement.Height + (padding * 2.0))}\" rx=\"2\"/>");
+
+        for (int index = 0; index < lines.Count; index++)
+        {
+            double lineY = placement.Y + (index * placement.LineHeight);
+            builder.AppendLine($"    <text class=\"{cssClass}\" x=\"{Format(placement.X)}\" y=\"{Format(lineY)}\">{EscapeXml(lines[index])}</text>");
+        }
+    }
+
+    private sealed class LabelLayoutState
+    {
+        private readonly List<LabelRect> _rects = new();
+
+        public LabelPlacement PlaceNear(double anchorX, double anchorY, IReadOnlyList<string> lines, double fontSize, double defaultDx, double defaultDy, double lineHeight)
+        {
+            double width = EstimateWidth(lines, fontSize);
+            double height = Math.Max(lineHeight, lines.Count * lineHeight);
+            double leftDx = -width - 8.0;
+
+            (double Dx, double Dy)[] candidates =
+            {
+                (defaultDx, defaultDy),
+                (defaultDx, defaultDy + height + 6.0),
+                (leftDx, defaultDy),
+                (leftDx, defaultDy + height + 6.0),
+                (defaultDx, defaultDy - height - 6.0),
+                (leftDx, defaultDy - height - 6.0),
+                (12.0, 24.0 + (_rects.Count % 3) * 10.0),
+                (-width - 12.0, 24.0 + (_rects.Count % 3) * 10.0),
+            };
+
+            foreach ((double dx, double dy) in candidates)
+            {
+                double x = anchorX + dx;
+                double y = anchorY + dy;
+                LabelRect rect = new(x - 2.0, y - fontSize - 2.0, width + 4.0, height + 4.0);
+                if (_rects.All(existing => !existing.Intersects(rect)))
+                {
+                    _rects.Add(rect);
+                    return new LabelPlacement(x, y, width, height, fontSize, lineHeight);
+                }
+            }
+
+            double fallbackY = anchorY + defaultDy + ((_rects.Count + 1) * (lineHeight + 6.0));
+            LabelRect fallbackRect = new(anchorX + defaultDx - 2.0, fallbackY - fontSize - 2.0, width + 4.0, height + 4.0);
+            _rects.Add(fallbackRect);
+            return new LabelPlacement(anchorX + defaultDx, fallbackY, width, height, fontSize, lineHeight);
+        }
+
+        private static double EstimateWidth(IReadOnlyList<string> lines, double fontSize)
+        {
+            int maxLength = lines.Count == 0 ? 0 : lines.Max(line => line.Length);
+            return Math.Max(24.0, (maxLength * fontSize * 0.58) + 2.0);
+        }
+    }
+
+    private readonly record struct LabelPlacement(double X, double Y, double Width, double Height, double FontSize, double LineHeight);
+
+    private readonly record struct LabelRect(double X, double Y, double Width, double Height)
+    {
+        public bool Intersects(LabelRect other) =>
+            X < (other.X + other.Width) &&
+            (X + Width) > other.X &&
+            Y < (other.Y + other.Height) &&
+            (Y + Height) > other.Y;
+    }
 
     private readonly record struct CoordinateMapper(
         double MinX,

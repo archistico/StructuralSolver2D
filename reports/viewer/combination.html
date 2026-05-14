@@ -70,6 +70,9 @@
     <marker id="dimensionArrow" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto" markerUnits="userSpaceOnUse">
       <path d="M8,0 L0,4 L8,8" fill="none" stroke="#6b7280" stroke-width="1.2" />
     </marker>
+    <marker id="loadArrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#ea580c" />
+    </marker>
   </defs>
   <style>
     .background { fill: #ffffff; }
@@ -80,7 +83,7 @@
     .diagram.shear-force { stroke: #059669; stroke-width: 1.8; fill: none; }
     .diagram.bending-moment { stroke: #7c3aed; stroke-width: 1.8; fill: none; }
     .node { fill: #0f172a; }
-    .node-label, .support-label, .dimension-label, .annotation-label, .reaction-label, .legend-label, .displacement-label, .member-displacement-label { fill: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }
+    .node-label, .support-label, .dimension-label, .annotation-label, .reaction-label, .legend-label, .displacement-label, .member-displacement-label, .load-label { fill: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 12px; paint-order: stroke; stroke: rgba(255,255,255,0.92); stroke-width: 3px; stroke-linejoin: round; }
     .title { fill: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 20px; font-weight: bold; }
     .caption { fill: #4b5563; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }
     .support-line { stroke: #1f2937; stroke-width: 1.5; fill: none; }
@@ -94,6 +97,7 @@
     .load-arrow, .distributed-load-arrow, .load-moment { stroke: #ea580c; stroke-width: 1.8; fill: none; }
     .distributed-load-shape { stroke: #ea580c; stroke-width: 1.2; fill: rgba(234, 88, 12, 0.08); }
     .load-label { fill: #9a3412; font-family: Arial, Helvetica, sans-serif; font-size: 12px; font-weight: 600; }
+    .label-background { fill: rgba(255,255,255,0.82); stroke: rgba(255,255,255,0.0); }
     .dimension { stroke: #6b7280; stroke-width: 1.2; fill: none; }
     .dimension-extension { stroke: #9ca3af; stroke-width: 1; }
     .annotation-line { stroke: #dc2626; stroke-width: 1.2; stroke-dasharray: 4 3; fill: none; }
@@ -137,7 +141,8 @@
         <line class="support-line" x1="174.988" y1="723.263" x2="186.988" y2="731.263"/>
         <line class="support-line" x1="174.988" y1="728.263" x2="186.988" y2="736.263"/>
       </g>
-      <text class="support-label" x="200.988" y="738.263">Fixed</text>
+    <rect class="label-background" x="198.988" y="724.263" width="40.8" height="18" rx="2"/>
+    <text class="support-label" x="200.988" y="738.263">Fixed</text>
     </g>
     <g class="support" data-support-id="SB" data-orientation-degrees="0">
       <g class="support-symbol" transform="rotate(-0 880.857 722.263)">
@@ -148,7 +153,8 @@
         <line class="support-line" x1="868.857" y1="723.263" x2="880.857" y2="731.263"/>
         <line class="support-line" x1="868.857" y1="728.263" x2="880.857" y2="736.263"/>
       </g>
-      <text class="support-label" x="894.857" y="738.263">Fixed</text>
+    <rect class="label-background" x="892.857" y="724.263" width="40.8" height="18" rx="2"/>
+    <text class="support-label" x="894.857" y="738.263">Fixed</text>
     </g>
     <circle class="node" cx="186.988" cy="722.263" r="3"/>
     <text class="node-label" x="192.988" y="716.263">A</text>
@@ -159,17 +165,23 @@
     <circle class="node" cx="880.857" cy="201.861" r="3"/>
     <text class="node-label" x="886.857" y="195.861">D</text>
     <line class="reaction" x1="186.988" y1="722.263" x2="118.734" y2="722.263" marker-end="url(#reactionArrow)"/>
+    <rect class="label-background" x="156.861" y="702.263" width="110.4" height="18" rx="2"/>
     <text class="reaction-label" x="158.861" y="716.263">Rx = -19.673 kN</text>
     <line class="reaction" x1="186.988" y1="722.263" x2="186.988" y2="773.266" marker-end="url(#reactionArrow)"/>
-    <text class="reaction-label" x="192.988" y="741.765">Ry = -14.701 kN</text>
+    <rect class="label-background" x="190.988" y="747.765" width="110.4" height="18" rx="2"/>
+    <text class="reaction-label" x="192.988" y="761.765">Ry = -14.701 kN</text>
     <line class="reaction" x1="880.857" y1="722.263" x2="879.724" y2="722.263" marker-end="url(#reactionArrow)"/>
+    <rect class="label-background" x="884.291" y="702.263" width="103.44" height="18" rx="2"/>
     <text class="reaction-label" x="886.291" y="716.263">Rx = -0.327 kN</text>
     <line class="reaction" x1="880.857" y1="722.263" x2="880.857" y2="671.259" marker-end="url(#reactionArrow)"/>
+    <rect class="label-background" x="884.857" y="676.761" width="103.44" height="18" rx="2"/>
     <text class="reaction-label" x="886.857" y="690.761">Ry = 14.701 kN</text>
     <path class="reaction" d="M 168.589 703.864 A 26.02 26.02 0 1 0 203.713 702.33" marker-end="url(#reactionArrow)"/>
-    <text class="reaction-label" x="217.008" y="696.243">Mz = 0.596 kNm</text>
+    <rect class="label-background" x="217.008" y="676.243" width="103.44" height="18" rx="2"/>
+    <text class="reaction-label" x="219.008" y="690.243">Mz = 0.596 kNm</text>
     <path class="reaction" d="M 862.458 703.864 A 26.02 26.02 0 1 0 897.583 702.33" marker-end="url(#reactionArrow)"/>
-    <text class="reaction-label" x="910.877" y="696.243">Mz = 0.6 kNm</text>
+    <rect class="label-background" x="910.877" y="656.243" width="89.52" height="18" rx="2"/>
+    <text class="reaction-label" x="912.877" y="670.243">Mz = 0.6 kNm</text>
   </g>
   <g id="loads">
     <line class="load-arrow" data-load-id="H1" x1="880.857" y1="201.861" x2="1019.631" y2="201.861" marker-end="url(#loadArrow)"/>
