@@ -1,0 +1,10 @@
+AnalysisId,Quantity,EntityId,MemberId,Position,Distance_m,Value,Unit
+ULS1,MaxAbsUx,A,,,,0.000000,m
+ULS1,MaxAbsUy,A,,,,0.000000,m
+ULS1,MaxAbsRz,A,,,,-0.024182,rad
+ULS1,MaxAbsReactionFx,SA,,,,0.000000,kN
+ULS1,MaxAbsReactionFy,SA,,,,48.750000,kN
+ULS1,MaxAbsReactionMz,SA,,,,0.000000,kNm
+ULS1,MaxAbsNormalForce,,M1,0.000000,0.000000,-0.000000,kN
+ULS1,MaxAbsShearForce,,M1,0.000000,0.000000,48.750000,kN
+ULS1,MaxAbsBendingMoment,,M1,0.500000,2.500000,60.937500,kNm

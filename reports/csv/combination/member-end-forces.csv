@@ -1,0 +1,2 @@
+LoadCaseId,MemberId,StartAxial_kN,StartShear_kN,StartMoment_kNm,EndAxial_kN,EndShear_kN,EndMoment_kNm
+ULS1,M1,0.000000,48.750000,0.000000,0.000000,48.750000,0.000000
