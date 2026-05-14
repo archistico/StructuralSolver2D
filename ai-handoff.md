@@ -571,3 +571,8 @@ Next milestone: 46 — First simple interactive viewer prototype.
 ## Recent milestone note
 
 Milestone 46 adds support glyphs, scaled support reactions, member-length dimensions, maximum displacement callouts and `N`/`V`/`M` maximum-value labels to the SVG/HTML static preview pipeline. These are implemented in `StructuralSolver2D.Reporting.Visualization` through additional visualization primitives and do not introduce any GUI dependency.
+
+
+## Support orientation note
+
+`StructuralSupport` now includes `OrientationDegrees`. This is currently visualization metadata used by SVG/HTML exporters to rotate support glyphs. It is not yet a solver-level inclined restraint transformation. The solver still constrains global `Ux`, `Uy` and `Rz`.

@@ -233,3 +233,8 @@ Scope implemented:
 - CLI command `export-pdf`.
 
 The next milestone is Milestone 47 — First simple interactive viewer prototype.
+
+
+### Support orientation refinement
+
+Added support orientation metadata for rotated support symbols in static SVG/HTML exports. This is intentionally visualization-level metadata; true inclined restraint equations remain future work.

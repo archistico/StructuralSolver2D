@@ -92,7 +92,8 @@ public static class StructuralModelJsonReader
                 support.RestrainedUy,
                 support.RestrainedRz,
                 support.Type ?? SupportType.Custom,
-                support.Label));
+                support.Label,
+                support.OrientationDegrees));
         }
 
         foreach (JsonLoadCase loadCase in file.LoadCases ?? Enumerable.Empty<JsonLoadCase>())
@@ -266,6 +267,8 @@ public static class StructuralModelJsonReader
         public SupportType? Type { get; set; }
 
         public string? Label { get; set; }
+
+        public double OrientationDegrees { get; set; }
     }
 
     private sealed class JsonLoadCase

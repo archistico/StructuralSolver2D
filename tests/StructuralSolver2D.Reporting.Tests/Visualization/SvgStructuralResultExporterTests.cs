@@ -27,6 +27,8 @@ public sealed class SvgStructuralResultExporterTests
         Assert.Contains("class=\"diagram normal-force\"", svg, StringComparison.Ordinal);
         Assert.Contains(">A<", svg, StringComparison.Ordinal);
         Assert.Contains("Simple support", svg, StringComparison.Ordinal);
+        Assert.Contains("data-orientation-degrees=\"30\"", svg, StringComparison.Ordinal);
+        Assert.Contains("rotate(-30", svg, StringComparison.Ordinal);
         Assert.Contains("Rx = 10", svg, StringComparison.Ordinal);
         Assert.Contains("Ry = 25", svg, StringComparison.Ordinal);
         Assert.Contains("Mz = 12", svg, StringComparison.Ordinal);
@@ -79,7 +81,7 @@ public sealed class SvgStructuralResultExporterTests
             100.0,
             new[]
             {
-                new VisualizationSupport("S1", "A", SupportGlyphKind.SimpleSupport, new VisualizationPoint(0.0, 0.0), null),
+                new VisualizationSupport("S1", "A", SupportGlyphKind.SimpleSupport, new VisualizationPoint(0.0, 0.0), null, 30.0),
             },
             new[]
             {

@@ -191,34 +191,37 @@ public sealed class SvgStructuralResultExporter
         double x = mapper.MapX(support.Position.X);
         double y = mapper.MapY(support.Position.Y);
         const double size = 12.0;
+        double displayRotation = -support.OrientationDegrees;
 
-        builder.AppendLine($"    <g class=\"support\" data-support-id=\"{EscapeXml(support.SupportId)}\">");
+        builder.AppendLine($"    <g class=\"support\" data-support-id=\"{EscapeXml(support.SupportId)}\" data-orientation-degrees=\"{Format(support.OrientationDegrees)}\">");
+        builder.AppendLine($"      <g class=\"support-symbol\" transform=\"rotate({Format(displayRotation)} {Format(x)} {Format(y)})\">");
 
         switch (support.Kind)
         {
             case SupportGlyphKind.SimpleSupport:
-                builder.AppendLine($"      <polygon class=\"support-fill\" points=\"{Format(x)},{Format(y)} {Format(x - size)},{Format(y + size)} {Format(x + size)},{Format(y + size)}\"/>");
-                builder.AppendLine($"      <circle class=\"support-fill\" cx=\"{Format(x - 5.0)}\" cy=\"{Format(y + size + 4.0)}\" r=\"3\"/>");
-                builder.AppendLine($"      <circle class=\"support-fill\" cx=\"{Format(x + 5.0)}\" cy=\"{Format(y + size + 4.0)}\" r=\"3\"/>");
-                builder.AppendLine($"      <line class=\"support-line\" x1=\"{Format(x - size - 4.0)}\" y1=\"{Format(y + size + 8.0)}\" x2=\"{Format(x + size + 4.0)}\" y2=\"{Format(y + size + 8.0)}\"/>");
+                builder.AppendLine($"        <polygon class=\"support-fill\" points=\"{Format(x)},{Format(y)} {Format(x - size)},{Format(y + size)} {Format(x + size)},{Format(y + size)}\"/>");
+                builder.AppendLine($"        <circle class=\"support-fill\" cx=\"{Format(x - 5.0)}\" cy=\"{Format(y + size + 4.0)}\" r=\"3\"/>");
+                builder.AppendLine($"        <circle class=\"support-fill\" cx=\"{Format(x + 5.0)}\" cy=\"{Format(y + size + 4.0)}\" r=\"3\"/>");
+                builder.AppendLine($"        <line class=\"support-line\" x1=\"{Format(x - size - 4.0)}\" y1=\"{Format(y + size + 8.0)}\" x2=\"{Format(x + size + 4.0)}\" y2=\"{Format(y + size + 8.0)}\"/>");
                 break;
             case SupportGlyphKind.Hinge:
-                builder.AppendLine($"      <polygon class=\"support-fill\" points=\"{Format(x)},{Format(y)} {Format(x - size)},{Format(y + size)} {Format(x + size)},{Format(y + size)}\"/>");
-                builder.AppendLine($"      <line class=\"support-line\" x1=\"{Format(x - size - 4.0)}\" y1=\"{Format(y + size + 4.0)}\" x2=\"{Format(x + size + 4.0)}\" y2=\"{Format(y + size + 4.0)}\"/>");
+                builder.AppendLine($"        <polygon class=\"support-fill\" points=\"{Format(x)},{Format(y)} {Format(x - size)},{Format(y + size)} {Format(x + size)},{Format(y + size)}\"/>");
+                builder.AppendLine($"        <line class=\"support-line\" x1=\"{Format(x - size - 4.0)}\" y1=\"{Format(y + size + 4.0)}\" x2=\"{Format(x + size + 4.0)}\" y2=\"{Format(y + size + 4.0)}\"/>");
                 break;
             case SupportGlyphKind.Fixed:
-                builder.AppendLine($"      <line class=\"support-line\" x1=\"{Format(x)}\" y1=\"{Format(y - 12.0)}\" x2=\"{Format(x)}\" y2=\"{Format(y + 12.0)}\"/>");
+                builder.AppendLine($"        <line class=\"support-line\" x1=\"{Format(x)}\" y1=\"{Format(y - 12.0)}\" x2=\"{Format(x)}\" y2=\"{Format(y + 12.0)}\"/>");
                 for (int index = -2; index <= 2; index++)
                 {
                     double y0 = y + (index * 5.0);
-                    builder.AppendLine($"      <line class=\"support-line\" x1=\"{Format(x - 12.0)}\" y1=\"{Format(y0 - 4.0)}\" x2=\"{Format(x)}\" y2=\"{Format(y0 + 4.0)}\"/>");
+                    builder.AppendLine($"        <line class=\"support-line\" x1=\"{Format(x - 12.0)}\" y1=\"{Format(y0 - 4.0)}\" x2=\"{Format(x)}\" y2=\"{Format(y0 + 4.0)}\"/>");
                 }
                 break;
             default:
-                builder.AppendLine($"      <rect class=\"support-fill\" x=\"{Format(x - 8.0)}\" y=\"{Format(y - 8.0)}\" width=\"16\" height=\"16\" rx=\"2\"/>");
+                builder.AppendLine($"        <rect class=\"support-fill\" x=\"{Format(x - 8.0)}\" y=\"{Format(y - 8.0)}\" width=\"16\" height=\"16\" rx=\"2\"/>");
                 break;
         }
 
+        builder.AppendLine("      </g>");
         builder.AppendLine($"      <text class=\"support-label\" x=\"{Format(x + 14.0)}\" y=\"{Format(y + 16.0)}\">{EscapeXml(GetSupportLabel(support))}</text>");
         builder.AppendLine("    </g>");
     }

@@ -877,3 +877,8 @@ See `docs/structural/viewer-data.md`.
 Milestone 46 expands the static SVG/HTML preview layer with engineering-oriented annotations built on top of the existing `StructuralVisualizationModel`. The exported previews now include support symbols, scaled support reactions, member-length dimensions on the undeformed model, a maximum displacement callout on the deformed shape and maximum value labels on the `N`, `V` and `M` diagrams.
 
 This milestone remains fully UI-independent: the new data is still prepared in `StructuralSolver2D.Reporting.Visualization` and can later be reused by a desktop or web viewer without coupling the solver to a GUI framework.
+
+
+### Support orientation refinement
+
+Supports now include `OrientationDegrees` metadata. SVG/HTML exports use it to draw rotated classical support symbols, for example an inclined roller. The current solver still treats restraints as global `Ux`, `Uy` and `Rz` constraints; true mechanically oriented restraints remain a separate future solver extension.

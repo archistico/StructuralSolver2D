@@ -1322,3 +1322,8 @@ Added:
 - visualization data structures for supports, reactions and annotations.
 
 These additions remain in the reporting/visualization layer and do not change solver equations.
+
+
+### Support orientation refinement
+
+Added support orientation metadata for rotated support symbols in static SVG/HTML exports. This is intentionally visualization-level metadata; true inclined restraint equations remain future work.

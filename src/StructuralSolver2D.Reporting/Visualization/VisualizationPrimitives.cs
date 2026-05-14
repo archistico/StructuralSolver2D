@@ -174,7 +174,8 @@ public sealed record VisualizationSupport(
     string NodeId,
     SupportGlyphKind Kind,
     VisualizationPoint Position,
-    string? Label);
+    string? Label,
+    double OrientationDegrees = 0.0);
 
 /// <summary>
 /// Represents one support reaction force arrow.

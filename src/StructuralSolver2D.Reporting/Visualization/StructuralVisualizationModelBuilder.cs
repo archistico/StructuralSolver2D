@@ -177,7 +177,8 @@ public sealed class StructuralVisualizationModelBuilder
                 support.NodeId,
                 MapSupportGlyphKind(support),
                 new VisualizationPoint(node.X, node.Y),
-                support.Label));
+                support.Label,
+                support.OrientationDegrees));
         }
 
         return supports;

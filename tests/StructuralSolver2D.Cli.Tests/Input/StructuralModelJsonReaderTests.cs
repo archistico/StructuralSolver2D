@@ -28,7 +28,7 @@ public sealed class StructuralModelJsonReaderTests
           ],
           "supports": [
             { "id": "SA", "nodeId": "A", "restrainedUx": true, "restrainedUy": true, "restrainedRz": false, "type": "Hinge" },
-            { "id": "SB", "nodeId": "B", "restrainedUx": false, "restrainedUy": true, "restrainedRz": false, "type": "SimpleSupport" }
+            { "id": "SB", "nodeId": "B", "restrainedUx": false, "restrainedUy": true, "restrainedRz": false, "type": "SimpleSupport", "orientationDegrees": 30.0 }
           ],
           "loadCases": [
             { "id": "LC1", "name": "Default load case" }
@@ -47,6 +47,7 @@ public sealed class StructuralModelJsonReaderTests
         Assert.Equal(2, file.Model.Nodes.Count);
         Assert.Single(file.Model.Members);
         Assert.Equal(2, file.Model.Supports.Count);
+        Assert.Equal(30.0, file.Model.Supports[1].OrientationDegrees, precision: 12);
         Assert.Single(file.Model.LoadCases);
         Assert.Single(file.Model.Loads);
         Assert.Equal(StructuralLoadDirection.GlobalY, file.Model.Loads[0].Direction);

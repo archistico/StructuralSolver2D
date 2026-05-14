@@ -38,6 +38,7 @@ The exporter renders:
 
 - undeformed structural model;
 - support symbols on the undeformed model;
+- rotated support symbols through `StructuralSupport.OrientationDegrees`;
 - member-length dimensions between connected nodes;
 - scaled support reactions with value labels;
 - deformed shape;
@@ -76,3 +77,26 @@ This milestone does **not** yet provide:
 - CAD integration.
 
 These are intentionally reserved for later milestones. The current output is static but now aims to be structurally informative, not only visually descriptive.
+
+
+## Rotated support symbols
+
+`StructuralSupport` now exposes `OrientationDegrees`, expressed in model coordinates as a counterclockwise angle in degrees.
+
+The static SVG/HTML exporter uses this value to rotate only the support symbol. Labels remain horizontal for readability.
+
+Example JSON fragment:
+
+```json
+{
+  "id": "SB",
+  "nodeId": "B",
+  "restrainedUx": false,
+  "restrainedUy": true,
+  "restrainedRz": false,
+  "type": "SimpleSupport",
+  "orientationDegrees": 30.0
+}
+```
+
+Current limitation: the orientation is graphical/model metadata. The solver still applies restraints to global `Ux`, `Uy` and `Rz`. Full mechanically oriented restraints, such as a biella/pendolo acting along an arbitrary axis, require a dedicated solver milestone.

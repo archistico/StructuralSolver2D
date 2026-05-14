@@ -167,6 +167,8 @@ public sealed class StructuralVisualizationModelBuilderTests
             });
 
         Assert.Equal(2, visualization.Supports.Count);
+        VisualizationSupport rotatedSupport = Assert.Single(visualization.Supports, support => support.SupportId == "S2");
+        Assert.Equal(30.0, rotatedSupport.OrientationDegrees, precision: 12);
         Assert.Equal(3, visualization.ReactionArrows.Count);
         Assert.Single(visualization.ReactionMoments);
         MemberDimensionAnnotation dimension = Assert.Single(visualization.MemberDimensions);
@@ -270,5 +272,5 @@ public sealed class StructuralVisualizationModelBuilderTests
     private static StructuralModel CreateSupportedModel() =>
         CreateTwoNodeModel()
             .AddSupport(StructuralSupport.Fixed("S1", "A", "Incastro"))
-            .AddSupport(StructuralSupport.SimpleSupport("S2", "B", "Carrello"));
+            .AddSupport(StructuralSupport.SimpleSupport("S2", "B", "Carrello", orientationDegrees: 30.0));
 }
