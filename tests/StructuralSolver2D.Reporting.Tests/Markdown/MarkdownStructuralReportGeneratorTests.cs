@@ -97,6 +97,50 @@ public sealed class MarkdownStructuralReportGeneratorTests
         Assert.Contains("| ... | ... | ... | ... | ... |", markdown);
     }
 
+    [Fact]
+    public void Generate_ShouldIncludeDisplacementSamplesWhenProvidedAndEnabled()
+    {
+        StructuralModel model = CreateSimpleSupportedBeam();
+        (StructuralAnalysisResult result, IReadOnlyList<MemberInternalForceDiagram> diagrams, StructuralAnalysisSummary summary) = Analyze(model, sampleCount: 5);
+        IReadOnlyList<MemberDisplacementDiagram> displacementDiagrams = new Frame2DDisplacementSampler().SampleAllMembers(model, result, sampleCount: 5);
+
+        string markdown = new MarkdownStructuralReportGenerator().Generate(
+            model,
+            result,
+            diagrams,
+            displacementDiagrams,
+            summary,
+            new MarkdownReportOptions
+            {
+                IncludeDisplacementSamples = true,
+                MaxDisplacementSamplesPerMember = 3,
+            });
+
+        Assert.Contains("## Deformed shape samples", markdown);
+        Assert.Contains("| Position | x [m] | u local [m] | v local [m] | rz local [rad] | Ux global [m] | Uy global [m] |", markdown);
+        Assert.Contains("finite-element interpolated displacements", markdown);
+        Assert.Contains("| ... | ... | ... | ... | ... | ... | ... |", markdown);
+    }
+
+    [Fact]
+    public void Generate_ShouldOmitDisplacementSamplesWhenOptionIsDisabled()
+    {
+        StructuralModel model = CreateSimpleSupportedBeam();
+        (StructuralAnalysisResult result, IReadOnlyList<MemberInternalForceDiagram> diagrams, StructuralAnalysisSummary summary) = Analyze(model, sampleCount: 5);
+        IReadOnlyList<MemberDisplacementDiagram> displacementDiagrams = new Frame2DDisplacementSampler().SampleAllMembers(model, result, sampleCount: 5);
+
+        string markdown = new MarkdownStructuralReportGenerator().Generate(
+            model,
+            result,
+            diagrams,
+            displacementDiagrams,
+            summary,
+            new MarkdownReportOptions { IncludeDisplacementSamples = false });
+
+        Assert.Contains("Displacement samples are omitted by report options.", markdown);
+        Assert.DoesNotContain("| Position | x [m] | u local [m] | v local [m] | rz local [rad] | Ux global [m] | Uy global [m] |", markdown);
+    }
+
     private static (StructuralAnalysisResult Result, IReadOnlyList<MemberInternalForceDiagram> Diagrams, StructuralAnalysisSummary Summary) Analyze(
         StructuralModel model,
         int sampleCount = 21)

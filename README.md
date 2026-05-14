@@ -388,3 +388,34 @@ benchmarks/expected/expected-results.json
 ```
 
 The next planned validation milestone is an automated benchmark runner that reads `expected-results.json`, executes the benchmark models, and compares reactions, displacements and extrema against the expected values.
+
+---
+
+## Milestone 19 update - Frame2D displacement sampling
+
+The analysis project now includes a dedicated finite-element displacement sampler for `Frame2D` members:
+
+```text
+Frame2DDisplacementSampler
+MemberDisplacementSample
+MemberDisplacementDiagram
+```
+
+It samples:
+
+```text
+u(x)  local axial displacement
+v(x)  local transverse displacement
+rz(x) local rotation
+Ux(x) global horizontal displacement
+Uy(x) global vertical displacement
+```
+
+Important modeling note: the sampler uses the standard finite-element interpolation of nodal displacements. This is suitable for drawing deformed shapes and for post-processing the FEM displacement field. For distributed loads, an internal sampled displacement is not always identical to the closed-form beam deflection unless that position is explicitly modeled as a structural node.
+
+For benchmark checks, critical positions such as midspan should therefore usually be modeled as nodes when their closed-form deflection is used as an expected value.
+
+
+## Milestone update: deformed shape sampling in reports
+
+Markdown reports can include sampled Frame2D deformed-shape values (`u`, `v`, `rz`, `Ux`, `Uy`). These samples are finite-element interpolation of nodal displacements and should not be confused with closed-form exact internal deflections under all load types.

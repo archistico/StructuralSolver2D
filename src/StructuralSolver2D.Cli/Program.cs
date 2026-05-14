@@ -128,6 +128,7 @@ int RunMarkdownReport(string[] args)
         input.Model,
         run.Result,
         run.Diagrams,
+        run.DisplacementDiagrams,
         run.Summary,
         new MarkdownReportOptions
         {
@@ -136,6 +137,8 @@ int RunMarkdownReport(string[] args)
             SourceLabel = inputPath,
             IncludeInternalForceSamples = true,
             MaxSamplesPerMember = 21,
+            IncludeDisplacementSamples = true,
+            MaxDisplacementSamplesPerMember = 21,
         });
 
     string? directory = Path.GetDirectoryName(outputPath);
@@ -165,14 +168,20 @@ void AnalyzeAndWrite(
 AnalysisRun Analyze(StructuralModel model, string loadCaseId)
 {
     StructuralAnalysisResult result;
+    IReadOnlyList<MemberDisplacementDiagram> displacementDiagrams;
 
-    if (model.Members.Count > 0 && model.Members.All(member => member.Type == StructuralSolver2D.Core.Model.Enums.MemberType.Truss2D))
+    bool isTrussOnlyModel = model.Members.Count > 0 &&
+        model.Members.All(member => member.Type == StructuralSolver2D.Core.Model.Enums.MemberType.Truss2D);
+
+    if (isTrussOnlyModel)
     {
         var analyzer = new Truss2DAnalyzer();
         result = model.LoadCombinations.Any(
             combination => string.Equals(combination.Id, loadCaseId, StringComparison.OrdinalIgnoreCase))
             ? analyzer.AnalyzeCombination(model, loadCaseId)
             : analyzer.Analyze(model, loadCaseId);
+
+        displacementDiagrams = Array.Empty<MemberDisplacementDiagram>();
     }
     else
     {
@@ -181,6 +190,8 @@ AnalysisRun Analyze(StructuralModel model, string loadCaseId)
             combination => string.Equals(combination.Id, loadCaseId, StringComparison.OrdinalIgnoreCase))
             ? analyzer.AnalyzeCombination(model, loadCaseId)
             : analyzer.Analyze(model, loadCaseId);
+
+        displacementDiagrams = new Frame2DDisplacementSampler().SampleAllMembers(model, result, sampleCount: 21);
     }
 
     var sampler = new Frame2DInternalForceSampler();
@@ -189,7 +200,7 @@ AnalysisRun Analyze(StructuralModel model, string loadCaseId)
     var summarizer = new Frame2DResultSummarizer();
     StructuralAnalysisSummary summary = summarizer.Summarize(result, diagrams);
 
-    return new AnalysisRun(result, diagrams, summary);
+    return new AnalysisRun(result, diagrams, displacementDiagrams, summary);
 }
 
 static bool IsHelpCommand(string command) =>
@@ -212,4 +223,5 @@ static bool IsReportCommand(string command) =>
 internal sealed record AnalysisRun(
     StructuralAnalysisResult Result,
     IReadOnlyList<MemberInternalForceDiagram> Diagrams,
+    IReadOnlyList<MemberDisplacementDiagram> DisplacementDiagrams,
     StructuralAnalysisSummary Summary);

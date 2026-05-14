@@ -24,11 +24,31 @@ public sealed class MarkdownStructuralReportGenerator
         StructuralAnalysisResult result,
         IReadOnlyList<MemberInternalForceDiagram> diagrams,
         StructuralAnalysisSummary summary,
+        MarkdownReportOptions? options = null) =>
+        Generate(model, result, diagrams, Array.Empty<MemberDisplacementDiagram>(), summary, options);
+
+    /// <summary>
+    /// Generates a Markdown report from the model, analysis result, internal-force diagrams, displacement diagrams and summary.
+    /// </summary>
+    /// <param name="model">Analyzed structural model.</param>
+    /// <param name="result">Analysis result for a single load case or load combination.</param>
+    /// <param name="diagrams">Sampled internal-force diagrams.</param>
+    /// <param name="displacementDiagrams">Sampled displacement/deformed-shape diagrams.</param>
+    /// <param name="summary">Analysis summary and extrema.</param>
+    /// <param name="options">Optional report generation options.</param>
+    /// <returns>Markdown report content.</returns>
+    public string Generate(
+        StructuralModel model,
+        StructuralAnalysisResult result,
+        IReadOnlyList<MemberInternalForceDiagram> diagrams,
+        IReadOnlyList<MemberDisplacementDiagram> displacementDiagrams,
+        StructuralAnalysisSummary summary,
         MarkdownReportOptions? options = null)
     {
         ArgumentNullException.ThrowIfNull(model);
         ArgumentNullException.ThrowIfNull(result);
         ArgumentNullException.ThrowIfNull(diagrams);
+        ArgumentNullException.ThrowIfNull(displacementDiagrams);
         ArgumentNullException.ThrowIfNull(summary);
 
         options ??= new MarkdownReportOptions();
@@ -40,6 +60,7 @@ public sealed class MarkdownStructuralReportGenerator
         WriteModel(builder, model);
         WriteResults(builder, result, summary);
         WriteInternalForceDiagrams(builder, diagrams, options);
+        WriteDisplacementDiagrams(builder, displacementDiagrams, options);
         WriteNotes(builder);
 
         return builder.ToString();
@@ -350,12 +371,61 @@ public sealed class MarkdownStructuralReportGenerator
         }
     }
 
+    private static void WriteDisplacementDiagrams(
+        StringBuilder builder,
+        IReadOnlyList<MemberDisplacementDiagram> displacementDiagrams,
+        MarkdownReportOptions options)
+    {
+        builder.AppendLine("## Deformed shape samples");
+        builder.AppendLine();
+
+        if (displacementDiagrams.Count == 0)
+        {
+            builder.AppendLine("No sampled displacement diagrams are available.");
+            builder.AppendLine();
+            return;
+        }
+
+        if (!options.IncludeDisplacementSamples)
+        {
+            builder.AppendLine("Displacement samples are omitted by report options.");
+            builder.AppendLine();
+            return;
+        }
+
+        builder.AppendLine("The values below are finite-element interpolated displacements from nodal results. They are suitable for drawing the deformed shape; internal deflections under distributed loads are not always identical to closed-form beam solutions unless the checked point is explicitly modeled as a node.");
+        builder.AppendLine();
+
+        foreach (MemberDisplacementDiagram diagram in displacementDiagrams)
+        {
+            builder.AppendLine($"### Member `{diagram.MemberId}`");
+            builder.AppendLine();
+            builder.AppendLine($"Length: **{Format(diagram.Length)} m**");
+            builder.AppendLine();
+            builder.AppendLine("| Position | x [m] | u local [m] | v local [m] | rz local [rad] | Ux global [m] | Uy global [m] |");
+            builder.AppendLine("|---:|---:|---:|---:|---:|---:|---:|");
+
+            foreach (MemberDisplacementSample sample in diagram.Samples.Take(Math.Max(0, options.MaxDisplacementSamplesPerMember)))
+            {
+                builder.AppendLine($"| {Format(sample.NormalizedPosition)} | {Format(sample.Distance)} | {Format(sample.LocalUx)} | {Format(sample.LocalUy)} | {Format(sample.LocalRz)} | {Format(sample.GlobalUx)} | {Format(sample.GlobalUy)} |");
+            }
+
+            if (diagram.Samples.Count > options.MaxDisplacementSamplesPerMember)
+            {
+                builder.AppendLine("| ... | ... | ... | ... | ... | ... | ... |");
+            }
+
+            builder.AppendLine();
+        }
+    }
+
     private static void WriteNotes(StringBuilder builder)
     {
         builder.AppendLine("## Notes and limitations");
         builder.AppendLine();
         builder.AppendLine("- The report is generated from a 2D frame linear static analysis result.");
         builder.AppendLine("- Internal forces are sampled values; exact extrema may require analytical post-processing for some load configurations.");
+        builder.AppendLine("- Deformed-shape samples use finite-element interpolation of nodal displacements; for benchmark deflection checks, critical points should be modeled as explicit nodes when closed-form comparison is required.");
         builder.AppendLine("- The current scope is analysis of simple plane structural schemes, not complete normative design verification.");
         builder.AppendLine("- Results must be checked by a qualified professional before any practical engineering use.");
         builder.AppendLine();

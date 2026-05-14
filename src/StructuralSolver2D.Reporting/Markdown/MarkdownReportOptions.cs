@@ -31,6 +31,16 @@ public sealed class MarkdownReportOptions
     public int MaxSamplesPerMember { get; set; } = 21;
 
     /// <summary>
+    /// Gets or sets whether sampled displacement/deformed-shape values should be included in the report.
+    /// </summary>
+    public bool IncludeDisplacementSamples { get; set; }
+
+    /// <summary>
+    /// Gets or sets the maximum number of displacement samples printed for each member.
+    /// </summary>
+    public int MaxDisplacementSamplesPerMember { get; set; } = 21;
+
+    /// <summary>
     /// Gets or sets the report creation timestamp in UTC.
     /// </summary>
     public DateTime GeneratedAtUtc { get; set; } = DateTime.UtcNow;

@@ -635,3 +635,32 @@ tests/StructuralSolver2D.Analysis.Tests/Benchmarks/BenchmarkCatalogTests.cs
 The test reads `benchmarks/expected/expected-results.json`, loads the referenced JSON models through `StructuralModelJsonReader`, selects `Frame2DAnalyzer` or `Truss2DAnalyzer` based on member types, and verifies the expected reactions, extrema, selected displacements, axial forces, and named equilibrium/symmetry checks.
 
 Important convention: the benchmark runner is intentionally in `StructuralSolver2D.Analysis.Tests` and references `StructuralSolver2D.Cli` only to reuse the CLI JSON reader. This keeps the benchmark files aligned with the command-line input format.
+
+## Milestone 19 - Frame2D displacement sampling
+
+A `Frame2DDisplacementSampler` has been added under:
+
+```text
+src/StructuralSolver2D.Analysis/Frame2D/Frame2DDisplacementSampler.cs
+```
+
+Result types:
+
+```text
+src/StructuralSolver2D.Analysis/Results/MemberDisplacementSample.cs
+src/StructuralSolver2D.Analysis/Results/MemberDisplacementDiagram.cs
+```
+
+The sampler uses finite-element interpolation only:
+
+- axial displacement is linearly interpolated;
+- transverse displacement uses cubic Hermite beam interpolation;
+- local rotation is the derivative of the interpolated transverse displacement;
+- global Ux/Uy are obtained by transforming local u/v back to global axes.
+
+Do not claim that sampled internal deflections are closed-form exact for distributed loads. When validating exact midspan deflections for UDL cases, add a node at midspan and compare the nodal displacement instead. This was an important design decision after the B01 benchmark exposed the difference between FEM interpolation and closed-form beam deflection.
+
+
+## Current milestone note - deformed shape samples in reports
+
+The Reporting project can include `MemberDisplacementDiagram` data in Markdown reports. The CLI generates displacement diagrams for Frame2D models and passes them to the report generator. Truss2D reports currently omit member displacement diagrams. Displacement samples are FEM interpolation of nodal results; benchmark deflection checks should still model critical points as explicit nodes when comparing against closed-form formulas.
