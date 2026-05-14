@@ -22,7 +22,8 @@ public sealed class StructuralVisualizationModel
         IReadOnlyList<MemberDimensionAnnotation>? memberDimensions = null,
         VisualizationDisplacementAnnotation? maximumDisplacement = null,
         IReadOnlyList<DiagramValueAnnotation>? diagramValueAnnotations = null,
-        IReadOnlyList<VisualizationAnimationFrame>? animationFrames = null)
+        IReadOnlyList<VisualizationAnimationFrame>? animationFrames = null,
+        IReadOnlyList<VisualizationNodeDisplacementLabel>? nodeDisplacementLabels = null)
     {
         Nodes = nodes;
         Members = members;
@@ -37,6 +38,7 @@ public sealed class StructuralVisualizationModel
         MaximumDisplacement = maximumDisplacement;
         DiagramValueAnnotations = diagramValueAnnotations ?? Array.Empty<DiagramValueAnnotation>();
         AnimationFrames = animationFrames ?? Array.Empty<VisualizationAnimationFrame>();
+        NodeDisplacementLabels = nodeDisplacementLabels ?? Array.Empty<VisualizationNodeDisplacementLabel>();
     }
 
     /// <summary>
@@ -98,6 +100,11 @@ public sealed class StructuralVisualizationModel
     /// Gets maximum-value labels for internal-force diagrams.
     /// </summary>
     public IReadOnlyList<DiagramValueAnnotation> DiagramValueAnnotations { get; }
+
+    /// <summary>
+    /// Gets nodal displacement labels rendered near deformed node positions.
+    /// </summary>
+    public IReadOnlyList<VisualizationNodeDisplacementLabel> NodeDisplacementLabels { get; }
 
     /// <summary>
     /// Gets optional prepared animation frames for cyclic deformed-shape visualization.

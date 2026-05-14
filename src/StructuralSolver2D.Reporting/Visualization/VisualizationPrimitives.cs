@@ -215,7 +215,10 @@ public sealed record VisualizationDisplacementAnnotation(
     string NodeId,
     VisualizationPoint UndeformedPoint,
     VisualizationPoint DeformedPoint,
-    double Magnitude);
+    double Magnitude,
+    double Ux = 0.0,
+    double Uy = 0.0,
+    double Rz = 0.0);
 
 /// <summary>
 /// Represents a value label associated with an internal-force diagram extremum.
@@ -226,3 +229,17 @@ public sealed record DiagramValueAnnotation(
     VisualizationPoint Position,
     double Value,
     double AbsoluteValue);
+
+
+/// <summary>
+/// Represents a nodal displacement label rendered near the scaled deformed node position.
+/// Raw translational displacement values are expressed in meters; rotation is expressed in radians.
+/// </summary>
+public sealed record VisualizationNodeDisplacementLabel(
+    string NodeId,
+    string? Label,
+    VisualizationPoint Position,
+    double Ux,
+    double Uy,
+    double ResultantDisplacement,
+    double Rz);

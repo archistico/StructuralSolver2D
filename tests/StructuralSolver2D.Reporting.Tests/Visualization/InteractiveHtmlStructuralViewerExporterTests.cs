@@ -29,6 +29,9 @@ public sealed class InteractiveHtmlStructuralViewerExporterTests
         Assert.Contains("data-action=\"reset\"", html, StringComparison.Ordinal);
         Assert.Contains("data-layer=\"#undeformed-model\"", html, StringComparison.Ordinal);
         Assert.Contains("data-layer=\"#deformed-shape\"", html, StringComparison.Ordinal);
+        Assert.Contains("Displacement labels", html, StringComparison.Ordinal);
+        Assert.Contains("data-layer=\".displacement-label,.displacement-label-anchor\"", html, StringComparison.Ordinal);
+        Assert.Contains("Max disp.", html, StringComparison.Ordinal);
         Assert.Contains("addEventListener('wheel'", html, StringComparison.Ordinal);
         Assert.Contains("pointerdown", html, StringComparison.Ordinal);
         Assert.Contains("<svg", html, StringComparison.Ordinal);
@@ -59,5 +62,15 @@ public sealed class InteractiveHtmlStructuralViewerExporterTests
             new[]
             {
                 new VisualizationSupport("S1", "A", SupportGlyphKind.Hinge, new VisualizationPoint(0.0, 0.0), null),
+            },
+            null,
+            null,
+            null,
+            new VisualizationDisplacementAnnotation("B", new VisualizationPoint(4.0, 0.0), new VisualizationPoint(4.0, -0.2), 0.002, 0.0, -0.002, 0.0),
+            null,
+            null,
+            new[]
+            {
+                new VisualizationNodeDisplacementLabel("B", "B", new VisualizationPoint(4.0, -0.2), 0.0, -0.002, 0.002, 0.0),
             });
 }

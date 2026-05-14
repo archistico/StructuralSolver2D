@@ -176,6 +176,12 @@ public sealed class StructuralVisualizationModelBuilderTests
         Assert.NotNull(visualization.MaximumDisplacement);
         Assert.Equal("B", visualization.MaximumDisplacement!.NodeId);
         Assert.Equal(0.002, visualization.MaximumDisplacement.Magnitude, precision: 12);
+        Assert.Equal(-0.002, visualization.MaximumDisplacement.Uy, precision: 12);
+        Assert.Equal(-0.01, visualization.MaximumDisplacement.Rz, precision: 12);
+        VisualizationNodeDisplacementLabel displacementLabel = Assert.Single(visualization.NodeDisplacementLabels);
+        Assert.Equal("B", displacementLabel.NodeId);
+        Assert.Equal(0.002, displacementLabel.ResultantDisplacement, precision: 12);
+        Assert.Equal(-0.002, displacementLabel.Uy, precision: 12);
         Assert.Equal(3, visualization.DiagramValueAnnotations.Count);
     }
 

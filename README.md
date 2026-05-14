@@ -899,3 +899,8 @@ Rotated translational supports are now mechanically active. `StructuralSupport.O
 ## Milestone 47 - First simple interactive viewer prototype
 
 Milestone 47 adds a lightweight standalone HTML viewer export through `InteractiveHtmlStructuralViewerExporter` and the CLI `export-viewer` command. The viewer supports mouse wheel zoom, pointer drag pan, reset view and layer toggles for undeformed model, deformed shape, diagrams, supports, reactions and dimensions. It consumes `StructuralVisualizationModel` only and does not add solver or GUI-framework coupling.
+
+
+## M47 extra - Deformation value labels
+
+The static SVG export and the interactive HTML viewer now expose the real displacement values behind the amplified deformed shape. The maximum displacement annotation reports resultant displacement, `Ux`, `Uy` and `Rz`, while the viewer includes a `Displacement labels` toggle for nodal displacement labels expressed in millimetres.

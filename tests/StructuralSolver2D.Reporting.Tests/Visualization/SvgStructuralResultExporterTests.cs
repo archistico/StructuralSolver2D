@@ -18,6 +18,7 @@ public sealed class SvgStructuralResultExporterTests
                 Title = "Portal frame preview",
                 IncludeNodeLabels = true,
                 IncludeLegend = true,
+                IncludeNodeDisplacementLabels = true,
             });
 
         Assert.Contains("<svg", svg, StringComparison.Ordinal);
@@ -33,7 +34,10 @@ public sealed class SvgStructuralResultExporterTests
         Assert.Contains("Ry = 25", svg, StringComparison.Ordinal);
         Assert.Contains("Mz = 12", svg, StringComparison.Ordinal);
         Assert.Contains("L = 4", svg, StringComparison.Ordinal);
-        Assert.Contains("umax = 0.002", svg, StringComparison.Ordinal);
+        Assert.Contains("umax = 2 mm", svg, StringComparison.Ordinal);
+        Assert.Contains("Uy = -2 mm", svg, StringComparison.Ordinal);
+        Assert.Contains("Rz = 0.01 rad", svg, StringComparison.Ordinal);
+        Assert.Contains("B: u = 2 mm", svg, StringComparison.Ordinal);
         Assert.Contains("Nmax = 12", svg, StringComparison.Ordinal);
         Assert.Contains("Legend", svg, StringComparison.Ordinal);
     }
@@ -96,9 +100,14 @@ public sealed class SvgStructuralResultExporterTests
             {
                 new MemberDimensionAnnotation("M1", new VisualizationPoint(0.0, 0.0), new VisualizationPoint(4.0, 0.0), 4.0),
             },
-            new VisualizationDisplacementAnnotation("B", new VisualizationPoint(4.0, 0.0), new VisualizationPoint(4.0, -0.2), 0.002),
+            new VisualizationDisplacementAnnotation("B", new VisualizationPoint(4.0, 0.0), new VisualizationPoint(4.0, -0.2), 0.002, 0.0, -0.002, 0.01),
             new[]
             {
                 new DiagramValueAnnotation("M1", VisualizationDiagramKind.NormalForce, new VisualizationPoint(2.0, 0.4), 12.0, 12.0),
+            },
+            null,
+            new[]
+            {
+                new VisualizationNodeDisplacementLabel("B", "B", new VisualizationPoint(4.0, -0.2), 0.0, -0.002, 0.002, 0.01),
             });
 }

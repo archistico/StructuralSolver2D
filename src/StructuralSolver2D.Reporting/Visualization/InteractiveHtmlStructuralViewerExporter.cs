@@ -17,6 +17,7 @@ public sealed class InteractiveHtmlStructuralViewerExporter
 
         options ??= new InteractiveViewerExportOptions();
         options.SvgOptions.Title = options.Title;
+        options.SvgOptions.IncludeNodeDisplacementLabels = true;
 
         string svg = StripXmlDeclaration(new SvgStructuralResultExporter().Export(model, options.SvgOptions));
         string title = EscapeHtml(options.Title);
@@ -40,7 +41,7 @@ public sealed class InteractiveHtmlStructuralViewerExporter
             builder.AppendLine($"      <p>{description}</p>");
         }
         builder.AppendLine("    </header>");
-        AppendToolbar(builder);
+        AppendToolbar(builder, options);
         builder.AppendLine("    <section class=\"viewer-shell\" aria-label=\"Interactive structural result viewer\">");
         builder.AppendLine("      <div class=\"viewer-canvas\" id=\"viewerCanvas\">");
         builder.AppendLine(svg);
@@ -80,7 +81,7 @@ public sealed class InteractiveHtmlStructuralViewerExporter
         builder.AppendLine("  </style>");
     }
 
-    private static void AppendToolbar(StringBuilder builder)
+    private static void AppendToolbar(StringBuilder builder, InteractiveViewerExportOptions options)
     {
         builder.AppendLine("    <nav class=\"toolbar\" aria-label=\"Viewer controls\">");
         builder.AppendLine("      <button type=\"button\" data-action=\"zoom-in\">Zoom +</button>");
@@ -92,6 +93,8 @@ public sealed class InteractiveHtmlStructuralViewerExporter
         builder.AppendLine("      <label><input type=\"checkbox\" data-layer=\".support\" checked /> Supports</label>");
         builder.AppendLine("      <label><input type=\"checkbox\" data-layer=\".reaction,.reaction-label\" checked /> Reactions</label>");
         builder.AppendLine("      <label><input type=\"checkbox\" data-layer=\".dimension,.dimension-extension,.dimension-label\" checked /> Dimensions</label>");
+        string displacementLabelsChecked = options.ShowNodeDisplacementLabelsByDefault ? " checked" : string.Empty;
+        builder.AppendLine($"      <label><input type=\"checkbox\" data-layer=\".displacement-label,.displacement-label-anchor\"{displacementLabelsChecked} /> Displacement labels</label>");
         builder.AppendLine("      <span class=\"hint\">Wheel to zoom, drag to pan.</span>");
         builder.AppendLine("    </nav>");
     }
@@ -105,6 +108,10 @@ public sealed class InteractiveHtmlStructuralViewerExporter
         AppendSummaryItem(builder, "Reactions", (model.ReactionArrows.Count + model.ReactionMoments.Count).ToString(CultureInfo.InvariantCulture));
         AppendSummaryItem(builder, "Diagrams", model.Diagrams.Count.ToString(CultureInfo.InvariantCulture));
         AppendSummaryItem(builder, "Deform. scale", model.DeformationScale.ToString("0.###", CultureInfo.InvariantCulture));
+        if (model.MaximumDisplacement is not null)
+        {
+            AppendSummaryItem(builder, "Max disp.", FormatMillimeters(model.MaximumDisplacement.Magnitude));
+        }
         builder.AppendLine("    </dl>");
     }
 
@@ -158,11 +165,13 @@ public sealed class InteractiveHtmlStructuralViewerExporter
         builder.AppendLine("      document.querySelector('[data-action=zoom-out]').addEventListener('click', () => zoom(1.15));");
         builder.AppendLine("      document.querySelector('[data-action=reset]').addEventListener('click', () => { viewBox = { x: original.x, y: original.y, width: original.width, height: original.height }; applyViewBox(); });");
         builder.AppendLine("      document.querySelectorAll('[data-layer]').forEach(control => {");
-        builder.AppendLine("        control.addEventListener('change', () => {");
+        builder.AppendLine("        function applyLayerVisibility() {");
         builder.AppendLine("          control.dataset.layer.split(',').forEach(selector => {");
         builder.AppendLine("            svg.querySelectorAll(selector.trim()).forEach(element => element.classList.toggle('hidden-layer', !control.checked));");
         builder.AppendLine("          });");
-        builder.AppendLine("        });");
+        builder.AppendLine("        }");
+        builder.AppendLine("        control.addEventListener('change', applyLayerVisibility);");
+        builder.AppendLine("        applyLayerVisibility();");
         builder.AppendLine("      });");
         builder.AppendLine("      applyViewBox();");
         builder.AppendLine("    })();");
@@ -180,6 +189,9 @@ public sealed class InteractiveHtmlStructuralViewerExporter
         int end = trimmedStart.IndexOf("?>", StringComparison.Ordinal);
         return end < 0 ? svg : trimmedStart[(end + 2)..].TrimStart();
     }
+
+    private static string FormatMillimeters(double meters) =>
+        $"{(meters * 1000.0).ToString("0.###", CultureInfo.InvariantCulture)} mm";
 
     private static string EscapeHtml(string? value) =>
         string.IsNullOrWhiteSpace(value)

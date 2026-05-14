@@ -42,6 +42,7 @@
       <label><input type="checkbox" data-layer=".support" checked /> Supports</label>
       <label><input type="checkbox" data-layer=".reaction,.reaction-label" checked /> Reactions</label>
       <label><input type="checkbox" data-layer=".dimension,.dimension-extension,.dimension-label" checked /> Dimensions</label>
+      <label><input type="checkbox" data-layer=".displacement-label,.displacement-label-anchor" /> Displacement labels</label>
       <span class="hint">Wheel to zoom, drag to pan.</span>
     </nav>
     <section class="viewer-shell" aria-label="Interactive structural result viewer">
@@ -66,13 +67,15 @@
     .diagram.shear-force { stroke: #059669; stroke-width: 1.8; fill: none; }
     .diagram.bending-moment { stroke: #7c3aed; stroke-width: 1.8; fill: none; }
     .node { fill: #0f172a; }
-    .node-label, .support-label, .dimension-label, .annotation-label, .reaction-label, .legend-label { fill: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }
+    .node-label, .support-label, .dimension-label, .annotation-label, .reaction-label, .legend-label, .displacement-label { fill: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }
     .title { fill: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 20px; font-weight: bold; }
     .caption { fill: #4b5563; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }
     .support-line { stroke: #1f2937; stroke-width: 1.5; fill: none; }
     .support-fill { fill: #f3f4f6; stroke: #1f2937; stroke-width: 1.5; }
     .reaction { stroke: #0ea5e9; stroke-width: 1.8; fill: none; }
     .reaction-label { fill: #0369a1; }
+    .displacement-label { fill: #991b1b; font-size: 11px; }
+    .displacement-label-anchor { fill: #dc2626; stroke: #ffffff; stroke-width: 1; }
     .dimension { stroke: #6b7280; stroke-width: 1.2; fill: none; }
     .dimension-extension { stroke: #9ca3af; stroke-width: 1; }
     .annotation-line { stroke: #dc2626; stroke-width: 1.2; stroke-dasharray: 4 3; fill: none; }
@@ -130,9 +133,23 @@
   </g>
   <g id="deformed-shape">
     <polyline class="member deformed" points="109.46,314.267 148.189,403.239 186.919,482.846 225.649,553.087 264.379,613.962 303.109,665.472 341.838,707.617 380.568,740.396 419.298,763.809 458.028,777.858 496.757,782.54 535.487,777.858 574.217,763.809 612.947,740.396 651.677,707.617 690.406,665.472 729.136,613.962 767.866,553.087 806.596,482.846 845.326,403.239 884.055,314.267"/>
+    <g class="displacement-label" data-node-id="A">
+      <circle class="displacement-label-anchor" cx="109.46" cy="314.267" r="3"/>
+      <text class="displacement-label" x="117.46" y="326.267">A: u = 0 mm</text>
+      <text class="displacement-label" x="117.46" y="339.267">Ux = 0 mm, Uy = 0 mm</text>
+      <text class="displacement-label" x="117.46" y="352.267">Rz = -0.024 rad</text>
+    </g>
+    <g class="displacement-label" data-node-id="B">
+      <circle class="displacement-label-anchor" cx="884.055" cy="314.267" r="3"/>
+      <text class="displacement-label" x="892.055" y="326.267">B: u = 0 mm</text>
+      <text class="displacement-label" x="892.055" y="339.267">Ux = 0 mm, Uy = 0 mm</text>
+      <text class="displacement-label" x="892.055" y="352.267">Rz = 0.024 rad</text>
+    </g>
     <line class="annotation-line" x1="109.46" y1="314.267" x2="109.46" y2="314.267" marker-end="url(#reactionArrow)"/>
     <circle class="annotation-point" cx="109.46" cy="314.267" r="3.5" style="stroke:#dc2626"/>
-    <text class="annotation-label" x="115.46" y="306.267">umax = 0 m @ A</text>
+    <text class="annotation-label" x="115.46" y="306.267">umax = 0 mm @ A</text>
+    <text class="annotation-label" x="115.46" y="320.267">Ux = 0 mm, Uy = 0 mm</text>
+    <text class="annotation-label" x="115.46" y="334.267">Rz = -0.024 rad (-1.386°)</text>
   </g>
   <g id="legend">
     <text class="legend-label" x="1170" y="36">Legend</text>
@@ -176,6 +193,10 @@
         <dt>Deform. scale</dt>
         <dd>100</dd>
       </div>
+      <div>
+        <dt>Max disp.</dt>
+        <dd>0 mm</dd>
+      </div>
     </dl>
   </main>
   <script>
@@ -218,11 +239,13 @@
       document.querySelector('[data-action=zoom-out]').addEventListener('click', () => zoom(1.15));
       document.querySelector('[data-action=reset]').addEventListener('click', () => { viewBox = { x: original.x, y: original.y, width: original.width, height: original.height }; applyViewBox(); });
       document.querySelectorAll('[data-layer]').forEach(control => {
-        control.addEventListener('change', () => {
+        function applyLayerVisibility() {
           control.dataset.layer.split(',').forEach(selector => {
             svg.querySelectorAll(selector.trim()).forEach(element => element.classList.toggle('hidden-layer', !control.checked));
           });
-        });
+        }
+        control.addEventListener('change', applyLayerVisibility);
+        applyLayerVisibility();
       });
       applyViewBox();
     })();

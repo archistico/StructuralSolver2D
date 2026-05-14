@@ -103,6 +103,11 @@ public sealed class SvgExportOptions
     public bool IncludeMaximumDisplacementAnnotation { get; set; } = true;
 
     /// <summary>
+    /// Gets or sets whether nodal displacement labels should be drawn near the deformed shape.
+    /// </summary>
+    public bool IncludeNodeDisplacementLabels { get; set; } = false;
+
+    /// <summary>
     /// Gets or sets whether maximum-value labels should be drawn on internal-force diagrams.
     /// </summary>
     public bool IncludeDiagramValueLabels { get; set; } = true;

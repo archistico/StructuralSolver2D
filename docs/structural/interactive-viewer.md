@@ -29,8 +29,8 @@ The first prototype supports:
 - mouse wheel zoom;
 - pointer drag pan;
 - reset view;
-- layer toggles for undeformed model, deformed shape, diagrams, supports, reactions and dimensions;
-- summary values for nodes, members, supports, reactions, diagrams and deformation scale.
+- layer toggles for undeformed model, deformed shape, diagrams, supports, reactions, dimensions and nodal displacement labels;
+- summary values for nodes, members, supports, reactions, diagrams, deformation scale and maximum displacement.
 
 The viewer reuses the same SVG result geometry produced by the reporting visualization layer.
 
@@ -57,3 +57,16 @@ This first prototype does not yet provide:
 - OpenCad2D integration.
 
 Those features remain reserved for later milestones.
+
+
+## Deformation value labels
+
+The viewer embeds nodal displacement labels in the SVG scene and exposes them through the `Displacement labels` toolbar toggle.
+
+The labels are expressed in engineering-friendly units:
+
+- translational displacements are shown in millimetres;
+- rotations are shown in radians;
+- the maximum displacement callout also reports `Ux`, `Uy`, resultant `u` and `Rz`.
+
+This remains a visualization feature only: it does not change solver results.

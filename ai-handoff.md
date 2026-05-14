@@ -581,3 +581,8 @@ Support orientation refinement now makes rotated translational restraints mechan
 ## Recent milestone note
 
 Milestone 47 adds a standalone interactive HTML viewer export through `InteractiveHtmlStructuralViewerExporter` and the CLI `export-viewer` command. It supports pan, zoom, reset view and layer toggles while consuming only `StructuralVisualizationModel`. It does not add GUI-framework dependencies or model-editing behavior.
+
+
+## Recent visualization note
+
+M47 extra adds deformation value labels. `StructuralVisualizationModel` now carries nodal displacement labels in addition to the maximum displacement callout. SVG/HTML exports can show real displacement values in millimetres near the deformed shape, and the interactive viewer exposes a `Displacement labels` toggle.

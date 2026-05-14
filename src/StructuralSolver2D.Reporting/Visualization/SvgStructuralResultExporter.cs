@@ -80,13 +80,15 @@ public sealed class SvgStructuralResultExporter
         builder.AppendLine("    .diagram.shear-force { stroke: #059669; stroke-width: 1.8; fill: none; }");
         builder.AppendLine("    .diagram.bending-moment { stroke: #7c3aed; stroke-width: 1.8; fill: none; }");
         builder.AppendLine("    .node { fill: #0f172a; }");
-        builder.AppendLine("    .node-label, .support-label, .dimension-label, .annotation-label, .reaction-label, .legend-label { fill: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }");
+        builder.AppendLine("    .node-label, .support-label, .dimension-label, .annotation-label, .reaction-label, .legend-label, .displacement-label { fill: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }");
         builder.AppendLine("    .title { fill: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 20px; font-weight: bold; }");
         builder.AppendLine("    .caption { fill: #4b5563; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }");
         builder.AppendLine("    .support-line { stroke: #1f2937; stroke-width: 1.5; fill: none; }");
         builder.AppendLine("    .support-fill { fill: #f3f4f6; stroke: #1f2937; stroke-width: 1.5; }");
         builder.AppendLine("    .reaction { stroke: #0ea5e9; stroke-width: 1.8; fill: none; }");
         builder.AppendLine("    .reaction-label { fill: #0369a1; }");
+        builder.AppendLine("    .displacement-label { fill: #991b1b; font-size: 11px; }");
+        builder.AppendLine("    .displacement-label-anchor { fill: #dc2626; stroke: #ffffff; stroke-width: 1; }");
         builder.AppendLine("    .dimension { stroke: #6b7280; stroke-width: 1.2; fill: none; }");
         builder.AppendLine("    .dimension-extension { stroke: #9ca3af; stroke-width: 1; }");
         builder.AppendLine("    .annotation-line { stroke: #dc2626; stroke-width: 1.2; stroke-dasharray: 4 3; fill: none; }");
@@ -176,6 +178,14 @@ public sealed class SvgStructuralResultExporter
         foreach (DeformedMemberShape shape in model.DeformedShapes)
         {
             builder.AppendLine($"    <polyline class=\"member deformed\" points=\"{BuildPoints(shape.Points, mapper)}\"/>");
+        }
+
+        if (options.IncludeNodeDisplacementLabels)
+        {
+            foreach (VisualizationNodeDisplacementLabel label in model.NodeDisplacementLabels)
+            {
+                AppendNodeDisplacementLabel(builder, mapper, label);
+            }
         }
 
         if (options.IncludeMaximumDisplacementAnnotation && model.MaximumDisplacement is not null)
@@ -323,10 +333,29 @@ public sealed class SvgStructuralResultExporter
         double y2 = mapper.MapY(annotation.DeformedPoint.Y);
         double tx = ((x1 + x2) / 2.0) + 6.0;
         double ty = ((y1 + y2) / 2.0) - 8.0;
+        string line1 = $"umax = {FormatMillimeters(annotation.Magnitude)} @ {annotation.NodeId}";
+        string line2 = $"Ux = {FormatMillimeters(annotation.Ux)}, Uy = {FormatMillimeters(annotation.Uy)}";
+        string line3 = $"Rz = {Format(annotation.Rz)} rad ({FormatRadiansAsDegrees(annotation.Rz)}°)";
 
         builder.AppendLine($"    <line class=\"annotation-line\" x1=\"{Format(x1)}\" y1=\"{Format(y1)}\" x2=\"{Format(x2)}\" y2=\"{Format(y2)}\" marker-end=\"url(#reactionArrow)\"/>");
         builder.AppendLine($"    <circle class=\"annotation-point\" cx=\"{Format(x2)}\" cy=\"{Format(y2)}\" r=\"3.5\" style=\"stroke:#dc2626\"/>");
-        builder.AppendLine($"    <text class=\"annotation-label\" x=\"{Format(tx)}\" y=\"{Format(ty)}\">umax = {Format(annotation.Magnitude)} m @ {EscapeXml(annotation.NodeId)}</text>");
+        builder.AppendLine($"    <text class=\"annotation-label\" x=\"{Format(tx)}\" y=\"{Format(ty)}\">{EscapeXml(line1)}</text>");
+        builder.AppendLine($"    <text class=\"annotation-label\" x=\"{Format(tx)}\" y=\"{Format(ty + 14.0)}\">{EscapeXml(line2)}</text>");
+        builder.AppendLine($"    <text class=\"annotation-label\" x=\"{Format(tx)}\" y=\"{Format(ty + 28.0)}\">{EscapeXml(line3)}</text>");
+    }
+
+    private static void AppendNodeDisplacementLabel(StringBuilder builder, CoordinateMapper mapper, VisualizationNodeDisplacementLabel label)
+    {
+        double x = mapper.MapX(label.Position.X);
+        double y = mapper.MapY(label.Position.Y);
+        string name = string.IsNullOrWhiteSpace(label.Label) ? label.NodeId : label.Label!;
+
+        builder.AppendLine($"    <g class=\"displacement-label\" data-node-id=\"{EscapeXml(label.NodeId)}\">");
+        builder.AppendLine($"      <circle class=\"displacement-label-anchor\" cx=\"{Format(x)}\" cy=\"{Format(y)}\" r=\"3\"/>");
+        builder.AppendLine($"      <text class=\"displacement-label\" x=\"{Format(x + 8.0)}\" y=\"{Format(y + 12.0)}\">{EscapeXml(name)}: u = {FormatMillimeters(label.ResultantDisplacement)}</text>");
+        builder.AppendLine($"      <text class=\"displacement-label\" x=\"{Format(x + 8.0)}\" y=\"{Format(y + 25.0)}\">Ux = {FormatMillimeters(label.Ux)}, Uy = {FormatMillimeters(label.Uy)}</text>");
+        builder.AppendLine($"      <text class=\"displacement-label\" x=\"{Format(x + 8.0)}\" y=\"{Format(y + 38.0)}\">Rz = {Format(label.Rz)} rad</text>");
+        builder.AppendLine("    </g>");
     }
 
     private static void AppendDiagramAnnotation(StringBuilder builder, CoordinateMapper mapper, DiagramValueAnnotation annotation)
@@ -453,6 +482,12 @@ public sealed class SvgStructuralResultExporter
 
     private static string Format(double value) =>
         value.ToString("0.###", CultureInfo.InvariantCulture);
+
+    private static string FormatMillimeters(double meters) =>
+        $"{Format(meters * 1000.0)} mm";
+
+    private static string FormatRadiansAsDegrees(double radians) =>
+        Format(radians * 180.0 / Math.PI);
 
     private readonly record struct CoordinateMapper(
         double MinX,

@@ -86,6 +86,7 @@ public sealed class StructuralVisualizationModelBuilder
             allPoints);
 
         VisualizationDisplacementAnnotation? maximumDisplacement = CreateMaximumDisplacementAnnotation(nodes);
+        IReadOnlyList<VisualizationNodeDisplacementLabel> nodeDisplacementLabels = CreateNodeDisplacementLabels(nodes);
 
         IReadOnlyList<VisualizationAnimationFrame> animationFrames = CreateAnimationFrames(
             model,
@@ -110,7 +111,8 @@ public sealed class StructuralVisualizationModelBuilder
             dimensions,
             maximumDisplacement,
             diagramAnnotations,
-            animationFrames);
+            animationFrames,
+            nodeDisplacementLabels);
     }
 
     private static VisualizationNode CreateVisualizationNode(
@@ -454,7 +456,36 @@ public sealed class StructuralVisualizationModelBuilder
             maximumNode.NodeId,
             maximumNode.Position,
             maximumNode.DeformedPosition,
-            maximumMagnitude);
+            maximumMagnitude,
+            maximumNode.Ux,
+            maximumNode.Uy,
+            maximumNode.Rz);
+    }
+
+    private static IReadOnlyList<VisualizationNodeDisplacementLabel> CreateNodeDisplacementLabels(IReadOnlyList<VisualizationNode> nodes)
+    {
+        const double tolerance = 1e-12;
+        List<VisualizationNodeDisplacementLabel> labels = new();
+
+        foreach (VisualizationNode node in nodes)
+        {
+            double resultant = Math.Sqrt((node.Ux * node.Ux) + (node.Uy * node.Uy));
+            if (resultant <= tolerance && Math.Abs(node.Rz) <= tolerance)
+            {
+                continue;
+            }
+
+            labels.Add(new VisualizationNodeDisplacementLabel(
+                node.NodeId,
+                node.Label,
+                node.DeformedPosition,
+                node.Ux,
+                node.Uy,
+                resultant,
+                node.Rz));
+        }
+
+        return labels;
     }
 
     private static IReadOnlyList<VisualizationAnimationFrame> CreateAnimationFrames(

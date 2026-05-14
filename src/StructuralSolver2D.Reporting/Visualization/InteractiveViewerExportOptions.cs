@@ -16,6 +16,12 @@ public sealed class InteractiveViewerExportOptions
     public string? Description { get; set; }
 
     /// <summary>
+    /// Gets or sets whether nodal displacement labels are visible when the viewer opens.
+    /// The labels are always embedded so the user can toggle them from the toolbar.
+    /// </summary>
+    public bool ShowNodeDisplacementLabelsByDefault { get; set; } = false;
+
+    /// <summary>
     /// Gets or sets the SVG options used for the embedded scene.
     /// </summary>
     public SvgExportOptions SvgOptions { get; set; } = new()
