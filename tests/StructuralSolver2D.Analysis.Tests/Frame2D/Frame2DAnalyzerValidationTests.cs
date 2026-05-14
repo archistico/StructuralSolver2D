@@ -165,17 +165,26 @@ public sealed class Frame2DAnalyzerValidationTests
     }
 
     [Fact]
-    public void Analyze_PointLoadOnMember_ShouldThrowClearNotSupportedException()
+    public void Analyze_SimplySupportedBeamWithEccentricMemberPointLoad_ShouldMatchClosedFormReactions()
     {
-        StructuralModel model = CreateSingleMemberBeamModel(5.0)
+        const double length = 8.0;
+        const double force = 12.0;
+        const double normalizedPosition = 0.25;
+        double a = normalizedPosition * length;
+        double b = length - a;
+
+        StructuralModel model = CreateSingleMemberBeamModel(length)
             .AddSupport(StructuralSupport.Hinge("SA", "A"))
             .AddSupport(StructuralSupport.SimpleSupport("SB", "B"))
-            .AddLoad(StructuralLoad.PointLoadOnMember("P1", "LC1", "M1", StructuralLoadDirection.GlobalY, -10.0, 0.5));
+            .AddLoad(StructuralLoad.PointLoadOnMember("P1", "LC1", "M1", StructuralLoadDirection.GlobalY, -force, normalizedPosition));
 
         Frame2DAnalyzer analyzer = new();
 
-        StructuralAnalysisException exception = Assert.Throws<StructuralAnalysisException>(() => analyzer.Analyze(model, "LC1"));
-        Assert.Contains("Point loads on members are not supported", exception.Message);
+        var result = analyzer.Analyze(model, "LC1");
+
+        Assert.Equal(force * b / length, result.GetReaction("SA").Fy, precision: 6);
+        Assert.Equal(force * a / length, result.GetReaction("SB").Fy, precision: 6);
+        Assert.Equal(0.0, result.GetReaction("SA").Mz, precision: 6);
     }
 
     private static StructuralModel CreateSingleMemberBeamModel(double length) =>

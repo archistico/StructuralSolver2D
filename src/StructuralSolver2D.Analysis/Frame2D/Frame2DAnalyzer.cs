@@ -150,7 +150,8 @@ public sealed class Frame2DAnalyzer
                     break;
 
                 case StructuralLoadType.PointLoadOnMember:
-                    throw new StructuralAnalysisException("Point loads on members are not supported by this first Frame2D analysis milestone.");
+                    AddPointLoadOnMember(load, members, nodes, nodeIndexById, globalLoadVector, memberEquivalentLocalLoads);
+                    break;
 
                 case StructuralLoadType.SelfWeight:
                     throw new StructuralAnalysisException("Self-weight loads are not supported by this first Frame2D analysis milestone.");
@@ -220,6 +221,57 @@ public sealed class Frame2DAnalyzer
             existingLocalLoad[index] += localLoad[index];
         }
     }
+
+
+    private static void AddPointLoadOnMember(
+        StructuralLoad load,
+        Dictionary<string, StructuralMember> members,
+        Dictionary<string, StructuralNode> nodes,
+        Dictionary<string, int> nodeIndexById,
+        double[] globalLoadVector,
+        Dictionary<string, double[]> memberEquivalentLocalLoads)
+    {
+        if (!load.Position.HasValue)
+        {
+            throw new StructuralAnalysisException($"Point load '{load.Id}' has no normalized position.");
+        }
+
+        StructuralMember member = members[load.TargetId];
+        StructuralNode startNode = nodes[member.StartNodeId];
+        StructuralNode endNode = nodes[member.EndNodeId];
+        MemberGeometry geometry = MemberGeometry.FromNodes(startNode, endNode);
+
+        (double localXValue, double localYValue) = ResolveConcentratedLoadInLocalCoordinates(load, geometry);
+        double[] localLoad = Frame2DElementMatrices.BuildPointLocalLoad(localXValue, localYValue, geometry.Length, load.Position.Value);
+        double[,] transformation = Frame2DElementMatrices.BuildTransformation(geometry.Cosine, geometry.Sine);
+        double[] globalLoad = Frame2DElementMatrices.TransformLoadToGlobal(localLoad, transformation);
+        int[] dofs = GetMemberDofs(member, nodeIndexById);
+
+        AddElementVector(globalLoadVector, globalLoad, dofs);
+
+        if (!memberEquivalentLocalLoads.TryGetValue(member.Id, out double[]? existingLocalLoad))
+        {
+            existingLocalLoad = new double[6];
+            memberEquivalentLocalLoads[member.Id] = existingLocalLoad;
+        }
+
+        for (int index = 0; index < localLoad.Length; index++)
+        {
+            existingLocalLoad[index] += localLoad[index];
+        }
+    }
+
+    private static (double LocalX, double LocalY) ResolveConcentratedLoadInLocalCoordinates(
+        StructuralLoad load,
+        MemberGeometry geometry) =>
+        load.Direction switch
+        {
+            StructuralLoadDirection.LocalX => (load.Value, 0),
+            StructuralLoadDirection.LocalY => (0, load.Value),
+            StructuralLoadDirection.GlobalX => (geometry.Cosine * load.Value, -geometry.Sine * load.Value),
+            StructuralLoadDirection.GlobalY => (geometry.Sine * load.Value, geometry.Cosine * load.Value),
+            _ => throw new StructuralAnalysisException($"Unsupported point load direction '{load.Direction}'.")
+        };
 
     private static (double LocalX, double LocalY) ResolveUniformLoadInLocalCoordinates(
         StructuralLoad load,

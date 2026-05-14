@@ -112,6 +112,35 @@ internal static class Frame2DElementMatrices
         return load;
     }
 
+
+    /// <summary>
+    /// Builds the consistent local equivalent nodal load vector for a concentrated local load.
+    /// The position is normalized from 0.0 at the start node to 1.0 at the end node.
+    /// </summary>
+    public static double[] BuildPointLocalLoad(double localXValue, double localYValue, double length, double normalizedPosition)
+    {
+        if (normalizedPosition < 0.0 || normalizedPosition > 1.0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(normalizedPosition), normalizedPosition, "Point-load position must be between 0.0 and 1.0.");
+        }
+
+        double r = normalizedPosition;
+        double r2 = r * r;
+        double r3 = r2 * r;
+
+        double[] load = new double[6];
+
+        load[0] += localXValue * (1.0 - r);
+        load[3] += localXValue * r;
+
+        load[1] += localYValue * (1.0 - (3.0 * r2) + (2.0 * r3));
+        load[2] += localYValue * length * (r - (2.0 * r2) + r3);
+        load[4] += localYValue * ((3.0 * r2) - (2.0 * r3));
+        load[5] += localYValue * length * (-r2 + r3);
+
+        return load;
+    }
+
     /// <summary>
     /// Multiplies a matrix by a matrix.
     /// </summary>

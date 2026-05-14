@@ -136,6 +136,36 @@ public sealed class Frame2DInternalForceSamplerTests
         Assert.Contains(diagrams, diagram => diagram.MemberId == "M2" && diagram.Samples.Count == 7);
     }
 
+
+    [Fact]
+    public void SampleMember_SimplySupportedBeamWithEccentricPointLoad_ShouldReturnExpectedShearJumpAndMaximumMoment()
+    {
+        const double length = 8.0;
+        const double force = 12.0;
+        const double normalizedPosition = 0.25;
+
+        StructuralModel model = CreateSingleMemberBeamModel(length)
+            .AddSupport(StructuralSupport.Hinge("SA", "A"))
+            .AddSupport(StructuralSupport.SimpleSupport("SB", "B"))
+            .AddLoad(StructuralLoad.PointLoadOnMember("P1", "LC1", "M1", StructuralLoadDirection.GlobalY, -force, normalizedPosition));
+
+        var result = new Frame2DAnalyzer().Analyze(model, "LC1");
+        var diagram = new Frame2DInternalForceSampler().SampleMember(model, result, "M1", sampleCount: 5);
+
+        var start = diagram.GetClosestSample(0.0);
+        var loadPosition = diagram.GetClosestSample(normalizedPosition);
+        var threeQuarter = diagram.GetClosestSample(0.75);
+        var end = diagram.GetClosestSample(1.0);
+
+        Assert.Equal(9.0, start.ShearForce, precision: 6);
+        Assert.Equal(18.0, loadPosition.BendingMoment, precision: 6);
+        Assert.Equal(-3.0, threeQuarter.ShearForce, precision: 6);
+        Assert.Equal(6.0, threeQuarter.BendingMoment, precision: 6);
+        Assert.Equal(-3.0, end.ShearForce, precision: 6);
+        Assert.Equal(0.0, end.BendingMoment, precision: 6);
+        Assert.Equal(18.0, diagram.MaxAbsBendingMoment, precision: 6);
+    }
+
     [Fact]
     public void SampleMember_WithInvalidSampleCount_ShouldThrowClearException()
     {

@@ -268,10 +268,9 @@ The current Frame2D analyzer supports:
 
 The current Frame2D analyzer does not yet support:
 
-- point loads on members;
 - self-weight generation.
 
-If adding point loads on members, add benchmark tests first, for example a simply supported beam with a centered point load:
+Point loads on members are supported through equivalent nodal loads. Keep benchmark tests for centered and eccentric point loads when changing this area. A useful reference case is a simply supported beam with a centered point load:
 
 ```text
 RA = P / 2
@@ -451,20 +450,13 @@ Recommended next milestones:
 - verify that units and key result values appear;
 - verify report generation with and without internal-force samples.
 
-### Milestone 14 - Point loads on members
-
-- implement equivalent nodal loads for concentrated member loads;
-- update end-force recovery;
-- update internal-force sampling;
-- add tests for centered and eccentric point loads.
-
-### Milestone 15 - Self-weight
+### Milestone 14 - Self-weight
 
 - use material unit weight and section area;
 - generate equivalent uniform distributed loads;
 - document direction and sign conventions.
 
-### Milestone 16 - More examples
+### Milestone 15 - More examples
 
 Add educational JSON examples:
 
@@ -515,8 +507,9 @@ NTC/Eurocode complete verifier
 At the time this handoff was written:
 
 - build passed after Milestone 10 fix;
-- tests passed through Milestone 9 and previous analysis milestones;
+- tests passed through Milestone 12;
+- point loads on members are implemented in the Frame2D analyzer and internal-force sampler;
 - Markdown report generation command worked after fixing `MarkdownStructuralReportGenerator` collection parameter types;
 - project is on .NET 8;
 - `.sln` classic solution is used instead of `.slnx`;
-- latest direction: add README and `ai-handoff.md`, then continue with cleanup/testing/report polishing.
+- latest direction: continue with self-weight generation, richer examples and further numerical validation.

@@ -44,7 +44,6 @@ Not supported yet:
 - geometric nonlinearity / second-order effects;
 - modal, dynamic or seismic analysis;
 - automatic wind, snow or seismic load generation;
-- point loads on members in the analyzer;
 - self-weight load generation in the analyzer;
 - structural design checks according to NTC, Eurocodes or other codes;
 - steel/timber connection design;
@@ -94,6 +93,7 @@ StructuralSolver2D/
     cantilever-point-load.json
     cantilever-uniform-load.json
     axial-bar.json
+    member-point-load.json
 
   reports/
     simple-supported-beam.md
@@ -286,17 +286,16 @@ Milestone 8  - CLI with built-in examples
 Milestone 9  - JSON examples and analyze command
 Milestone 10 - Markdown report generation
 Milestone 11 - README and AI handoff documentation
+Milestone 12 - Test coverage for Reporting and CLI input
+Milestone 13 - Point loads on members in the Frame2D analyzer
 ```
 
 Recommended next steps:
 
 ```text
-Milestone 12 - Clean placeholder template files and polish XML documentation
-Milestone 13 - Add tests for Markdown report generation
-Milestone 14 - Add point loads on members to the Frame2D analyzer
-Milestone 15 - Add self-weight generation
-Milestone 16 - Add richer example library and validation cases
-Milestone 17 - Start considering a minimal graphical viewer or future OpenCad2D adapter
+Milestone 14 - Add self-weight generation
+Milestone 15 - Add richer example library and validation cases
+Milestone 16 - Start considering a minimal graphical viewer or future OpenCad2D adapter
 ```
 
 ---
