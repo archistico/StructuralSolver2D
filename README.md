@@ -89,11 +89,29 @@ StructuralSolver2D/
       roadmap.md
 
   examples/
-    simple-supported-beam.json
-    cantilever-point-load.json
-    cantilever-uniform-load.json
-    axial-bar.json
-    member-point-load.json
+    README.md
+    beams/
+      simple-supported-beam.json
+      cantilever-point-load.json
+      cantilever-uniform-load.json
+      member-point-load.json
+      triangular-distributed-load.json
+      released-beam.json
+      axial-bar.json
+    trusses/
+      simple-truss.json
+    mixed/
+      mixed-frame-truss.json
+    combinations/
+      load-combination.json
+
+  benchmarks/
+    beams/
+    frames/
+    trusses/
+    mixed/
+    convergence/
+    expected/
 
   reports/
     simple-supported-beam.md
@@ -208,25 +226,25 @@ dotnet run --project src\StructuralSolver2D.Cli -- example simple-supported-beam
 Analyze a JSON file:
 
 ```powershell
-dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\simple-supported-beam.json
+dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\beams\simple-supported-beam.json
 ```
 
 Analyze a JSON file and specify the load case explicitly:
 
 ```powershell
-dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\simple-supported-beam.json LC1
+dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\beams\simple-supported-beam.json LC1
 ```
 
 Generate a Markdown report:
 
 ```powershell
-dotnet run --project src\StructuralSolver2D.Cli -- report examples\simple-supported-beam.json reports\simple-supported-beam.md
+dotnet run --project src\StructuralSolver2D.Cli -- report examples\beams\simple-supported-beam.json reports\simple-supported-beam.md
 ```
 
 Generate a Markdown report for a specific load case:
 
 ```powershell
-dotnet run --project src\StructuralSolver2D.Cli -- report examples\simple-supported-beam.json reports\simple-supported-beam.md LC1
+dotnet run --project src\StructuralSolver2D.Cli -- report examples\beams\simple-supported-beam.json reports\simple-supported-beam.md LC1
 ```
 
 ---
@@ -302,13 +320,13 @@ Milestone 22 - Frame2D member end moment releases
 Milestone 23 - Mixed Frame2D + Truss2D plane-structure analyzer
 Milestone 24 - Local/global load conventions and inclined member validation
 Milestone 25 - Global equilibrium checker
+Milestone 26 - Mesh refinement and convergence benchmarks
+Milestone 28 - Improved benchmark runner
 ```
 
 Recommended short-term roadmap:
 
 ```text
-Milestone 26 - Mesh refinement and convergence benchmarks
-Milestone 28 - Improved benchmark runner
 Milestone 29 - Examples and benchmarks reorganization
 Milestone 30 - Initial theory documentation
 ```
@@ -553,3 +571,72 @@ See also:
 ```text
 docs/structural/mesh-refinement.md
 ```
+
+
+## Milestone 28 update
+
+The automated benchmark runner has been refactored into dedicated test-side components:
+
+```text
+tests/StructuralSolver2D.Analysis.Tests/Benchmarks/BenchmarkCatalog.cs
+tests/StructuralSolver2D.Analysis.Tests/Benchmarks/BenchmarkRepository.cs
+tests/StructuralSolver2D.Analysis.Tests/Benchmarks/BenchmarkAnalysisRunner.cs
+tests/StructuralSolver2D.Analysis.Tests/Benchmarks/BenchmarkResultAssertions.cs
+```
+
+The benchmark catalog test now performs two distinct steps:
+
+1. validate the benchmark catalog structure;
+2. run all benchmark models and compare computed results with expected values.
+
+This keeps `BenchmarkCatalogTests.cs` small and makes future expected-result extensions easier to add without duplicating test logic.
+
+Current benchmark checks include:
+
+- support reactions;
+- nodal displacements and rotations;
+- member axial forces;
+- maximum absolute shear and bending moment;
+- named stability/symmetry checks;
+- global equilibrium residuals.
+
+---
+
+## Examples and benchmarks
+
+StructuralSolver2D now separates user-facing examples from validation benchmarks.
+
+```text
+examples/     user-facing files for learning and CLI usage
+benchmarks/   validation and regression cases with expected results
+```
+
+Preferred example paths are categorized:
+
+```text
+examples/
+  beams/
+  trusses/
+  mixed/
+  combinations/
+```
+
+Run an organized example:
+
+```powershell
+dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\beams\simple-supported-beam.json
+```
+
+Run a benchmark case manually:
+
+```powershell
+dotnet run --project src\StructuralSolver2D.Cli -- analyze benchmarks\beams\B01-simple-supported-udl.json
+```
+
+Benchmarks are automatically checked by the test suite through `benchmarks/expected/expected-results.json`.
+
+See also:
+
+- `examples/README.md`
+- `docs/structural/examples-and-benchmarks.md`
+- `docs/structural/benchmark-strategy.md`

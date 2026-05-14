@@ -145,3 +145,17 @@ C02-point-load-explicit-node.json
 ```
 
 These files are not meant to replace the main expected-results catalog. They document convergence behavior and are exercised by dedicated tests in `MeshRefinementConvergenceTests`.
+
+
+---
+
+## Relationship with examples
+
+Benchmarks are not the same as examples.
+
+- `examples/` contains user-facing models intended for learning and CLI usage.
+- `benchmarks/` contains validation and regression models with expected results.
+
+A benchmark should include expected values and should be suitable for automated testing.
+
+An example should be readable and easy to modify, even if it does not include formal expected-result metadata.

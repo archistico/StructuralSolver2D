@@ -203,3 +203,40 @@ For future benchmarks, each convergence case should document:
 - the quantity being monitored;
 - whether the value is nodal or internally interpolated;
 - the expected convergence behavior.
+
+
+---
+
+## Milestone 28 — Improved benchmark runner
+
+Milestone 28 refactors the benchmark runner into smaller test-side components.
+
+The benchmark catalog now has a dedicated representation and validation step. Before executing the numerical comparisons, the tests check that:
+
+- the catalog contains benchmark entries;
+- benchmark ids are unique;
+- benchmark names are not empty;
+- model paths are not empty;
+- referenced model files exist;
+- analysis ids are not empty;
+- tolerances are finite and positive.
+
+The runner is split into:
+
+```text
+BenchmarkCatalog
+BenchmarkRepository
+BenchmarkAnalysisRunner
+BenchmarkResultAssertions
+```
+
+This makes the benchmark layer easier to evolve. Future expected-result types, such as internal-force values at specific positions, symmetry objects or convergence criteria, should be added to the benchmark assertion layer rather than directly inside the main test method.
+
+The benchmark runner currently supports:
+
+- support reactions;
+- nodal displacements and rotations;
+- Frame2D global extrema;
+- Truss2D member axial forces;
+- named stability and symmetry checks;
+- global equilibrium residuals.

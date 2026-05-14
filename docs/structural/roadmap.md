@@ -902,8 +902,6 @@ The solver and validation suite remain the priority.
 The immediate recommended order is:
 
 ```text
-26 - Mesh refinement and convergence benchmarks
-28 - Improved benchmark runner
 29 - Examples and benchmarks reorganization
 30 - Initial theory documentation
 ```
@@ -990,3 +988,87 @@ The milestone validates and documents the distinction between:
 - convergence behavior under mesh refinement.
 
 This milestone reinforces the project rule that validation must evolve together with solver capabilities.
+
+
+---
+
+## Milestone 28 completion update
+
+Milestone 28 improves the automated benchmark runner without changing the solver.
+
+Added/refactored test-side files:
+
+```text
+tests/StructuralSolver2D.Analysis.Tests/Benchmarks/BenchmarkCatalog.cs
+tests/StructuralSolver2D.Analysis.Tests/Benchmarks/BenchmarkRepository.cs
+tests/StructuralSolver2D.Analysis.Tests/Benchmarks/BenchmarkAnalysisRunner.cs
+tests/StructuralSolver2D.Analysis.Tests/Benchmarks/BenchmarkResultAssertions.cs
+tests/StructuralSolver2D.Analysis.Tests/Benchmarks/BenchmarkCatalogTests.cs
+```
+
+The benchmark runner now has a clearer structure:
+
+- catalog loading and schema validation;
+- repository path resolution;
+- analyzer selection;
+- result assertions;
+- catalog orchestration.
+
+The catalog validation checks:
+
+- duplicate benchmark ids;
+- missing names;
+- missing model paths;
+- missing model files;
+- missing analysis ids;
+- invalid tolerances.
+
+The supported automatic result checks currently include:
+
+- support reactions;
+- nodal displacements and rotations;
+- maximum absolute shear;
+- maximum absolute bending moment;
+- Truss2D member axial forces;
+- named stability and symmetry checks;
+- global equilibrium residuals.
+
+This milestone makes the benchmark suite easier to extend before adding more validation cases and future expected-result types.
+
+
+---
+
+## Milestone 29 completion update
+
+Milestone 29 reorganizes user-facing examples and documents the difference between examples and benchmarks.
+
+Added preferred example folders:
+
+```text
+examples/
+  README.md
+  beams/
+  trusses/
+  mixed/
+  combinations/
+```
+
+The new rule is:
+
+```text
+examples/   are for learning and CLI usage
+benchmarks/ are for validation and regression testing
+```
+
+The CLI does not require code changes for this organization because it can analyze any JSON input path.
+
+Existing flat example files may remain temporarily for compatibility, but new examples should use the categorized layout.
+
+Documentation added:
+
+```text
+docs/structural/examples-and-benchmarks.md
+examples/README.md
+```
+
+This milestone prepares the project for a larger benchmark and example catalog without mixing educational examples with validation cases.

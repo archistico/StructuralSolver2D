@@ -48,29 +48,28 @@ The code should therefore remain clear, explicit and easy to test. Avoid clever 
 
 ## Latest milestone
 
-Milestone 25 added a global equilibrium checker.
+Milestone 29 reorganizes user-facing examples into categorized folders and documents the distinction between examples and benchmarks.
 
-The checker sums applied loads and support reactions and verifies the global residuals:
+Important convention:
 
 ```text
-ΣFx ≈ 0
-ΣFy ≈ 0
-ΣMz ≈ 0
+examples/     user-facing files for learning and CLI usage
+benchmarks/   validation and regression cases with expected results
 ```
 
-The checker supports:
+Preferred example layout:
 
-- load cases;
-- manual load combinations;
-- nodal forces;
-- nodal moments;
-- point loads on Frame2D members;
-- uniform distributed loads;
-- linear/triangular/trapezoidal distributed loads;
-- local and global member load directions;
-- Frame2D, Truss2D and mixed PlaneStructure2D analysis results.
+```text
+examples/
+  beams/
+  trusses/
+  mixed/
+  combinations/
+```
 
-The benchmark runner now applies this equilibrium check to every catalog benchmark.
+The CLI can analyze any JSON file path, so no solver changes are required for this organization.
+
+Existing flat `examples/*.json` files may remain temporarily for compatibility, but new examples should use the categorized layout.
 
 ## Current repository layout
 
@@ -86,10 +85,19 @@ tests/
   StructuralSolver2D.Analysis.Tests/
 
 examples/
-  simple-supported-beam.json
-  cantilever-point-load.json
-  cantilever-uniform-load.json
-  axial-bar.json
+  README.md
+  beams/
+  trusses/
+  mixed/
+  combinations/
+
+benchmarks/
+  beams/
+  frames/
+  trusses/
+  mixed/
+  convergence/
+  expected/
 
 docs/structural/
   vision.md
@@ -773,3 +781,50 @@ Related documentation:
 ```text
 docs/structural/mesh-refinement.md
 ```
+
+
+## Milestone 28 note — improved benchmark runner
+
+The benchmark runner has been refactored into dedicated test-side components under:
+
+```text
+tests/StructuralSolver2D.Analysis.Tests/Benchmarks/
+```
+
+Important files:
+
+```text
+BenchmarkCatalog.cs
+BenchmarkRepository.cs
+BenchmarkAnalysisRunner.cs
+BenchmarkResultAssertions.cs
+BenchmarkCatalogTests.cs
+```
+
+Future LLM assistance should preserve this separation:
+
+- `BenchmarkCatalog` represents and validates the JSON expected-results catalog;
+- `BenchmarkRepository` locates repository files from test execution directories;
+- `BenchmarkAnalysisRunner` loads benchmark JSON models and selects the correct analyzer;
+- `BenchmarkResultAssertions` contains supported expected-result checks;
+- `BenchmarkCatalogTests` should remain orchestration-only.
+
+When adding new benchmark expected quantities, extend `BenchmarkResultAssertions` and the catalog DTOs first. Avoid placing more assertion logic directly into `BenchmarkCatalogTests`.
+
+
+---
+
+## Examples versus benchmarks
+
+Do not confuse examples and benchmarks.
+
+Examples are for users and should be small, readable and easy to modify.
+
+Benchmarks are for validation and must have expected results, tolerances and automated tests where possible.
+
+When adding a new solver feature:
+
+1. add or update benchmarks first;
+2. add expected results;
+3. extend the benchmark runner only if needed;
+4. then add user-facing examples if useful.
