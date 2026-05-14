@@ -1,5 +1,6 @@
 using StructuralSolver2D.Analysis;
 using StructuralSolver2D.Analysis.Frame2D;
+using StructuralSolver2D.Analysis.PlaneStructure2D;
 using StructuralSolver2D.Analysis.Truss2D;
 using StructuralSolver2D.Analysis.Results;
 using StructuralSolver2D.Cli.Examples;
@@ -172,26 +173,41 @@ AnalysisRun Analyze(StructuralModel model, string loadCaseId)
 
     bool isTrussOnlyModel = model.Members.Count > 0 &&
         model.Members.All(member => member.Type == StructuralSolver2D.Core.Model.Enums.MemberType.Truss2D);
+    bool isFrameOnlyModel = model.Members.Count > 0 &&
+        model.Members.All(member => member.Type == StructuralSolver2D.Core.Model.Enums.MemberType.Frame2D);
+    bool isCombination = model.LoadCombinations.Any(
+        combination => string.Equals(combination.Id, loadCaseId, StringComparison.OrdinalIgnoreCase));
 
     if (isTrussOnlyModel)
     {
         var analyzer = new Truss2DAnalyzer();
-        result = model.LoadCombinations.Any(
-            combination => string.Equals(combination.Id, loadCaseId, StringComparison.OrdinalIgnoreCase))
+        result = isCombination
             ? analyzer.AnalyzeCombination(model, loadCaseId)
             : analyzer.Analyze(model, loadCaseId);
 
         displacementDiagrams = Array.Empty<MemberDisplacementDiagram>();
     }
-    else
+    else if (isFrameOnlyModel)
     {
         var analyzer = new Frame2DAnalyzer();
-        result = model.LoadCombinations.Any(
-            combination => string.Equals(combination.Id, loadCaseId, StringComparison.OrdinalIgnoreCase))
+        result = isCombination
             ? analyzer.AnalyzeCombination(model, loadCaseId)
             : analyzer.Analyze(model, loadCaseId);
 
         displacementDiagrams = new Frame2DDisplacementSampler().SampleAllMembers(model, result, sampleCount: 21);
+    }
+    else
+    {
+        var analyzer = new PlaneStructureAnalyzer();
+        result = isCombination
+            ? analyzer.AnalyzeCombination(model, loadCaseId)
+            : analyzer.Analyze(model, loadCaseId);
+
+        var displacementSampler = new Frame2DDisplacementSampler();
+        displacementDiagrams = model.Members
+            .Where(member => member.Type == StructuralSolver2D.Core.Model.Enums.MemberType.Frame2D)
+            .Select(member => displacementSampler.SampleMember(model, result, member.Id, sampleCount: 21))
+            .ToList();
     }
 
     var sampler = new Frame2DInternalForceSampler();

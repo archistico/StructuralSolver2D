@@ -702,3 +702,31 @@ JSON supports:
 ```
 
 Known limitation: this is not yet a full joint-release model for all possible semi-rigid or partial-release cases. It currently covers ideal local moment releases for Frame2D elements.
+
+## Milestone 23 note - Mixed plane-structure analyzer
+
+A new analyzer has been added:
+
+```text
+StructuralSolver2D.Analysis.PlaneStructure2D.PlaneStructureAnalyzer
+```
+
+Purpose:
+
+- analyze models that contain both `Frame2D` and `Truss2D` members;
+- use one global system with three DOFs per node: `Ux`, `Uy`, `Rz`;
+- assemble `Frame2D` members into all six member DOFs;
+- assemble `Truss2D` members into translational DOFs only.
+
+Important limits:
+
+- member loads are allowed only on `Frame2D` members;
+- `Truss2D` members remain axial-only and should receive loads through nodal forces;
+- do not add design checks or second-order effects in this milestone;
+- keep `Frame2DAnalyzer` and `Truss2DAnalyzer` intact as pure-model analyzers.
+
+CLI selection logic:
+
+- pure truss models still use `Truss2DAnalyzer`;
+- pure frame models still use `Frame2DAnalyzer`;
+- mixed models use `PlaneStructureAnalyzer`.

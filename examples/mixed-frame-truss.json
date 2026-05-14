@@ -1,0 +1,33 @@
+{
+  "title": "Mixed Frame2D + Truss2D braced portal",
+  "description": "Single-bay portal frame with one axial-only diagonal brace. Used to validate the mixed plane-structure analyzer.",
+  "loadCaseId": "LC1",
+  "nodes": [
+    { "id": "A", "x": 0.0, "y": 0.0 },
+    { "id": "B", "x": 4.0, "y": 0.0 },
+    { "id": "C", "x": 0.0, "y": 3.0 },
+    { "id": "D", "x": 4.0, "y": 3.0 }
+  ],
+  "materials": [
+    { "id": "MAT", "name": "Generic steel", "elasticModulus": 210000000.0 }
+  ],
+  "sections": [
+    { "id": "SEC", "name": "Generic frame section", "area": 0.003, "momentOfInertia": 0.00002 }
+  ],
+  "members": [
+    { "id": "F1", "startNodeId": "A", "endNodeId": "C", "materialId": "MAT", "sectionId": "SEC", "type": "Frame2D", "label": "Left column" },
+    { "id": "F2", "startNodeId": "C", "endNodeId": "D", "materialId": "MAT", "sectionId": "SEC", "type": "Frame2D", "label": "Top beam" },
+    { "id": "F3", "startNodeId": "B", "endNodeId": "D", "materialId": "MAT", "sectionId": "SEC", "type": "Frame2D", "label": "Right column" },
+    { "id": "T1", "startNodeId": "A", "endNodeId": "D", "materialId": "MAT", "sectionId": "SEC", "type": "Truss2D", "label": "Axial-only diagonal brace" }
+  ],
+  "supports": [
+    { "id": "SA", "nodeId": "A", "type": "Fixed", "restrainedUx": true, "restrainedUy": true, "restrainedRz": true },
+    { "id": "SB", "nodeId": "B", "type": "Fixed", "restrainedUx": true, "restrainedUy": true, "restrainedRz": true }
+  ],
+  "loadCases": [
+    { "id": "LC1", "name": "Horizontal load" }
+  ],
+  "loads": [
+    { "id": "H1", "loadCaseId": "LC1", "type": "NodalForce", "targetType": "Node", "targetId": "D", "direction": "GlobalX", "value": 20.0 }
+  ]
+}

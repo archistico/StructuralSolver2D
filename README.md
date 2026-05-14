@@ -458,3 +458,38 @@ Example:
 dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\released-beam.json
 dotnet run --project src\StructuralSolver2D.Cli -- report examples\released-beam.json reports\released-beam.md
 ```
+
+## Milestone 23 - Mixed Frame2D + Truss2D analysis
+
+The project now includes a first mixed plane-structure analyzer:
+
+```text
+StructuralSolver2D.Analysis.PlaneStructure2D.PlaneStructureAnalyzer
+```
+
+It supports models containing both:
+
+- `Frame2D` members, with axial, shear and bending behavior;
+- `Truss2D` members, with axial behavior only.
+
+The mixed analyzer uses a common three-degree-of-freedom nodal layout:
+
+```text
+Ux, Uy, Rz
+```
+
+`Truss2D` members contribute stiffness only to translational degrees of freedom `Ux` and `Uy`. Rotational degrees of freedom remain available for connected `Frame2D` members.
+
+Current limits:
+
+- member distributed loads and member point loads are supported only on `Frame2D` members;
+- `Truss2D` members support nodal-force loading through the global model only;
+- this is still a first-order linear elastic analysis;
+- no second-order effects, buckling checks or design checks are included.
+
+Example:
+
+```powershell
+dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\mixed-frame-truss.json
+dotnet run --project src\StructuralSolver2D.Cli -- report examples\mixed-frame-truss.json reports\mixed-frame-truss.md
+```
