@@ -1,0 +1,56 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "StructuralSolver2D.Reporting/1.0.0": {
+        "dependencies": {
+          "StructuralSolver2D.Analysis": "1.0.0",
+          "StructuralSolver2D.Core": "1.0.0"
+        },
+        "runtime": {
+          "StructuralSolver2D.Reporting.dll": {}
+        }
+      },
+      "StructuralSolver2D.Analysis/1.0.0": {
+        "dependencies": {
+          "StructuralSolver2D.Core": "1.0.0"
+        },
+        "runtime": {
+          "StructuralSolver2D.Analysis.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "StructuralSolver2D.Core/1.0.0": {
+        "runtime": {
+          "StructuralSolver2D.Core.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "StructuralSolver2D.Reporting/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "StructuralSolver2D.Analysis/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "StructuralSolver2D.Core/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
