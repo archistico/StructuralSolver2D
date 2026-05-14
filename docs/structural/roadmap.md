@@ -662,13 +662,21 @@ Completed. The implementation is based on sampled diagrams. It is suitable for r
 
 Add preliminary serviceability checks for deflection.
 
-### Example check
+### Implemented scope
+
+Milestone 32 adds a deliberately limited serviceability helper in the analysis project:
 
 ```text
-maximum deflection <= L / limit
+StructuralSolver2D.Analysis.Serviceability.PreliminaryDeflectionChecker
 ```
 
-Common limits:
+It checks sampled member displacement diagrams against a simple limit:
+
+```text
+maximum sampled deflection <= L / limit
+```
+
+Common limits remain:
 
 ```text
 L/200
@@ -676,6 +684,18 @@ L/250
 L/300
 L/400
 ```
+
+The implementation reports:
+
+- member id;
+- checked direction;
+- reference length;
+- allowable deflection;
+- maximum sampled absolute deflection;
+- signed critical deflection;
+- critical sample position;
+- pass/fail status;
+- utilization ratio.
 
 ### Important limitation
 
@@ -698,6 +718,12 @@ not:
 ```text
 full code-compliant design verification
 ```
+
+The check is based on the existing FEM displacement/deformed-shape samples. For exact benchmark comparison at a specific critical point, that point should still be modeled as an explicit node.
+
+### Status
+
+Completed.
 
 ---
 
@@ -904,24 +930,24 @@ The solver and validation suite remain the priority.
 
 # Short-term priority
 
-The immediate recommended order is:
+Recently completed short-term milestones:
 
 ```text
 29 - Examples and benchmarks reorganization
 30 - Initial theory documentation
 31 - Improved diagrams and characteristic points
+32 - Preliminary SLE deflection checks
 ```
 
 The next recommended step is:
 
 ```text
-32 - Preliminary SLE deflection checks
+33 - Parametric sections
 ```
 
 After that, the project can move toward:
 
 ```text
-33 - Parametric sections
 34 - Material library
 35 - Advanced educational reports
 36 - CSV export
@@ -1119,7 +1145,7 @@ The new theory documentation explains:
 The next recommended milestone is:
 
 ```text
-Milestone 32 — Preliminary SLE deflection checks
+Milestone 33 — Parametric sections
 ```
 
-This should build on the existing displacement/deformed-shape sampling and must remain explicitly described as a preliminary serviceability aid, not as a complete normative design verification.
+This should add simple section-property generators while preserving the existing explicit `StructuralSection` API for advanced/manual input.

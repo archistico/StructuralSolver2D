@@ -326,18 +326,18 @@ Milestone 28 - Improved benchmark runner
 Milestone 29 - Examples and benchmarks reorganization
 Milestone 30 - Initial theory documentation
 Milestone 31 - Improved internal-force diagrams and characteristic points
+Milestone 32 - Preliminary SLE deflection checks
 ```
 
 Recommended next milestone:
 
 ```text
-Milestone 32 - Preliminary SLE deflection checks
+Milestone 33 - Parametric sections
 ```
 
 Medium-term roadmap:
 
 ```text
-Milestone 33 - Parametric sections
 Milestone 34 - Initial material library
 Milestone 35 - Advanced educational Markdown reports
 Milestone 36 - CSV export
@@ -680,4 +680,10 @@ Milestone 31 is complete. The post-processing pipeline now detects characteristi
 
 These points are derived from sampled diagrams and are intended for reporting, validation, future graphical output and educational inspection. The Markdown report includes them by default. Exact analytical locations may require dedicated closed-form post-processing for specific load configurations.
 
-Next recommended work: Milestone 32, limited to preliminary SLE/serviceability deflection checks. It must remain clearly described as a preliminary engineering aid, not as a complete code-compliant verification.
+Milestone 32 adds preliminary serviceability deflection checks through `PreliminaryDeflectionChecker`.
+
+The checker evaluates sampled member displacement diagrams against simple limits such as `L/200`, `L/250`, `L/300` or `L/400`. It reports the critical sample, the selected displacement direction, the allowable deflection, the maximum sampled deflection and the pass/fail status.
+
+This feature is intentionally conservative in wording and scope: it is a preliminary engineering aid, not a complete code-compliant serviceability verification. Internal sampled displacement values are still finite-element interpolation values; for exact benchmark comparisons at critical positions, model those positions as explicit nodes.
+
+Next recommended work: Milestone 33, focused on parametric sections.
