@@ -909,3 +909,14 @@ The static SVG export and the interactive HTML viewer now expose the real displa
 ## M47 extra - Quarter-span deformation labels
 
 The visualization layer now also prepares displacement labels at standard member stations: `L/4`, `L/2` and `3L/4`. These labels show the real deformation values behind the amplified deformed shape: resultant displacement `u`, components `Ux`/`Uy`, local station distance and local rotation where available. The interactive viewer exposes them through a separate `Member station labels` toggle.
+
+
+## JSON input documentation
+
+Detailed documentation for creating input JSON files is available in:
+
+```text
+docs/structural/json-input.md
+```
+
+It explains nodes, materials, sections, members, supports, load cases, loads, load combinations and how to model inclined single forces by decomposing them into global components.

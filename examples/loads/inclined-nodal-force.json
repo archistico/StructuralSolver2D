@@ -1,0 +1,46 @@
+{
+  "title": "Cantilever with inclined nodal force",
+  "description": "L = 4 m. A 10 kN force is applied at node B, 30 degrees downward from the positive global X axis. The inclined force is represented by its global X and Y components.",
+  "loadCaseId": "LC1",
+  "nodes": [
+    { "id": "A", "x": 0.0, "y": 0.0, "label": "Fixed end" },
+    { "id": "B", "x": 4.0, "y": 0.0, "label": "Loaded end" }
+  ],
+  "materials": [
+    { "id": "STEEL", "name": "Generic steel", "elasticModulus": 210000000.0, "unitWeight": 78.5 }
+  ],
+  "sections": [
+    { "id": "IPE_LIKE", "name": "Example section", "area": 0.003, "momentOfInertia": 0.00002, "height": 0.20, "width": 0.10 }
+  ],
+  "members": [
+    { "id": "M1", "startNodeId": "A", "endNodeId": "B", "materialId": "STEEL", "sectionId": "IPE_LIKE", "type": "Frame2D" }
+  ],
+  "supports": [
+    { "id": "SA", "nodeId": "A", "restrainedUx": true, "restrainedUy": true, "restrainedRz": true, "type": "Fixed", "label": "Incastro" }
+  ],
+  "loadCases": [
+    { "id": "LC1", "name": "Inclined force" }
+  ],
+  "loads": [
+    {
+      "id": "P_X",
+      "loadCaseId": "LC1",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "B",
+      "direction": "GlobalX",
+      "value": 8.660254037844386,
+      "label": "Inclined force X component"
+    },
+    {
+      "id": "P_Y",
+      "loadCaseId": "LC1",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "B",
+      "direction": "GlobalY",
+      "value": -5.0,
+      "label": "Inclined force Y component"
+    }
+  ]
+}

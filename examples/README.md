@@ -40,6 +40,17 @@ dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\combinations
 ```
 
 
+
+## Inclined load examples
+
+Inclined single forces are represented by global components (`GlobalX` and `GlobalY`).
+
+```powershell
+dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\loads\inclined-nodal-force.json
+```
+
+See also `docs/structural/json-input.md` for the full explanation.
+
 ## Validation examples
 
 Validation examples are representative structural schemes stored as real JSON files and covered by automated smoke tests.
@@ -71,4 +82,5 @@ examples/
   trusses/
   mixed/
   combinations/
+  loads/
 ```

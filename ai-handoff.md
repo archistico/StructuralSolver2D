@@ -591,3 +591,8 @@ M47 extra adds deformation value labels. `StructuralVisualizationModel` now carr
 ## Recent visualization note
 
 The viewer/export visualization layer includes member displacement station labels at `L/4`, `L/2` and `3L/4`. They are prepared as `VisualizationMemberDisplacementLabel` records and rendered in SVG/HTML as optional member station labels. Values are derived from `MemberDisplacementDiagram` samples when available, otherwise interpolated from nodal displacements.
+
+
+## JSON input documentation
+
+The detailed input JSON guide is `docs/structural/json-input.md`. It documents the root schema, nodes, materials, sections, members, supports, oriented supports, load cases, loads, manual load combinations and inclined force decomposition. The example `examples/loads/inclined-nodal-force.json` shows a 10 kN force at -30 degrees represented as two nodal force components.
