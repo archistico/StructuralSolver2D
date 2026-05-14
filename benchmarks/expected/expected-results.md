@@ -190,3 +190,80 @@ solution must be stable
 ```
 
 This benchmark intentionally starts with equilibrium and symmetry checks rather than hard-coded moment values. More detailed frame benchmark values should be added after comparison with an independent reference source or a hand-checked stiffness-method derivation.
+
+---
+
+## F02 - Inclined cantilever with LocalY uniform load
+
+Model:
+
+```text
+A = (0, 0)
+B = (3, 4)
+L = 5 m
+cos(theta) = 0.6
+sin(theta) = 0.8
+q_local_y = -10 kN/m
+```
+
+For an `A -> B` member, the local y axis is:
+
+```text
+ey_local = (-sin(theta), cos(theta)) = (-0.8, 0.6)
+```
+
+The total local load is:
+
+```text
+Q_local_y = -10 * 5 = -50 kN
+```
+
+Projected into global coordinates:
+
+```text
+Fx_total = +40 kN
+Fy_total = -30 kN
+```
+
+The resultant acts at the midpoint `(1.5, 2.0)`.
+
+Expected fixed support reaction at A:
+
+```text
+RAx = -40 kN
+RAy = +30 kN
+MA = +125 kNm
+```
+
+This benchmark validates local-to-global load projection for inclined Frame2D members.
+
+---
+
+## F03 - Inclined cantilever with GlobalY uniform load
+
+Model:
+
+```text
+A = (0, 0)
+B = (3, 4)
+L = 5 m
+q_global_y = -10 kN/m
+```
+
+The total global vertical load is:
+
+```text
+Fy_total = -10 * 5 = -50 kN
+```
+
+The resultant acts at the member midpoint `(1.5, 2.0)`.
+
+Expected fixed support reaction at A:
+
+```text
+RAx = 0 kN
+RAy = +50 kN
+MA = +75 kNm
+```
+
+This benchmark validates that global load directions remain global and are not affected by the member inclination.

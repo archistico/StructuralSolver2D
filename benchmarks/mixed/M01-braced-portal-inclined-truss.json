@@ -1,0 +1,34 @@
+{
+  "title": "M01 - Mixed portal frame with inclined Truss2D brace",
+  "description": "Single-bay portal frame with one inclined axial-only brace. Used to validate mixed Frame2D + Truss2D behavior under global nodal loads.",
+  "loadCaseId": "LC1",
+  "nodes": [
+    { "id": "A", "x": 0.0, "y": 0.0 },
+    { "id": "B", "x": 4.0, "y": 0.0 },
+    { "id": "C", "x": 0.0, "y": 3.0 },
+    { "id": "D", "x": 4.0, "y": 3.0 }
+  ],
+  "materials": [
+    { "id": "MAT", "name": "Benchmark elastic material", "elasticModulus": 210000000.0 }
+  ],
+  "sections": [
+    { "id": "SEC", "name": "Benchmark section", "area": 0.003, "momentOfInertia": 0.00002 }
+  ],
+  "members": [
+    { "id": "F1", "startNodeId": "A", "endNodeId": "C", "materialId": "MAT", "sectionId": "SEC", "type": "Frame2D" },
+    { "id": "F2", "startNodeId": "C", "endNodeId": "D", "materialId": "MAT", "sectionId": "SEC", "type": "Frame2D" },
+    { "id": "F3", "startNodeId": "B", "endNodeId": "D", "materialId": "MAT", "sectionId": "SEC", "type": "Frame2D" },
+    { "id": "T1", "startNodeId": "A", "endNodeId": "D", "materialId": "MAT", "sectionId": "SEC", "type": "Truss2D" }
+  ],
+  "supports": [
+    { "id": "SA", "nodeId": "A", "restrainedUx": true, "restrainedUy": true, "restrainedRz": true, "type": "Fixed" },
+    { "id": "SB", "nodeId": "B", "restrainedUx": true, "restrainedUy": true, "restrainedRz": true, "type": "Fixed" }
+  ],
+  "loadCases": [
+    { "id": "LC1", "name": "Combined global nodal load" }
+  ],
+  "loads": [
+    { "id": "H1", "loadCaseId": "LC1", "type": "NodalForce", "targetType": "Node", "targetId": "D", "direction": "GlobalX", "value": 20.0 },
+    { "id": "V1", "loadCaseId": "LC1", "type": "NodalForce", "targetType": "Node", "targetId": "D", "direction": "GlobalY", "value": -10.0 }
+  ]
+}

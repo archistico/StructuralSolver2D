@@ -369,39 +369,25 @@ Truss members contribute only to translational degrees of freedom.
 
 ---
 
+
+
+### Milestone 24 — Local/global load conventions and inclined member validation
+
+Added tests and benchmark files for inclined members and local/global load conventions.
+
+Covered topics:
+
+- inclined Frame2D cantilever with global nodal load;
+- inclined Frame2D cantilever with `LocalY` uniform load;
+- inclined Frame2D cantilever with `GlobalY` uniform load;
+- reversed member orientation `A -> B` and `B -> A`;
+- axial load along an inclined member;
+- mixed Frame2D + Truss2D model with inclined brace.
+
+This milestone reinforces the convention that global loads stay global, while local loads rotate with the member axes.
+
 # Upcoming milestones
 
-## Milestone 24 — Local/global load conventions and inclined member validation
-
-### Goal
-
-Validate local/global coordinate conventions, element orientation and inclined member behavior.
-
-### Planned work
-
-Add tests and benchmarks for:
-
-- inclined Frame2D member with global nodal load;
-- inclined Frame2D member with `LocalY` distributed load;
-- inclined Frame2D member with `GlobalY` distributed load;
-- inclined Truss2D member with global nodal load;
-- same member modeled as `A -> B` and `B -> A`;
-- mixed frame with inclined truss brace;
-- sign convention checks for `N`, `V` and `M`.
-
-### Why this matters
-
-Inclined elements are a common source of errors in structural solvers.
-
-This milestone is intended to protect:
-
-- local-to-global transformations;
-- member orientation;
-- local load projection;
-- internal-force signs;
-- mixed Frame2D/Truss2D behavior.
-
----
 
 ## Milestone 25 — Global equilibrium checker
 
@@ -923,7 +909,6 @@ The solver and validation suite remain the priority.
 The immediate recommended order is:
 
 ```text
-24 - Local/global load conventions and inclined member validation
 25 - Global equilibrium checker
 26 - Mesh refinement and convergence benchmarks
 28 - Improved benchmark runner

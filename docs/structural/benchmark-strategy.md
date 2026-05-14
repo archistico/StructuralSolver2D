@@ -127,3 +127,42 @@ The current runner checks:
 - named stability/symmetry/equilibrium checks for the first portal-frame benchmark.
 
 When new benchmark JSON files are added, their expected results should be added to `benchmarks/expected/expected-results.json`. If the new expected quantities are not yet supported by the runner, the runner should be extended before the benchmark is considered part of the automatic regression suite.
+
+
+---
+
+## Milestone 24 - local/global conventions and inclined members
+
+Milestone 24 extends the benchmark and test suite with inclined-member checks.
+
+The goal is to protect one of the most error-prone parts of a structural solver: the relationship between local member axes and global model axes.
+
+New validation topics include:
+
+- 3-4-5 inclined Frame2D member geometry;
+- global nodal load on an inclined cantilever;
+- `LocalY` uniform member load projected into global coordinates;
+- `GlobalY` uniform member load independent from member inclination;
+- reversed member orientation `A -> B` and `B -> A`;
+- axial load along an inclined member;
+- mixed Frame2D + Truss2D behavior with an inclined brace.
+
+Two benchmark files were added to the automatic catalog:
+
+```text
+benchmarks/frames/F02-inclined-cantilever-local-y.json
+benchmarks/frames/F03-inclined-cantilever-global-y.json
+```
+
+An additional mixed benchmark model was added for manual and future automated checks:
+
+```text
+benchmarks/mixed/M01-braced-portal-inclined-truss.json
+```
+
+Important convention:
+
+```text
+Global loads remain expressed in global axes.
+Local loads are expressed in member axes and therefore rotate when the member orientation changes.
+```

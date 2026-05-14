@@ -159,6 +159,40 @@
           "symmetry: horizontal reactions equal and opposite"
         ]
       }
+    },
+    {
+      "id": "F02",
+      "name": "Inclined cantilever with LocalY uniform load",
+      "modelPath": "benchmarks/frames/F02-inclined-cantilever-local-y.json",
+      "analysisId": "LC1",
+      "tolerance": 1e-06,
+      "expected": {
+        "supportReactions": [
+          {
+            "nodeId": "A",
+            "fx": -40.0,
+            "fy": 30.0,
+            "mz": 125.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "F03",
+      "name": "Inclined cantilever with GlobalY uniform load",
+      "modelPath": "benchmarks/frames/F03-inclined-cantilever-global-y.json",
+      "analysisId": "LC1",
+      "tolerance": 1e-06,
+      "expected": {
+        "supportReactions": [
+          {
+            "nodeId": "A",
+            "fx": 0.0,
+            "fy": 50.0,
+            "mz": 75.0
+          }
+        ]
+      }
     }
   ]
 }

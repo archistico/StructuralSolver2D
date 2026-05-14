@@ -25,6 +25,10 @@ benchmarks/
     T01-symmetric-triangular-truss.json
   frames/
     F01-portal-symmetric-gravity.json
+    F02-inclined-cantilever-local-y.json
+    F03-inclined-cantilever-global-y.json
+  mixed/
+    M01-braced-portal-inclined-truss.json
   expected/
     expected-results.json
     expected-results.md
@@ -55,6 +59,7 @@ All benchmark models use the internal StructuralSolver2D units:
 | `B` | Beam benchmark |
 | `T` | Truss benchmark |
 | `F` | Frame benchmark |
+| `M` | Mixed Frame2D + Truss2D benchmark |
 
 Examples:
 
@@ -88,6 +93,14 @@ F01-portal-symmetric-gravity.json
 | ID | Description | Main checks |
 |---|---|---|
 | F01 | Single-bay portal frame with symmetric gravity load | symmetry, stable solution, balanced vertical reactions |
+| F02 | Inclined cantilever with LocalY uniform load | local-to-global load projection |
+| F03 | Inclined cantilever with GlobalY uniform load | global load direction on inclined member |
+
+### Mixed models
+
+| ID | Description | Main checks |
+|---|---|---|
+| M01 | Braced portal frame with inclined Truss2D brace | mixed analyzer, global equilibrium, non-zero brace force |
 
 ---
 
@@ -100,7 +113,7 @@ benchmarks/expected/expected-results.md
 benchmarks/expected/expected-results.json
 ```
 
-The JSON file is intended for a future automated benchmark runner.
+The JSON file is used by the automated benchmark runner.
 The Markdown file is intended for humans and explains the formulas behind the main expected results.
 
 ---
@@ -114,10 +127,4 @@ dotnet run --project src\StructuralSolver2D.Cli -- analyze benchmarks\beams\B01-
 dotnet run --project src\StructuralSolver2D.Cli -- report benchmarks\beams\B01-simple-supported-udl.json reports\B01-simple-supported-udl.md
 ```
 
-Future milestone:
-
-```text
-Milestone 18 - automated benchmark runner
-```
-
-The automated runner should read `expected-results.json`, execute each benchmark model, and compare reactions, displacements and internal-force extrema against the expected values within declared tolerances.
+The automated runner reads `expected-results.json`, executes each benchmark model, and compares reactions, displacements and internal-force extrema against the expected values within declared tolerances.

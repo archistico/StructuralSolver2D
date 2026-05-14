@@ -1,0 +1,27 @@
+{
+  "title": "F03 - Inclined cantilever with GlobalY uniform load",
+  "description": "3-4-5 inclined fixed cantilever. The uniform load is applied in the global Y direction to validate that global loads are independent from member inclination.",
+  "loadCaseId": "LC1",
+  "nodes": [
+    { "id": "A", "x": 0.0, "y": 0.0 },
+    { "id": "B", "x": 3.0, "y": 4.0 }
+  ],
+  "materials": [
+    { "id": "MAT", "name": "Benchmark elastic material", "elasticModulus": 210000000.0 }
+  ],
+  "sections": [
+    { "id": "SEC", "name": "Benchmark frame section", "area": 0.003, "momentOfInertia": 0.00002 }
+  ],
+  "members": [
+    { "id": "M1", "startNodeId": "A", "endNodeId": "B", "materialId": "MAT", "sectionId": "SEC", "type": "Frame2D" }
+  ],
+  "supports": [
+    { "id": "SA", "nodeId": "A", "restrainedUx": true, "restrainedUy": true, "restrainedRz": true, "type": "Fixed" }
+  ],
+  "loadCases": [
+    { "id": "LC1", "name": "GlobalY uniform load" }
+  ],
+  "loads": [
+    { "id": "Q1", "loadCaseId": "LC1", "type": "UniformDistributedLoad", "targetType": "Member", "targetId": "M1", "direction": "GlobalY", "value": -10.0 }
+  ]
+}
