@@ -1,0 +1,119 @@
+{
+  "title": "Rigid-joint portal frame",
+  "description": "Telaio piano a nodi rigidi con basi incastrate, carico verticale sulla trave e azione orizzontale.",
+  "loadCaseId": "LC1",
+  "nodes": [
+    {
+      "id": "A",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "B",
+      "x": 6,
+      "y": 0
+    },
+    {
+      "id": "C",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "id": "D",
+      "x": 6,
+      "y": 4
+    }
+  ],
+  "materials": [
+    {
+      "id": "STEEL",
+      "name": "Generic steel S355",
+      "elasticModulus": 210000000.0,
+      "unitWeight": 78.5
+    }
+  ],
+  "sections": [
+    {
+      "id": "FRAME_SEC",
+      "name": "Generic frame section",
+      "area": 0.012,
+      "momentOfInertia": 9e-05,
+      "height": 0.3,
+      "width": 0.2
+    }
+  ],
+  "members": [
+    {
+      "id": "COL-L",
+      "startNodeId": "A",
+      "endNodeId": "C",
+      "materialId": "STEEL",
+      "sectionId": "FRAME_SEC",
+      "type": "Frame2D",
+      "label": "Left column"
+    },
+    {
+      "id": "BEAM",
+      "startNodeId": "C",
+      "endNodeId": "D",
+      "materialId": "STEEL",
+      "sectionId": "FRAME_SEC",
+      "type": "Frame2D",
+      "label": "Rigid beam"
+    },
+    {
+      "id": "COL-R",
+      "startNodeId": "B",
+      "endNodeId": "D",
+      "materialId": "STEEL",
+      "sectionId": "FRAME_SEC",
+      "type": "Frame2D",
+      "label": "Right column"
+    }
+  ],
+  "supports": [
+    {
+      "id": "SA",
+      "nodeId": "A",
+      "restrainedUx": true,
+      "restrainedUy": true,
+      "restrainedRz": true,
+      "type": "Fixed"
+    },
+    {
+      "id": "SB",
+      "nodeId": "B",
+      "restrainedUx": true,
+      "restrainedUy": true,
+      "restrainedRz": true,
+      "type": "Fixed"
+    }
+  ],
+  "loadCases": [
+    {
+      "id": "LC1",
+      "name": "Validation load case",
+      "description": "Representative non-normative validation load case."
+    }
+  ],
+  "loads": [
+    {
+      "id": "Q-BEAM",
+      "loadCaseId": "LC1",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "BEAM",
+      "direction": "GlobalY",
+      "value": -18
+    },
+    {
+      "id": "H-D",
+      "loadCaseId": "LC1",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "D",
+      "direction": "GlobalX",
+      "value": 12
+    }
+  ]
+}

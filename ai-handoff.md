@@ -48,7 +48,9 @@ The code should therefore remain clear, explicit and easy to test. Avoid clever 
 
 ## Latest milestone
 
-Milestone 39 adds a UI-independent viewer-ready result data model.
+Milestone 41 adds user-facing validation JSON files under `examples/validation/`. These files are loaded, validated and analyzed by automated tests and should be used as reusable inputs for future SVG/HTML/PNG, XLSX, PDF and viewer milestones.
+
+Milestone 39 added a UI-independent viewer-ready result data model.
 
 The reporting project now contains `StructuralSolver2D.Reporting.Visualization`, which prepares:
 
@@ -62,13 +64,13 @@ The reporting project now contains `StructuralSolver2D.Reporting.Visualization`,
 
 This is not a GUI and must remain independent from Avalonia, WPF, HTML, SVG and OpenCad2D.
 
-The post-M39 roadmap has been realigned. The next recommended milestone is:
+The post-M41 roadmap has been realigned. The next recommended milestone is:
 
 ```text
-Milestone 40 — Parametric model generators
+Milestone 42 — Static graphical result export: SVG, HTML and PNG
 ```
 
-The viewer path is still planned, but it now follows the generator/report/export work instead of replacing it. See `docs/structural/development-plan.md`.
+The viewer path is still planned, but it now follows the static graphical export/report/export work instead of replacing it. See `docs/structural/development-plan.md`.
 
 Important convention:
 
@@ -86,6 +88,7 @@ examples/
   trusses/
   mixed/
   combinations/
+  validation/
 ```
 
 The CLI can analyze any JSON file path, so no solver changes are required for this organization.
@@ -111,6 +114,7 @@ examples/
   trusses/
   mixed/
   combinations/
+  validation/
 
 benchmarks/
   beams/
@@ -523,14 +527,12 @@ Before changing sign conventions, update tests, reports and documentation togeth
 The next recommended milestone is:
 
 ```text
-Milestone 40 — Parametric model generators
+Milestone 42 — Static graphical result export: SVG, HTML and PNG
 ```
 
 The unified post-M39 roadmap is:
 
 ```text
-40 - Parametric model generators
-41 - Validation example files in JSON
 42 - Static graphical result export: SVG, HTML and PNG
 43 - XLSX report export
 44 - PDF technical report
@@ -541,7 +543,7 @@ The unified post-M39 roadmap is:
 49 - OpenCad2D integration boundary study
 ```
 
-Do not skip the generator, JSON validation, XLSX/PDF and section-catalog milestones just because the viewer data model now exists. The viewer path should grow after the solver has better example generation, validation files and professional exports.
+Do not skip the remaining static export, XLSX/PDF and section-catalog milestones just because the viewer data model now exists. The viewer path should grow on top of reusable JSON validation files, graphical exports and professional reports.
 
 See:
 

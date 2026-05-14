@@ -1,0 +1,366 @@
+{
+  "title": "Nielsen parabolic truss",
+  "description": "Trave reticolare tipo Nielsen con corrente parabolico e diagonali alternate.",
+  "loadCaseId": "LC1",
+  "nodes": [
+    {
+      "id": "B0",
+      "x": 0.0,
+      "y": 0.0
+    },
+    {
+      "id": "B1",
+      "x": 3.0,
+      "y": 0.0
+    },
+    {
+      "id": "T1",
+      "x": 3.0,
+      "y": 1.9444444444444442
+    },
+    {
+      "id": "B2",
+      "x": 6.0,
+      "y": 0.0
+    },
+    {
+      "id": "T2",
+      "x": 6.0,
+      "y": 3.111111111111111
+    },
+    {
+      "id": "B3",
+      "x": 9.0,
+      "y": 0.0
+    },
+    {
+      "id": "T3",
+      "x": 9.0,
+      "y": 3.5
+    },
+    {
+      "id": "B4",
+      "x": 12.0,
+      "y": 0.0
+    },
+    {
+      "id": "T4",
+      "x": 12.0,
+      "y": 3.111111111111111
+    },
+    {
+      "id": "B5",
+      "x": 15.0,
+      "y": 0.0
+    },
+    {
+      "id": "T5",
+      "x": 15.0,
+      "y": 1.9444444444444442
+    },
+    {
+      "id": "B6",
+      "x": 18.0,
+      "y": 0.0
+    }
+  ],
+  "materials": [
+    {
+      "id": "STEEL",
+      "name": "Generic steel S355",
+      "elasticModulus": 210000000.0,
+      "unitWeight": 78.5
+    }
+  ],
+  "sections": [
+    {
+      "id": "TRUSS_SEC",
+      "name": "Generic truss bar section",
+      "area": 0.006,
+      "momentOfInertia": 1e-06,
+      "height": 0.12,
+      "width": 0.12
+    }
+  ],
+  "members": [
+    {
+      "id": "B0B1",
+      "startNodeId": "B0",
+      "endNodeId": "B1",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Deck chord"
+    },
+    {
+      "id": "B0T1",
+      "startNodeId": "B0",
+      "endNodeId": "T1",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Parabolic chord"
+    },
+    {
+      "id": "B1B2",
+      "startNodeId": "B1",
+      "endNodeId": "B2",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Deck chord"
+    },
+    {
+      "id": "T1T2",
+      "startNodeId": "T1",
+      "endNodeId": "T2",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Parabolic chord"
+    },
+    {
+      "id": "B2B3",
+      "startNodeId": "B2",
+      "endNodeId": "B3",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Deck chord"
+    },
+    {
+      "id": "T2T3",
+      "startNodeId": "T2",
+      "endNodeId": "T3",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Parabolic chord"
+    },
+    {
+      "id": "B3B4",
+      "startNodeId": "B3",
+      "endNodeId": "B4",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Deck chord"
+    },
+    {
+      "id": "T3T4",
+      "startNodeId": "T3",
+      "endNodeId": "T4",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Parabolic chord"
+    },
+    {
+      "id": "B4B5",
+      "startNodeId": "B4",
+      "endNodeId": "B5",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Deck chord"
+    },
+    {
+      "id": "T4T5",
+      "startNodeId": "T4",
+      "endNodeId": "T5",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Parabolic chord"
+    },
+    {
+      "id": "B5B6",
+      "startNodeId": "B5",
+      "endNodeId": "B6",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Deck chord"
+    },
+    {
+      "id": "T5B6",
+      "startNodeId": "T5",
+      "endNodeId": "B6",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Parabolic chord"
+    },
+    {
+      "id": "V1",
+      "startNodeId": "B1",
+      "endNodeId": "T1",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Vertical hanger"
+    },
+    {
+      "id": "V2",
+      "startNodeId": "B2",
+      "endNodeId": "T2",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Vertical hanger"
+    },
+    {
+      "id": "V3",
+      "startNodeId": "B3",
+      "endNodeId": "T3",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Vertical hanger"
+    },
+    {
+      "id": "V4",
+      "startNodeId": "B4",
+      "endNodeId": "T4",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Vertical hanger"
+    },
+    {
+      "id": "V5",
+      "startNodeId": "B5",
+      "endNodeId": "T5",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Vertical hanger"
+    },
+    {
+      "id": "D0",
+      "startNodeId": "B0",
+      "endNodeId": "T1",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Nielsen diagonal"
+    },
+    {
+      "id": "D1",
+      "startNodeId": "T1",
+      "endNodeId": "B2",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Nielsen diagonal"
+    },
+    {
+      "id": "D2",
+      "startNodeId": "B2",
+      "endNodeId": "T3",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Nielsen diagonal"
+    },
+    {
+      "id": "D3",
+      "startNodeId": "T3",
+      "endNodeId": "B4",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Nielsen diagonal"
+    },
+    {
+      "id": "D4",
+      "startNodeId": "B4",
+      "endNodeId": "T5",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Nielsen diagonal"
+    },
+    {
+      "id": "D5",
+      "startNodeId": "T5",
+      "endNodeId": "B6",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Nielsen diagonal"
+    }
+  ],
+  "supports": [
+    {
+      "id": "S0",
+      "nodeId": "B0",
+      "restrainedUx": true,
+      "restrainedUy": true,
+      "restrainedRz": false,
+      "type": "Hinge"
+    },
+    {
+      "id": "S6",
+      "nodeId": "B6",
+      "restrainedUx": false,
+      "restrainedUy": true,
+      "restrainedRz": false,
+      "type": "SimpleSupport"
+    }
+  ],
+  "loadCases": [
+    {
+      "id": "LC1",
+      "name": "Validation load case",
+      "description": "Representative non-normative validation load case."
+    }
+  ],
+  "loads": [
+    {
+      "id": "P1",
+      "loadCaseId": "LC1",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "B1",
+      "direction": "GlobalY",
+      "value": -12
+    },
+    {
+      "id": "P2",
+      "loadCaseId": "LC1",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "B2",
+      "direction": "GlobalY",
+      "value": -12
+    },
+    {
+      "id": "P3",
+      "loadCaseId": "LC1",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "B3",
+      "direction": "GlobalY",
+      "value": -12
+    },
+    {
+      "id": "P4",
+      "loadCaseId": "LC1",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "B4",
+      "direction": "GlobalY",
+      "value": -12
+    },
+    {
+      "id": "P5",
+      "loadCaseId": "LC1",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "B5",
+      "direction": "GlobalY",
+      "value": -12
+    }
+  ]
+}

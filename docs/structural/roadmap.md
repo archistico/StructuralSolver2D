@@ -1218,11 +1218,54 @@ This is intentionally not a GUI. It is the stable data boundary for future SVG/P
 
 ---
 
-## Unified upcoming milestones after Milestone 39
+## Milestone 40 completion update
+
+Milestone 40 adds parametric model generators under:
 
 ```text
-40 - Parametric model generators
-41 - Validation example files in JSON
+src/StructuralSolver2D.Core/Model/Generators
+```
+
+The first generator set covers:
+
+- simply supported beams;
+- Gerber beams with asymmetric loads;
+- rigid-joint portal frames;
+- Pratt-like bridge trusses;
+- isostatic triangular trusses;
+- Nielsen/parabolic trusses;
+- inverted parabolic trusses;
+- hyperstatic double-diagonal trusses.
+
+The generators return normal `StructuralModel` instances and do not depend on analysis, reporting, CLI or UI layers.
+
+---
+
+## Milestone 41 completion update
+
+Milestone 41 adds user-facing validation JSON files under:
+
+```text
+examples/validation/
+```
+
+The initial catalog contains:
+
+- `rigid-joint-portal-frame.json`;
+- `small-bridge-truss.json`;
+- `isostatic-triangular-truss-beam.json`;
+- `nielsen-parabolic-truss.json`;
+- `inverted-parabolic-truss.json`;
+- `double-diagonal-hyperstatic-truss.json`;
+- `gerber-beam-asymmetric-loads.json`.
+
+Automated tests load every JSON file, validate the structural model and analyze it through the public API.
+
+---
+
+## Unified upcoming milestones after Milestone 41
+
+```text
 42 - Static graphical result export: SVG, HTML and PNG
 43 - XLSX report export
 44 - PDF technical report

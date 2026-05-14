@@ -1,0 +1,256 @@
+{
+  "title": "Inverted parabolic truss",
+  "description": "Trave reticolare con corrente parabolico rovescio.",
+  "loadCaseId": "LC1",
+  "nodes": [
+    {
+      "id": "B0",
+      "x": 0.0,
+      "y": 0.0
+    },
+    {
+      "id": "B1",
+      "x": 4.0,
+      "y": 0.0
+    },
+    {
+      "id": "T1",
+      "x": 4.0,
+      "y": -2.25
+    },
+    {
+      "id": "B2",
+      "x": 8.0,
+      "y": 0.0
+    },
+    {
+      "id": "T2",
+      "x": 8.0,
+      "y": -3.0
+    },
+    {
+      "id": "B3",
+      "x": 12.0,
+      "y": 0.0
+    },
+    {
+      "id": "T3",
+      "x": 12.0,
+      "y": -2.25
+    },
+    {
+      "id": "B4",
+      "x": 16.0,
+      "y": 0.0
+    }
+  ],
+  "materials": [
+    {
+      "id": "STEEL",
+      "name": "Generic steel S355",
+      "elasticModulus": 210000000.0,
+      "unitWeight": 78.5
+    }
+  ],
+  "sections": [
+    {
+      "id": "TRUSS_SEC",
+      "name": "Generic truss bar section",
+      "area": 0.006,
+      "momentOfInertia": 1e-06,
+      "height": 0.12,
+      "width": 0.12
+    }
+  ],
+  "members": [
+    {
+      "id": "B0B1",
+      "startNodeId": "B0",
+      "endNodeId": "B1",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Upper deck chord"
+    },
+    {
+      "id": "B0T1",
+      "startNodeId": "B0",
+      "endNodeId": "T1",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Inverted parabolic chord"
+    },
+    {
+      "id": "B1B2",
+      "startNodeId": "B1",
+      "endNodeId": "B2",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Upper deck chord"
+    },
+    {
+      "id": "T1T2",
+      "startNodeId": "T1",
+      "endNodeId": "T2",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Inverted parabolic chord"
+    },
+    {
+      "id": "B2B3",
+      "startNodeId": "B2",
+      "endNodeId": "B3",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Upper deck chord"
+    },
+    {
+      "id": "T2T3",
+      "startNodeId": "T2",
+      "endNodeId": "T3",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Inverted parabolic chord"
+    },
+    {
+      "id": "B3B4",
+      "startNodeId": "B3",
+      "endNodeId": "B4",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Upper deck chord"
+    },
+    {
+      "id": "T3B4",
+      "startNodeId": "T3",
+      "endNodeId": "B4",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Inverted parabolic chord"
+    },
+    {
+      "id": "V1",
+      "startNodeId": "B1",
+      "endNodeId": "T1",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Vertical"
+    },
+    {
+      "id": "V2",
+      "startNodeId": "B2",
+      "endNodeId": "T2",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Vertical"
+    },
+    {
+      "id": "V3",
+      "startNodeId": "B3",
+      "endNodeId": "T3",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Vertical"
+    },
+    {
+      "id": "D0",
+      "startNodeId": "B0",
+      "endNodeId": "T1",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Web diagonal"
+    },
+    {
+      "id": "D1",
+      "startNodeId": "B1",
+      "endNodeId": "T2",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Web diagonal"
+    },
+    {
+      "id": "D2",
+      "startNodeId": "B2",
+      "endNodeId": "T3",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Web diagonal"
+    },
+    {
+      "id": "D3",
+      "startNodeId": "B3",
+      "endNodeId": "B4",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D",
+      "label": "Web diagonal"
+    }
+  ],
+  "supports": [
+    {
+      "id": "S0",
+      "nodeId": "B0",
+      "restrainedUx": true,
+      "restrainedUy": true,
+      "restrainedRz": false,
+      "type": "Hinge"
+    },
+    {
+      "id": "S4",
+      "nodeId": "B4",
+      "restrainedUx": false,
+      "restrainedUy": true,
+      "restrainedRz": false,
+      "type": "SimpleSupport"
+    }
+  ],
+  "loadCases": [
+    {
+      "id": "LC1",
+      "name": "Validation load case",
+      "description": "Representative non-normative validation load case."
+    }
+  ],
+  "loads": [
+    {
+      "id": "P1",
+      "loadCaseId": "LC1",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "B1",
+      "direction": "GlobalY",
+      "value": -15
+    },
+    {
+      "id": "P2",
+      "loadCaseId": "LC1",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "B2",
+      "direction": "GlobalY",
+      "value": -15
+    },
+    {
+      "id": "P3",
+      "loadCaseId": "LC1",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "B3",
+      "direction": "GlobalY",
+      "value": -15
+    }
+  ]
+}

@@ -25,59 +25,29 @@ The current completed baseline is:
 37 - Public API stabilization
 38 - First technical release
 39 - Viewer-ready result data model and animation frames
+40 - Parametric model generators
+41 - Validation example files in JSON
 ```
 
 Milestone 39 is deliberately not a GUI. It creates the stable data boundary that future SVG, PNG, HTML, Avalonia, WPF or OpenCad2D viewers can consume.
 
 ---
 
-## Unified next milestones
+## Completed Milestones 40-41 and next milestones
 
 ### Milestone 40 — Parametric model generators
 
-Goal: create reusable generators for common structural schemes.
+Status: completed. The Core project now contains parametric generators for beams, frames and trusses.
 
-Initial candidates:
-
-- rigid-joint portal frame;
-- simple truss bridge;
-- isostatic truss beam;
-- Nielsen/parabolic truss scheme;
-- inverted parabolic truss scheme;
-- double-diagonal hyperstatic truss scheme;
-- Gerber beam with asymmetric loads.
-
-Expected output:
-
-- model generator API;
-- deterministic tests;
-- examples that use the generated models;
-- documentation explaining assumptions and naming conventions.
+The generator layer returns normal `StructuralModel` instances and remains independent from analysis, reporting, CLI and UI projects.
 
 ---
 
 ### Milestone 41 — Validation example files in JSON
 
-Goal: convert the validation examples into clear user-facing and benchmark-ready JSON files.
+Status: completed. The first validation JSON files live under `examples/validation/` and are covered by automated analysis smoke tests.
 
-Expected folders:
-
-```text
-examples/validation/
-benchmarks/validation/
-```
-
-Expected cases:
-
-- rigid-joint frames;
-- small truss bridge;
-- isostatic truss beams;
-- Nielsen/parabolic schemes;
-- inverted parabolic schemes;
-- double-diagonal hyperstatic trusses;
-- Gerber beam with asymmetric loads.
-
-The same structural family may appear both as an educational example and as a stricter regression benchmark, but the two purposes must remain documented separately.
+The initial files cover rigid-joint frames, small bridge trusses, isostatic trusses, Nielsen/parabolic schemes, inverted parabolic schemes, double-diagonal hyperstatic trusses and Gerber beams with asymmetric loads.
 
 ---
 

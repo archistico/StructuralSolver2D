@@ -1,0 +1,123 @@
+{
+  "title": "Isostatic triangular truss beam",
+  "description": "Trave reticolare isostatica triangolare con nodo superiore caricato.",
+  "loadCaseId": "LC1",
+  "nodes": [
+    {
+      "id": "A",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "B",
+      "x": 4,
+      "y": 0
+    },
+    {
+      "id": "C",
+      "x": 8,
+      "y": 0
+    },
+    {
+      "id": "T",
+      "x": 4,
+      "y": 2.6
+    }
+  ],
+  "materials": [
+    {
+      "id": "STEEL",
+      "name": "Generic steel S355",
+      "elasticModulus": 210000000.0,
+      "unitWeight": 78.5
+    }
+  ],
+  "sections": [
+    {
+      "id": "TRUSS_SEC",
+      "name": "Generic truss bar section",
+      "area": 0.006,
+      "momentOfInertia": 1e-06,
+      "height": 0.12,
+      "width": 0.12
+    }
+  ],
+  "members": [
+    {
+      "id": "AB",
+      "startNodeId": "A",
+      "endNodeId": "B",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D"
+    },
+    {
+      "id": "BC",
+      "startNodeId": "B",
+      "endNodeId": "C",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D"
+    },
+    {
+      "id": "AT",
+      "startNodeId": "A",
+      "endNodeId": "T",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D"
+    },
+    {
+      "id": "BT",
+      "startNodeId": "B",
+      "endNodeId": "T",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D"
+    },
+    {
+      "id": "TC",
+      "startNodeId": "T",
+      "endNodeId": "C",
+      "materialId": "STEEL",
+      "sectionId": "TRUSS_SEC",
+      "type": "Truss2D"
+    }
+  ],
+  "supports": [
+    {
+      "id": "SA",
+      "nodeId": "A",
+      "restrainedUx": true,
+      "restrainedUy": true,
+      "restrainedRz": false,
+      "type": "Hinge"
+    },
+    {
+      "id": "SC",
+      "nodeId": "C",
+      "restrainedUx": false,
+      "restrainedUy": true,
+      "restrainedRz": false,
+      "type": "SimpleSupport"
+    }
+  ],
+  "loadCases": [
+    {
+      "id": "LC1",
+      "name": "Validation load case",
+      "description": "Representative non-normative validation load case."
+    }
+  ],
+  "loads": [
+    {
+      "id": "P-T",
+      "loadCaseId": "LC1",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "T",
+      "direction": "GlobalY",
+      "value": -35
+    }
+  ]
+}

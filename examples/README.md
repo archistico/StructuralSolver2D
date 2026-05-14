@@ -39,6 +39,20 @@ dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\combinations
 dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\combinations\load-combination.json SLS1
 ```
 
+
+## Validation examples
+
+Validation examples are representative structural schemes stored as real JSON files and covered by automated smoke tests.
+
+```powershell
+dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\validation\rigid-joint-portal-frame.json
+dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\validation\small-bridge-truss.json
+dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\validation\nielsen-parabolic-truss.json
+dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\validation\gerber-beam-asymmetric-loads.json
+```
+
+See `examples/validation/README.md` for the complete list.
+
 ## Reports
 
 Any example can be used to generate a Markdown report:

@@ -35,6 +35,7 @@ Supported at the current stage:
 - result extrema and analysis summaries;
 - CLI examples;
 - JSON input examples;
+- validation JSON example catalog for representative frames, trusses and Gerber beams;
 - Markdown report generation, including educational guidance, executive summaries, characteristic internal-force point tables and optional preliminary deflection-check tables;
 - CSV export for spreadsheet validation and external post-processing.
 - UI-independent graphical result data for future viewers.
@@ -97,6 +98,7 @@ StructuralSolver2D/
       validation.md
       reporting.md
       csv-export.md
+      validation-json-examples.md
       public-api.md
       release-checklist.md
       release-notes-v0.1.0.md
@@ -120,6 +122,14 @@ StructuralSolver2D/
       mixed-frame-truss.json
     combinations/
       load-combination.json
+    validation/
+      rigid-joint-portal-frame.json
+      small-bridge-truss.json
+      isostatic-triangular-truss-beam.json
+      nielsen-parabolic-truss.json
+      inverted-parabolic-truss.json
+      double-diagonal-hyperstatic-truss.json
+      gerber-beam-asymmetric-loads.json
 
   benchmarks/
     beams/
