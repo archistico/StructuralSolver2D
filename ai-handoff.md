@@ -562,3 +562,64 @@ CLI example:
 dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\simple-truss.json
 dotnet run --project src\StructuralSolver2D.Cli -- report examples\simple-truss.json reports\simple-truss.md
 ```
+
+---
+
+## Milestone 17 - benchmark catalog
+
+A benchmark catalog has been introduced under:
+
+```text
+benchmarks/
+  README.md
+  beams/
+  frames/
+  trusses/
+  expected/
+```
+
+Current benchmark files:
+
+```text
+benchmarks/beams/B01-simple-supported-udl.json
+benchmarks/beams/B02-simple-supported-point-midspan.json
+benchmarks/beams/B03-cantilever-tip-point-load.json
+benchmarks/beams/B04-cantilever-udl.json
+benchmarks/trusses/T01-symmetric-triangular-truss.json
+benchmarks/frames/F01-portal-symmetric-gravity.json
+benchmarks/expected/expected-results.json
+benchmarks/expected/expected-results.md
+```
+
+Important guidance for future LLM work:
+
+- do not replace the benchmark catalog with ad-hoc tests only;
+- keep every benchmark small and explainable;
+- prefer closed-form solutions when available;
+- when exact values are not documented, use equilibrium and symmetry checks first;
+- do not add benchmark expected values copied from unknown or untrusted sources;
+- if external benchmark values are added, cite the source in the Markdown documentation;
+- keep internal units unchanged: m, kN, kNm, kN/m², m², m⁴.
+
+Recommended next milestone:
+
+```text
+Milestone 18 - automated benchmark runner
+```
+
+Suggested implementation:
+
+```text
+StructuralSolver2D.Analysis.Tests/Benchmarks/
+  BenchmarkExpectedResultsReader.cs
+  BenchmarkTestRunner.cs
+  BenchmarkCatalogTests.cs
+```
+
+The runner should read:
+
+```text
+benchmarks/expected/expected-results.json
+```
+
+and compare solver output against expected values with declared tolerances.

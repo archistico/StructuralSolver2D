@@ -1,0 +1,108 @@
+{
+  "version": 1,
+  "unitSystem": {
+    "length": "m",
+    "force": "kN",
+    "moment": "kNm",
+    "elasticModulus": "kN/m^2",
+    "area": "m^2",
+    "secondMomentOfArea": "m^4"
+  },
+  "benchmarks": [
+    {
+      "id": "B01",
+      "name": "Simply supported beam with uniform distributed load",
+      "modelPath": "benchmarks/beams/B01-simple-supported-udl.json",
+      "analysisId": "LC1",
+      "tolerance": 1e-6,
+      "expected": {
+        "supportReactions": [
+          { "nodeId": "A", "fx": 0.0, "fy": 25.0, "mz": 0.0 },
+          { "nodeId": "B", "fx": 0.0, "fy": 25.0, "mz": 0.0 }
+        ],
+        "maxAbsShear": 25.0,
+        "maxAbsMoment": 31.25,
+        "midspanDisplacementY": -0.0193769841269841
+      }
+    },
+    {
+      "id": "B02",
+      "name": "Simply supported beam with point load at midspan",
+      "modelPath": "benchmarks/beams/B02-simple-supported-point-midspan.json",
+      "analysisId": "LC1",
+      "tolerance": 1e-6,
+      "expected": {
+        "supportReactions": [
+          { "nodeId": "A", "fx": 0.0, "fy": 15.0, "mz": 0.0 },
+          { "nodeId": "B", "fx": 0.0, "fy": 15.0, "mz": 0.0 }
+        ],
+        "maxAbsShear": 15.0,
+        "maxAbsMoment": 45.0,
+        "midspanDisplacementY": -0.0321428571428571
+      }
+    },
+    {
+      "id": "B03",
+      "name": "Cantilever with tip point load",
+      "modelPath": "benchmarks/beams/B03-cantilever-tip-point-load.json",
+      "analysisId": "LC1",
+      "tolerance": 1e-6,
+      "expected": {
+        "supportReactions": [
+          { "nodeId": "A", "fx": 0.0, "fy": 12.0, "mz": 48.0 }
+        ],
+        "tipDisplacementY": -0.060952380952381,
+        "tipRotationZ": -0.0228571428571429,
+        "maxAbsMoment": 48.0
+      }
+    },
+    {
+      "id": "B04",
+      "name": "Cantilever with uniform distributed load",
+      "modelPath": "benchmarks/beams/B04-cantilever-udl.json",
+      "analysisId": "LC1",
+      "tolerance": 1e-6,
+      "expected": {
+        "supportReactions": [
+          { "nodeId": "A", "fx": 0.0, "fy": 32.0, "mz": 64.0 }
+        ],
+        "tipDisplacementY": -0.060952380952381,
+        "tipRotationZ": -0.0203174603174603,
+        "maxAbsMoment": 64.0
+      }
+    },
+    {
+      "id": "T01",
+      "name": "Symmetric triangular truss",
+      "modelPath": "benchmarks/trusses/T01-symmetric-triangular-truss.json",
+      "analysisId": "LC1",
+      "tolerance": 1e-6,
+      "expected": {
+        "supportReactions": [
+          { "nodeId": "A", "fx": 0.0, "fy": 15.0 },
+          { "nodeId": "B", "fy": 15.0 }
+        ],
+        "memberAxialForces": [
+          { "memberId": "AC", "normalForce": -18.0277563773199 },
+          { "memberId": "BC", "normalForce": -18.0277563773199 },
+          { "memberId": "AB", "normalForce": 10.0 }
+        ]
+      }
+    },
+    {
+      "id": "F01",
+      "name": "Portal frame with symmetric gravity load",
+      "modelPath": "benchmarks/frames/F01-portal-symmetric-gravity.json",
+      "analysisId": "LC1",
+      "tolerance": 1e-6,
+      "expected": {
+        "checks": [
+          "stable solution",
+          "vertical equilibrium: RAy + RBy = 60 kN",
+          "symmetry: RAy = RBy",
+          "symmetry: horizontal reactions equal and opposite"
+        ]
+      }
+    }
+  ]
+}

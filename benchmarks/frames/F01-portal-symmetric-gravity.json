@@ -1,0 +1,33 @@
+{
+  "title": "F01 - Portal frame with symmetric gravity load",
+  "description": "Single-bay fixed-base portal frame with symmetric vertical load on the beam. Primary purpose: symmetry, stability and vertical equilibrium checks.",
+  "loadCaseId": "LC1",
+  "nodes": [
+    { "id": "A", "x": 0.0, "y": 0.0 },
+    { "id": "B", "x": 6.0, "y": 0.0 },
+    { "id": "C", "x": 0.0, "y": 4.0 },
+    { "id": "D", "x": 6.0, "y": 4.0 }
+  ],
+  "materials": [
+    { "id": "MAT", "name": "Benchmark elastic material", "elasticModulus": 210000000.0 }
+  ],
+  "sections": [
+    { "id": "COL", "name": "Benchmark column section", "area": 0.004, "momentOfInertia": 0.00003 },
+    { "id": "BEAM", "name": "Benchmark beam section", "area": 0.0035, "momentOfInertia": 0.000025 }
+  ],
+  "members": [
+    { "id": "AC", "startNodeId": "A", "endNodeId": "C", "materialId": "MAT", "sectionId": "COL", "type": "Frame2D" },
+    { "id": "BD", "startNodeId": "B", "endNodeId": "D", "materialId": "MAT", "sectionId": "COL", "type": "Frame2D" },
+    { "id": "CD", "startNodeId": "C", "endNodeId": "D", "materialId": "MAT", "sectionId": "BEAM", "type": "Frame2D" }
+  ],
+  "supports": [
+    { "id": "SA", "nodeId": "A", "restrainedUx": true, "restrainedUy": true, "restrainedRz": true, "type": "Fixed" },
+    { "id": "SB", "nodeId": "B", "restrainedUx": true, "restrainedUy": true, "restrainedRz": true, "type": "Fixed" }
+  ],
+  "loadCases": [
+    { "id": "LC1", "name": "Symmetric beam gravity load" }
+  ],
+  "loads": [
+    { "id": "Q1", "loadCaseId": "LC1", "type": "UniformDistributedLoad", "targetType": "Member", "targetId": "CD", "direction": "GlobalY", "value": -10.0 }
+  ]
+}

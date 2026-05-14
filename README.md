@@ -341,3 +341,50 @@ dotnet run --project src\StructuralSolver2D.Cli -- report examples\load-combinat
 ```
 
 A combination such as `ULS1 = 1.35 G1 + 1.50 Q1` is analyzed by summing factored contributions from the referenced load cases. Internal force sampling and Markdown reporting understand the same combination id.
+
+---
+
+## Benchmark catalog
+
+The project now includes a first benchmark catalog under:
+
+```text
+benchmarks/
+  README.md
+  beams/
+  frames/
+  trusses/
+  expected/
+```
+
+The catalog is used to document hand-checkable validation cases and to prepare the future automated benchmark runner.
+
+Initial benchmark groups:
+
+| Group | Purpose |
+|---|---|
+| `benchmarks/beams` | closed-form beam and cantilever checks |
+| `benchmarks/trusses` | simple axial truss checks |
+| `benchmarks/frames` | symmetry, equilibrium and stability checks for frame structures |
+| `benchmarks/expected` | expected values for future automated validation |
+
+Run a benchmark manually:
+
+```powershell
+dotnet run --project src\StructuralSolver2D.Cli -- analyze benchmarks\beams\B01-simple-supported-udl.json
+```
+
+Generate a benchmark report:
+
+```powershell
+dotnet run --project src\StructuralSolver2D.Cli -- report benchmarks\beams\B01-simple-supported-udl.json reports\B01-simple-supported-udl.md
+```
+
+The expected values are currently documented in:
+
+```text
+benchmarks/expected/expected-results.md
+benchmarks/expected/expected-results.json
+```
+
+The next planned validation milestone is an automated benchmark runner that reads `expected-results.json`, executes the benchmark models, and compares reactions, displacements and extrema against the expected values.
