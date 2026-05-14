@@ -106,15 +106,19 @@ The wording must remain clear that the current solver performs first-order linea
 
 ### Milestone 45 — Section catalog persistence
 
-Goal: move beyond helper factories and support user-defined section catalogs.
+Status: completed.
 
-Expected features:
+Implemented:
 
-- JSON catalog format;
-- load/save section catalogs;
+- reusable `StructuralSectionCatalog`;
+- JSON catalog format with schema version;
+- load/save helpers;
 - validation of section values and ids;
-- custom rectangular/circular/generic sections;
-- room for future steel/timber profile libraries.
+- duplicate id detection;
+- apply-to-model workflow;
+- tests and documentation.
+
+Future extensions remain possible for steel/timber profile libraries and GUI editing.
 
 ---
 
@@ -211,4 +215,4 @@ Scope implemented:
 - sampled displacement rows;
 - CLI command `export-pdf`.
 
-The next milestone is Milestone 45 — Section catalog persistence.
+The next milestone is Milestone 46 — First simple interactive viewer prototype.

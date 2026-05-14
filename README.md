@@ -100,6 +100,7 @@ StructuralSolver2D/
       csv-export.md
       validation-json-examples.md
       graphical-export.md
+      section-catalog.md
       xlsx-export.md
       pdf-report.md
       public-api.md
@@ -110,6 +111,7 @@ StructuralSolver2D/
       roadmap.md
 
   examples/
+    sections/basic-sections.json
     README.md
     beams/
       simple-supported-beam.json
@@ -162,7 +164,7 @@ StructuralSolver2D/
 
 ### `StructuralSolver2D.Core`
 
-Contains the structural model and validation logic.
+Contains the structural model, reusable section catalogs and validation logic.
 
 Main concepts:
 
@@ -172,6 +174,8 @@ Main concepts:
 - `StructuralMaterial`
 - `StructuralSection`
 - `StructuralSectionFactory`
+- `StructuralSectionCatalog`
+- `StructuralSectionCatalogJsonSerializer`
 - `StructuralSupport`
 - `StructuralLoadCase`
 - `StructuralLoad`

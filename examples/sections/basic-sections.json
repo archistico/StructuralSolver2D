@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "title": "Basic demonstration section catalog",
+  "sections": [
+    {
+      "id": "RECT_200x400",
+      "name": "Rectangular 200 x 400 mm",
+      "area": 0.08,
+      "momentOfInertia": 0.0010666666666666667,
+      "height": 0.4,
+      "width": 0.2
+    },
+    {
+      "id": "RECT_300x600",
+      "name": "Rectangular 300 x 600 mm",
+      "area": 0.18,
+      "momentOfInertia": 0.0054,
+      "height": 0.6,
+      "width": 0.3
+    },
+    {
+      "id": "CHS_100_80",
+      "name": "Circular hollow 100/80 mm",
+      "area": 0.002827433388230814,
+      "momentOfInertia": 0.000002898119222070018,
+      "height": 0.1,
+      "width": 0.1
+    }
+  ]
+}

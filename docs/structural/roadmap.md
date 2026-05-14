@@ -990,10 +990,16 @@ The report contains model overview, assumptions, executive summary, nodal displa
 
 The first implementation writes a minimal PDF directly, without external PDF-generation dependencies.
 
+### Milestone 45 — Section catalog persistence
+
+Added reusable section catalogs with JSON persistence.
+
+The catalog stores normal `StructuralSection` records, validates ids and section properties, and can apply reusable sections to a `StructuralModel`.
+
 The next milestone is:
 
 ```text
-45 - Section catalog persistence
+46 - First simple interactive viewer prototype
 ```
 
 Detailed planning is kept in:

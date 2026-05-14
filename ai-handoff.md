@@ -67,7 +67,7 @@ This is not a GUI and must remain independent from Avalonia, WPF, HTML, SVG and 
 The post-M41 roadmap has been realigned. The next recommended milestone is:
 
 ```text
-Milestone 42 — Static graphical result export: SVG and HTML
+Milestone 46 — First simple interactive viewer prototype
 ```
 
 The viewer path is still planned, but it now follows the static graphical export/report/export work instead of replacing it. See `docs/structural/development-plan.md`.
@@ -532,13 +532,13 @@ Before changing sign conventions, update tests, reports and documentation togeth
 The next recommended milestone is:
 
 ```text
-Milestone 42 — Static graphical result export: SVG and HTML
+Milestone 46 — First simple interactive viewer prototype
 ```
 
 The unified post-M39 roadmap is:
 
 ```text
-42 - Static graphical result export: SVG, HTML and PNG
+42 - Static graphical result export: SVG and HTML
 43 - XLSX report export
 44 - PDF technical report
 45 - Section catalog persistence
@@ -548,7 +548,7 @@ The unified post-M39 roadmap is:
 49 - OpenCad2D integration boundary study
 ```
 
-Do not skip the remaining static export, XLSX/PDF and section-catalog milestones just because the viewer data model now exists. The viewer path should grow on top of reusable JSON validation files, graphical exports and professional reports.
+The static export, XLSX/PDF and section-catalog milestones are now in place. The viewer path should grow on top of reusable JSON validation files, graphical exports and professional reports.
 
 See:
 
@@ -561,4 +561,8 @@ Milestone 44 — PDF technical report
 
 Status: completed. Reporting now includes `PdfTechnicalReportExporter` and `PdfTechnicalReportOptions` under `StructuralSolver2D.Reporting/Pdf`. The CLI command is `export-pdf <file.json> <output.pdf> [loadCaseId|combinationId]`. The implementation writes a minimal PDF directly and intentionally avoids external PDF-generation dependencies.
 
-Next milestone: 45 — Section catalog persistence.
+Milestone 45 — Section catalog persistence
+
+Status: completed. Core now includes `StructuralSectionCatalog` and `StructuralSectionCatalogJsonSerializer` under `StructuralSolver2D.Core/Model/Sections`. Catalogs store normal `StructuralSection` records, validate values and ids, support JSON load/save and can apply sections to a `StructuralModel`.
+
+Next milestone: 46 — First simple interactive viewer prototype.
