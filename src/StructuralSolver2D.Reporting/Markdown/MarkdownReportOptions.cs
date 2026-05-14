@@ -21,6 +21,16 @@ public sealed class MarkdownReportOptions
     public string SourceLabel { get; set; } = string.Empty;
 
     /// <summary>
+    /// Gets or sets whether educational explanations should be included in the report.
+    /// </summary>
+    public bool IncludeEducationalExplanations { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets whether a compact model-statistics section should be included in the report.
+    /// </summary>
+    public bool IncludeModelStatistics { get; set; } = true;
+
+    /// <summary>
     /// Gets or sets whether sampled N/V/M values should be included in the report.
     /// </summary>
     public bool IncludeInternalForceSamples { get; set; } = true;
@@ -44,6 +54,11 @@ public sealed class MarkdownReportOptions
     /// Gets or sets whether sampled displacement/deformed-shape values should be included in the report.
     /// </summary>
     public bool IncludeDisplacementSamples { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether preliminary deflection check results should be included when supplied.
+    /// </summary>
+    public bool IncludeDeflectionChecks { get; set; } = true;
 
     /// <summary>
     /// Gets or sets the maximum number of displacement samples printed for each member.

@@ -48,7 +48,9 @@ The code should therefore remain clear, explicit and easy to test. Avoid clever 
 
 ## Latest milestone
 
-Milestone 34 adds `StructuralMaterialLibrary` under `StructuralSolver2D.Core.Model.Materials`. It provides initial elastic material presets for steel, timber, glulam and concrete while preserving the explicit `StructuralMaterial` API.
+Milestone 35 expands the Markdown report generator with educational guidance, an executive summary, model-size statistics, governing absolute values and optional preliminary serviceability deflection-check tables.
+
+The solver behavior is unchanged. The feature lives in `StructuralSolver2D.Reporting.Markdown`.
 
 Important convention:
 
@@ -118,6 +120,7 @@ docs/structural/
   units.md
   analysis.md
   validation.md
+  reporting.md
   roadmap.md
 ```
 
@@ -222,6 +225,12 @@ Current implementation:
 
 - `MarkdownStructuralReportGenerator`
 - `MarkdownReportOptions`
+
+Milestone 35 report options:
+
+- `IncludeEducationalExplanations`
+- `IncludeModelStatistics`
+- `IncludeDeflectionChecks`
 
 Rules:
 
@@ -939,4 +948,18 @@ Available presets:
 
 The helpers return ordinary `StructuralMaterial` records. They provide elastic modulus and unit weight only. They are not strength-class design implementations and must not be used as a substitute for normative verification.
 
-Next recommended work: Milestone 35, focused on advanced educational Markdown reports.
+Next recommended work: Milestone 36, focused on CSV export.
+
+## Milestone 35 update - Advanced educational Markdown reports
+
+Milestone 35 adds report-layer educational sections:
+
+- `How to read this report`;
+- executive summary;
+- model-size table;
+- governing absolute values;
+- optional preliminary deflection-check table when `DeflectionCheckResult` values are passed to the report generator.
+
+The new overload accepts displacement diagrams plus deflection check results. Existing report-generator overloads remain available and forward to the extended implementation with an empty check list.
+
+Next recommended work: Milestone 36, focused on CSV export.

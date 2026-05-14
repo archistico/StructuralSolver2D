@@ -1,5 +1,6 @@
 using StructuralSolver2D.Analysis.Frame2D;
 using StructuralSolver2D.Analysis.Results;
+using StructuralSolver2D.Analysis.Serviceability;
 using StructuralSolver2D.Core.Model;
 using StructuralSolver2D.Core.Model.Enums;
 using StructuralSolver2D.Reporting.Markdown;
@@ -171,6 +172,68 @@ public sealed class MarkdownStructuralReportGeneratorTests
 
         Assert.Contains("Characteristic internal-force points are omitted by report options.", markdown);
         Assert.DoesNotContain("| Kind | Quantity | Position | x [m] | Value | Description |", markdown);
+    }
+
+
+    [Fact]
+    public void Generate_ShouldIncludeEducationalSectionsByDefault()
+    {
+        StructuralModel model = CreateSimpleSupportedBeam();
+        (StructuralAnalysisResult result, IReadOnlyList<MemberInternalForceDiagram> diagrams, StructuralAnalysisSummary summary) = Analyze(model);
+
+        string markdown = new MarkdownStructuralReportGenerator().Generate(model, result, diagrams, summary);
+
+        Assert.Contains("## How to read this report", markdown);
+        Assert.Contains("## Executive summary", markdown);
+        Assert.Contains("### Model size", markdown);
+        Assert.Contains("### Governing absolute values", markdown);
+        Assert.Contains("Member diagram positions are reported", markdown);
+    }
+
+    [Fact]
+    public void Generate_ShouldOmitEducationalSectionsWhenOptionsAreDisabled()
+    {
+        StructuralModel model = CreateSimpleSupportedBeam();
+        (StructuralAnalysisResult result, IReadOnlyList<MemberInternalForceDiagram> diagrams, StructuralAnalysisSummary summary) = Analyze(model);
+
+        string markdown = new MarkdownStructuralReportGenerator().Generate(
+            model,
+            result,
+            diagrams,
+            summary,
+            new MarkdownReportOptions
+            {
+                IncludeEducationalExplanations = false,
+                IncludeModelStatistics = false,
+            });
+
+        Assert.DoesNotContain("## How to read this report", markdown);
+        Assert.DoesNotContain("## Executive summary", markdown);
+    }
+
+    [Fact]
+    public void Generate_ShouldIncludePreliminaryDeflectionChecksWhenProvided()
+    {
+        StructuralModel model = CreateSimpleSupportedBeam();
+        (StructuralAnalysisResult result, IReadOnlyList<MemberInternalForceDiagram> diagrams, StructuralAnalysisSummary summary) = Analyze(model, sampleCount: 5);
+        IReadOnlyList<MemberDisplacementDiagram> displacementDiagrams = new Frame2DDisplacementSampler().SampleAllMembers(model, result, sampleCount: 5);
+        IReadOnlyList<DeflectionCheckResult> deflectionChecks = new PreliminaryDeflectionChecker().Check(
+            displacementDiagrams,
+            new DeflectionLimit(250.0));
+
+        string markdown = new MarkdownStructuralReportGenerator().Generate(
+            model,
+            result,
+            diagrams,
+            displacementDiagrams,
+            deflectionChecks,
+            summary,
+            new MarkdownReportOptions { IncludeDisplacementSamples = true });
+
+        Assert.Contains("## Preliminary serviceability deflection checks", markdown);
+        Assert.Contains("| Member | Direction | Limit | L [m] | Allowed [m] |", markdown);
+        Assert.Contains("L/250.000000", markdown);
+        Assert.Contains("### Preliminary deflection-check summary", markdown);
     }
 
     private static (StructuralAnalysisResult Result, IReadOnlyList<MemberInternalForceDiagram> Diagrams, StructuralAnalysisSummary Summary) Analyze(

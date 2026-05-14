@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 using StructuralSolver2D.Analysis.Frame2D;
 using StructuralSolver2D.Analysis.Results;
+using StructuralSolver2D.Analysis.Serviceability;
 using StructuralSolver2D.Core.Model;
 
 namespace StructuralSolver2D.Reporting.Markdown;
@@ -44,12 +45,34 @@ public sealed class MarkdownStructuralReportGenerator
         IReadOnlyList<MemberInternalForceDiagram> diagrams,
         IReadOnlyList<MemberDisplacementDiagram> displacementDiagrams,
         StructuralAnalysisSummary summary,
+        MarkdownReportOptions? options = null) =>
+        Generate(model, result, diagrams, displacementDiagrams, Array.Empty<DeflectionCheckResult>(), summary, options);
+
+    /// <summary>
+    /// Generates a Markdown report from the model, analysis result, diagrams, preliminary deflection checks and summary.
+    /// </summary>
+    /// <param name="model">Analyzed structural model.</param>
+    /// <param name="result">Analysis result for a single load case or load combination.</param>
+    /// <param name="diagrams">Sampled internal-force diagrams.</param>
+    /// <param name="displacementDiagrams">Sampled displacement/deformed-shape diagrams.</param>
+    /// <param name="deflectionChecks">Optional preliminary serviceability deflection check results.</param>
+    /// <param name="summary">Analysis summary and extrema.</param>
+    /// <param name="options">Optional report generation options.</param>
+    /// <returns>Markdown report content.</returns>
+    public string Generate(
+        StructuralModel model,
+        StructuralAnalysisResult result,
+        IReadOnlyList<MemberInternalForceDiagram> diagrams,
+        IReadOnlyList<MemberDisplacementDiagram> displacementDiagrams,
+        IReadOnlyList<DeflectionCheckResult> deflectionChecks,
+        StructuralAnalysisSummary summary,
         MarkdownReportOptions? options = null)
     {
         ArgumentNullException.ThrowIfNull(model);
         ArgumentNullException.ThrowIfNull(result);
         ArgumentNullException.ThrowIfNull(diagrams);
         ArgumentNullException.ThrowIfNull(displacementDiagrams);
+        ArgumentNullException.ThrowIfNull(deflectionChecks);
         ArgumentNullException.ThrowIfNull(summary);
 
         options ??= new MarkdownReportOptions();
@@ -57,12 +80,15 @@ public sealed class MarkdownStructuralReportGenerator
         var builder = new StringBuilder();
 
         WriteHeader(builder, options, result);
+        WriteEducationalGuide(builder, options);
         WriteUnits(builder);
+        WriteExecutiveSummary(builder, model, summary, deflectionChecks, options);
         WriteModel(builder, model);
         WriteResults(builder, result, summary);
         WriteInternalForceDiagrams(builder, diagrams, options);
         WriteCharacteristicPoints(builder, diagrams, options);
         WriteDisplacementDiagrams(builder, displacementDiagrams, options);
+        WriteDeflectionChecks(builder, deflectionChecks, options);
         WriteNotes(builder);
 
         return builder.ToString();
@@ -82,6 +108,82 @@ public sealed class MarkdownStructuralReportGenerator
         builder.AppendLine($"**Analysis id:** `{result.LoadCaseId}`");
         builder.AppendLine($"**Generated UTC:** {options.GeneratedAtUtc:yyyy-MM-dd HH:mm:ss}");
         builder.AppendLine();
+    }
+
+    private static void WriteEducationalGuide(StringBuilder builder, MarkdownReportOptions options)
+    {
+        if (!options.IncludeEducationalExplanations)
+        {
+            return;
+        }
+
+        builder.AppendLine("## How to read this report");
+        builder.AppendLine();
+        builder.AppendLine("This report is organized as a learning-oriented structural analysis note: first the assumptions and model data, then the numerical results, then sampled diagrams and checks.");
+        builder.AppendLine();
+        builder.AppendLine("Key conventions:");
+        builder.AppendLine();
+        builder.AppendLine("- `Ux` and `Uy` are global nodal translations.");
+        builder.AppendLine("- `Rz` is the nodal rotation about the out-of-plane Z axis.");
+        builder.AppendLine("- `N`, `V` and `M` are local member axial force, shear force and bending moment.");
+        builder.AppendLine("- Member diagram positions are reported both as normalized position `0..1` and distance `x` from the start node.");
+        builder.AppendLine("- Positive and negative signs follow the solver sign convention; for design interpretation, always check the model orientation and support layout.");
+        builder.AppendLine();
+    }
+
+    private static void WriteExecutiveSummary(
+        StringBuilder builder,
+        StructuralModel model,
+        StructuralAnalysisSummary summary,
+        IReadOnlyList<DeflectionCheckResult> deflectionChecks,
+        MarkdownReportOptions options)
+    {
+        if (!options.IncludeModelStatistics)
+        {
+            return;
+        }
+
+        builder.AppendLine("## Executive summary");
+        builder.AppendLine();
+        builder.AppendLine("### Model size");
+        builder.AppendLine();
+        builder.AppendLine("| Item | Count |");
+        builder.AppendLine("|---|---:|");
+        builder.AppendLine($"| Nodes | {model.Nodes.Count} |");
+        builder.AppendLine($"| Members | {model.Members.Count} |");
+        builder.AppendLine($"| Supports | {model.Supports.Count} |");
+        builder.AppendLine($"| Load cases | {model.LoadCases.Count} |");
+        builder.AppendLine($"| Load combinations | {model.LoadCombinations.Count} |");
+        builder.AppendLine($"| Loads | {model.Loads.Count} |");
+        builder.AppendLine();
+
+        builder.AppendLine("### Governing absolute values");
+        builder.AppendLine();
+        builder.AppendLine("| Result | Value | Location |");
+        builder.AppendLine("|---|---:|---|");
+        builder.AppendLine($"| Max \\|Ux\\| [m] | {Format(summary.MaxAbsUx.Value)} | node `{Display(summary.MaxAbsUx.EntityId)}` |");
+        builder.AppendLine($"| Max \\|Uy\\| [m] | {Format(summary.MaxAbsUy.Value)} | node `{Display(summary.MaxAbsUy.EntityId)}` |");
+        builder.AppendLine($"| Max \\|M\\| [kNm] | {Format(summary.MaxAbsBendingMoment.Value)} | member `{Display(summary.MaxAbsBendingMoment.MemberId)}`, x = {Format(summary.MaxAbsBendingMoment.Distance)} m |");
+        builder.AppendLine();
+
+        if (deflectionChecks.Count > 0)
+        {
+            int passing = deflectionChecks.Count(check => check.IsPass);
+            int failing = deflectionChecks.Count - passing;
+            DeflectionCheckResult governing = deflectionChecks
+                .OrderByDescending(check => check.UtilizationRatio)
+                .First();
+
+            builder.AppendLine("### Preliminary deflection-check summary");
+            builder.AppendLine();
+            builder.AppendLine("| Item | Value |");
+            builder.AppendLine("|---|---:|");
+            builder.AppendLine($"| Checks passing | {passing} |");
+            builder.AppendLine($"| Checks failing | {failing} |");
+            builder.AppendLine($"| Governing utilization | {Format(governing.UtilizationRatio)} |");
+            builder.AppendLine($"| Governing member | `{governing.MemberId}` |");
+            builder.AppendLine();
+        }
     }
 
     private static void WriteUnits(StringBuilder builder)
@@ -479,6 +581,45 @@ public sealed class MarkdownStructuralReportGenerator
 
             builder.AppendLine();
         }
+    }
+
+    private static void WriteDeflectionChecks(
+        StringBuilder builder,
+        IReadOnlyList<DeflectionCheckResult> deflectionChecks,
+        MarkdownReportOptions options)
+    {
+        builder.AppendLine("## Preliminary serviceability deflection checks");
+        builder.AppendLine();
+
+        if (!options.IncludeDeflectionChecks)
+        {
+            builder.AppendLine("Preliminary deflection checks are omitted by report options.");
+            builder.AppendLine();
+            return;
+        }
+
+        if (deflectionChecks.Count == 0)
+        {
+            builder.AppendLine("No preliminary deflection checks were supplied.");
+            builder.AppendLine();
+            return;
+        }
+
+        if (options.IncludeEducationalExplanations)
+        {
+            builder.AppendLine("These checks compare the maximum sampled displacement component with a simple limit of the form `L / denominator`. They are useful as an early serviceability indicator, but they are not a complete normative SLE verification.");
+            builder.AppendLine();
+        }
+
+        builder.AppendLine("| Member | Direction | Limit | L [m] | Allowed [m] | Max abs [m] | Signed critical [m] | x [m] | Utilization | Status |");
+        builder.AppendLine("|---|---|---:|---:|---:|---:|---:|---:|---:|---|");
+
+        foreach (DeflectionCheckResult check in deflectionChecks.OrderByDescending(check => check.UtilizationRatio))
+        {
+            builder.AppendLine($"| `{check.MemberId}` | {check.Direction} | L/{Format(check.LimitDenominator)} | {Format(check.ReferenceLength)} | {Format(check.AllowedDeflection)} | {Format(check.MaxAbsDeflection)} | {Format(check.SignedDeflectionAtCriticalSample)} | {Format(check.Distance)} | {Format(check.UtilizationRatio)} | {check.Status} |");
+        }
+
+        builder.AppendLine();
     }
 
     private static void WriteNotes(StringBuilder builder)

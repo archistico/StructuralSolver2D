@@ -35,7 +35,7 @@ Supported at the current stage:
 - result extrema and analysis summaries;
 - CLI examples;
 - JSON input examples;
-- Markdown report generation, including characteristic internal-force point tables.
+- Markdown report generation, including educational guidance, executive summaries, characteristic internal-force point tables and optional preliminary deflection-check tables.
 
 Not supported yet:
 
@@ -90,6 +90,7 @@ StructuralSolver2D/
       units.md
       analysis.md
       validation.md
+      reporting.md
       roadmap.md
 
   examples/
@@ -383,18 +384,18 @@ Milestone 31 - Improved internal-force diagrams and characteristic points
 Milestone 32 - Preliminary SLE deflection checks
 Milestone 33 - Parametric sections
 Milestone 34 - Initial material library
+Milestone 35 - Advanced educational Markdown reports
 ```
 
 Recommended next milestone:
 
 ```text
-Milestone 35 - Advanced educational Markdown reports
+Milestone 36 - CSV export
 ```
 
 Medium-term roadmap:
 
 ```text
-Milestone 35 - Advanced educational Markdown reports
 Milestone 36 - CSV export
 Milestone 37 - Public API stabilization
 Milestone 38 - First technical release
@@ -745,4 +746,6 @@ Milestone 33 adds parametric section helpers through `StructuralSectionFactory`.
 
 Milestone 34 adds initial elastic material presets through `StructuralMaterialLibrary`. The presets generate ordinary `StructuralMaterial` records for common steel, timber, glulam and concrete analysis inputs. They are convenience values for linear elastic analysis, not complete normative design definitions.
 
-Next recommended work: Milestone 35, focused on advanced educational Markdown reports.
+Milestone 35 expands Markdown reports with educational guidance, an executive summary, model-size statistics, governing absolute values and optional preliminary serviceability deflection-check tables. These additions are report-layer features only: they do not modify solver calculations or imply normative design verification.
+
+Next recommended work: Milestone 36, focused on CSV export for spreadsheet validation and external post-processing.

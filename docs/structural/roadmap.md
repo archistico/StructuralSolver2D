@@ -50,7 +50,7 @@ The project currently includes:
 - characteristic internal-force points;
 - CLI commands;
 - JSON input examples;
-- Markdown reports;
+- Markdown reports with educational guidance;
 - benchmark catalog;
 - automated benchmark runner;
 - diagnostic analysis errors;
@@ -797,20 +797,19 @@ It should not imply full normative design verification.
 
 ## Milestone 35 — Advanced educational Markdown reports
 
-### Goal
+Completed.
 
-Make the Markdown report more useful for study, debugging and validation.
+Milestone 35 makes Markdown reports more useful for study, debugging and validation without changing solver behavior.
 
-### Planned additions
+Added:
 
-- sign convention summary;
-- model diagnostics;
-- global equilibrium residuals;
-- benchmark expected/computed comparison;
-- notes on FEM discretization;
-- notes on local/global coordinates;
-- warnings and limitations;
-- better formatting for diagrams and sampled values.
+- an optional `How to read this report` educational section;
+- an executive summary with model size and governing absolute values;
+- optional preliminary deflection-check reporting when `DeflectionCheckResult` values are supplied;
+- report options to hide educational explanations, model statistics or deflection checks;
+- tests for the new report sections and options.
+
+The report remains a textual Markdown output. It is still intentionally separate from HTML/PDF rendering and from any graphical UI.
 
 ---
 
@@ -1120,7 +1119,7 @@ The new theory documentation explains:
 The next recommended milestone is:
 
 ```text
-Milestone 35 — Advanced educational Markdown reports
+Milestone 36 — CSV export
 ```
 
-This should make the generated reports more useful for study, debugging and validation.
+This should make the computed results easier to inspect in spreadsheets and external validation tools.
