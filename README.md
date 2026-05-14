@@ -28,10 +28,11 @@ Supported at the current stage:
 - nodal displacements;
 - local member end forces;
 - sampled internal-force diagrams `N(x)`, `V(x)`, `M(x)`;
+- characteristic internal-force points for reporting and future graphical output;
 - result extrema and analysis summaries;
 - CLI examples;
 - JSON input examples;
-- Markdown report generation.
+- Markdown report generation, including characteristic internal-force point tables.
 
 Not supported yet:
 
@@ -322,20 +323,20 @@ Milestone 24 - Local/global load conventions and inclined member validation
 Milestone 25 - Global equilibrium checker
 Milestone 26 - Mesh refinement and convergence benchmarks
 Milestone 28 - Improved benchmark runner
-```
-
-Recommended short-term roadmap:
-
-```text
 Milestone 29 - Examples and benchmarks reorganization
 Milestone 30 - Initial theory documentation
+Milestone 31 - Improved internal-force diagrams and characteristic points
+```
+
+Recommended next milestone:
+
+```text
+Milestone 32 - Preliminary SLE deflection checks
 ```
 
 Medium-term roadmap:
 
 ```text
-Milestone 31 - Improved internal-force diagrams and characteristic points
-Milestone 32 - Preliminary SLE deflection checks
 Milestone 33 - Parametric sections
 Milestone 34 - Initial material library
 Milestone 35 - Advanced educational Markdown reports
@@ -669,7 +670,7 @@ These documents explain the assumptions, coordinate conventions, element behavio
 
 ## Milestone 31 - Characteristic internal-force points
 
-The post-processing pipeline now detects characteristic points on sampled internal-force diagrams:
+Milestone 31 is complete. The post-processing pipeline now detects characteristic points on sampled internal-force diagrams:
 
 - member start and end points;
 - sampled minimum, maximum and maximum absolute values of `N`, `V` and `M`;
@@ -677,4 +678,6 @@ The post-processing pipeline now detects characteristic points on sampled intern
 - bending-moment extremum candidates detected from zero shear;
 - candidate shear discontinuities between adjacent samples.
 
-These points are derived from sampled diagrams and are intended for reporting, validation, future graphical output and educational inspection. Exact analytical locations may require dedicated closed-form post-processing for specific load configurations.
+These points are derived from sampled diagrams and are intended for reporting, validation, future graphical output and educational inspection. The Markdown report includes them by default. Exact analytical locations may require dedicated closed-form post-processing for specific load configurations.
+
+Next recommended work: Milestone 32, limited to preliminary SLE/serviceability deflection checks. It must remain clearly described as a preliminary engineering aid, not as a complete code-compliant verification.

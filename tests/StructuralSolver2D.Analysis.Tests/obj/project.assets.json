@@ -1087,23 +1087,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\rollandine\\.nuget\\packages\\": {},
+    "C:\\Users\\Utente\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\rollandine\\Desktop\\OC2D\\opencad2d-structural\\tests\\StructuralSolver2D.Analysis.Tests\\StructuralSolver2D.Analysis.Tests.csproj",
+      "projectUniqueName": "E:\\siti\\2026 opencad2d-structural\\StructuralSolver2D\\tests\\StructuralSolver2D.Analysis.Tests\\StructuralSolver2D.Analysis.Tests.csproj",
       "projectName": "StructuralSolver2D.Analysis.Tests",
-      "projectPath": "C:\\Users\\rollandine\\Desktop\\OC2D\\opencad2d-structural\\tests\\StructuralSolver2D.Analysis.Tests\\StructuralSolver2D.Analysis.Tests.csproj",
-      "packagesPath": "C:\\Users\\rollandine\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\rollandine\\Desktop\\OC2D\\opencad2d-structural\\tests\\StructuralSolver2D.Analysis.Tests\\obj\\",
+      "projectPath": "E:\\siti\\2026 opencad2d-structural\\StructuralSolver2D\\tests\\StructuralSolver2D.Analysis.Tests\\StructuralSolver2D.Analysis.Tests.csproj",
+      "packagesPath": "C:\\Users\\Utente\\.nuget\\packages\\",
+      "outputPath": "E:\\siti\\2026 opencad2d-structural\\StructuralSolver2D\\tests\\StructuralSolver2D.Analysis.Tests\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\rollandine\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Utente\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -1119,14 +1119,14 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "C:\\Users\\rollandine\\Desktop\\OC2D\\opencad2d-structural\\src\\StructuralSolver2D.Analysis\\StructuralSolver2D.Analysis.csproj": {
-              "projectPath": "C:\\Users\\rollandine\\Desktop\\OC2D\\opencad2d-structural\\src\\StructuralSolver2D.Analysis\\StructuralSolver2D.Analysis.csproj"
+            "E:\\siti\\2026 opencad2d-structural\\StructuralSolver2D\\src\\StructuralSolver2D.Analysis\\StructuralSolver2D.Analysis.csproj": {
+              "projectPath": "E:\\siti\\2026 opencad2d-structural\\StructuralSolver2D\\src\\StructuralSolver2D.Analysis\\StructuralSolver2D.Analysis.csproj"
             },
-            "C:\\Users\\rollandine\\Desktop\\OC2D\\opencad2d-structural\\src\\StructuralSolver2D.Cli\\StructuralSolver2D.Cli.csproj": {
-              "projectPath": "C:\\Users\\rollandine\\Desktop\\OC2D\\opencad2d-structural\\src\\StructuralSolver2D.Cli\\StructuralSolver2D.Cli.csproj"
+            "E:\\siti\\2026 opencad2d-structural\\StructuralSolver2D\\src\\StructuralSolver2D.Cli\\StructuralSolver2D.Cli.csproj": {
+              "projectPath": "E:\\siti\\2026 opencad2d-structural\\StructuralSolver2D\\src\\StructuralSolver2D.Cli\\StructuralSolver2D.Cli.csproj"
             },
-            "C:\\Users\\rollandine\\Desktop\\OC2D\\opencad2d-structural\\src\\StructuralSolver2D.Core\\StructuralSolver2D.Core.csproj": {
-              "projectPath": "C:\\Users\\rollandine\\Desktop\\OC2D\\opencad2d-structural\\src\\StructuralSolver2D.Core\\StructuralSolver2D.Core.csproj"
+            "E:\\siti\\2026 opencad2d-structural\\StructuralSolver2D\\src\\StructuralSolver2D.Core\\StructuralSolver2D.Core.csproj": {
+              "projectPath": "E:\\siti\\2026 opencad2d-structural\\StructuralSolver2D\\src\\StructuralSolver2D.Core\\StructuralSolver2D.Core.csproj"
             }
           }
         }

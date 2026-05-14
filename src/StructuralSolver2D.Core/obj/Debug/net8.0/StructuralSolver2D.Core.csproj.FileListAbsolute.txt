@@ -1,0 +1,12 @@
+E:\siti\2026 opencad2d-structural\StructuralSolver2D\src\StructuralSolver2D.Core\bin\Debug\net8.0\StructuralSolver2D.Core.deps.json
+E:\siti\2026 opencad2d-structural\StructuralSolver2D\src\StructuralSolver2D.Core\bin\Debug\net8.0\StructuralSolver2D.Core.dll
+E:\siti\2026 opencad2d-structural\StructuralSolver2D\src\StructuralSolver2D.Core\bin\Debug\net8.0\StructuralSolver2D.Core.pdb
+E:\siti\2026 opencad2d-structural\StructuralSolver2D\src\StructuralSolver2D.Core\obj\Debug\net8.0\StructuralSolver2D.Core.GeneratedMSBuildEditorConfig.editorconfig
+E:\siti\2026 opencad2d-structural\StructuralSolver2D\src\StructuralSolver2D.Core\obj\Debug\net8.0\StructuralSolver2D.Core.AssemblyInfoInputs.cache
+E:\siti\2026 opencad2d-structural\StructuralSolver2D\src\StructuralSolver2D.Core\obj\Debug\net8.0\StructuralSolver2D.Core.AssemblyInfo.cs
+E:\siti\2026 opencad2d-structural\StructuralSolver2D\src\StructuralSolver2D.Core\obj\Debug\net8.0\StructuralSolver2D.Core.csproj.CoreCompileInputs.cache
+E:\siti\2026 opencad2d-structural\StructuralSolver2D\src\StructuralSolver2D.Core\obj\Debug\net8.0\StructuralSolver2D.Core.sourcelink.json
+E:\siti\2026 opencad2d-structural\StructuralSolver2D\src\StructuralSolver2D.Core\obj\Debug\net8.0\StructuralSolver2D.Core.dll
+E:\siti\2026 opencad2d-structural\StructuralSolver2D\src\StructuralSolver2D.Core\obj\Debug\net8.0\refint\StructuralSolver2D.Core.dll
+E:\siti\2026 opencad2d-structural\StructuralSolver2D\src\StructuralSolver2D.Core\obj\Debug\net8.0\StructuralSolver2D.Core.pdb
+E:\siti\2026 opencad2d-structural\StructuralSolver2D\src\StructuralSolver2D.Core\obj\Debug\net8.0\ref\StructuralSolver2D.Core.dll

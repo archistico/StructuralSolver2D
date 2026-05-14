@@ -875,4 +875,6 @@ When adding new solver capabilities, update the corresponding theory note or add
 
 ## Milestone 31 status
 
-Characteristic internal-force point detection has been added. Use `Frame2DInternalForceCharacteristicFinder` to derive member endpoints, sampled extrema, zero crossings, bending-moment extremum candidates from zero shear, and candidate shear discontinuities from `MemberInternalForceDiagram` instances. The Markdown report includes a characteristic-points section by default. Remember that these points are detected from sampled diagrams, not from exact analytical closed-form functions.
+Milestone 31 is complete. Characteristic internal-force point detection has been added. Use `Frame2DInternalForceCharacteristicFinder` to derive member endpoints, sampled extrema, zero crossings, bending-moment extremum candidates from zero shear, and candidate shear discontinuities from `MemberInternalForceDiagram` instances. The Markdown report includes a characteristic-points section by default. Remember that these points are detected from sampled diagrams, not from exact analytical closed-form functions.
+
+Next recommended milestone: Milestone 32 — preliminary SLE/serviceability deflection checks. Keep the wording conservative: this is a preliminary deflection check, not a complete normative verification.

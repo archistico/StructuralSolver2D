@@ -47,6 +47,7 @@ The project currently includes:
 - internal-force sampling;
 - deformed-shape sampling;
 - result summaries and extrema;
+- characteristic internal-force points;
 - CLI commands;
 - JSON input examples;
 - Markdown reports;
@@ -627,9 +628,9 @@ The theory documentation should explain how and why the solver works.
 
 Improve the post-processing of internal-force diagrams.
 
-### Planned features
+### Completed features
 
-Detect characteristic points such as:
+The post-processing pipeline detects characteristic points such as:
 
 - maximum bending moment;
 - minimum bending moment;
@@ -648,6 +649,10 @@ This is necessary for:
 - future graphical output;
 - preliminary checks;
 - future integration with OpenCad2D.
+
+### Status
+
+Completed. The implementation is based on sampled diagrams. It is suitable for reporting and educational inspection; exact analytical locations may still require dedicated closed-form post-processing for specific load configurations.
 
 ---
 
@@ -904,13 +909,18 @@ The immediate recommended order is:
 ```text
 29 - Examples and benchmarks reorganization
 30 - Initial theory documentation
+31 - Improved diagrams and characteristic points
+```
+
+The next recommended step is:
+
+```text
+32 - Preliminary SLE deflection checks
 ```
 
 After that, the project can move toward:
 
 ```text
-31 - Improved diagrams and characteristic points
-32 - Preliminary SLE deflection checks
 33 - Parametric sections
 34 - Material library
 35 - Advanced educational reports
@@ -1106,10 +1116,10 @@ The new theory documentation explains:
 - displacement interpolation and deformed-shape sampling;
 - benchmark and validation strategy.
 
-The next recommended milestone remains:
+The next recommended milestone is:
 
 ```text
-Milestone 31 — Improved internal-force diagrams and characteristic points
+Milestone 32 — Preliminary SLE deflection checks
 ```
 
-which should build on the existing internal-force sampler by detecting important points such as maximum/minimum bending moments, zero-shear locations, point-load discontinuities and diagram segment boundaries.
+This should build on the existing displacement/deformed-shape sampling and must remain explicitly described as a preliminary serviceability aid, not as a complete normative design verification.

@@ -8,6 +8,15 @@ test:
 
 check: build test
 
+help:
+	dotnet run --project src\StructuralSolver2D.Cli -- help
+	
+run: 
+	dotnet run --project src\StructuralSolver2D.Cli -- example simple-supported-beam
+	
+analyse:
+	dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\beams\simple-supported-beam.json
+
 clean:
 	@echo "Removing bin and obj folders..."
 ifeq ($(OS),Windows_NT)

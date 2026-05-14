@@ -1,0 +1,16 @@
+E:\siti\2026 opencad2d-structural\StructuralSolver2D\src\StructuralSolver2D.Analysis\bin\Debug\net8.0\StructuralSolver2D.Analysis.deps.json
+E:\siti\2026 opencad2d-structural\StructuralSolver2D\src\StructuralSolver2D.Analysis\bin\Debug\net8.0\StructuralSolver2D.Analysis.dll
+E:\siti\2026 opencad2d-structural\StructuralSolver2D\src\StructuralSolver2D.Analysis\bin\Debug\net8.0\StructuralSolver2D.Analysis.pdb
+E:\siti\2026 opencad2d-structural\StructuralSolver2D\src\StructuralSolver2D.Analysis\bin\Debug\net8.0\StructuralSolver2D.Core.dll
+E:\siti\2026 opencad2d-structural\StructuralSolver2D\src\StructuralSolver2D.Analysis\bin\Debug\net8.0\StructuralSolver2D.Core.pdb
+E:\siti\2026 opencad2d-structural\StructuralSolver2D\src\StructuralSolver2D.Analysis\obj\Debug\net8.0\StructuralSolver2D.Analysis.csproj.AssemblyReference.cache
+E:\siti\2026 opencad2d-structural\StructuralSolver2D\src\StructuralSolver2D.Analysis\obj\Debug\net8.0\StructuralSolver2D.Analysis.GeneratedMSBuildEditorConfig.editorconfig
+E:\siti\2026 opencad2d-structural\StructuralSolver2D\src\StructuralSolver2D.Analysis\obj\Debug\net8.0\StructuralSolver2D.Analysis.AssemblyInfoInputs.cache
+E:\siti\2026 opencad2d-structural\StructuralSolver2D\src\StructuralSolver2D.Analysis\obj\Debug\net8.0\StructuralSolver2D.Analysis.AssemblyInfo.cs
+E:\siti\2026 opencad2d-structural\StructuralSolver2D\src\StructuralSolver2D.Analysis\obj\Debug\net8.0\StructuralSolver2D.Analysis.csproj.CoreCompileInputs.cache
+E:\siti\2026 opencad2d-structural\StructuralSolver2D\src\StructuralSolver2D.Analysis\obj\Debug\net8.0\StructuralSolver2D.Analysis.sourcelink.json
+E:\siti\2026 opencad2d-structural\StructuralSolver2D\src\StructuralSolver2D.Analysis\obj\Debug\net8.0\Structur.06595B34.Up2Date
+E:\siti\2026 opencad2d-structural\StructuralSolver2D\src\StructuralSolver2D.Analysis\obj\Debug\net8.0\StructuralSolver2D.Analysis.dll
+E:\siti\2026 opencad2d-structural\StructuralSolver2D\src\StructuralSolver2D.Analysis\obj\Debug\net8.0\refint\StructuralSolver2D.Analysis.dll
+E:\siti\2026 opencad2d-structural\StructuralSolver2D\src\StructuralSolver2D.Analysis\obj\Debug\net8.0\StructuralSolver2D.Analysis.pdb
+E:\siti\2026 opencad2d-structural\StructuralSolver2D\src\StructuralSolver2D.Analysis\obj\Debug\net8.0\ref\StructuralSolver2D.Analysis.dll

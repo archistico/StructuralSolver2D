@@ -55,7 +55,7 @@ public sealed class Frame2DInternalForceCharacteristicFinderTests
 
         MemberInternalForceCharacteristics characteristics = new Frame2DInternalForceCharacteristicFinder().Find(diagram);
 
-        InternalForceCharacteristicPoint maxAbsMoment = characteristics.Points.Single(point =>
+        InternalForceCharacteristicPoint maxAbsMoment = Assert.Single(characteristics.Points, point =>
             point.Kind == InternalForceCharacteristicPointKind.SampledMaximumAbsolute &&
             point.Quantity == InternalForceQuantity.BendingMoment);
 
