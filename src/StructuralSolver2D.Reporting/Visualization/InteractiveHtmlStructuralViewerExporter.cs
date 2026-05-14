@@ -103,10 +103,9 @@ public sealed class InteractiveHtmlStructuralViewerExporter
         builder.AppendLine($"      <label class=\"control-group\">Anim. speed <input type=\"range\" min=\"0.25\" max=\"4\" step=\"0.25\" value=\"{animationSpeed}\" data-animation=\"speed\" /> <span data-animation-output=\"speed\">{animationSpeed}x</span></label>");
         builder.AppendLine("      <label><input type=\"checkbox\" data-layer=\"#undeformed-model\" checked /> Undeformed</label>");
         builder.AppendLine("      <label><input type=\"checkbox\" data-layer=\"#deformed-shape\" checked /> Deformed</label>");
-        builder.AppendLine("      <label><input type=\"checkbox\" data-layer=\"#loads\" checked /> Loads</label>");
-        builder.AppendLine("      <label><input type=\"checkbox\" data-layer=\".diagram.normal-force,.annotation-point.normal-force\" checked /> N</label>");
-        builder.AppendLine("      <label><input type=\"checkbox\" data-layer=\".diagram.shear-force,.annotation-point.shear-force\" checked /> V</label>");
-        builder.AppendLine("      <label><input type=\"checkbox\" data-layer=\".diagram.bending-moment,.annotation-point.bending-moment\" checked /> M</label>");
+        builder.AppendLine("      <label><input type=\"checkbox\" data-layer=\".diagram.normal-force,.diagram-fill.normal-force,.annotation-point.normal-force,.annotation-label.normal-force\" checked /> N</label>");
+        builder.AppendLine("      <label><input type=\"checkbox\" data-layer=\".diagram.shear-force,.diagram-fill.shear-force,.annotation-point.shear-force,.annotation-label.shear-force\" checked /> V</label>");
+        builder.AppendLine("      <label><input type=\"checkbox\" data-layer=\".diagram.bending-moment,.diagram-fill.bending-moment,.annotation-point.bending-moment,.annotation-label.bending-moment\" checked /> M</label>");
         builder.AppendLine("      <label><input type=\"checkbox\" data-layer=\"#diagrams\" checked /> Diagrams group</label>");
         builder.AppendLine("      <label><input type=\"checkbox\" data-layer=\".support\" checked /> Supports</label>");
         builder.AppendLine("      <label><input type=\"checkbox\" data-layer=\".reaction,.reaction-label\" checked /> Reactions</label>");

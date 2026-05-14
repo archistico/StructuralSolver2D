@@ -27,6 +27,7 @@ public sealed class SvgStructuralResultExporterTests
         Assert.Contains("class=\"member undeformed\"", svg, StringComparison.Ordinal);
         Assert.Contains("class=\"member deformed\"", svg, StringComparison.Ordinal);
         Assert.Contains("class=\"diagram normal-force\"", svg, StringComparison.Ordinal);
+        Assert.Contains("class=\"diagram-fill normal-force\"", svg, StringComparison.Ordinal);
         Assert.Contains(">A<", svg, StringComparison.Ordinal);
         Assert.Contains("Simple support", svg, StringComparison.Ordinal);
         Assert.Contains("data-orientation-degrees=\"30\"", svg, StringComparison.Ordinal);
@@ -43,6 +44,7 @@ public sealed class SvgStructuralResultExporterTests
         Assert.Contains("M1 L/2: u = 1 mm", svg, StringComparison.Ordinal);
         Assert.Contains("M1 3L/4: u = 1.5 mm", svg, StringComparison.Ordinal);
         Assert.Contains("Nmax = 12", svg, StringComparison.Ordinal);
+        Assert.Contains("class=\"annotation-label normal-force\"", svg, StringComparison.Ordinal);
         Assert.Contains("id=\"loads\"", svg, StringComparison.Ordinal);
         Assert.Contains("Point P: -10 kN", svg, StringComparison.Ordinal);
         Assert.Contains("Distributed q: -5 kN/m", svg, StringComparison.Ordinal);
