@@ -141,22 +141,19 @@ This milestone intentionally stays inside the reporting/visualization layer so t
 
 ### Milestone 47 — First simple interactive viewer prototype
 
-Goal: build the first minimal interactive viewer using the visualization data already produced by the reporting layer.
+Status: completed.
 
-Candidate technologies:
+Implemented as a standalone HTML export generated from `StructuralVisualizationModel`.
 
-- Avalonia;
-- WPF;
-- simple HTML/SVG viewer.
+Features:
 
-Preferred first step: keep the viewer separate from solver projects and consume only public API/reporting visualization data.
+- mouse wheel zoom;
+- pointer drag pan;
+- reset view;
+- layer toggles for undeformed model, deformed shape, diagrams, supports, reactions and dimensions;
+- summary values for the current visualization model.
 
-Minimum features:
-
-- pan/zoom;
-- undeformed model;
-- deformed shape;
-- one visible diagram type at a time.
+The viewer remains a reporting/export feature and does not introduce solver or GUI-framework coupling.
 
 ---
 
@@ -232,7 +229,7 @@ Scope implemented:
 - sampled displacement rows;
 - CLI command `export-pdf`.
 
-The next milestone is Milestone 47 — First simple interactive viewer prototype.
+The next milestone is Milestone 48 — Viewer controls for scales and animation playback.
 
 
 ### Support orientation refinement

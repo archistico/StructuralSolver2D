@@ -64,6 +64,11 @@ try
         return RunHtmlExport(args);
     }
 
+    if (IsViewerExportCommand(args[0]))
+    {
+        return RunViewerExport(args);
+    }
+
     CliOutputWriter.WriteError($"Unknown command '{args[0]}'.");
     CliOutputWriter.WriteHelp(ApplicationName, CliExampleModelFactory.GetAvailableExamples());
     return 1;
@@ -372,6 +377,50 @@ int RunHtmlExport(string[] args)
     return 0;
 }
 
+int RunViewerExport(string[] args)
+{
+    if (args.Length < 3)
+    {
+        CliOutputWriter.WriteError("Missing viewer export arguments.");
+        CliOutputWriter.WriteHelp(ApplicationName, CliExampleModelFactory.GetAvailableExamples());
+        return 1;
+    }
+
+    string inputPath = args[1];
+    string outputPath = args[2];
+
+    StructuralModelJsonFile input = StructuralModelJsonReader.Read(inputPath);
+    string loadCaseId = args.Length >= 4 ? args[3] : input.LoadCaseId;
+
+    StructuralAnalysisOutput output = AnalyzeForVisualization(input.Model, loadCaseId);
+    StructuralVisualizationModel visualization = BuildVisualization(input.Model, output);
+
+    string? directory = Path.GetDirectoryName(outputPath);
+    if (!string.IsNullOrWhiteSpace(directory))
+    {
+        Directory.CreateDirectory(directory);
+    }
+
+    string html = new InteractiveHtmlStructuralViewerExporter().Export(
+        visualization,
+        new InteractiveViewerExportOptions
+        {
+            Title = input.Title,
+            Description = input.Description,
+            SvgOptions = new SvgExportOptions
+            {
+                Title = input.Title,
+                Width = 1400.0,
+                Height = 900.0,
+            },
+        });
+
+    File.WriteAllText(outputPath, html);
+    Console.WriteLine($"Interactive viewer written to: {outputPath}");
+
+    return 0;
+}
+
 StructuralVisualizationModel BuildVisualization(StructuralModel model, StructuralAnalysisOutput output)
 {
     return new StructuralVisualizationModelBuilder().Build(
@@ -521,6 +570,10 @@ static bool IsSvgExportCommand(string command) =>
 static bool IsHtmlExportCommand(string command) =>
     string.Equals(command, "export-html", StringComparison.OrdinalIgnoreCase) ||
     string.Equals(command, "html", StringComparison.OrdinalIgnoreCase);
+
+static bool IsViewerExportCommand(string command) =>
+    string.Equals(command, "export-viewer", StringComparison.OrdinalIgnoreCase) ||
+    string.Equals(command, "viewer", StringComparison.OrdinalIgnoreCase);
 
 internal sealed record AnalysisRun(
     StructuralAnalysisResult Result,

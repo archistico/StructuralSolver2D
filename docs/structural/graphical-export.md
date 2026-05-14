@@ -100,3 +100,8 @@ Example JSON fragment:
 ```
 
 Support orientation is now used consistently by both the static SVG/HTML rendering layer and the analysis layer for translational restraints. A simple support with `restrainedUy: true` and a non-zero `orientationDegrees` restrains the corresponding local support direction. Future work can add named helpers for biella/pendolo and pattino/manicotto on top of this mechanism.
+
+
+## Interactive viewer
+
+A separate standalone HTML viewer can be generated with `export-viewer`. It embeds the SVG result scene and adds pan, zoom, reset view and layer toggles. The viewer remains read-only and uses the same `StructuralVisualizationModel` data as the static exports.

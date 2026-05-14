@@ -100,6 +100,7 @@ StructuralSolver2D/
       csv-export.md
       validation-json-examples.md
       graphical-export.md
+      interactive-viewer.md
       section-catalog.md
       xlsx-export.md
       pdf-report.md
@@ -216,6 +217,7 @@ Current commands:
 - `export-pdf <input.json> <output.pdf> [loadCaseId|combinationId]`
 - `export-svg <input.json> <output.svg> [loadCaseId|combinationId]`
 - `export-html <input.json> <output.html> [loadCaseId|combinationId]`
+- `export-viewer <input.json> <output.html> [loadCaseId|combinationId]`
 
 ### `StructuralSolver2D.Reporting`
 
@@ -323,6 +325,12 @@ dotnet run --project src\StructuralSolver2D.Cli -- export-svg examples\beams\sim
 
 ```powershell
 dotnet run --project src\StructuralSolver2D.Cli -- export-html examples\beams\simple-supported-beam.json reports\graphics\simple-supported-beam.html
+```
+
+Generate an interactive HTML viewer:
+
+```powershell
+dotnet run --project src\StructuralSolver2D.Cli -- export-viewer examples\beams\simple-supported-beam.json reports\viewer\simple-supported-beam.html
 ```
 
 ---
@@ -886,3 +894,8 @@ Supports now include `OrientationDegrees` metadata. SVG/HTML exports use it to d
 ## Support orientation refinement
 
 Rotated translational supports are now mechanically active. `StructuralSupport.OrientationDegrees` is interpreted as the local support-axis rotation for restrained `Ux`/`Uy` directions, and the same value is used by SVG/HTML exports to rotate the support glyph. This enables inclined simple supports / rollers while keeping the model expressed with the existing `StructuralSupport` record.
+
+
+## Milestone 47 - First simple interactive viewer prototype
+
+Milestone 47 adds a lightweight standalone HTML viewer export through `InteractiveHtmlStructuralViewerExporter` and the CLI `export-viewer` command. The viewer supports mouse wheel zoom, pointer drag pan, reset view and layer toggles for undeformed model, deformed shape, diagrams, supports, reactions and dimensions. It consumes `StructuralVisualizationModel` only and does not add solver or GUI-framework coupling.

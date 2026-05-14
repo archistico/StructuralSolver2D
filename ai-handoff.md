@@ -576,3 +576,8 @@ Milestone 46 adds support glyphs, scaled support reactions, member-length dimens
 ## Support orientation refinement
 
 Support orientation refinement now makes rotated translational restraints mechanically active. `StructuralSupport.OrientationDegrees` is interpreted by the analysis layer as the local support-axis rotation. Restrained local `Ux` and/or local `Uy` are enforced through homogeneous constraint equations, so rotated simple supports / rollers influence the solved displacements and reactions. The SVG/HTML rendering still uses the same orientation for support glyphs. Future work can add named helpers for explicit biella/pendolo and pattino/manicotto support types.
+
+
+## Recent milestone note
+
+Milestone 47 adds a standalone interactive HTML viewer export through `InteractiveHtmlStructuralViewerExporter` and the CLI `export-viewer` command. It supports pan, zoom, reset view and layer toggles while consuming only `StructuralVisualizationModel`. It does not add GUI-framework dependencies or model-editing behavior.

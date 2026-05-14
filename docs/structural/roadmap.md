@@ -63,7 +63,8 @@ The project currently includes:
 - first technical release baseline;
 - UI-independent viewer-ready result data;
 - optional cyclic deformed-shape animation frames;
-- support glyphs, scaled support reactions and static result annotations in SVG/HTML exports.
+- support glyphs, scaled support reactions and static result annotations in SVG/HTML exports;
+- first standalone interactive HTML viewer with pan, zoom and layer toggles.
 
 ---
 
@@ -968,10 +969,11 @@ The unified sequence is:
 43 - XLSX report export
 44 - PDF technical report
 45 - Section catalog persistence
-46 - First simple interactive viewer prototype
-47 - Viewer controls for result scale, diagram scale and animation playback
-48 - Labels/tooltips for nodal displacements, rotations and diagram values
-49 - OpenCad2D integration boundary study
+46 - Advanced static structural annotations and oriented supports
+47 - First simple interactive viewer prototype
+48 - Viewer controls for result scale, diagram scale and animation playback
+49 - Labels/tooltips for nodal displacements, rotations and diagram values
+50 - OpenCad2D integration boundary study
 ```
 
 
@@ -1243,7 +1245,8 @@ The layer prepares:
 - normal-force, shear-force and bending-moment diagram polylines;
 - drawing bounds;
 - optional cyclic deformed-shape animation frames;
-- support glyphs, scaled support reactions and static result annotations in SVG/HTML exports.
+- support glyphs, scaled support reactions and static result annotations in SVG/HTML exports;
+- first standalone interactive HTML viewer with pan, zoom and layer toggles.
 
 This is intentionally not a GUI. It is the stable data boundary for future SVG/PNG export, Avalonia/WPF viewers, web canvases or OpenCad2D integration.
 
@@ -1327,3 +1330,19 @@ These additions are primarily in the reporting/visualization layer. A later refi
 ### Support orientation refinement
 
 Added mechanically active support orientation for translational restraints. `StructuralSupport.OrientationDegrees` is now used by the analysis layer to enforce restrained local support directions through homogeneous constraint equations. SVG/HTML exports continue to use the same angle for support glyph rendering.
+
+
+### Milestone 47 — First simple interactive viewer prototype
+
+Added a standalone HTML viewer export based on `StructuralVisualizationModel`.
+
+Implemented:
+
+- CLI command `export-viewer`;
+- mouse wheel zoom;
+- pointer drag pan;
+- reset view;
+- layer toggles for undeformed model, deformed shape, diagrams, supports, reactions and dimensions;
+- summary values displayed beside the scene.
+
+The viewer is generated as a static HTML file and does not introduce WPF, Avalonia or browser framework dependencies.

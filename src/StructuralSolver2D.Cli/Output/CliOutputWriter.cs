@@ -26,6 +26,7 @@ public static class CliOutputWriter
         Console.WriteLine("  dotnet run --project src/StructuralSolver2D.Cli -- export-pdf <file.json> <output.pdf> [loadCaseId|combinationId]");
         Console.WriteLine("  dotnet run --project src/StructuralSolver2D.Cli -- export-svg <file.json> <output.svg> [loadCaseId|combinationId]");
         Console.WriteLine("  dotnet run --project src/StructuralSolver2D.Cli -- export-html <file.json> <output.html> [loadCaseId|combinationId]");
+        Console.WriteLine("  dotnet run --project src/StructuralSolver2D.Cli -- export-viewer <file.json> <output.html> [loadCaseId|combinationId]");
         Console.WriteLine();
         WriteAvailableExamples(examples);
     }
