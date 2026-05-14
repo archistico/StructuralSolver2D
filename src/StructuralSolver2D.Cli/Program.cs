@@ -7,6 +7,7 @@ using StructuralSolver2D.Cli.Examples;
 using StructuralSolver2D.Cli.Input;
 using StructuralSolver2D.Cli.Output;
 using StructuralSolver2D.Core.Model;
+using StructuralSolver2D.Reporting.Csv;
 using StructuralSolver2D.Reporting.Markdown;
 
 const string ApplicationName = "StructuralSolver2D";
@@ -32,6 +33,11 @@ try
     if (IsReportCommand(args[0]))
     {
         return RunMarkdownReport(args);
+    }
+
+    if (IsCsvExportCommand(args[0]))
+    {
+        return RunCsvExport(args);
     }
 
     CliOutputWriter.WriteError($"Unknown command '{args[0]}'.");
@@ -154,6 +160,44 @@ int RunMarkdownReport(string[] args)
     return 0;
 }
 
+int RunCsvExport(string[] args)
+{
+    if (args.Length < 3)
+    {
+        CliOutputWriter.WriteError("Missing CSV export arguments.");
+        CliOutputWriter.WriteHelp(ApplicationName, CliExampleModelFactory.GetAvailableExamples());
+        return 1;
+    }
+
+    string inputPath = args[1];
+    string outputDirectory = args[2];
+
+    StructuralModelJsonFile input = StructuralModelJsonReader.Read(inputPath);
+    string loadCaseId = args.Length >= 4 ? args[3] : input.LoadCaseId;
+
+    AnalysisRun run = Analyze(input.Model, loadCaseId);
+
+    Directory.CreateDirectory(outputDirectory);
+
+    var exporter = new CsvStructuralResultExporter();
+    WriteCsv(outputDirectory, "nodal-displacements.csv", exporter.ExportNodalDisplacements(run.Result));
+    WriteCsv(outputDirectory, "support-reactions.csv", exporter.ExportSupportReactions(run.Result));
+    WriteCsv(outputDirectory, "member-end-forces.csv", exporter.ExportMemberEndForces(run.Result));
+    WriteCsv(outputDirectory, "internal-force-samples.csv", exporter.ExportInternalForceSamples(run.Result.LoadCaseId, run.Diagrams));
+    WriteCsv(outputDirectory, "displacement-samples.csv", exporter.ExportDisplacementSamples(run.Result.LoadCaseId, run.DisplacementDiagrams));
+    WriteCsv(outputDirectory, "summary.csv", exporter.ExportSummary(run.Summary));
+
+    Console.WriteLine($"CSV files written to: {outputDirectory}");
+
+    return 0;
+}
+
+void WriteCsv(string outputDirectory, string fileName, string content)
+{
+    string path = Path.Combine(outputDirectory, fileName);
+    File.WriteAllText(path, content);
+}
+
 void AnalyzeAndWrite(
     string sourceLabel,
     string title,
@@ -235,6 +279,10 @@ static bool IsAnalyzeCommand(string command) =>
 static bool IsReportCommand(string command) =>
     string.Equals(command, "report", StringComparison.OrdinalIgnoreCase) ||
     string.Equals(command, "markdown", StringComparison.OrdinalIgnoreCase);
+
+static bool IsCsvExportCommand(string command) =>
+    string.Equals(command, "export-csv", StringComparison.OrdinalIgnoreCase) ||
+    string.Equals(command, "csv", StringComparison.OrdinalIgnoreCase);
 
 internal sealed record AnalysisRun(
     StructuralAnalysisResult Result,

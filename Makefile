@@ -16,6 +16,12 @@ run:
 	
 analyse:
 	dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\beams\simple-supported-beam.json
+	
+report:
+	dotnet run --project src\StructuralSolver2D.Cli -- report examples\beams\simple-supported-beam.json reports\simple-supported-beam.md LC1
+	
+csv:
+	dotnet run --project src\StructuralSolver2D.Cli -- export-csv examples\combinations\load-combination.json reports\csv\combination ULS1
 
 clean:
 	@echo "Removing bin and obj folders..."

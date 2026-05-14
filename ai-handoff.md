@@ -927,7 +927,7 @@ CircularHollow(id, outerDiameter, innerDiameter)
 
 All dimensions are in meters. The generated `StructuralSection` records use area in m² and second moment of area in m⁴. The helper is intentionally simple and geometric: it does not select materials, does not imply a catalog profile, and does not perform code-compliant section verification.
 
-Next recommended milestone: Milestone 35 — advanced educational Markdown reports.
+Next recommended milestone: Milestone 37 — public API stabilization.
 
 
 ---
@@ -948,7 +948,7 @@ Available presets:
 
 The helpers return ordinary `StructuralMaterial` records. They provide elastic modulus and unit weight only. They are not strength-class design implementations and must not be used as a substitute for normative verification.
 
-Next recommended work: Milestone 36, focused on CSV export.
+Next recommended work: Milestone 37, focused on public API stabilization.
 
 ## Milestone 35 update - Advanced educational Markdown reports
 
@@ -962,4 +962,45 @@ Milestone 35 adds report-layer educational sections:
 
 The new overload accepts displacement diagrams plus deflection check results. Existing report-generator overloads remain available and forward to the extended implementation with an empty check list.
 
-Next recommended work: Milestone 36, focused on CSV export.
+Next recommended work: Milestone 37, focused on public API stabilization.
+
+
+## Milestone 36 update - CSV export
+
+Milestone 36 adds CSV result export in `StructuralSolver2D.Reporting.Csv`.
+
+Main API:
+
+```text
+CsvStructuralResultExporter
+```
+
+Available exports:
+
+- `ExportNodalDisplacements(result)`;
+- `ExportSupportReactions(result)`;
+- `ExportMemberEndForces(result)`;
+- `ExportInternalForceSamples(analysisId, diagrams)`;
+- `ExportDisplacementSamples(analysisId, displacementDiagrams)`;
+- `ExportSummary(summary)`.
+
+The CLI now supports:
+
+```powershell
+dotnet run --project src\StructuralSolver2D.Cli -- export-csv <file.json> <output-directory> [loadCaseId|combinationId]
+```
+
+The command writes:
+
+```text
+nodal-displacements.csv
+support-reactions.csv
+member-end-forces.csv
+internal-force-samples.csv
+displacement-samples.csv
+summary.csv
+```
+
+CSV output uses invariant culture, comma separators and standard CSV quoting when needed. It is intended for spreadsheet validation and external post-processing, not for complete structural model exchange.
+
+Next recommended work: Milestone 37, focused on public API stabilization before the first technical release.

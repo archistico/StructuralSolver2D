@@ -51,6 +51,7 @@ The project currently includes:
 - CLI commands;
 - JSON input examples;
 - Markdown reports with educational guidance;
+- CSV export for spreadsheet validation and external post-processing;
 - benchmark catalog;
 - automated benchmark runner;
 - diagnostic analysis errors;
@@ -815,24 +816,30 @@ The report remains a textual Markdown output. It is still intentionally separate
 
 ## Milestone 36 — CSV export
 
-### Goal
+Completed.
 
-Export results to CSV for spreadsheet analysis.
+Milestone 36 adds spreadsheet-friendly CSV export without changing solver behavior.
 
-Possible exports:
+Added:
 
-- nodal displacements;
-- support reactions;
-- member end forces;
-- internal-force samples;
-- deformed-shape samples;
-- result extrema.
+- `CsvStructuralResultExporter`;
+- CSV export for nodal displacements;
+- CSV export for support reactions;
+- CSV export for local member end forces;
+- CSV export for sampled internal-force diagrams;
+- CSV export for sampled displacement/deformed-shape diagrams;
+- CSV export for compact governing result summaries;
+- CLI command `export-csv`;
+- documentation in `docs/structural/csv-export.md`;
+- tests for CSV headers, values, invariant numeric formatting and escaping.
 
-Possible command:
+Example command:
 
 ```powershell
-dotnet run --project src\StructuralSolver2D.Cli -- export-csv examples\beam.json output\
+dotnet run --project src\StructuralSolver2D.Cli -- export-csv examples\beams\simple-supported-beam.json reports\csv\simple-supported-beam
 ```
+
+CSV export is intended for spreadsheet validation and external post-processing. It is not a complete model exchange format.
 
 ---
 
@@ -946,26 +953,26 @@ The solver and validation suite remain the priority.
 Recently completed short-term milestones:
 
 ```text
-29 - Examples and benchmarks reorganization
-30 - Initial theory documentation
 31 - Improved diagrams and characteristic points
 32 - Preliminary SLE deflection checks
 33 - Parametric sections
 34 - Initial material library
+35 - Advanced educational reports
+36 - CSV export
 ```
 
 The next recommended step is:
 
 ```text
-35 - Advanced educational reports
+37 - Public API stabilization
 ```
 
 After that, the project can move toward:
 
 ```text
-36 - CSV export
-37 - Public API stabilization
 38 - First technical release
+39 - Future OpenCad2D integration study
+40 - Experimental viewer
 ```
 
 ---
@@ -1119,7 +1126,7 @@ The new theory documentation explains:
 The next recommended milestone is:
 
 ```text
-Milestone 36 — CSV export
+Milestone 37 — Public API stabilization
 ```
 
-This should make the computed results easier to inspect in spreadsheets and external validation tools.
+Milestone 36 has already made computed results easier to inspect in spreadsheets and external validation tools through CSV export.

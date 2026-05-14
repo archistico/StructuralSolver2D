@@ -35,7 +35,8 @@ Supported at the current stage:
 - result extrema and analysis summaries;
 - CLI examples;
 - JSON input examples;
-- Markdown report generation, including educational guidance, executive summaries, characteristic internal-force point tables and optional preliminary deflection-check tables.
+- Markdown report generation, including educational guidance, executive summaries, characteristic internal-force point tables and optional preliminary deflection-check tables;
+- CSV export for spreadsheet validation and external post-processing.
 
 Not supported yet:
 
@@ -385,18 +386,18 @@ Milestone 32 - Preliminary SLE deflection checks
 Milestone 33 - Parametric sections
 Milestone 34 - Initial material library
 Milestone 35 - Advanced educational Markdown reports
+Milestone 36 - CSV export
 ```
 
 Recommended next milestone:
 
 ```text
-Milestone 36 - CSV export
+Milestone 37 - Public API stabilization
 ```
 
 Medium-term roadmap:
 
 ```text
-Milestone 36 - CSV export
 Milestone 37 - Public API stabilization
 Milestone 38 - First technical release
 Milestone 39 - Future OpenCad2D integration study
@@ -748,4 +749,6 @@ Milestone 34 adds initial elastic material presets through `StructuralMaterialLi
 
 Milestone 35 expands Markdown reports with educational guidance, an executive summary, model-size statistics, governing absolute values and optional preliminary serviceability deflection-check tables. These additions are report-layer features only: they do not modify solver calculations or imply normative design verification.
 
-Next recommended work: Milestone 36, focused on CSV export for spreadsheet validation and external post-processing.
+Milestone 36 adds CSV export through `CsvStructuralResultExporter` and the CLI `export-csv` command. The exported tables cover nodal displacements, support reactions, member end forces, internal-force samples, displacement samples and compact result summaries. CSV output is intended for spreadsheet validation and external post-processing, not for complete model exchange.
+
+Next recommended work: Milestone 37, focused on public API stabilization before the first technical release.

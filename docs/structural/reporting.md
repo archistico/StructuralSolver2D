@@ -1,6 +1,6 @@
 # Reporting
 
-StructuralSolver2D currently provides Markdown reporting through `StructuralSolver2D.Reporting.Markdown`.
+StructuralSolver2D currently provides Markdown reporting through `StructuralSolver2D.Reporting.Markdown` and CSV result export through `StructuralSolver2D.Reporting.Csv`.
 
 The report generator is intentionally a presentation layer. It receives model data, analysis results, sampled diagrams, summaries and optional preliminary check results. It must not run the solver itself.
 
@@ -69,3 +69,21 @@ When `DeflectionCheckResult` values are supplied, the report includes a table wi
 - pass/fail status.
 
 These checks are preliminary sampled checks only. They are not complete code-compliant serviceability verification.
+
+
+---
+
+## CSV export
+
+Milestone 36 adds `CsvStructuralResultExporter` for spreadsheet-friendly exports of computed results.
+
+Available CSV tables include:
+
+- nodal displacements;
+- support reactions;
+- local member end forces;
+- internal-force samples;
+- displacement/deformed-shape samples;
+- compact result summaries.
+
+See `docs/structural/csv-export.md` for the full table layout and CLI usage.
