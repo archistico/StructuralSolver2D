@@ -281,7 +281,7 @@ Milestone 1  - Independent .NET 8 solution
 Milestone 2  - Pure structural data model
 Milestone 3  - Loads and load cases
 Milestone 4  - Minimal Frame2D solver
-Milestone 5  - Extended solver validation
+Milestone 5  - Extended Frame2D validation
 Milestone 6  - Internal force sampling N/V/M
 Milestone 7  - Result summary and extrema
 Milestone 8  - CLI with built-in examples
@@ -292,14 +292,46 @@ Milestone 12 - Test coverage for Reporting and CLI input
 Milestone 13 - Point loads on members in the Frame2D analyzer
 Milestone 14 - Linear, triangular and trapezoidal distributed loads
 Milestone 15 - Manual load combinations
+Milestone 16 - Truss2D / axial-only members / simple trusses
+Milestone 17 - Benchmark catalog
+Milestone 18 - Automated benchmark runner
+Milestone 19 - Frame2D displacement and deformed-shape sampling
+Milestone 20 - Deformed-shape samples in Markdown reports
+Milestone 21 - Analysis diagnostics
+Milestone 22 - Frame2D member end moment releases
+Milestone 23 - Mixed Frame2D + Truss2D plane-structure analyzer
 ```
 
-Recommended next steps:
+Recommended short-term roadmap:
 
 ```text
-Milestone 16 - Add self-weight generation
-Milestone 17 - Add richer example library and validation cases
-Milestone 18 - Start considering a minimal graphical viewer or future OpenCad2D adapter
+Milestone 24 - Local/global load conventions and inclined member validation
+Milestone 25 - Global equilibrium checker
+Milestone 26 - Mesh refinement and convergence benchmarks
+Milestone 28 - Improved benchmark runner
+Milestone 29 - Examples and benchmarks reorganization
+Milestone 30 - Initial theory documentation
+```
+
+Medium-term roadmap:
+
+```text
+Milestone 31 - Improved internal-force diagrams and characteristic points
+Milestone 32 - Preliminary SLE deflection checks
+Milestone 33 - Parametric sections
+Milestone 34 - Initial material library
+Milestone 35 - Advanced educational Markdown reports
+Milestone 36 - CSV export
+Milestone 37 - Public API stabilization
+Milestone 38 - First technical release
+Milestone 39 - Future OpenCad2D integration study
+Milestone 40 - Experimental viewer
+```
+
+See the full roadmap in:
+
+```text
+docs/structural/roadmap.md
 ```
 
 ---

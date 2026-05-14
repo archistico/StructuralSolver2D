@@ -1,300 +1,983 @@
-# StructuralSolver2D - Roadmap
+# StructuralSolver2D Roadmap
 
-This roadmap describes the recommended development path before any integration with OpenCad2D.
+StructuralSolver2D is developed as an independent .NET 8 structural analysis engine for two-dimensional linear structural models.
 
-The project starts as an independent solver. OpenCad2D integration is postponed until the calculation engine is stable and validated.
+The project is intentionally developed in small, testable and documented milestones.
 
-## Milestone 0 - Documentation and scope
+The current goal is not to build a full professional structural design package, but to create a clean, validated and educational 2D structural analysis core.
 
-Goal:
+---
 
-```text
-Define the project vision, scope, architecture, units, model, analysis assumptions and validation plan.
-```
+## Development principle
 
-Outputs:
+Every important feature must be supported by:
 
-```text
-docs/structural/vision.md
-docs/structural/scope.md
-docs/structural/architecture.md
-docs/structural/model.md
-docs/structural/units.md
-docs/structural/analysis.md
-docs/structural/validation.md
-docs/structural/roadmap.md
-```
+- a clear model representation;
+- deterministic tests;
+- validation benchmarks;
+- documentation;
+- CLI usage where appropriate;
+- reporting support where appropriate.
 
-## Milestone 1 - Independent .NET solution
+The guiding rule is:
 
-Goal:
+> no significant new feature should be added without dedicated validation benchmarks.
 
-```text
-Create an independent .NET solution for the structural solver.
-```
+This is especially important because the project deals with structural analysis results, where silent numerical or sign-convention errors can be misleading.
 
-Recommended projects:
+---
 
-```text
-src/StructuralSolver2D.Core
-src/StructuralSolver2D.Analysis
-tests/StructuralSolver2D.Core.Tests
-tests/StructuralSolver2D.Analysis.Tests
-```
+## Current status
 
-The solution must not reference OpenCad2D.
+The project currently includes:
 
-## Milestone 2 - Structural domain model
+- independent .NET 8 solution;
+- structural model core;
+- nodes, members, materials, sections and supports;
+- load cases;
+- manual load combinations;
+- nodal forces and moments;
+- uniform distributed loads;
+- linear distributed loads;
+- point loads on members;
+- Frame2D analysis;
+- Truss2D analysis;
+- mixed Frame2D + Truss2D analysis;
+- moment releases at Frame2D member ends;
+- internal-force sampling;
+- deformed-shape sampling;
+- result summaries and extrema;
+- CLI commands;
+- JSON input examples;
+- Markdown reports;
+- benchmark catalog;
+- automated benchmark runner;
+- diagnostic analysis errors;
+- README and AI handoff documentation.
 
-Goal:
+---
 
-```text
-Implement the pure structural model.
-```
+## Completed milestones
 
-Initial entities:
+### Milestone 1 — Independent .NET 8 solution
 
-```text
-StructuralModel
-StructuralNode
-StructuralMember
-StructuralSupport
-StructuralLoad
-StructuralMaterial
-StructuralSection
-StructuralLoadCase
-```
+Created the initial independent .NET 8 solution.
 
-Also implement model validation rules.
+The solver is not coupled to OpenCad2D, Avalonia, WPF or any graphical user interface.
 
-## Milestone 3 - Frame2D solver foundation
+---
 
-Goal:
+### Milestone 2 — Structural core model
 
-```text
-Implement the basic 2D frame analysis pipeline.
-```
+Added the first pure structural data model:
 
-Required components:
+- `StructuralModel`;
+- `StructuralNode`;
+- `StructuralMember`;
+- `StructuralMaterial`;
+- `StructuralSection`;
+- `StructuralSupport`.
 
-```text
-Frame2D local stiffness matrix
-coordinate transformation
-global stiffness matrix assembly
-global load vector assembly
-boundary condition application
-linear system solution
-nodal displacement recovery
-support reaction computation
-```
+The model is independent from the solver and from any UI.
 
-## Milestone 4 - Numerical validation tests
+---
 
-Goal:
+### Milestone 3 — Loads and load cases
 
-```text
-Validate the solver against known benchmark cases.
-```
+Added:
 
-Minimum cases:
+- `StructuralLoadCase`;
+- `StructuralLoad`;
+- nodal forces;
+- nodal moments;
+- member loads;
+- load validation.
 
-```text
-simply supported beam with UDL
-simply supported beam with point load
-cantilever with end point load
-cantilever with UDL
-axial bar
-continuous beam
-simple portal frame
-unstable model
-zero-length member
-invalid material/section
-```
+---
 
-## Milestone 5 - CLI prototype
+### Milestone 4 — Minimal Frame2D solver
 
-Goal:
+Added the first linear elastic Frame2D solver.
 
-```text
-Analyze example models without any graphical interface.
-```
+Supported:
 
-Example future command:
-
-```bash
-structural2d analyze examples/beam-simple.json
-```
-
-The CLI should print:
-
-- model summary;
-- validation result;
+- 2D frame elements;
+- global stiffness assembly;
+- boundary conditions;
 - nodal displacements;
 - support reactions;
-- member forces;
-- analysis warnings/errors.
+- local member end forces.
 
-## Milestone 6 - Example models
+---
 
-Goal:
+### Milestone 5 — Extended Frame2D validation
 
-```text
-Create a library of small example models.
+Added additional analytical tests for:
+
+- simply supported beams;
+- cantilevers;
+- axial behavior;
+- unloaded models;
+- symmetric portal frames;
+- unstable models.
+
+---
+
+### Milestone 6 — Internal-force sampling
+
+Added sampling of:
+
+- axial force `N(x)`;
+- shear force `V(x)`;
+- bending moment `M(x)`.
+
+This enables future diagrams, reporting and graphical visualization.
+
+---
+
+### Milestone 7 — Result summaries and extrema
+
+Added result summaries and maximum/minimum extraction for internal-force diagrams.
+
+This makes the results easier to consume from CLI, reports and future UI layers.
+
+---
+
+### Milestone 8 — Minimal CLI examples
+
+Added a minimal command line interface with predefined examples.
+
+Example:
+
+```powershell
+dotnet run --project src\StructuralSolver2D.Cli -- example simple-supported-beam
 ```
+
+---
+
+### Milestone 9 — JSON input examples
+
+Added JSON model loading and the `analyze` command.
+
+Example:
+
+```powershell
+dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\simple-supported-beam.json
+```
+
+---
+
+### Milestone 10 — Markdown reports
+
+Added a Markdown report generator.
+
+Example:
+
+```powershell
+dotnet run --project src\StructuralSolver2D.Cli -- report examples\simple-supported-beam.json reports\simple-supported-beam.md
+```
+
+---
+
+### Milestone 11 — README and AI handoff
+
+Added project-level documentation and `ai-handoff.md`.
+
+The AI handoff file helps future LLM sessions understand:
+
+- project architecture;
+- current status;
+- conventions;
+- solver limits;
+- next recommended steps.
+
+---
+
+### Milestone 12 — Reporting and CLI test coverage
+
+Added tests for:
+
+- Markdown report generation;
+- JSON input reading;
+- CLI-related input behavior;
+- report options.
+
+---
+
+### Milestone 13 — Point loads on members
+
+Implemented point loads applied along Frame2D members.
+
+Supported:
+
+- normalized position along the member;
+- global directions;
+- local directions;
+- equivalent nodal loads;
+- internal-force sampling with shear jumps.
+
+---
+
+### Milestone 14 — Linear distributed loads
+
+Implemented linearly varying distributed loads.
+
+This supports:
+
+- triangular loads;
+- trapezoidal loads;
+- generic linear member loads.
+
+---
+
+### Milestone 15 — Manual load combinations
+
+Added manual load combinations.
+
+Example:
+
+```json
+{
+  "id": "ULS1",
+  "name": "ULS 1",
+  "terms": [
+    { "loadCaseId": "G1", "factor": 1.35 },
+    { "loadCaseId": "Q1", "factor": 1.50 }
+  ]
+}
+```
+
+The solver does not generate normative combinations automatically.
+
+Only user-defined combinations are supported.
+
+---
+
+### Milestone 16 — Truss2D solver
+
+Added a Truss2D analyzer for axial-only members.
+
+Supported:
+
+- 2D truss members;
+- nodal forces;
+- support reactions;
+- nodal displacements;
+- axial member force.
+
+---
+
+### Milestone 17 — Benchmark catalog
+
+Added a structured benchmark catalog.
+
+Initial benchmark groups:
+
+- beams;
+- trusses;
+- frames;
+- expected results.
+
+The benchmark catalog is intended to become the main validation base of the project.
+
+---
+
+### Milestone 18 — Automated benchmark runner
+
+Added an automated benchmark runner.
+
+The runner reads benchmark models and expected results, runs the solver and compares computed values against the expected values.
+
+This turns benchmark files into regression tests.
+
+---
+
+### Milestone 19 — Frame2D displacement sampler
+
+Added displacement and deformed-shape sampling along Frame2D members.
+
+Sampled values include:
+
+- local axial displacement;
+- local transverse displacement;
+- local rotation;
+- global X displacement;
+- global Y displacement.
+
+Important note:
+
+> the displacement sampler currently performs FEM interpolation of nodal displacements. It is useful for drawing the deformed shape, but it is not always equal to the exact closed-form internal displacement field for distributed loads.
+
+---
+
+### Milestone 20 — Deformed-shape samples in Markdown reports
+
+Added deformed-shape samples to the Markdown report.
+
+This prepares the project for:
+
+- better educational reports;
+- graphical output;
+- future UI integration.
+
+---
+
+### Milestone 21 — Analysis diagnostics
+
+Improved diagnostic errors for unsupported or invalid analysis cases.
 
 Examples:
 
-```text
-examples/beam-simple.json
-examples/cantilever-point-load.json
-examples/cantilever-udl.json
-examples/portal-frame.json
-examples/truss-simple.json
-```
+- wrong analyzer for member type;
+- unsupported loads in Truss2D;
+- unstable model;
+- singular stiffness matrix;
+- invalid model issues.
 
-These examples should also be useful for documentation and regression testing.
+---
 
-## Milestone 7 - Reporting
+### Milestone 22 — Frame2D moment releases
 
-Goal:
+Added moment releases at Frame2D member ends.
 
-```text
-Generate readable reports from analysis results.
-```
+Supported:
 
-Initial formats:
+- start moment release;
+- end moment release;
+- both-end moment release.
 
-```text
-Markdown
-plain text
-```
+This allows modelling hinged member ends and internal hinges.
 
-Later formats:
+---
 
-```text
-HTML
-PDF
-```
+### Milestone 23 — Mixed Frame2D + Truss2D analyzer
 
-Report contents:
+Added `PlaneStructureAnalyzer`.
 
-```text
-model data
-units
-materials
-sections
-nodes
-members
-supports
-loads
-displacements
-reactions
-member forces
-warnings
-limitations
-```
+It supports mixed 2D structural models containing both:
 
-## Milestone 8 - Load cases and manual combinations
+- `Frame2D` members;
+- `Truss2D` members.
 
-Goal:
+The global model uses three degrees of freedom per node:
 
-```text
-Support multiple load cases and user-defined combinations.
-```
+- `Ux`;
+- `Uy`;
+- `Rz`.
 
-Initial rule:
+Truss members contribute only to translational degrees of freedom.
 
-```text
-No automatic normative combination generation.
-```
+---
 
-Combinations are manually defined by the user.
+# Upcoming milestones
 
-## Milestone 9 - Stabilized public API
+## Milestone 24 — Local/global load conventions and inclined member validation
 
-Goal:
+### Goal
 
-```text
-Prepare the engine for reuse by external clients.
-```
+Validate local/global coordinate conventions, element orientation and inclined member behavior.
 
-Tasks:
+### Planned work
 
-- clean public API;
-- XML documentation summaries;
-- stable result DTOs;
-- clear exception/result model;
-- documented sign conventions;
-- documented units;
-- examples for API usage.
+Add tests and benchmarks for:
 
-## Milestone 10 - Future OpenCad2D integration study
+- inclined Frame2D member with global nodal load;
+- inclined Frame2D member with `LocalY` distributed load;
+- inclined Frame2D member with `GlobalY` distributed load;
+- inclined Truss2D member with global nodal load;
+- same member modeled as `A -> B` and `B -> A`;
+- mixed frame with inclined truss brace;
+- sign convention checks for `N`, `V` and `M`.
 
-Goal:
+### Why this matters
+
+Inclined elements are a common source of errors in structural solvers.
+
+This milestone is intended to protect:
+
+- local-to-global transformations;
+- member orientation;
+- local load projection;
+- internal-force signs;
+- mixed Frame2D/Truss2D behavior.
+
+---
+
+## Milestone 25 — Global equilibrium checker
+
+### Goal
+
+Add an automatic equilibrium checker.
+
+The checker should verify:
 
 ```text
-Evaluate integration with OpenCad2D after the solver is stable.
+ΣFx = 0
+ΣFy = 0
+ΣMz = 0
 ```
 
-Possible integration strategy:
+for a completed structural analysis.
+
+### Planned class
+
+Possible class name:
+
+```text
+GlobalEquilibriumChecker
+```
+
+or:
+
+```text
+StructuralEquilibriumChecker
+```
+
+### Checks
+
+The checker should compute:
+
+- total applied horizontal force;
+- total applied vertical force;
+- total applied moment about a reference point;
+- total support reactions;
+- residual force and moment;
+- pass/fail result based on tolerance.
+
+### Why this matters
+
+This is one of the most useful global validation checks for a structural analysis solver.
+
+It can detect:
+
+- missing loads;
+- wrong load signs;
+- wrong reaction signs;
+- local/global transformation errors;
+- load combination errors;
+- member load conversion errors.
+
+---
+
+## Milestone 26 — Mesh refinement and convergence benchmarks
+
+### Goal
+
+Introduce convergence benchmarks.
+
+The same problem should be modeled with increasing discretization density:
+
+```text
+1 element
+2 elements
+4 elements
+8 elements
+```
+
+### Candidate cases
+
+- simply supported beam with uniform distributed load;
+- cantilever with uniform distributed load;
+- beam with triangular load;
+- beam with point load not coincident with a node.
+
+### Checks
+
+The benchmark should evaluate convergence of:
+
+- deflection;
+- maximum bending moment;
+- shear force;
+- deformed shape;
+- internal sampled values.
+
+### Educational purpose
+
+This milestone should document a key FEM concept:
+
+> a finite element model is a discretized approximation of a continuous structure.
+
+---
+
+## Milestone 27 — Professional and institutional benchmark catalog
+
+### Goal
+
+Create a benchmark section inspired by recognized verification sources.
+
+Possible sources:
+
+- NAFEMS;
+- SOFiSTiK verification examples;
+- Autodesk Robot / Nastran verification manuals;
+- Dlubal verification examples;
+- OpenSees examples;
+- university lecture examples.
+
+### Proposed structure
+
+```text
+benchmarks/
+  professional/
+    README.md
+    nafems-inspired/
+    opensees-inspired/
+    software-verification/
+```
+
+### Rules
+
+For every professional/institutional benchmark, document:
+
+- source;
+- description;
+- adaptation to StructuralSolver2D;
+- assumptions;
+- limitations;
+- expected results;
+- tolerances;
+- what the benchmark validates.
+
+Do not copy long copyrighted text from external manuals.
+
+Use only minimal data, independent explanations and proper references.
+
+---
+
+## Milestone 28 — Improved benchmark runner
+
+### Goal
+
+Make the benchmark runner more expressive and maintainable.
+
+### Planned improvements
+
+Support expected checks for:
+
+- reactions;
+- nodal displacements;
+- nodal rotations;
+- support moments;
+- internal-force values at specific positions;
+- global maximum/minimum values;
+- axial forces in truss members;
+- equilibrium residuals;
+- symmetry conditions;
+- mesh convergence criteria.
+
+### Why this matters
+
+The benchmark runner should become the backbone of the validation strategy.
+
+As the solver grows, benchmarks should be easier to add without duplicating test code.
+
+---
+
+## Milestone 29 — Examples and benchmarks reorganization
+
+### Goal
+
+Separate user examples from validation benchmarks.
+
+### Proposed structure
+
+```text
+examples/
+  beams/
+  frames/
+  trusses/
+  mixed/
+  combinations/
+
+benchmarks/
+  beams/
+  frames/
+  trusses/
+  mixed/
+  convergence/
+  professional/
+  expected/
+```
+
+### Difference
+
+Examples are for users.
+
+Benchmarks are for validation.
+
+Examples should be easy to understand.
+
+Benchmarks should be precise, documented and regression-tested.
+
+---
+
+## Milestone 30 — Initial theory documentation
+
+### Goal
+
+Add educational theory documentation.
+
+### Proposed files
+
+```text
+docs/theory/
+  matrix-method.md
+  frame2d-element.md
+  truss2d-element.md
+  equivalent-nodal-loads.md
+  local-global-coordinates.md
+  sign-conventions.md
+  displacement-interpolation.md
+  validation-strategy.md
+```
+
+### Why this matters
+
+StructuralSolver2D can be both:
+
+- a lightweight 2D structural analysis engine;
+- an educational codebase for learning matrix-based structural analysis.
+
+The theory documentation should explain how and why the solver works.
+
+---
+
+## Milestone 31 — Improved internal-force diagrams and characteristic points
+
+### Goal
+
+Improve the post-processing of internal-force diagrams.
+
+### Planned features
+
+Detect characteristic points such as:
+
+- maximum bending moment;
+- minimum bending moment;
+- maximum shear;
+- zero shear points;
+- zero moment points;
+- concentrated load positions;
+- shear discontinuities;
+- diagram segment limits.
+
+### Why this matters
+
+This is necessary for:
+
+- better reports;
+- future graphical output;
+- preliminary checks;
+- future integration with OpenCad2D.
+
+---
+
+## Milestone 32 — Preliminary SLE deflection checks
+
+### Goal
+
+Add preliminary serviceability checks for deflection.
+
+### Example check
+
+```text
+maximum deflection <= L / limit
+```
+
+Common limits:
+
+```text
+L/200
+L/250
+L/300
+L/400
+```
+
+### Important limitation
+
+This must not be presented as a complete normative check.
+
+The correct wording is:
+
+```text
+preliminary serviceability check
+```
+
+or:
+
+```text
+preliminary deflection check
+```
+
+not:
+
+```text
+full code-compliant design verification
+```
+
+---
+
+## Milestone 33 — Parametric sections
+
+### Goal
+
+Generate section properties from simple geometric inputs.
+
+### Initial section types
+
+- rectangular section;
+- circular solid section;
+- circular hollow section;
+- simple timber rectangular section.
+
+### Example
+
+```json
+{
+  "id": "RECT_100x200",
+  "type": "Rectangular",
+  "width": 0.10,
+  "height": 0.20
+}
+```
+
+The generated section should compute:
+
+- area;
+- second moment of area.
+
+---
+
+## Milestone 34 — Initial material library
+
+### Goal
+
+Add predefined elastic materials.
+
+Possible materials:
+
+- steel S235;
+- steel S275;
+- steel S355;
+- timber C24;
+- glulam GL24h;
+- generic concrete.
+
+### Limitation
+
+The material library should initially support only elastic analysis data.
+
+It should not imply full normative design verification.
+
+---
+
+## Milestone 35 — Advanced educational Markdown reports
+
+### Goal
+
+Make the Markdown report more useful for study, debugging and validation.
+
+### Planned additions
+
+- sign convention summary;
+- model diagnostics;
+- global equilibrium residuals;
+- benchmark expected/computed comparison;
+- notes on FEM discretization;
+- notes on local/global coordinates;
+- warnings and limitations;
+- better formatting for diagrams and sampled values.
+
+---
+
+## Milestone 36 — CSV export
+
+### Goal
+
+Export results to CSV for spreadsheet analysis.
+
+Possible exports:
+
+- nodal displacements;
+- support reactions;
+- member end forces;
+- internal-force samples;
+- deformed-shape samples;
+- result extrema.
+
+Possible command:
+
+```powershell
+dotnet run --project src\StructuralSolver2D.Cli -- export-csv examples\beam.json output\
+```
+
+---
+
+## Milestone 37 — Public API stabilization
+
+### Goal
+
+Review and stabilize public APIs before a first technical release.
+
+### Review checklist
+
+- namespaces;
+- public class names;
+- public property names;
+- record immutability;
+- exception messages;
+- XML documentation comments;
+- separation between Core, Analysis, Reporting and CLI;
+- extensibility for future analyzers;
+- consistency of units and sign conventions.
+
+---
+
+## Milestone 38 — First technical release
+
+### Goal
+
+Prepare the first GitHub release.
+
+Possible version:
+
+```text
+v0.1.0
+```
+
+Suggested title:
+
+```text
+StructuralSolver2D v0.1.0 - Linear 2D structural analysis core
+```
+
+Release contents:
+
+- README;
+- ai-handoff.md;
+- documentation;
+- CLI;
+- JSON examples;
+- Markdown report generation;
+- benchmark catalog;
+- automated tests;
+- release notes;
+- license.
+
+---
+
+## Milestone 39 — Future OpenCad2D integration study
+
+### Goal
+
+Study how StructuralSolver2D could be integrated into OpenCad2D.
+
+### Principle
+
+StructuralSolver2D must remain independent.
+
+OpenCad2D should become a possible graphical client, not a dependency of the solver.
+
+### Possible integration layer
 
 ```text
 OpenCad2D.Structural.Adapter
 ```
 
-Rules:
+The adapter would be responsible for:
 
-- OpenCad2D may reference StructuralSolver2D;
-- StructuralSolver2D must not reference OpenCad2D;
-- structural entities remain explicit;
-- CAD entities may be used as background/snap/reference only;
-- no automatic CAD-to-structure conversion is required.
+- creating `StructuralModel` instances from graphical input;
+- drawing structural nodes;
+- drawing members;
+- drawing supports;
+- drawing loads;
+- displaying reactions;
+- displaying internal-force diagrams;
+- displaying deformed shapes;
+- generating reports.
 
-## Milestone 11 - Preliminary serviceability checks
+---
 
-Goal:
+## Milestone 40 — Experimental viewer
+
+### Goal
+
+Evaluate a lightweight viewer before full OpenCad2D integration.
+
+Possible options:
+
+- SVG export;
+- static HTML report with diagrams;
+- small Avalonia viewer;
+- Blazor viewer;
+- command line generated graphics.
+
+This is not urgent.
+
+The solver and validation suite remain the priority.
+
+---
+
+# Short-term priority
+
+The immediate recommended order is:
 
 ```text
-Add preliminary displacement and deflection checks.
+24 - Local/global load conventions and inclined member validation
+25 - Global equilibrium checker
+26 - Mesh refinement and convergence benchmarks
+28 - Improved benchmark runner
+29 - Examples and benchmarks reorganization
+30 - Initial theory documentation
 ```
 
-This is the first step toward design assistance, but not full normative verification.
-
-## Milestone 12 - Preliminary steel/timber checks
-
-Goal:
+After that, the project can move toward:
 
 ```text
-Add clearly documented preliminary checks for simple steel and timber members.
+31 - Improved diagrams and characteristic points
+32 - Preliminary SLE deflection checks
+33 - Parametric sections
+34 - Material library
+35 - Advanced educational reports
+36 - CSV export
+37 - Public API stabilization
+38 - First technical release
 ```
 
-Possible steel checks:
+---
+
+# Long-term direction
+
+StructuralSolver2D should remain:
 
 ```text
-tension
-simple compression
-bending
-shear
-simplified N + M interaction
+an independent structural analysis engine
 ```
 
-Possible timber checks:
+Possible future clients:
+
+- CLI;
+- report generator;
+- educational examples;
+- OpenCad2D adapter;
+- lightweight viewer;
+- external applications.
+
+The long-term architecture should remain:
 
 ```text
-bending
-shear
-tension parallel to grain
-compression parallel to grain
-instantaneous/final deflection in simplified form
-```
+Core
+  structural model
 
-Excluded initially:
+Analysis
+  solvers and post-processing
 
-```text
-connections
-advanced instability
-fire
-fatigue
-seismic design
-complete normative verification
+Reporting
+  textual and document output
+
+CLI
+  command line usage
+
+Future UI / CAD clients
+  optional external consumers
 ```
