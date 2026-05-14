@@ -123,22 +123,42 @@ public sealed class Truss2DAnalyzer
         StructuralModelValidationResult validationResult = new StructuralModelValidator().Validate(model);
         if (!validationResult.IsValid)
         {
-            throw new StructuralAnalysisException("The structural model is not valid and cannot be analyzed.", validationResult.Issues);
+            string issueSummary = string.Join("; ", validationResult.Issues.Take(5).Select(issue => issue.Message));
+            throw new StructuralAnalysisException(
+                $"The structural model is not valid and cannot be analyzed. First issues: {issueSummary}",
+                validationResult.Issues);
         }
     }
 
     private static void ValidateTrussOnlyModel(StructuralModel model)
     {
-        if (model.Members.Any(member => member.Type != MemberType.Truss2D))
+        var unsupportedMembers = model.Members
+            .Where(member => member.Type != MemberType.Truss2D)
+            .Select(member => $"{member.Id} ({member.Type})")
+            .Take(10)
+            .ToList();
+
+        if (unsupportedMembers.Count > 0)
         {
-            throw new StructuralAnalysisException("The Truss2D analyzer supports only Truss2D members. Mixed Frame2D/Truss2D models are not supported yet.");
+            throw new StructuralAnalysisException(
+                "The Truss2D analyzer supports only Truss2D members. " +
+                $"Unsupported members: {string.Join(", ", unsupportedMembers)}. " +
+                "Use Frame2DAnalyzer for pure frame models. Mixed Frame2D/Truss2D models are not supported yet.");
         }
 
-        if (model.Loads.Any(load =>
-            load.Type != StructuralLoadType.NodalForce &&
-            model.LoadCases.Any(loadCase => string.Equals(loadCase.Id, load.LoadCaseId, StringComparison.OrdinalIgnoreCase))))
+        var unsupportedLoads = model.Loads
+            .Where(load =>
+                load.Type != StructuralLoadType.NodalForce &&
+                model.LoadCases.Any(loadCase => string.Equals(loadCase.Id, load.LoadCaseId, StringComparison.OrdinalIgnoreCase)))
+            .Select(load => $"{load.Id} ({load.Type})")
+            .Take(10)
+            .ToList();
+
+        if (unsupportedLoads.Count > 0)
         {
-            throw new StructuralAnalysisException("The Truss2D analyzer currently supports only nodal force loads.");
+            throw new StructuralAnalysisException(
+                "The Truss2D analyzer currently supports only nodal force loads. " +
+                $"Unsupported loads: {string.Join(", ", unsupportedLoads)}.");
         }
     }
 
@@ -186,7 +206,7 @@ public sealed class Truss2DAnalyzer
         {
             if (load.Type != StructuralLoadType.NodalForce)
             {
-                throw new StructuralAnalysisException($"Load type '{load.Type}' is not supported by the Truss2D analyzer.");
+                throw new StructuralAnalysisException($"Load '{load.Id}' has type '{load.Type}', which is not supported by the Truss2D analyzer. Only nodal force loads are supported.");
             }
 
             double loadFactor = loadCaseFactors[load.LoadCaseId];
@@ -202,7 +222,7 @@ public sealed class Truss2DAnalyzer
             }
             else
             {
-                throw new StructuralAnalysisException($"Unsupported Truss2D nodal force direction '{load.Direction}'.");
+                throw new StructuralAnalysisException($"Load '{load.Id}' uses unsupported Truss2D nodal force direction '{load.Direction}'. Supported directions are GlobalX and GlobalY.");
             }
         }
     }

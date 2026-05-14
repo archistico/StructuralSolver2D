@@ -664,3 +664,19 @@ Do not claim that sampled internal deflections are closed-form exact for distrib
 ## Current milestone note - deformed shape samples in reports
 
 The Reporting project can include `MemberDisplacementDiagram` data in Markdown reports. The CLI generates displacement diagrams for Frame2D models and passes them to the report generator. Truss2D reports currently omit member displacement diagrams. Displacement samples are FEM interpolation of nodal results; benchmark deflection checks should still model critical points as explicit nodes when comparing against closed-form formulas.
+
+## Current milestone note - analysis diagnostics
+
+The analyzers now provide more actionable exception messages. Keep this style for future work:
+
+- include entity ids in user-facing analysis failures whenever possible;
+- distinguish invalid model validation errors from unsupported analyzer features;
+- for unsupported mixed models, explicitly say that mixed `Frame2D` + `Truss2D` analysis is not supported yet;
+- for solver singularities, keep the message educational and mention instability, missing restraints or mechanisms;
+- do not hide `StructuralModelValidationIssue` details when validation fails.
+
+Regression coverage for these messages is in:
+
+```text
+tests/StructuralSolver2D.Analysis.Tests/Diagnostics/StructuralAnalysisDiagnosticsTests.cs
+```

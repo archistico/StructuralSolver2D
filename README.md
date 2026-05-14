@@ -419,3 +419,14 @@ For benchmark checks, critical positions such as midspan should therefore usuall
 ## Milestone update: deformed shape sampling in reports
 
 Markdown reports can include sampled Frame2D deformed-shape values (`u`, `v`, `rz`, `Ux`, `Uy`). These samples are finite-element interpolation of nodal displacements and should not be confused with closed-form exact internal deflections under all load types.
+
+## Milestone update: analysis diagnostics
+
+Analysis failure messages now include more actionable context for common modeling mistakes:
+
+- analyzer/member type mismatches list the unsupported member id and type;
+- `Truss2DAnalyzer` unsupported load errors list the offending load id and type;
+- invalid model exceptions include a short summary of the first validation issues;
+- singular reduced stiffness matrix errors report the failing pivot and mention possible mechanisms or missing restraints.
+
+This keeps the project more suitable for educational use: when an analysis fails, the message should help the user understand whether the problem is an invalid model, an unsupported feature, or an unstable/labile structural scheme.

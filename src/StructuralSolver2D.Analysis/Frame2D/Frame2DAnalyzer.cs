@@ -81,10 +81,7 @@ public sealed class Frame2DAnalyzer
         string resultId,
         IReadOnlyDictionary<string, double> loadCaseFactors)
     {
-        if (model.Members.Any(member => member.Type != MemberType.Frame2D))
-        {
-            throw new StructuralAnalysisException("The current analyzer supports only Frame2D members.");
-        }
+        ValidateFrameOnlyModel(model);
 
         Dictionary<string, int> nodeIndexById = BuildNodeIndex(model);
         int totalDofCount = model.Nodes.Count * DofsPerNode;
@@ -127,7 +124,27 @@ public sealed class Frame2DAnalyzer
         StructuralModelValidationResult validationResult = new StructuralModelValidator().Validate(model);
         if (!validationResult.IsValid)
         {
-            throw new StructuralAnalysisException("The structural model is not valid and cannot be analyzed.", validationResult.Issues);
+            string issueSummary = string.Join("; ", validationResult.Issues.Take(5).Select(issue => issue.Message));
+            throw new StructuralAnalysisException(
+                $"The structural model is not valid and cannot be analyzed. First issues: {issueSummary}",
+                validationResult.Issues);
+        }
+    }
+
+    private static void ValidateFrameOnlyModel(StructuralModel model)
+    {
+        var unsupportedMembers = model.Members
+            .Where(member => member.Type != MemberType.Frame2D)
+            .Select(member => $"{member.Id} ({member.Type})")
+            .Take(10)
+            .ToList();
+
+        if (unsupportedMembers.Count > 0)
+        {
+            throw new StructuralAnalysisException(
+                "The Frame2D analyzer supports only Frame2D members. " +
+                $"Unsupported members: {string.Join(", ", unsupportedMembers)}. " +
+                "Use Truss2DAnalyzer for pure truss models. Mixed Frame2D/Truss2D models are not supported yet.");
         }
     }
 

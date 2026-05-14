@@ -49,7 +49,9 @@ internal static class DenseLinearSystemSolver
 
             if (bestPivot < PivotTolerance || !double.IsFinite(bestPivot))
             {
-                throw new StructuralAnalysisException("The reduced stiffness matrix is singular. The model is probably unstable or insufficiently constrained.");
+                throw new StructuralAnalysisException(
+                    $"The reduced stiffness matrix is singular at pivot {pivotIndex}. " +
+                    "The model is probably unstable, insufficiently constrained, or contains a mechanism.");
             }
 
             if (bestRow != pivotIndex)
