@@ -37,8 +37,13 @@ These exporters consume an already prepared `StructuralVisualizationModel`.
 The exporter renders:
 
 - undeformed structural model;
+- support symbols on the undeformed model;
+- member-length dimensions between connected nodes;
+- scaled support reactions with value labels;
 - deformed shape;
+- maximum displacement callout;
 - internal-force diagrams `N`, `V`, `M` when available;
+- maximum value labels on the diagrams;
 - node labels;
 - title and small legend.
 
@@ -70,4 +75,4 @@ This milestone does **not** yet provide:
 - dynamic scale sliders;
 - CAD integration.
 
-These are intentionally reserved for later milestones.
+These are intentionally reserved for later milestones. The current output is static but now aims to be structurally informative, not only visually descriptive.

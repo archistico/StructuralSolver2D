@@ -26,6 +26,13 @@ public sealed class SvgStructuralResultExporterTests
         Assert.Contains("class=\"member deformed\"", svg, StringComparison.Ordinal);
         Assert.Contains("class=\"diagram normal-force\"", svg, StringComparison.Ordinal);
         Assert.Contains(">A<", svg, StringComparison.Ordinal);
+        Assert.Contains("Simple support", svg, StringComparison.Ordinal);
+        Assert.Contains("Rx = 10", svg, StringComparison.Ordinal);
+        Assert.Contains("Ry = 25", svg, StringComparison.Ordinal);
+        Assert.Contains("Mz = 12", svg, StringComparison.Ordinal);
+        Assert.Contains("L = 4", svg, StringComparison.Ordinal);
+        Assert.Contains("umax = 0.002", svg, StringComparison.Ordinal);
+        Assert.Contains("Nmax = 12", svg, StringComparison.Ordinal);
         Assert.Contains("Legend", svg, StringComparison.Ordinal);
     }
 
@@ -69,5 +76,27 @@ public sealed class SvgStructuralResultExporterTests
                 }, 12.0),
             },
             new VisualizationBounds(-0.5, -0.5, 4.5, 1.0),
-            100.0);
+            100.0,
+            new[]
+            {
+                new VisualizationSupport("S1", "A", SupportGlyphKind.SimpleSupport, new VisualizationPoint(0.0, 0.0), null),
+            },
+            new[]
+            {
+                new VisualizationReactionArrow("S1", "A", ReactionComponentKind.ForceX, new VisualizationPoint(0.0, 0.0), new VisualizationPoint(0.4, 0.0), 10.0),
+                new VisualizationReactionArrow("S1", "A", ReactionComponentKind.ForceY, new VisualizationPoint(0.0, 0.0), new VisualizationPoint(0.0, 0.8), 25.0),
+            },
+            new[]
+            {
+                new VisualizationReactionMoment("S1", "A", new VisualizationPoint(0.0, 0.0), 0.3, false, 12.0),
+            },
+            new[]
+            {
+                new MemberDimensionAnnotation("M1", new VisualizationPoint(0.0, 0.0), new VisualizationPoint(4.0, 0.0), 4.0),
+            },
+            new VisualizationDisplacementAnnotation("B", new VisualizationPoint(4.0, 0.0), new VisualizationPoint(4.0, -0.2), 0.002),
+            new[]
+            {
+                new DiagramValueAnnotation("M1", VisualizationDiagramKind.NormalForce, new VisualizationPoint(2.0, 0.4), 12.0, 12.0),
+            });
 }

@@ -566,3 +566,8 @@ Milestone 45 — Section catalog persistence
 Status: completed. Core now includes `StructuralSectionCatalog` and `StructuralSectionCatalogJsonSerializer` under `StructuralSolver2D.Core/Model/Sections`. Catalogs store normal `StructuralSection` records, validate values and ids, support JSON load/save and can apply sections to a `StructuralModel`.
 
 Next milestone: 46 — First simple interactive viewer prototype.
+
+
+## Recent milestone note
+
+Milestone 46 adds support glyphs, scaled support reactions, member-length dimensions, maximum displacement callouts and `N`/`V`/`M` maximum-value labels to the SVG/HTML static preview pipeline. These are implemented in `StructuralSolver2D.Reporting.Visualization` through additional visualization primitives and do not introduce any GUI dependency.

@@ -122,9 +122,26 @@ Future extensions remain possible for steel/timber profile libraries and GUI edi
 
 ---
 
-### Milestone 46 — First simple interactive viewer prototype
+### Milestone 46 — Advanced static structural annotations and support visualization
 
-Goal: build the first minimal interactive viewer using the Milestone 39 visualization model.
+Status: completed.
+
+Implemented:
+
+- support symbols for simple support, hinge and fixed support in SVG/HTML exports;
+- scaled support reaction arrows and reaction moment glyphs with value labels;
+- member-length dimensions on the undeformed model;
+- maximum displacement callout on the deformed shape;
+- maximum value labels on `N`, `V` and `M` diagrams;
+- visualization-layer data objects for supports, reactions and annotations.
+
+This milestone intentionally stays inside the reporting/visualization layer so that a future viewer can reuse the same prepared data.
+
+---
+
+### Milestone 47 — First simple interactive viewer prototype
+
+Goal: build the first minimal interactive viewer using the visualization data already produced by the reporting layer.
 
 Candidate technologies:
 
@@ -143,7 +160,7 @@ Minimum features:
 
 ---
 
-### Milestone 47 — Viewer controls for scales and animation playback
+### Milestone 48 — Viewer controls for scales and animation playback
 
 Goal: add controls to the viewer.
 
@@ -160,7 +177,7 @@ Controls:
 
 ---
 
-### Milestone 48 — Labels and tooltips for nodal and diagram values
+### Milestone 49 — Labels and tooltips for nodal and diagram values
 
 Goal: make the viewer useful for inspection, not only visualization.
 
@@ -176,7 +193,7 @@ Expected labels/tooltips:
 
 ---
 
-### Milestone 49 — OpenCad2D integration boundary study
+### Milestone 50 — OpenCad2D integration boundary study
 
 Goal: define the integration boundary without coupling the solver to OpenCad2D.
 
@@ -215,4 +232,4 @@ Scope implemented:
 - sampled displacement rows;
 - CLI command `export-pdf`.
 
-The next milestone is Milestone 46 — First simple interactive viewer prototype.
+The next milestone is Milestone 47 — First simple interactive viewer prototype.

@@ -117,3 +117,111 @@ public sealed record VisualizationBounds(
     /// </summary>
     public double Height => MaxY - MinY;
 }
+
+
+/// <summary>
+/// Identifies the support symbol to render.
+/// </summary>
+public enum SupportGlyphKind
+{
+    /// <summary>
+    /// Standard simple support / roller symbol.
+    /// </summary>
+    SimpleSupport,
+
+    /// <summary>
+    /// Standard hinge / pin support symbol.
+    /// </summary>
+    Hinge,
+
+    /// <summary>
+    /// Standard fixed-end symbol.
+    /// </summary>
+    Fixed,
+
+    /// <summary>
+    /// Generic fallback symbol for custom restraints.
+    /// </summary>
+    Custom,
+}
+
+/// <summary>
+/// Identifies a reaction-result component.
+/// </summary>
+public enum ReactionComponentKind
+{
+    /// <summary>
+    /// Horizontal reaction force.
+    /// </summary>
+    ForceX,
+
+    /// <summary>
+    /// Vertical reaction force.
+    /// </summary>
+    ForceY,
+
+    /// <summary>
+    /// In-plane reaction moment.
+    /// </summary>
+    MomentZ,
+}
+
+/// <summary>
+/// Represents a support symbol to be rendered at a node.
+/// </summary>
+public sealed record VisualizationSupport(
+    string SupportId,
+    string NodeId,
+    SupportGlyphKind Kind,
+    VisualizationPoint Position,
+    string? Label);
+
+/// <summary>
+/// Represents one support reaction force arrow.
+/// </summary>
+public sealed record VisualizationReactionArrow(
+    string SupportId,
+    string NodeId,
+    ReactionComponentKind ComponentKind,
+    VisualizationPoint Start,
+    VisualizationPoint End,
+    double Value);
+
+/// <summary>
+/// Represents one support reaction moment glyph.
+/// </summary>
+public sealed record VisualizationReactionMoment(
+    string SupportId,
+    string NodeId,
+    VisualizationPoint Center,
+    double Radius,
+    bool Clockwise,
+    double Value);
+
+/// <summary>
+/// Represents a member-length dimension annotation.
+/// </summary>
+public sealed record MemberDimensionAnnotation(
+    string MemberId,
+    VisualizationPoint Start,
+    VisualizationPoint End,
+    double Distance);
+
+/// <summary>
+/// Represents the maximum translational displacement annotation.
+/// </summary>
+public sealed record VisualizationDisplacementAnnotation(
+    string NodeId,
+    VisualizationPoint UndeformedPoint,
+    VisualizationPoint DeformedPoint,
+    double Magnitude);
+
+/// <summary>
+/// Represents a value label associated with an internal-force diagram extremum.
+/// </summary>
+public sealed record DiagramValueAnnotation(
+    string MemberId,
+    VisualizationDiagramKind Kind,
+    VisualizationPoint Position,
+    double Value,
+    double AbsoluteValue);

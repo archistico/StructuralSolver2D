@@ -80,4 +80,30 @@ public sealed class SvgExportOptions
             throw new ArgumentOutOfRangeException(nameof(Padding), Padding, "The SVG padding is too large for the configured height.");
         }
     }
+
+
+    /// <summary>
+    /// Gets or sets whether support symbols should be drawn.
+    /// </summary>
+    public bool IncludeSupportSymbols { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets whether support reactions should be drawn.
+    /// </summary>
+    public bool IncludeReactions { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets whether member dimensions should be drawn.
+    /// </summary>
+    public bool IncludeMemberDimensions { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets whether the maximum displacement annotation should be drawn.
+    /// </summary>
+    public bool IncludeMaximumDisplacementAnnotation { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets whether maximum-value labels should be drawn on internal-force diagrams.
+    /// </summary>
+    public bool IncludeDiagramValueLabels { get; set; } = true;
 }

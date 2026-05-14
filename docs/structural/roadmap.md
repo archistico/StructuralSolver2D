@@ -62,7 +62,8 @@ The project currently includes:
 - public API facade;
 - first technical release baseline;
 - UI-independent viewer-ready result data;
-- optional cyclic deformed-shape animation frames.
+- optional cyclic deformed-shape animation frames;
+- support glyphs, scaled support reactions and static result annotations in SVG/HTML exports.
 
 ---
 
@@ -1241,7 +1242,8 @@ The layer prepares:
 - nodal `Ux`, `Uy` and `Rz` values for labels or tooltips;
 - normal-force, shear-force and bending-moment diagram polylines;
 - drawing bounds;
-- optional cyclic deformed-shape animation frames.
+- optional cyclic deformed-shape animation frames;
+- support glyphs, scaled support reactions and static result annotations in SVG/HTML exports.
 
 This is intentionally not a GUI. It is the stable data boundary for future SVG/PNG export, Avalonia/WPF viewers, web canvases or OpenCad2D integration.
 
@@ -1306,3 +1308,17 @@ Automated tests load every JSON file, validate the structural model and analyze 
 ```
 
 The previous viewer milestones are therefore not discarded. They are moved after the generator/export/reporting work so the project remains validated and useful before the interactive UI grows.
+
+
+### Milestone 46 — Advanced static structural annotations
+
+Added:
+
+- support glyphs in exported SVG/HTML previews;
+- scaled reaction arrows and reaction moment glyphs;
+- member-length dimensions on the undeformed model;
+- maximum displacement callout on the deformed shape;
+- maximum-value labels on `N`, `V` and `M` diagrams;
+- visualization data structures for supports, reactions and annotations.
+
+These additions remain in the reporting/visualization layer and do not change solver equations.

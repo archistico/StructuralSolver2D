@@ -51,4 +51,20 @@ public sealed class VisualizationOptions
     /// Use 0 to disable animation-frame generation.
     /// </summary>
     public int AnimationFrameCount { get; set; } = 0;
+
+
+    /// <summary>
+    /// Gets or sets the scale factor applied to support reaction force arrows.
+    /// </summary>
+    public double ReactionForceScale { get; set; } = 0.02;
+
+    /// <summary>
+    /// Gets or sets the scale factor applied to support reaction moment glyph radii.
+    /// </summary>
+    public double ReactionMomentScale { get; set; } = 0.02;
+
+    /// <summary>
+    /// Gets or sets the minimum reaction moment glyph radius in model units.
+    /// </summary>
+    public double MinimumReactionMomentRadius { get; set; } = 0.15;
 }

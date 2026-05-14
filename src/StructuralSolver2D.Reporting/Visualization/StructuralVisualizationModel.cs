@@ -16,6 +16,12 @@ public sealed class StructuralVisualizationModel
         IReadOnlyList<MemberDiagramPolyline> diagrams,
         VisualizationBounds bounds,
         double deformationScale,
+        IReadOnlyList<VisualizationSupport>? supports = null,
+        IReadOnlyList<VisualizationReactionArrow>? reactionArrows = null,
+        IReadOnlyList<VisualizationReactionMoment>? reactionMoments = null,
+        IReadOnlyList<MemberDimensionAnnotation>? memberDimensions = null,
+        VisualizationDisplacementAnnotation? maximumDisplacement = null,
+        IReadOnlyList<DiagramValueAnnotation>? diagramValueAnnotations = null,
         IReadOnlyList<VisualizationAnimationFrame>? animationFrames = null)
     {
         Nodes = nodes;
@@ -24,6 +30,12 @@ public sealed class StructuralVisualizationModel
         Diagrams = diagrams;
         Bounds = bounds;
         DeformationScale = deformationScale;
+        Supports = supports ?? Array.Empty<VisualizationSupport>();
+        ReactionArrows = reactionArrows ?? Array.Empty<VisualizationReactionArrow>();
+        ReactionMoments = reactionMoments ?? Array.Empty<VisualizationReactionMoment>();
+        MemberDimensions = memberDimensions ?? Array.Empty<MemberDimensionAnnotation>();
+        MaximumDisplacement = maximumDisplacement;
+        DiagramValueAnnotations = diagramValueAnnotations ?? Array.Empty<DiagramValueAnnotation>();
         AnimationFrames = animationFrames ?? Array.Empty<VisualizationAnimationFrame>();
     }
 
@@ -56,6 +68,36 @@ public sealed class StructuralVisualizationModel
     /// Gets the deformation scale used to generate this model.
     /// </summary>
     public double DeformationScale { get; }
+
+    /// <summary>
+    /// Gets support glyphs prepared for rendering.
+    /// </summary>
+    public IReadOnlyList<VisualizationSupport> Supports { get; }
+
+    /// <summary>
+    /// Gets support reaction force arrows.
+    /// </summary>
+    public IReadOnlyList<VisualizationReactionArrow> ReactionArrows { get; }
+
+    /// <summary>
+    /// Gets support reaction moment glyphs.
+    /// </summary>
+    public IReadOnlyList<VisualizationReactionMoment> ReactionMoments { get; }
+
+    /// <summary>
+    /// Gets member-length dimension annotations.
+    /// </summary>
+    public IReadOnlyList<MemberDimensionAnnotation> MemberDimensions { get; }
+
+    /// <summary>
+    /// Gets the maximum translational displacement annotation, if available.
+    /// </summary>
+    public VisualizationDisplacementAnnotation? MaximumDisplacement { get; }
+
+    /// <summary>
+    /// Gets maximum-value labels for internal-force diagrams.
+    /// </summary>
+    public IReadOnlyList<DiagramValueAnnotation> DiagramValueAnnotations { get; }
 
     /// <summary>
     /// Gets optional prepared animation frames for cyclic deformed-shape visualization.

@@ -26,20 +26,8 @@ public sealed class SvgStructuralResultExporter
         builder.AppendLine($"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{Format(options.Width)}\" height=\"{Format(options.Height)}\" viewBox=\"0 0 {Format(options.Width)} {Format(options.Height)}\" role=\"img\" aria-labelledby=\"title desc\">");
         builder.AppendLine($"  <title id=\"title\">{title}</title>");
         builder.AppendLine("  <desc id=\"desc\">Static structural result preview exported from StructuralSolver2D.</desc>");
-        builder.AppendLine("  <style>");
-        builder.AppendLine("    .background { fill: #ffffff; }");
-        builder.AppendLine("    .frame { fill: none; stroke: #d1d5db; stroke-width: 1; }");
-        builder.AppendLine("    .member.undeformed { stroke: #64748b; stroke-width: 2; fill: none; }");
-        builder.AppendLine("    .member.deformed { stroke: #dc2626; stroke-width: 2.2; fill: none; }");
-        builder.AppendLine("    .diagram.normal-force { stroke: #2563eb; stroke-width: 1.8; fill: none; }");
-        builder.AppendLine("    .diagram.shear-force { stroke: #059669; stroke-width: 1.8; fill: none; }");
-        builder.AppendLine("    .diagram.bending-moment { stroke: #7c3aed; stroke-width: 1.8; fill: none; }");
-        builder.AppendLine("    .node { fill: #0f172a; }");
-        builder.AppendLine("    .node-label { fill: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }");
-        builder.AppendLine("    .title { fill: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 20px; font-weight: bold; }");
-        builder.AppendLine("    .caption { fill: #4b5563; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }");
-        builder.AppendLine("    .legend-label { fill: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }");
-        builder.AppendLine("  </style>");
+        AppendDefinitions(builder);
+        AppendStyles(builder);
         builder.AppendLine($"  <rect class=\"background\" x=\"0\" y=\"0\" width=\"{Format(options.Width)}\" height=\"{Format(options.Height)}\"/>");
         builder.AppendLine($"  <rect class=\"frame\" x=\"0.5\" y=\"0.5\" width=\"{Format(options.Width - 1.0)}\" height=\"{Format(options.Height - 1.0)}\"/>");
         builder.AppendLine($"  <text class=\"title\" x=\"{Format(options.Padding)}\" y=\"26\">{title}</text>");
@@ -47,52 +35,17 @@ public sealed class SvgStructuralResultExporter
 
         if (options.IncludeUndeformedModel)
         {
-            builder.AppendLine("  <g id=\"undeformed-model\">");
-            foreach (VisualizationMember member in model.Members)
-            {
-                builder.AppendLine($"    <line class=\"member undeformed\" x1=\"{Format(mapper.MapX(member.Start.X))}\" y1=\"{Format(mapper.MapY(member.Start.Y))}\" x2=\"{Format(mapper.MapX(member.End.X))}\" y2=\"{Format(mapper.MapY(member.End.Y))}\"/>");
-            }
-
-            foreach (VisualizationNode node in model.Nodes)
-            {
-                builder.AppendLine($"    <circle class=\"node\" cx=\"{Format(mapper.MapX(node.Position.X))}\" cy=\"{Format(mapper.MapY(node.Position.Y))}\" r=\"3\"/>");
-                if (options.IncludeNodeLabels)
-                {
-                    builder.AppendLine($"    <text class=\"node-label\" x=\"{Format(mapper.MapX(node.Position.X) + 6.0)}\" y=\"{Format(mapper.MapY(node.Position.Y) - 6.0)}\">{EscapeXml(node.Label ?? node.NodeId)}</text>");
-                }
-            }
-
-            builder.AppendLine("  </g>");
+            AppendUndeformedModel(builder, model, options, mapper);
         }
 
         if (options.IncludeInternalForceDiagrams)
         {
-            builder.AppendLine("  <g id=\"diagrams\">");
-            foreach (MemberDiagramPolyline diagram in model.Diagrams)
-            {
-                string className = diagram.Kind switch
-                {
-                    VisualizationDiagramKind.NormalForce => "diagram normal-force",
-                    VisualizationDiagramKind.ShearForce => "diagram shear-force",
-                    VisualizationDiagramKind.BendingMoment => "diagram bending-moment",
-                    _ => "diagram",
-                };
-
-                builder.AppendLine($"    <polyline class=\"{className}\" points=\"{BuildPoints(diagram.Points, mapper)}\"/>");
-            }
-
-            builder.AppendLine("  </g>");
+            AppendDiagrams(builder, model, options, mapper);
         }
 
         if (options.IncludeDeformedShape)
         {
-            builder.AppendLine("  <g id=\"deformed-shape\">");
-            foreach (DeformedMemberShape shape in model.DeformedShapes)
-            {
-                builder.AppendLine($"    <polyline class=\"member deformed\" points=\"{BuildPoints(shape.Points, mapper)}\"/>");
-            }
-
-            builder.AppendLine("  </g>");
+            AppendDeformedShape(builder, model, options, mapper);
         }
 
         if (options.IncludeLegend)
@@ -104,14 +57,323 @@ public sealed class SvgStructuralResultExporter
         return builder.ToString();
     }
 
+    private static void AppendDefinitions(StringBuilder builder)
+    {
+        builder.AppendLine("  <defs>");
+        builder.AppendLine("    <marker id=\"reactionArrow\" markerWidth=\"8\" markerHeight=\"8\" refX=\"7\" refY=\"4\" orient=\"auto\" markerUnits=\"userSpaceOnUse\">");
+        builder.AppendLine("      <path d=\"M0,0 L8,4 L0,8 z\" fill=\"#0ea5e9\" />");
+        builder.AppendLine("    </marker>");
+        builder.AppendLine("    <marker id=\"dimensionArrow\" markerWidth=\"8\" markerHeight=\"8\" refX=\"4\" refY=\"4\" orient=\"auto\" markerUnits=\"userSpaceOnUse\">");
+        builder.AppendLine("      <path d=\"M8,0 L0,4 L8,8\" fill=\"none\" stroke=\"#6b7280\" stroke-width=\"1.2\" />");
+        builder.AppendLine("    </marker>");
+        builder.AppendLine("  </defs>");
+    }
+
+    private static void AppendStyles(StringBuilder builder)
+    {
+        builder.AppendLine("  <style>");
+        builder.AppendLine("    .background { fill: #ffffff; }");
+        builder.AppendLine("    .frame { fill: none; stroke: #d1d5db; stroke-width: 1; }");
+        builder.AppendLine("    .member.undeformed { stroke: #64748b; stroke-width: 2; fill: none; }");
+        builder.AppendLine("    .member.deformed { stroke: #dc2626; stroke-width: 2.2; fill: none; }");
+        builder.AppendLine("    .diagram.normal-force { stroke: #2563eb; stroke-width: 1.8; fill: none; }");
+        builder.AppendLine("    .diagram.shear-force { stroke: #059669; stroke-width: 1.8; fill: none; }");
+        builder.AppendLine("    .diagram.bending-moment { stroke: #7c3aed; stroke-width: 1.8; fill: none; }");
+        builder.AppendLine("    .node { fill: #0f172a; }");
+        builder.AppendLine("    .node-label, .support-label, .dimension-label, .annotation-label, .reaction-label, .legend-label { fill: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }");
+        builder.AppendLine("    .title { fill: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 20px; font-weight: bold; }");
+        builder.AppendLine("    .caption { fill: #4b5563; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }");
+        builder.AppendLine("    .support-line { stroke: #1f2937; stroke-width: 1.5; fill: none; }");
+        builder.AppendLine("    .support-fill { fill: #f3f4f6; stroke: #1f2937; stroke-width: 1.5; }");
+        builder.AppendLine("    .reaction { stroke: #0ea5e9; stroke-width: 1.8; fill: none; }");
+        builder.AppendLine("    .reaction-label { fill: #0369a1; }");
+        builder.AppendLine("    .dimension { stroke: #6b7280; stroke-width: 1.2; fill: none; }");
+        builder.AppendLine("    .dimension-extension { stroke: #9ca3af; stroke-width: 1; }");
+        builder.AppendLine("    .annotation-line { stroke: #dc2626; stroke-width: 1.2; stroke-dasharray: 4 3; fill: none; }");
+        builder.AppendLine("    .annotation-label { font-weight: 600; }");
+        builder.AppendLine("    .annotation-point { fill: #ffffff; stroke-width: 1.6; }");
+        builder.AppendLine("    .annotation-point.normal-force { stroke: #2563eb; }");
+        builder.AppendLine("    .annotation-point.shear-force { stroke: #059669; }");
+        builder.AppendLine("    .annotation-point.bending-moment { stroke: #7c3aed; }");
+        builder.AppendLine("  </style>");
+    }
+
+    private static void AppendUndeformedModel(StringBuilder builder, StructuralVisualizationModel model, SvgExportOptions options, CoordinateMapper mapper)
+    {
+        builder.AppendLine("  <g id=\"undeformed-model\">");
+
+        foreach (VisualizationMember member in model.Members)
+        {
+            builder.AppendLine($"    <line class=\"member undeformed\" x1=\"{Format(mapper.MapX(member.Start.X))}\" y1=\"{Format(mapper.MapY(member.Start.Y))}\" x2=\"{Format(mapper.MapX(member.End.X))}\" y2=\"{Format(mapper.MapY(member.End.Y))}\"/>");
+        }
+
+        if (options.IncludeMemberDimensions)
+        {
+            foreach (MemberDimensionAnnotation dimension in model.MemberDimensions)
+            {
+                AppendDimension(builder, mapper, dimension);
+            }
+        }
+
+        if (options.IncludeSupportSymbols)
+        {
+            foreach (VisualizationSupport support in model.Supports)
+            {
+                AppendSupportGlyph(builder, mapper, support);
+            }
+        }
+
+        foreach (VisualizationNode node in model.Nodes)
+        {
+            double x = mapper.MapX(node.Position.X);
+            double y = mapper.MapY(node.Position.Y);
+            builder.AppendLine($"    <circle class=\"node\" cx=\"{Format(x)}\" cy=\"{Format(y)}\" r=\"3\"/>");
+            if (options.IncludeNodeLabels)
+            {
+                builder.AppendLine($"    <text class=\"node-label\" x=\"{Format(x + 6.0)}\" y=\"{Format(y - 6.0)}\">{EscapeXml(node.Label ?? node.NodeId)}</text>");
+            }
+        }
+
+        if (options.IncludeReactions)
+        {
+            foreach (VisualizationReactionArrow arrow in model.ReactionArrows)
+            {
+                AppendReactionArrow(builder, mapper, arrow);
+            }
+
+            foreach (VisualizationReactionMoment moment in model.ReactionMoments)
+            {
+                AppendReactionMoment(builder, mapper, moment);
+            }
+        }
+
+        builder.AppendLine("  </g>");
+    }
+
+    private static void AppendDiagrams(StringBuilder builder, StructuralVisualizationModel model, SvgExportOptions options, CoordinateMapper mapper)
+    {
+        builder.AppendLine("  <g id=\"diagrams\">");
+        foreach (MemberDiagramPolyline diagram in model.Diagrams)
+        {
+            string className = GetDiagramCssClass(diagram.Kind);
+            builder.AppendLine($"    <polyline class=\"{className}\" points=\"{BuildPoints(diagram.Points, mapper)}\"/>");
+        }
+
+        if (options.IncludeDiagramValueLabels)
+        {
+            foreach (DiagramValueAnnotation annotation in model.DiagramValueAnnotations)
+            {
+                AppendDiagramAnnotation(builder, mapper, annotation);
+            }
+        }
+
+        builder.AppendLine("  </g>");
+    }
+
+    private static void AppendDeformedShape(StringBuilder builder, StructuralVisualizationModel model, SvgExportOptions options, CoordinateMapper mapper)
+    {
+        builder.AppendLine("  <g id=\"deformed-shape\">");
+        foreach (DeformedMemberShape shape in model.DeformedShapes)
+        {
+            builder.AppendLine($"    <polyline class=\"member deformed\" points=\"{BuildPoints(shape.Points, mapper)}\"/>");
+        }
+
+        if (options.IncludeMaximumDisplacementAnnotation && model.MaximumDisplacement is not null)
+        {
+            AppendMaximumDisplacement(builder, mapper, model.MaximumDisplacement);
+        }
+
+        builder.AppendLine("  </g>");
+    }
+
+    private static void AppendSupportGlyph(StringBuilder builder, CoordinateMapper mapper, VisualizationSupport support)
+    {
+        double x = mapper.MapX(support.Position.X);
+        double y = mapper.MapY(support.Position.Y);
+        const double size = 12.0;
+
+        builder.AppendLine($"    <g class=\"support\" data-support-id=\"{EscapeXml(support.SupportId)}\">");
+
+        switch (support.Kind)
+        {
+            case SupportGlyphKind.SimpleSupport:
+                builder.AppendLine($"      <polygon class=\"support-fill\" points=\"{Format(x)},{Format(y)} {Format(x - size)},{Format(y + size)} {Format(x + size)},{Format(y + size)}\"/>");
+                builder.AppendLine($"      <circle class=\"support-fill\" cx=\"{Format(x - 5.0)}\" cy=\"{Format(y + size + 4.0)}\" r=\"3\"/>");
+                builder.AppendLine($"      <circle class=\"support-fill\" cx=\"{Format(x + 5.0)}\" cy=\"{Format(y + size + 4.0)}\" r=\"3\"/>");
+                builder.AppendLine($"      <line class=\"support-line\" x1=\"{Format(x - size - 4.0)}\" y1=\"{Format(y + size + 8.0)}\" x2=\"{Format(x + size + 4.0)}\" y2=\"{Format(y + size + 8.0)}\"/>");
+                break;
+            case SupportGlyphKind.Hinge:
+                builder.AppendLine($"      <polygon class=\"support-fill\" points=\"{Format(x)},{Format(y)} {Format(x - size)},{Format(y + size)} {Format(x + size)},{Format(y + size)}\"/>");
+                builder.AppendLine($"      <line class=\"support-line\" x1=\"{Format(x - size - 4.0)}\" y1=\"{Format(y + size + 4.0)}\" x2=\"{Format(x + size + 4.0)}\" y2=\"{Format(y + size + 4.0)}\"/>");
+                break;
+            case SupportGlyphKind.Fixed:
+                builder.AppendLine($"      <line class=\"support-line\" x1=\"{Format(x)}\" y1=\"{Format(y - 12.0)}\" x2=\"{Format(x)}\" y2=\"{Format(y + 12.0)}\"/>");
+                for (int index = -2; index <= 2; index++)
+                {
+                    double y0 = y + (index * 5.0);
+                    builder.AppendLine($"      <line class=\"support-line\" x1=\"{Format(x - 12.0)}\" y1=\"{Format(y0 - 4.0)}\" x2=\"{Format(x)}\" y2=\"{Format(y0 + 4.0)}\"/>");
+                }
+                break;
+            default:
+                builder.AppendLine($"      <rect class=\"support-fill\" x=\"{Format(x - 8.0)}\" y=\"{Format(y - 8.0)}\" width=\"16\" height=\"16\" rx=\"2\"/>");
+                break;
+        }
+
+        builder.AppendLine($"      <text class=\"support-label\" x=\"{Format(x + 14.0)}\" y=\"{Format(y + 16.0)}\">{EscapeXml(GetSupportLabel(support))}</text>");
+        builder.AppendLine("    </g>");
+    }
+
+    private static string GetSupportLabel(VisualizationSupport support)
+    {
+        string typeLabel = support.Kind switch
+        {
+            SupportGlyphKind.SimpleSupport => "Simple support",
+            SupportGlyphKind.Hinge => "Hinge",
+            SupportGlyphKind.Fixed => "Fixed",
+            _ => "Custom support",
+        };
+
+        return string.IsNullOrWhiteSpace(support.Label)
+            ? typeLabel
+            : $"{support.Label} ({typeLabel})";
+    }
+
+    private static void AppendReactionArrow(StringBuilder builder, CoordinateMapper mapper, VisualizationReactionArrow arrow)
+    {
+        double x1 = mapper.MapX(arrow.Start.X);
+        double y1 = mapper.MapY(arrow.Start.Y);
+        double x2 = mapper.MapX(arrow.End.X);
+        double y2 = mapper.MapY(arrow.End.Y);
+        double mx = (x1 + x2) / 2.0;
+        double my = (y1 + y2) / 2.0;
+
+        builder.AppendLine($"    <line class=\"reaction\" x1=\"{Format(x1)}\" y1=\"{Format(y1)}\" x2=\"{Format(x2)}\" y2=\"{Format(y2)}\" marker-end=\"url(#reactionArrow)\"/>");
+        builder.AppendLine($"    <text class=\"reaction-label\" x=\"{Format(mx + 6.0)}\" y=\"{Format(my - 6.0)}\">{EscapeXml(GetReactionLabel(arrow))}</text>");
+    }
+
+    private static string GetReactionLabel(VisualizationReactionArrow arrow)
+    {
+        string prefix = arrow.ComponentKind switch
+        {
+            ReactionComponentKind.ForceX => "Rx",
+            ReactionComponentKind.ForceY => "Ry",
+            _ => "R",
+        };
+
+        return $"{prefix} = {Format(arrow.Value)} kN";
+    }
+
+    private static void AppendReactionMoment(StringBuilder builder, CoordinateMapper mapper, VisualizationReactionMoment moment)
+    {
+        double cx = mapper.MapX(moment.Center.X);
+        double cy = mapper.MapY(moment.Center.Y);
+        double radius = moment.Radius * mapper.Scale;
+        radius = Math.Max(12.0, radius);
+
+        (double startAngle, double endAngle, int sweepFlag) = moment.Clockwise
+            ? (-45.0, 230.0, 1)
+            : (225.0, -50.0, 0);
+
+        (double x1, double y1) = PolarPoint(cx, cy, radius, startAngle);
+        (double x2, double y2) = PolarPoint(cx, cy, radius, endAngle);
+
+        builder.AppendLine($"    <path class=\"reaction\" d=\"M {Format(x1)} {Format(y1)} A {Format(radius)} {Format(radius)} 0 1 {sweepFlag} {Format(x2)} {Format(y2)}\" marker-end=\"url(#reactionArrow)\"/>");
+        builder.AppendLine($"    <text class=\"reaction-label\" x=\"{Format(cx + radius + 4.0)}\" y=\"{Format(cy - radius)}\">Mz = {Format(moment.Value)} kNm</text>");
+    }
+
+    private static void AppendDimension(StringBuilder builder, CoordinateMapper mapper, MemberDimensionAnnotation dimension)
+    {
+        double x1 = mapper.MapX(dimension.Start.X);
+        double y1 = mapper.MapY(dimension.Start.Y);
+        double x2 = mapper.MapX(dimension.End.X);
+        double y2 = mapper.MapY(dimension.End.Y);
+        double dx = x2 - x1;
+        double dy = y2 - y1;
+        double length = Math.Sqrt((dx * dx) + (dy * dy));
+        if (length <= 0.0)
+        {
+            return;
+        }
+
+        double nx = -dy / length;
+        double ny = dx / length;
+        const double offset = 18.0;
+        const double extension = 10.0;
+        double sx = x1 + (nx * offset);
+        double sy = y1 + (ny * offset);
+        double ex = x2 + (nx * offset);
+        double ey = y2 + (ny * offset);
+        double tx = (sx + ex) / 2.0;
+        double ty = (sy + ey) / 2.0 - 4.0;
+
+        builder.AppendLine($"    <line class=\"dimension-extension\" x1=\"{Format(x1)}\" y1=\"{Format(y1)}\" x2=\"{Format(sx + (nx * extension))}\" y2=\"{Format(sy + (ny * extension))}\"/>");
+        builder.AppendLine($"    <line class=\"dimension-extension\" x1=\"{Format(x2)}\" y1=\"{Format(y2)}\" x2=\"{Format(ex + (nx * extension))}\" y2=\"{Format(ey + (ny * extension))}\"/>");
+        builder.AppendLine($"    <line class=\"dimension\" x1=\"{Format(sx)}\" y1=\"{Format(sy)}\" x2=\"{Format(ex)}\" y2=\"{Format(ey)}\" marker-start=\"url(#dimensionArrow)\" marker-end=\"url(#dimensionArrow)\"/>");
+        builder.AppendLine($"    <text class=\"dimension-label\" x=\"{Format(tx)}\" y=\"{Format(ty)}\">L = {Format(dimension.Distance)} m</text>");
+    }
+
+    private static void AppendMaximumDisplacement(StringBuilder builder, CoordinateMapper mapper, VisualizationDisplacementAnnotation annotation)
+    {
+        double x1 = mapper.MapX(annotation.UndeformedPoint.X);
+        double y1 = mapper.MapY(annotation.UndeformedPoint.Y);
+        double x2 = mapper.MapX(annotation.DeformedPoint.X);
+        double y2 = mapper.MapY(annotation.DeformedPoint.Y);
+        double tx = ((x1 + x2) / 2.0) + 6.0;
+        double ty = ((y1 + y2) / 2.0) - 8.0;
+
+        builder.AppendLine($"    <line class=\"annotation-line\" x1=\"{Format(x1)}\" y1=\"{Format(y1)}\" x2=\"{Format(x2)}\" y2=\"{Format(y2)}\" marker-end=\"url(#reactionArrow)\"/>");
+        builder.AppendLine($"    <circle class=\"annotation-point\" cx=\"{Format(x2)}\" cy=\"{Format(y2)}\" r=\"3.5\" style=\"stroke:#dc2626\"/>");
+        builder.AppendLine($"    <text class=\"annotation-label\" x=\"{Format(tx)}\" y=\"{Format(ty)}\">umax = {Format(annotation.Magnitude)} m @ {EscapeXml(annotation.NodeId)}</text>");
+    }
+
+    private static void AppendDiagramAnnotation(StringBuilder builder, CoordinateMapper mapper, DiagramValueAnnotation annotation)
+    {
+        double x = mapper.MapX(annotation.Position.X);
+        double y = mapper.MapY(annotation.Position.Y);
+        string cssKind = GetDiagramCssSuffix(annotation.Kind);
+        string prefix = annotation.Kind switch
+        {
+            VisualizationDiagramKind.NormalForce => "Nmax",
+            VisualizationDiagramKind.ShearForce => "Vmax",
+            _ => "Mmax",
+        };
+        string unit = annotation.Kind == VisualizationDiagramKind.BendingMoment ? "kNm" : "kN";
+
+        builder.AppendLine($"    <circle class=\"annotation-point {cssKind}\" cx=\"{Format(x)}\" cy=\"{Format(y)}\" r=\"4\"/>");
+        builder.AppendLine($"    <text class=\"annotation-label\" x=\"{Format(x + 8.0)}\" y=\"{Format(y - 6.0)}\">{prefix} = {Format(annotation.Value)} {unit}</text>");
+    }
+
+    private static string GetDiagramCssClass(VisualizationDiagramKind kind) =>
+        kind switch
+        {
+            VisualizationDiagramKind.NormalForce => "diagram normal-force",
+            VisualizationDiagramKind.ShearForce => "diagram shear-force",
+            VisualizationDiagramKind.BendingMoment => "diagram bending-moment",
+            _ => "diagram",
+        };
+
+    private static string GetDiagramCssSuffix(VisualizationDiagramKind kind) =>
+        kind switch
+        {
+            VisualizationDiagramKind.NormalForce => "normal-force",
+            VisualizationDiagramKind.ShearForce => "shear-force",
+            VisualizationDiagramKind.BendingMoment => "bending-moment",
+            _ => "diagram",
+        };
+
+    private static (double X, double Y) PolarPoint(double cx, double cy, double radius, double degrees)
+    {
+        double radians = degrees * Math.PI / 180.0;
+        return (cx + (Math.Cos(radians) * radius), cy + (Math.Sin(radians) * radius));
+    }
+
     private static void AppendLegend(StringBuilder builder, SvgExportOptions options, StructuralVisualizationModel model)
     {
-        double legendX = options.Width - 220.0;
-        double legendY = options.Padding;
+        double legendX = options.Width - 230.0;
+        double currentY = options.Padding + 4.0;
         double lineX1 = legendX;
         double lineX2 = legendX + 28.0;
         double textX = legendX + 36.0;
-        double currentY = legendY + 4.0;
 
         builder.AppendLine("  <g id=\"legend\">");
         builder.AppendLine($"    <text class=\"legend-label\" x=\"{Format(legendX)}\" y=\"{Format(currentY)}\">Legend</text>");
@@ -211,6 +473,7 @@ public sealed class SvgStructuralResultExporter
 
             return new CoordinateMapper(bounds.MinX, bounds.MinY, scale, padding, height - 8.0);
         }
+
 
         public double MapX(double x) => Padding + ((x - MinX) * Scale);
 

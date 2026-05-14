@@ -121,6 +121,62 @@ public sealed class StructuralVisualizationModelBuilderTests
     }
 
 
+
+    [Fact]
+    public void Build_ShouldCreateSupportGlyphsReactionsDimensionsAndAnnotations()
+    {
+        StructuralModel model = CreateSupportedModel();
+        var result = new StructuralAnalysisResult(
+            "LC1",
+            new[]
+            {
+                new NodalDisplacementResult("A", 0.0, 0.0, 0.0),
+                new NodalDisplacementResult("B", 0.0, -0.002, -0.01),
+            },
+            new[]
+            {
+                new SupportReactionResult("S1", "A", 10.0, 25.0, 12.0),
+                new SupportReactionResult("S2", "B", 0.0, 15.0, 0.0),
+            },
+            Array.Empty<MemberEndForceResult>());
+        var forceDiagrams = new[]
+        {
+            new MemberInternalForceDiagram(
+                "M1",
+                4.0,
+                new[]
+                {
+                    new MemberInternalForceSample("M1", 0.0, 0.0, 5.0, 0.0, 0.0),
+                    new MemberInternalForceSample("M1", 0.5, 2.0, -8.0, -20.0, 30.0),
+                    new MemberInternalForceSample("M1", 1.0, 4.0, 1.0, 10.0, -40.0),
+                }),
+        };
+
+        StructuralVisualizationModel visualization = new StructuralVisualizationModelBuilder().Build(
+            model,
+            result,
+            forceDiagrams,
+            Array.Empty<MemberDisplacementDiagram>(),
+            new VisualizationOptions
+            {
+                DeformationScale = 100.0,
+                ReactionForceScale = 0.01,
+                ReactionMomentScale = 0.01,
+                MinimumReactionMomentRadius = 0.1,
+                BoundsPadding = 0.0,
+            });
+
+        Assert.Equal(2, visualization.Supports.Count);
+        Assert.Equal(3, visualization.ReactionArrows.Count);
+        Assert.Single(visualization.ReactionMoments);
+        MemberDimensionAnnotation dimension = Assert.Single(visualization.MemberDimensions);
+        Assert.Equal(4.0, dimension.Distance, precision: 12);
+        Assert.NotNull(visualization.MaximumDisplacement);
+        Assert.Equal("B", visualization.MaximumDisplacement!.NodeId);
+        Assert.Equal(0.002, visualization.MaximumDisplacement.Magnitude, precision: 12);
+        Assert.Equal(3, visualization.DiagramValueAnnotations.Count);
+    }
+
     [Fact]
     public void Build_WithAnimationFrameCount_ShouldPrepareCyclicDeformedShapeFrames()
     {
@@ -210,4 +266,9 @@ public sealed class StructuralVisualizationModelBuilderTests
             .AddMaterial(new StructuralMaterial("MAT", "Generic", 210_000_000.0))
             .AddSection(new StructuralSection("SEC", "Generic", 0.01, 0.0001))
             .AddMember(new StructuralMember("M1", "A", "B", "MAT", "SEC", MemberType.Frame2D));
+
+    private static StructuralModel CreateSupportedModel() =>
+        CreateTwoNodeModel()
+            .AddSupport(StructuralSupport.Fixed("S1", "A", "Incastro"))
+            .AddSupport(StructuralSupport.SimpleSupport("S2", "B", "Carrello"));
 }

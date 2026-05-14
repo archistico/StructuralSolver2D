@@ -870,3 +870,10 @@ StructuralSolver2D now includes a UI-independent visualization data model for gr
 It prepares undeformed geometry, scaled deformed shapes, nodal displacement/rotation data, N/V/M diagram polylines and optional animation frames without depending on Avalonia, WPF or any other UI toolkit.
 
 See `docs/structural/viewer-data.md`.
+
+
+## Milestone 46 - Advanced static structural annotations
+
+Milestone 46 expands the static SVG/HTML preview layer with engineering-oriented annotations built on top of the existing `StructuralVisualizationModel`. The exported previews now include support symbols, scaled support reactions, member-length dimensions on the undeformed model, a maximum displacement callout on the deformed shape and maximum value labels on the `N`, `V` and `M` diagrams.
+
+This milestone remains fully UI-independent: the new data is still prepared in `StructuralSolver2D.Reporting.Visualization` and can later be reused by a desktop or web viewer without coupling the solver to a GUI framework.

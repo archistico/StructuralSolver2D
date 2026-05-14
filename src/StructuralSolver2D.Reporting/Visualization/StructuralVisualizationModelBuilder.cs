@@ -1,12 +1,13 @@
 using StructuralSolver2D.Analysis.PublicApi;
 using StructuralSolver2D.Analysis.Results;
 using StructuralSolver2D.Core.Model;
+using StructuralSolver2D.Core.Model.Enums;
 
 namespace StructuralSolver2D.Reporting.Visualization;
 
 /// <summary>
 /// Converts structural analysis results into UI-independent geometry for graphical viewers.
-/// The generated model can be rendered by Avalonia, WPF, SVG, PNG exporters or any custom canvas.
+/// The generated model can be rendered by Avalonia, WPF, SVG, HTML exporters or any custom canvas.
 /// </summary>
 public sealed class StructuralVisualizationModelBuilder
 {
@@ -59,6 +60,9 @@ public sealed class StructuralVisualizationModelBuilder
             .Select(member => CreateVisualizationMember(member, nodesById, allPoints))
             .ToList();
 
+        List<VisualizationSupport> supports = CreateSupportGlyphs(model, nodesById);
+        List<MemberDimensionAnnotation> dimensions = CreateMemberDimensions(members);
+
         List<DeformedMemberShape> deformedShapes = CreateDeformedShapes(
             model,
             nodesById,
@@ -67,12 +71,21 @@ public sealed class StructuralVisualizationModelBuilder
             options.DeformationScale,
             allPoints);
 
-        List<MemberDiagramPolyline> diagrams = CreateDiagramPolylines(
+        (List<MemberDiagramPolyline> diagrams, List<DiagramValueAnnotation> diagramAnnotations) = CreateDiagramPolylines(
             model,
             nodesById,
             internalForceDiagrams,
             options,
             allPoints);
+
+        (List<VisualizationReactionArrow> reactionArrows, List<VisualizationReactionMoment> reactionMoments) = CreateReactionVisualizations(
+            model,
+            nodesById,
+            result.Reactions,
+            options,
+            allPoints);
+
+        VisualizationDisplacementAnnotation? maximumDisplacement = CreateMaximumDisplacementAnnotation(nodes);
 
         IReadOnlyList<VisualizationAnimationFrame> animationFrames = CreateAnimationFrames(
             model,
@@ -91,6 +104,12 @@ public sealed class StructuralVisualizationModelBuilder
             diagrams,
             bounds,
             options.DeformationScale,
+            supports,
+            reactionArrows,
+            reactionMoments,
+            dimensions,
+            maximumDisplacement,
+            diagramAnnotations,
             animationFrames);
     }
 
@@ -106,8 +125,8 @@ public sealed class StructuralVisualizationModelBuilder
         double uy = displacement?.Uy ?? 0.0;
         double rz = displacement?.Rz ?? 0.0;
 
-        var position = new VisualizationPoint(node.X, node.Y);
-        var deformedPosition = new VisualizationPoint(
+        VisualizationPoint position = new(node.X, node.Y);
+        VisualizationPoint deformedPosition = new(
             node.X + (ux * deformationScale),
             node.Y + (uy * deformationScale));
 
@@ -125,8 +144,8 @@ public sealed class StructuralVisualizationModelBuilder
         StructuralNode startNode = nodesById[member.StartNodeId];
         StructuralNode endNode = nodesById[member.EndNodeId];
 
-        var start = new VisualizationPoint(startNode.X, startNode.Y);
-        var end = new VisualizationPoint(endNode.X, endNode.Y);
+        VisualizationPoint start = new(startNode.X, startNode.Y);
+        VisualizationPoint end = new(endNode.X, endNode.Y);
 
         allPoints.Add(start);
         allPoints.Add(end);
@@ -138,6 +157,58 @@ public sealed class StructuralVisualizationModelBuilder
             member.Type,
             start,
             end);
+    }
+
+    private static List<VisualizationSupport> CreateSupportGlyphs(
+        StructuralModel model,
+        IReadOnlyDictionary<string, StructuralNode> nodesById)
+    {
+        List<VisualizationSupport> supports = new(model.Supports.Count);
+
+        foreach (StructuralSupport support in model.Supports)
+        {
+            if (!nodesById.TryGetValue(support.NodeId, out StructuralNode? node))
+            {
+                continue;
+            }
+
+            supports.Add(new VisualizationSupport(
+                support.Id,
+                support.NodeId,
+                MapSupportGlyphKind(support),
+                new VisualizationPoint(node.X, node.Y),
+                support.Label));
+        }
+
+        return supports;
+    }
+
+    private static SupportGlyphKind MapSupportGlyphKind(StructuralSupport support) =>
+        support.Type switch
+        {
+            SupportType.SimpleSupport => SupportGlyphKind.SimpleSupport,
+            SupportType.Roller => SupportGlyphKind.SimpleSupport,
+            SupportType.Hinge => SupportGlyphKind.Hinge,
+            SupportType.Fixed => SupportGlyphKind.Fixed,
+            _ when support.RestrainedUx && support.RestrainedUy && !support.RestrainedRz => SupportGlyphKind.Hinge,
+            _ when !support.RestrainedUx && support.RestrainedUy && !support.RestrainedRz => SupportGlyphKind.SimpleSupport,
+            _ when support.RestrainedUx && support.RestrainedUy && support.RestrainedRz => SupportGlyphKind.Fixed,
+            _ => SupportGlyphKind.Custom,
+        };
+
+    private static List<MemberDimensionAnnotation> CreateMemberDimensions(IReadOnlyList<VisualizationMember> members)
+    {
+        List<MemberDimensionAnnotation> dimensions = new(members.Count);
+
+        foreach (VisualizationMember member in members)
+        {
+            double dx = member.End.X - member.Start.X;
+            double dy = member.End.Y - member.Start.Y;
+            double distance = Math.Sqrt((dx * dx) + (dy * dy));
+            dimensions.Add(new MemberDimensionAnnotation(member.MemberId, member.Start, member.End, distance));
+        }
+
+        return dimensions;
     }
 
     private static List<DeformedMemberShape> CreateDeformedShapes(
@@ -211,7 +282,7 @@ public sealed class StructuralVisualizationModelBuilder
         };
     }
 
-    private static List<MemberDiagramPolyline> CreateDiagramPolylines(
+    private static (List<MemberDiagramPolyline> Polylines, List<DiagramValueAnnotation> Annotations) CreateDiagramPolylines(
         StructuralModel model,
         IReadOnlyDictionary<string, StructuralNode> nodesById,
         IReadOnlyList<MemberInternalForceDiagram> internalForceDiagrams,
@@ -220,6 +291,7 @@ public sealed class StructuralVisualizationModelBuilder
     {
         Dictionary<string, StructuralMember> membersById = model.Members.ToDictionary(item => item.Id, StringComparer.OrdinalIgnoreCase);
         List<MemberDiagramPolyline> polylines = new();
+        List<DiagramValueAnnotation> annotations = new();
 
         foreach (MemberInternalForceDiagram diagram in internalForceDiagrams)
         {
@@ -233,21 +305,21 @@ public sealed class StructuralVisualizationModelBuilder
 
             if (options.IncludeNormalForceDiagram)
             {
-                polylines.Add(CreateDiagramPolyline(startNode, endNode, diagram, VisualizationDiagramKind.NormalForce, options.NormalForceDiagramScale, sample => sample.NormalForce, allPoints));
+                polylines.Add(CreateDiagramPolyline(startNode, endNode, diagram, VisualizationDiagramKind.NormalForce, options.NormalForceDiagramScale, sample => sample.NormalForce, allPoints, annotations));
             }
 
             if (options.IncludeShearForceDiagram)
             {
-                polylines.Add(CreateDiagramPolyline(startNode, endNode, diagram, VisualizationDiagramKind.ShearForce, options.ShearForceDiagramScale, sample => sample.ShearForce, allPoints));
+                polylines.Add(CreateDiagramPolyline(startNode, endNode, diagram, VisualizationDiagramKind.ShearForce, options.ShearForceDiagramScale, sample => sample.ShearForce, allPoints, annotations));
             }
 
             if (options.IncludeBendingMomentDiagram)
             {
-                polylines.Add(CreateDiagramPolyline(startNode, endNode, diagram, VisualizationDiagramKind.BendingMoment, options.BendingMomentDiagramScale, sample => sample.BendingMoment, allPoints));
+                polylines.Add(CreateDiagramPolyline(startNode, endNode, diagram, VisualizationDiagramKind.BendingMoment, options.BendingMomentDiagramScale, sample => sample.BendingMoment, allPoints, annotations));
             }
         }
 
-        return polylines;
+        return (polylines, annotations);
     }
 
     private static MemberDiagramPolyline CreateDiagramPolyline(
@@ -257,25 +329,39 @@ public sealed class StructuralVisualizationModelBuilder
         VisualizationDiagramKind kind,
         double scale,
         Func<MemberInternalForceSample, double> valueSelector,
-        ICollection<VisualizationPoint> allPoints)
+        ICollection<VisualizationPoint> allPoints,
+        ICollection<DiagramValueAnnotation> annotations)
     {
         (double normalX, double normalY) = GetLocalNormal(startNode, endNode);
         List<VisualizationPoint> points = new();
         double maxAbsValue = 0.0;
+        double extremumValue = 0.0;
+        VisualizationPoint? extremumPoint = null;
 
         foreach (MemberInternalForceSample sample in diagram.Samples)
         {
             double baseX = Interpolate(startNode.X, endNode.X, sample.Position);
             double baseY = Interpolate(startNode.Y, endNode.Y, sample.Position);
             double value = valueSelector(sample);
-            maxAbsValue = Math.Max(maxAbsValue, Math.Abs(value));
 
-            var point = new VisualizationPoint(
+            VisualizationPoint point = new(
                 baseX + (normalX * value * scale),
                 baseY + (normalY * value * scale));
 
             points.Add(point);
             allPoints.Add(point);
+
+            if (Math.Abs(value) >= maxAbsValue)
+            {
+                maxAbsValue = Math.Abs(value);
+                extremumValue = value;
+                extremumPoint = point;
+            }
+        }
+
+        if (extremumPoint is not null)
+        {
+            annotations.Add(new DiagramValueAnnotation(diagram.MemberId, kind, extremumPoint, extremumValue, maxAbsValue));
         }
 
         return new MemberDiagramPolyline(diagram.MemberId, kind, points, maxAbsValue);
@@ -293,6 +379,81 @@ public sealed class StructuralVisualizationModelBuilder
         }
 
         return (-dy / length, dx / length);
+    }
+
+    private static (List<VisualizationReactionArrow> Arrows, List<VisualizationReactionMoment> Moments) CreateReactionVisualizations(
+        StructuralModel model,
+        IReadOnlyDictionary<string, StructuralNode> nodesById,
+        IReadOnlyList<SupportReactionResult> reactions,
+        VisualizationOptions options,
+        ICollection<VisualizationPoint> allPoints)
+    {
+        Dictionary<string, SupportReactionResult> reactionsBySupportId = reactions.ToDictionary(item => item.SupportId, StringComparer.OrdinalIgnoreCase);
+        List<VisualizationReactionArrow> arrows = new();
+        List<VisualizationReactionMoment> moments = new();
+        const double tolerance = 1e-12;
+
+        foreach (StructuralSupport support in model.Supports)
+        {
+            if (!nodesById.TryGetValue(support.NodeId, out StructuralNode? node) ||
+                !reactionsBySupportId.TryGetValue(support.Id, out SupportReactionResult? reaction))
+            {
+                continue;
+            }
+
+            VisualizationPoint center = new(node.X, node.Y);
+
+            if (Math.Abs(reaction.Fx) > tolerance)
+            {
+                VisualizationPoint end = new(node.X + (reaction.Fx * options.ReactionForceScale), node.Y);
+                arrows.Add(new VisualizationReactionArrow(support.Id, support.NodeId, ReactionComponentKind.ForceX, center, end, reaction.Fx));
+                allPoints.Add(end);
+            }
+
+            if (Math.Abs(reaction.Fy) > tolerance)
+            {
+                VisualizationPoint end = new(node.X, node.Y + (reaction.Fy * options.ReactionForceScale));
+                arrows.Add(new VisualizationReactionArrow(support.Id, support.NodeId, ReactionComponentKind.ForceY, center, end, reaction.Fy));
+                allPoints.Add(end);
+            }
+
+            if (Math.Abs(reaction.Mz) > tolerance)
+            {
+                double radius = Math.Max(options.MinimumReactionMomentRadius, Math.Abs(reaction.Mz) * options.ReactionMomentScale);
+                moments.Add(new VisualizationReactionMoment(support.Id, support.NodeId, center, radius, reaction.Mz < 0.0, reaction.Mz));
+                allPoints.Add(new VisualizationPoint(node.X - radius, node.Y - radius));
+                allPoints.Add(new VisualizationPoint(node.X + radius, node.Y + radius));
+            }
+        }
+
+        return (arrows, moments);
+    }
+
+    private static VisualizationDisplacementAnnotation? CreateMaximumDisplacementAnnotation(IReadOnlyList<VisualizationNode> nodes)
+    {
+        VisualizationNode? maximumNode = null;
+        double maximumMagnitude = 0.0;
+
+        foreach (VisualizationNode node in nodes)
+        {
+            double magnitude = Math.Sqrt((node.Ux * node.Ux) + (node.Uy * node.Uy));
+            if (magnitude >= maximumMagnitude)
+            {
+                maximumMagnitude = magnitude;
+                maximumNode = node;
+            }
+        }
+
+        if (maximumNode is null || maximumMagnitude <= 0.0)
+        {
+            return null;
+        }
+
+        return new VisualizationDisplacementAnnotation(
+            maximumNode.NodeId,
+            maximumNode.Position,
+            maximumNode.DeformedPosition,
+            maximumMagnitude);
     }
 
     private static IReadOnlyList<VisualizationAnimationFrame> CreateAnimationFrames(
@@ -361,6 +522,13 @@ public sealed class StructuralVisualizationModelBuilder
             options.BendingMomentDiagramScale < 0.0)
         {
             throw new ArgumentOutOfRangeException(nameof(options), "Diagram scales cannot be negative.");
+        }
+
+        if (options.ReactionForceScale < 0.0 ||
+            options.ReactionMomentScale < 0.0 ||
+            options.MinimumReactionMomentRadius < 0.0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(options), "Reaction scales and minimum radius cannot be negative.");
         }
 
         if (options.BoundsPadding < 0.0)

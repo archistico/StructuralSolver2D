@@ -2,6 +2,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
   <title id="title">Simply supported beam with uniform load</title>
   <desc id="desc">Static structural result preview exported from StructuralSolver2D.</desc>
+  <defs>
+    <marker id="reactionArrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L8,4 L0,8 z" fill="#0ea5e9" />
+    </marker>
+    <marker id="dimensionArrow" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M8,0 L0,4 L8,8" fill="none" stroke="#6b7280" stroke-width="1.2" />
+    </marker>
+  </defs>
   <style>
     .background { fill: #ffffff; }
     .frame { fill: none; stroke: #d1d5db; stroke-width: 1; }
@@ -11,10 +19,21 @@
     .diagram.shear-force { stroke: #059669; stroke-width: 1.8; fill: none; }
     .diagram.bending-moment { stroke: #7c3aed; stroke-width: 1.8; fill: none; }
     .node { fill: #0f172a; }
-    .node-label { fill: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }
+    .node-label, .support-label, .dimension-label, .annotation-label, .reaction-label, .legend-label { fill: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }
     .title { fill: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 20px; font-weight: bold; }
     .caption { fill: #4b5563; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }
-    .legend-label { fill: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }
+    .support-line { stroke: #1f2937; stroke-width: 1.5; fill: none; }
+    .support-fill { fill: #f3f4f6; stroke: #1f2937; stroke-width: 1.5; }
+    .reaction { stroke: #0ea5e9; stroke-width: 1.8; fill: none; }
+    .reaction-label { fill: #0369a1; }
+    .dimension { stroke: #6b7280; stroke-width: 1.2; fill: none; }
+    .dimension-extension { stroke: #9ca3af; stroke-width: 1; }
+    .annotation-line { stroke: #dc2626; stroke-width: 1.2; stroke-dasharray: 4 3; fill: none; }
+    .annotation-label { font-weight: 600; }
+    .annotation-point { fill: #ffffff; stroke-width: 1.6; }
+    .annotation-point.normal-force { stroke: #2563eb; }
+    .annotation-point.shear-force { stroke: #059669; }
+    .annotation-point.bending-moment { stroke: #7c3aed; }
   </style>
   <rect class="background" x="0" y="0" width="1200" height="800"/>
   <rect class="frame" x="0.5" y="0.5" width="1199" height="799"/>
@@ -22,30 +41,56 @@
   <text class="caption" x="32" y="44">Deformation scale: 100 | Nodes: 2 | Members: 1</text>
   <g id="undeformed-model">
     <line class="member undeformed" x1="126.667" y1="371.848" x2="1073.333" y2="371.848"/>
+    <line class="dimension-extension" x1="126.667" y1="371.848" x2="126.667" y2="399.848"/>
+    <line class="dimension-extension" x1="1073.333" y1="371.848" x2="1073.333" y2="399.848"/>
+    <line class="dimension" x1="126.667" y1="389.848" x2="1073.333" y2="389.848" marker-start="url(#dimensionArrow)" marker-end="url(#dimensionArrow)"/>
+    <text class="dimension-label" x="600" y="385.848">L = 5 m</text>
+    <g class="support" data-support-id="SA">
+      <polygon class="support-fill" points="126.667,371.848 114.667,383.848 138.667,383.848"/>
+      <line class="support-line" x1="110.667" y1="387.848" x2="142.667" y2="387.848"/>
+      <text class="support-label" x="140.667" y="387.848">Hinge</text>
+    </g>
+    <g class="support" data-support-id="SB">
+      <polygon class="support-fill" points="1073.333,371.848 1061.333,383.848 1085.333,383.848"/>
+      <circle class="support-fill" cx="1068.333" cy="387.848" r="3"/>
+      <circle class="support-fill" cx="1078.333" cy="387.848" r="3"/>
+      <line class="support-line" x1="1057.333" y1="391.848" x2="1089.333" y2="391.848"/>
+      <text class="support-label" x="1087.333" y="387.848">Simple support</text>
+    </g>
     <circle class="node" cx="126.667" cy="371.848" r="3"/>
     <text class="node-label" x="132.667" y="365.848">A</text>
     <circle class="node" cx="1073.333" cy="371.848" r="3"/>
     <text class="node-label" x="1079.333" y="365.848">B</text>
+    <line class="reaction" x1="126.667" y1="371.848" x2="126.667" y2="277.181" marker-end="url(#reactionArrow)"/>
+    <text class="reaction-label" x="132.667" y="318.515">Ry = 25 kN</text>
+    <line class="reaction" x1="1073.333" y1="371.848" x2="1073.333" y2="277.181" marker-end="url(#reactionArrow)"/>
+    <text class="reaction-label" x="1079.333" y="318.515">Ry = 25 kN</text>
   </g>
   <g id="diagrams">
     <polyline class="diagram normal-force" points="126.667,371.848 174,371.848 221.333,371.848 268.667,371.848 316,371.848 363.333,371.848 410.667,371.848 458,371.848 505.333,371.848 552.667,371.848 600,371.848 647.333,371.848 694.667,371.848 742,371.848 789.333,371.848 836.667,371.848 884,371.848 931.333,371.848 978.667,371.848 1026,371.848 1073.333,371.848"/>
     <polyline class="diagram shear-force" points="126.667,277.181 174,286.648 221.333,296.115 268.667,305.581 316,315.048 363.333,324.515 410.667,333.981 458,343.448 505.333,352.915 552.667,362.381 600,371.848 647.333,381.315 694.667,390.781 742,400.248 789.333,409.715 836.667,419.181 884,428.648 931.333,438.115 978.667,447.581 1026,457.048 1073.333,466.515"/>
     <polyline class="diagram bending-moment" points="126.667,371.848 174,349.365 221.333,329.248 268.667,311.498 316,296.115 363.333,283.098 410.667,272.448 458,264.165 505.333,258.248 552.667,254.698 600,253.515 647.333,254.698 694.667,258.248 742,264.165 789.333,272.448 836.667,283.098 884,296.115 931.333,311.498 978.667,329.248 1026,349.365 1073.333,371.848"/>
+    <circle class="annotation-point normal-force" cx="1073.333" cy="371.848" r="4"/>
+    <text class="annotation-label" x="1081.333" y="365.848">Nmax = -0 kN</text>
+    <circle class="annotation-point shear-force" cx="1073.333" cy="466.515" r="4"/>
+    <text class="annotation-label" x="1081.333" y="460.515">Vmax = -25 kN</text>
+    <circle class="annotation-point bending-moment" cx="600" cy="253.515" r="4"/>
+    <text class="annotation-label" x="608" y="247.515">Mmax = 31.25 kNm</text>
   </g>
   <g id="deformed-shape">
     <polyline class="member deformed" points="126.667,371.848 174,427.61 221.333,477.503 268.667,521.525 316,559.679 363.333,591.962 410.667,618.376 458,638.92 505.333,653.594 552.667,662.398 600,665.333 647.333,662.398 694.667,653.594 742,638.92 789.333,618.376 836.667,591.962 884,559.679 931.333,521.525 978.667,477.503 1026,427.61 1073.333,371.848"/>
   </g>
   <g id="legend">
-    <text class="legend-label" x="980" y="36">Legend</text>
-    <line class="member undeformed" x1="980" y1="54" x2="1008" y2="54"/>
-    <text class="legend-label" x="1016" y="58">Undeformed model</text>
-    <line class="member deformed" x1="980" y1="72" x2="1008" y2="72"/>
-    <text class="legend-label" x="1016" y="76">Deformed shape</text>
-    <line class="diagram normal-force" x1="980" y1="90" x2="1008" y2="90"/>
-    <text class="legend-label" x="1016" y="94">Normal force N</text>
-    <line class="diagram shear-force" x1="980" y1="108" x2="1008" y2="108"/>
-    <text class="legend-label" x="1016" y="112">Shear force V</text>
-    <line class="diagram bending-moment" x1="980" y1="126" x2="1008" y2="126"/>
-    <text class="legend-label" x="1016" y="130">Bending moment M</text>
+    <text class="legend-label" x="970" y="36">Legend</text>
+    <line class="member undeformed" x1="970" y1="54" x2="998" y2="54"/>
+    <text class="legend-label" x="1006" y="58">Undeformed model</text>
+    <line class="member deformed" x1="970" y1="72" x2="998" y2="72"/>
+    <text class="legend-label" x="1006" y="76">Deformed shape</text>
+    <line class="diagram normal-force" x1="970" y1="90" x2="998" y2="90"/>
+    <text class="legend-label" x="1006" y="94">Normal force N</text>
+    <line class="diagram shear-force" x1="970" y1="108" x2="998" y2="108"/>
+    <text class="legend-label" x="1006" y="112">Shear force V</text>
+    <line class="diagram bending-moment" x1="970" y1="126" x2="998" y2="126"/>
+    <text class="legend-label" x="1006" y="130">Bending moment M</text>
   </g>
 </svg>
