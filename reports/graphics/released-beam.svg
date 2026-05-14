@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Pin-ended beam with uniform distributed load</title>
+  <desc id="desc">Static structural result preview exported from StructuralSolver2D.</desc>
+  <style>
+    .background { fill: #ffffff; }
+    .frame { fill: none; stroke: #d1d5db; stroke-width: 1; }
+    .member.undeformed { stroke: #64748b; stroke-width: 2; fill: none; }
+    .member.deformed { stroke: #dc2626; stroke-width: 2.2; fill: none; }
+    .diagram.normal-force { stroke: #2563eb; stroke-width: 1.8; fill: none; }
+    .diagram.shear-force { stroke: #059669; stroke-width: 1.8; fill: none; }
+    .diagram.bending-moment { stroke: #7c3aed; stroke-width: 1.8; fill: none; }
+    .node { fill: #0f172a; }
+    .node-label { fill: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }
+    .title { fill: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 20px; font-weight: bold; }
+    .caption { fill: #4b5563; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }
+    .legend-label { fill: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }
+  </style>
+  <rect class="background" x="0" y="0" width="1200" height="800"/>
+  <rect class="frame" x="0.5" y="0.5" width="1199" height="799"/>
+  <text class="title" x="32" y="26">Pin-ended beam with uniform distributed load</text>
+  <text class="caption" x="32" y="44">Deformation scale: 100 | Nodes: 2 | Members: 1</text>
+  <g id="undeformed-model">
+    <line class="member undeformed" x1="126.667" y1="570.667" x2="1073.333" y2="570.667"/>
+    <circle class="node" cx="126.667" cy="570.667" r="3"/>
+    <text class="node-label" x="132.667" y="564.667">A</text>
+    <circle class="node" cx="1073.333" cy="570.667" r="3"/>
+    <text class="node-label" x="1079.333" y="564.667">B</text>
+  </g>
+  <g id="diagrams">
+    <polyline class="diagram normal-force" points="126.667,570.667 174,570.667 221.333,570.667 268.667,570.667 316,570.667 363.333,570.667 410.667,570.667 458,570.667 505.333,570.667 552.667,570.667 600,570.667 647.333,570.667 694.667,570.667 742,570.667 789.333,570.667 836.667,570.667 884,570.667 931.333,570.667 978.667,570.667 1026,570.667 1073.333,570.667"/>
+    <polyline class="diagram shear-force" points="126.667,476 174,485.467 221.333,494.933 268.667,504.4 316,513.867 363.333,523.333 410.667,532.8 458,542.267 505.333,551.733 552.667,561.2 600,570.667 647.333,580.133 694.667,589.6 742,599.067 789.333,608.533 836.667,618 884,627.467 931.333,636.933 978.667,646.4 1026,655.867 1073.333,665.333"/>
+    <polyline class="diagram bending-moment" points="126.667,570.667 174,548.183 221.333,528.067 268.667,510.317 316,494.933 363.333,481.917 410.667,471.267 458,462.983 505.333,457.067 552.667,453.517 600,452.333 647.333,453.517 694.667,457.067 742,462.983 789.333,471.267 836.667,481.917 884,494.933 931.333,510.317 978.667,528.067 1026,548.183 1073.333,570.667"/>
+  </g>
+  <g id="deformed-shape">
+    <polyline class="member deformed" points="126.667,570.667 174,570.667 221.333,570.667 268.667,570.667 316,570.667 363.333,570.667 410.667,570.667 458,570.667 505.333,570.667 552.667,570.667 600,570.667 647.333,570.667 694.667,570.667 742,570.667 789.333,570.667 836.667,570.667 884,570.667 931.333,570.667 978.667,570.667 1026,570.667 1073.333,570.667"/>
+  </g>
+  <g id="legend">
+    <text class="legend-label" x="980" y="36">Legend</text>
+    <line class="member undeformed" x1="980" y1="54" x2="1008" y2="54"/>
+    <text class="legend-label" x="1016" y="58">Undeformed model</text>
+    <line class="member deformed" x1="980" y1="72" x2="1008" y2="72"/>
+    <text class="legend-label" x="1016" y="76">Deformed shape</text>
+    <line class="diagram normal-force" x1="980" y1="90" x2="1008" y2="90"/>
+    <text class="legend-label" x="1016" y="94">Normal force N</text>
+    <line class="diagram shear-force" x1="980" y1="108" x2="1008" y2="108"/>
+    <text class="legend-label" x="1016" y="112">Shear force V</text>
+    <line class="diagram bending-moment" x1="980" y1="126" x2="1008" y2="126"/>
+    <text class="legend-label" x="1016" y="130">Bending moment M</text>
+  </g>
+</svg>

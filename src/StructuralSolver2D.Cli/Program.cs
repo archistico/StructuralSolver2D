@@ -10,6 +10,7 @@ using StructuralSolver2D.Core.Model;
 using StructuralSolver2D.Reporting.Csv;
 using StructuralSolver2D.Reporting.Markdown;
 using StructuralSolver2D.Reporting.Visualization;
+using StructuralSolver2D.Reporting.Xlsx;
 using StructuralSolver2D.Analysis.PublicApi;
 
 const string ApplicationName = "StructuralSolver2D";
@@ -40,6 +41,11 @@ try
     if (IsCsvExportCommand(args[0]))
     {
         return RunCsvExport(args);
+    }
+
+    if (IsXlsxExportCommand(args[0]))
+    {
+        return RunXlsxExport(args);
     }
 
     if (IsSvgExportCommand(args[0]))
@@ -200,6 +206,41 @@ int RunCsvExport(string[] args)
     WriteCsv(outputDirectory, "summary.csv", exporter.ExportSummary(run.Summary));
 
     Console.WriteLine($"CSV files written to: {outputDirectory}");
+
+    return 0;
+}
+
+int RunXlsxExport(string[] args)
+{
+    if (args.Length < 3)
+    {
+        CliOutputWriter.WriteError("Missing XLSX export arguments.");
+        CliOutputWriter.WriteHelp(ApplicationName, CliExampleModelFactory.GetAvailableExamples());
+        return 1;
+    }
+
+    string inputPath = args[1];
+    string outputPath = args[2];
+
+    StructuralModelJsonFile input = StructuralModelJsonReader.Read(inputPath);
+    string loadCaseId = args.Length >= 4 ? args[3] : input.LoadCaseId;
+
+    AnalysisRun run = Analyze(input.Model, loadCaseId);
+
+    string? directory = Path.GetDirectoryName(outputPath);
+    if (!string.IsNullOrWhiteSpace(directory))
+    {
+        Directory.CreateDirectory(directory);
+    }
+
+    byte[] workbook = new XlsxStructuralResultExporter().Export(
+        run.Result,
+        run.Diagrams,
+        run.DisplacementDiagrams,
+        run.Summary);
+
+    File.WriteAllBytes(outputPath, workbook);
+    Console.WriteLine($"XLSX report written to: {outputPath}");
 
     return 0;
 }
@@ -416,6 +457,10 @@ static bool IsReportCommand(string command) =>
 static bool IsCsvExportCommand(string command) =>
     string.Equals(command, "export-csv", StringComparison.OrdinalIgnoreCase) ||
     string.Equals(command, "csv", StringComparison.OrdinalIgnoreCase);
+
+static bool IsXlsxExportCommand(string command) =>
+    string.Equals(command, "export-xlsx", StringComparison.OrdinalIgnoreCase) ||
+    string.Equals(command, "xlsx", StringComparison.OrdinalIgnoreCase);
 
 static bool IsSvgExportCommand(string command) =>
     string.Equals(command, "export-svg", StringComparison.OrdinalIgnoreCase) ||

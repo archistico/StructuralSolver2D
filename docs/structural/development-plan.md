@@ -53,7 +53,7 @@ The initial files cover rigid-joint frames, small bridge trusses, isostatic trus
 
 ### Milestone 42 — Static graphical result export: SVG and HTML
 
-Goal: produce static visual previews from the Milestone 39 visualization model.
+Status: completed. The exporter produces vector-first static previews through SVG and HTML. PNG export is intentionally deferred.
 
 Scope:
 
@@ -62,35 +62,28 @@ Scope:
 - N/V/M diagrams;
 - configurable deformation scale;
 - configurable diagram scales;
-- simple HTML wrapper around SVG;
-- optional PNG export if the dependency remains acceptable and testable.
+- simple HTML wrapper around SVG.
 
-This milestone is still not an interactive viewer. It should be usable from CLI and tests.
+This milestone is still not an interactive viewer. It is usable from CLI and tests.
 
 ---
 
 ### Milestone 43 — XLSX report export
 
-Goal: create spreadsheet reports richer than CSV.
+Status: implemented.
 
-Expected worksheets:
+The first workbook export creates spreadsheet reports richer than CSV without changing solver behavior.
 
-- model summary;
-- nodes;
-- members;
-- supports;
-- materials;
-- sections;
-- loads;
-- displacements;
-- reactions;
-- member end forces;
-- internal-force samples;
-- serviceability checks where available.
+Scope:
 
-Keep this as a reporting/export feature. Do not change solver behavior.
-
----
+- dependency-free XLSX package writer;
+- summary sheet;
+- nodal displacement sheet;
+- support reaction sheet;
+- member end-force sheet;
+- internal-force sample sheet;
+- displacement sample sheet;
+- CLI command `export-xlsx`.
 
 ### Milestone 44 — PDF technical report
 

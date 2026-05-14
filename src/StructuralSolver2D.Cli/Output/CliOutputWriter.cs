@@ -22,6 +22,7 @@ public static class CliOutputWriter
         Console.WriteLine("  dotnet run --project src/StructuralSolver2D.Cli -- analyze <file.json> [loadCaseId|combinationId]");
         Console.WriteLine("  dotnet run --project src/StructuralSolver2D.Cli -- report <file.json> <output.md> [loadCaseId|combinationId]");
         Console.WriteLine("  dotnet run --project src/StructuralSolver2D.Cli -- export-csv <file.json> <output-directory> [loadCaseId|combinationId]");
+        Console.WriteLine("  dotnet run --project src/StructuralSolver2D.Cli -- export-xlsx <file.json> <output.xlsx> [loadCaseId|combinationId]");
         Console.WriteLine("  dotnet run --project src/StructuralSolver2D.Cli -- export-svg <file.json> <output.svg> [loadCaseId|combinationId]");
         Console.WriteLine("  dotnet run --project src/StructuralSolver2D.Cli -- export-html <file.json> <output.html> [loadCaseId|combinationId]");
         Console.WriteLine();

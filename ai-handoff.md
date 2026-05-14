@@ -235,6 +235,7 @@ example <name>
 analyze <input.json> [loadCaseId]
 report <input.json> <output.md> [loadCaseId]
 export-csv <input.json> <output-directory> [loadCaseId]
+export-xlsx <input.json> <output.xlsx> [loadCaseId]
 ```
 
 Rules:
@@ -253,6 +254,7 @@ Current implementation:
 - `MarkdownStructuralReportGenerator`
 - `MarkdownReportOptions`
 - `CsvStructuralResultExporter`
+- `XlsxStructuralResultExporter`
 - `SvgStructuralResultExporter`
 - `HtmlStructuralResultPreviewExporter`
 

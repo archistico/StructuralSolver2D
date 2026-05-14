@@ -973,6 +973,15 @@ The unified sequence is:
 49 - OpenCad2D integration boundary study
 ```
 
+
+### Milestone 43 — XLSX report export
+
+Added a lightweight `.xlsx` workbook exporter based on direct OpenXML package generation.
+
+The workbook contains sheets for summary values, nodal displacements, support reactions, member end forces, internal-force samples and displacement samples.
+
+PNG export remains intentionally deferred; the graphical export path is vector-first through SVG/HTML.
+
 Detailed planning is kept in:
 
 ```text
