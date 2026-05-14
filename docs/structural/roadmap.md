@@ -958,3 +958,35 @@ CLI
 Future UI / CAD clients
   optional external consumers
 ```
+
+
+---
+
+## Milestone 26 completion update
+
+Milestone 26 adds the first mesh-refinement and convergence benchmark layer.
+
+Added files:
+
+```text
+benchmarks/convergence/
+  C01-simple-supported-udl-1-elements.json
+  C01-simple-supported-udl-2-elements.json
+  C01-simple-supported-udl-4-elements.json
+  C01-simple-supported-udl-8-elements.json
+  C02-point-load-single-element.json
+  C02-point-load-explicit-node.json
+
+docs/structural/mesh-refinement.md
+
+tests/StructuralSolver2D.Analysis.Tests/Benchmarks/MeshRefinementConvergenceTests.cs
+```
+
+The milestone validates and documents the distinction between:
+
+- nodal finite element results;
+- internal displacement interpolation;
+- closed-form beam theory values;
+- convergence behavior under mesh refinement.
+
+This milestone reinforces the project rule that validation must evolve together with solver capabilities.

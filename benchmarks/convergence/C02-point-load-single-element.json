@@ -1,0 +1,78 @@
+{
+  "title": "C02 - Simply supported beam with member point load",
+  "description": "Point-load convergence benchmark. L = 6 m, P = 30 kN downward at x = 2 m. The load is applied inside a single member.",
+  "loadCaseId": "LC1",
+  "nodes": [
+    {
+      "id": "A",
+      "x": 0.0,
+      "y": 0.0
+    },
+    {
+      "id": "B",
+      "x": 6.0,
+      "y": 0.0
+    }
+  ],
+  "materials": [
+    {
+      "id": "MAT",
+      "name": "Benchmark elastic material",
+      "elasticModulus": 210000000.0
+    }
+  ],
+  "sections": [
+    {
+      "id": "SEC",
+      "name": "Benchmark frame section",
+      "area": 0.003,
+      "momentOfInertia": 2e-05
+    }
+  ],
+  "members": [
+    {
+      "id": "M1",
+      "startNodeId": "A",
+      "endNodeId": "B",
+      "materialId": "MAT",
+      "sectionId": "SEC",
+      "type": "Frame2D"
+    }
+  ],
+  "supports": [
+    {
+      "id": "SA",
+      "nodeId": "A",
+      "restrainedUx": true,
+      "restrainedUy": true,
+      "restrainedRz": false,
+      "type": "Hinge"
+    },
+    {
+      "id": "SB",
+      "nodeId": "B",
+      "restrainedUx": false,
+      "restrainedUy": true,
+      "restrainedRz": false,
+      "type": "SimpleSupport"
+    }
+  ],
+  "loadCases": [
+    {
+      "id": "LC1",
+      "name": "Point load"
+    }
+  ],
+  "loads": [
+    {
+      "id": "P1",
+      "loadCaseId": "LC1",
+      "type": "PointLoadOnMember",
+      "targetType": "Member",
+      "targetId": "M1",
+      "direction": "GlobalY",
+      "value": -30.0,
+      "position": 0.3333333333333333
+    }
+  ]
+}

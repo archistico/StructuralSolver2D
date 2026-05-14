@@ -166,3 +166,40 @@ Important convention:
 Global loads remain expressed in global axes.
 Local loads are expressed in member axes and therefore rotate when the member orientation changes.
 ```
+
+---
+
+## Milestone 26 — Mesh refinement and convergence benchmarks
+
+Milestone 26 adds a dedicated convergence layer to the benchmark strategy.
+
+The goal is not only to check a single numerical value, but also to document how the result changes when the same structural problem is represented with a finer mesh.
+
+The initial convergence files are stored in:
+
+```text
+benchmarks/convergence/
+```
+
+Current convergence cases:
+
+```text
+C01-simple-supported-udl-1-elements.json
+C01-simple-supported-udl-2-elements.json
+C01-simple-supported-udl-4-elements.json
+C01-simple-supported-udl-8-elements.json
+C02-point-load-single-element.json
+C02-point-load-explicit-node.json
+```
+
+These cases highlight an important FEM principle:
+
+> internal sampled values depend on the element interpolation field, while explicitly modeled nodes provide nodal degrees of freedom that can be compared directly with closed-form values.
+
+For future benchmarks, each convergence case should document:
+
+- the reference closed-form solution, when available;
+- the sequence of meshes used;
+- the quantity being monitored;
+- whether the value is nodal or internally interpolated;
+- the expected convergence behavior.

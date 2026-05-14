@@ -757,3 +757,19 @@ CLI selection logic:
 - pure truss models still use `Truss2DAnalyzer`;
 - pure frame models still use `Frame2DAnalyzer`;
 - mixed models use `PlaneStructureAnalyzer`.
+
+## Milestone 26 note — mesh refinement and convergence
+
+The project now includes initial convergence benchmarks in `benchmarks/convergence/` and automated tests in `MeshRefinementConvergenceTests`.
+
+Important concept for future LLM assistance:
+
+- do not assume that an internal displacement sampled inside one Frame2D element equals the closed-form beam deflection;
+- if an exact displacement is needed at a critical point, such as midspan or a point-load position, model that point as an explicit structural node;
+- convergence benchmarks should distinguish between nodal FEM values and interpolated internal samples.
+
+Related documentation:
+
+```text
+docs/structural/mesh-refinement.md
+```

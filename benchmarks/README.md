@@ -128,3 +128,20 @@ dotnet run --project src\StructuralSolver2D.Cli -- report benchmarks\beams\B01-s
 ```
 
 The automated runner reads `expected-results.json`, executes each benchmark model, and compares reactions, displacements and internal-force extrema against the expected values within declared tolerances.
+
+## Convergence benchmarks
+
+The `convergence/` folder contains mesh-refinement models used to validate how selected results change when the same structure is discretized with more elements.
+
+Current convergence cases:
+
+```text
+C01-simple-supported-udl-1-elements.json
+C01-simple-supported-udl-2-elements.json
+C01-simple-supported-udl-4-elements.json
+C01-simple-supported-udl-8-elements.json
+C02-point-load-single-element.json
+C02-point-load-explicit-node.json
+```
+
+These files are not meant to replace the main expected-results catalog. They document convergence behavior and are exercised by dedicated tests in `MeshRefinementConvergenceTests`.

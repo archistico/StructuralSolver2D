@@ -525,3 +525,31 @@ Example:
 dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\mixed-frame-truss.json
 dotnet run --project src\StructuralSolver2D.Cli -- report examples\mixed-frame-truss.json reports\mixed-frame-truss.md
 ```
+
+## Mesh refinement benchmarks
+
+The project now includes initial mesh-refinement benchmarks under:
+
+```text
+benchmarks/convergence/
+```
+
+These benchmarks document how FEM results change when the same structural problem is discretized with different numbers of elements.
+
+They are especially useful for understanding the difference between:
+
+- nodal FEM results;
+- internally interpolated displacement samples;
+- closed-form beam theory values.
+
+The related automated tests are in:
+
+```text
+tests/StructuralSolver2D.Analysis.Tests/Benchmarks/MeshRefinementConvergenceTests.cs
+```
+
+See also:
+
+```text
+docs/structural/mesh-refinement.md
+```
