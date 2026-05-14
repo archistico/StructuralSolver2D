@@ -19,6 +19,7 @@ public sealed class SvgStructuralResultExporterTests
                 IncludeNodeLabels = true,
                 IncludeLegend = true,
                 IncludeNodeDisplacementLabels = true,
+                IncludeMemberDisplacementLabels = true,
             });
 
         Assert.Contains("<svg", svg, StringComparison.Ordinal);
@@ -38,6 +39,9 @@ public sealed class SvgStructuralResultExporterTests
         Assert.Contains("Uy = -2 mm", svg, StringComparison.Ordinal);
         Assert.Contains("Rz = 0.01 rad", svg, StringComparison.Ordinal);
         Assert.Contains("B: u = 2 mm", svg, StringComparison.Ordinal);
+        Assert.Contains("M1 L/4: u = 0.5 mm", svg, StringComparison.Ordinal);
+        Assert.Contains("M1 L/2: u = 1 mm", svg, StringComparison.Ordinal);
+        Assert.Contains("M1 3L/4: u = 1.5 mm", svg, StringComparison.Ordinal);
         Assert.Contains("Nmax = 12", svg, StringComparison.Ordinal);
         Assert.Contains("Legend", svg, StringComparison.Ordinal);
     }
@@ -109,5 +113,11 @@ public sealed class SvgStructuralResultExporterTests
             new[]
             {
                 new VisualizationNodeDisplacementLabel("B", "B", new VisualizationPoint(4.0, -0.2), 0.0, -0.002, 0.002, 0.01),
+            },
+            new[]
+            {
+                new VisualizationMemberDisplacementLabel("M1", "L/4", 0.25, 1.0, new VisualizationPoint(1.0, -0.05), 0.0, -0.0005, 0.0005, 0.0025),
+                new VisualizationMemberDisplacementLabel("M1", "L/2", 0.50, 2.0, new VisualizationPoint(2.0, -0.10), 0.0, -0.0010, 0.0010, 0.0050),
+                new VisualizationMemberDisplacementLabel("M1", "3L/4", 0.75, 3.0, new VisualizationPoint(3.0, -0.15), 0.0, -0.0015, 0.0015, 0.0075),
             });
 }

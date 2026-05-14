@@ -243,3 +243,19 @@ public sealed record VisualizationNodeDisplacementLabel(
     double Uy,
     double ResultantDisplacement,
     double Rz);
+
+
+/// <summary>
+/// Represents a displacement label at a standard station along a member, for example L/4, L/2 or 3L/4.
+/// Raw translational displacement values are expressed in meters; local rotation is expressed in radians when available.
+/// </summary>
+public sealed record VisualizationMemberDisplacementLabel(
+    string MemberId,
+    string StationLabel,
+    double NormalizedPosition,
+    double Distance,
+    VisualizationPoint Position,
+    double GlobalUx,
+    double GlobalUy,
+    double ResultantDisplacement,
+    double LocalRz);

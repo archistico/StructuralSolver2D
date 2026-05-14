@@ -80,7 +80,7 @@ public sealed class SvgStructuralResultExporter
         builder.AppendLine("    .diagram.shear-force { stroke: #059669; stroke-width: 1.8; fill: none; }");
         builder.AppendLine("    .diagram.bending-moment { stroke: #7c3aed; stroke-width: 1.8; fill: none; }");
         builder.AppendLine("    .node { fill: #0f172a; }");
-        builder.AppendLine("    .node-label, .support-label, .dimension-label, .annotation-label, .reaction-label, .legend-label, .displacement-label { fill: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }");
+        builder.AppendLine("    .node-label, .support-label, .dimension-label, .annotation-label, .reaction-label, .legend-label, .displacement-label, .member-displacement-label { fill: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }");
         builder.AppendLine("    .title { fill: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 20px; font-weight: bold; }");
         builder.AppendLine("    .caption { fill: #4b5563; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }");
         builder.AppendLine("    .support-line { stroke: #1f2937; stroke-width: 1.5; fill: none; }");
@@ -89,6 +89,8 @@ public sealed class SvgStructuralResultExporter
         builder.AppendLine("    .reaction-label { fill: #0369a1; }");
         builder.AppendLine("    .displacement-label { fill: #991b1b; font-size: 11px; }");
         builder.AppendLine("    .displacement-label-anchor { fill: #dc2626; stroke: #ffffff; stroke-width: 1; }");
+        builder.AppendLine("    .member-displacement-label { fill: #7f1d1d; font-size: 10.5px; }");
+        builder.AppendLine("    .member-displacement-label-anchor { fill: #f97316; stroke: #ffffff; stroke-width: 1; }");
         builder.AppendLine("    .dimension { stroke: #6b7280; stroke-width: 1.2; fill: none; }");
         builder.AppendLine("    .dimension-extension { stroke: #9ca3af; stroke-width: 1; }");
         builder.AppendLine("    .annotation-line { stroke: #dc2626; stroke-width: 1.2; stroke-dasharray: 4 3; fill: none; }");
@@ -185,6 +187,14 @@ public sealed class SvgStructuralResultExporter
             foreach (VisualizationNodeDisplacementLabel label in model.NodeDisplacementLabels)
             {
                 AppendNodeDisplacementLabel(builder, mapper, label);
+            }
+        }
+
+        if (options.IncludeMemberDisplacementLabels)
+        {
+            foreach (VisualizationMemberDisplacementLabel label in model.MemberDisplacementLabels)
+            {
+                AppendMemberDisplacementLabel(builder, mapper, label);
             }
         }
 
@@ -355,6 +365,19 @@ public sealed class SvgStructuralResultExporter
         builder.AppendLine($"      <text class=\"displacement-label\" x=\"{Format(x + 8.0)}\" y=\"{Format(y + 12.0)}\">{EscapeXml(name)}: u = {FormatMillimeters(label.ResultantDisplacement)}</text>");
         builder.AppendLine($"      <text class=\"displacement-label\" x=\"{Format(x + 8.0)}\" y=\"{Format(y + 25.0)}\">Ux = {FormatMillimeters(label.Ux)}, Uy = {FormatMillimeters(label.Uy)}</text>");
         builder.AppendLine($"      <text class=\"displacement-label\" x=\"{Format(x + 8.0)}\" y=\"{Format(y + 38.0)}\">Rz = {Format(label.Rz)} rad</text>");
+        builder.AppendLine("    </g>");
+    }
+
+    private static void AppendMemberDisplacementLabel(StringBuilder builder, CoordinateMapper mapper, VisualizationMemberDisplacementLabel label)
+    {
+        double x = mapper.MapX(label.Position.X);
+        double y = mapper.MapY(label.Position.Y);
+
+        builder.AppendLine($"    <g class=\"member-displacement-label\" data-member-id=\"{EscapeXml(label.MemberId)}\" data-station=\"{EscapeXml(label.StationLabel)}\">");
+        builder.AppendLine($"      <circle class=\"member-displacement-label-anchor\" cx=\"{Format(x)}\" cy=\"{Format(y)}\" r=\"3\"/>");
+        builder.AppendLine($"      <text class=\"member-displacement-label\" x=\"{Format(x + 7.0)}\" y=\"{Format(y - 6.0)}\">{EscapeXml(label.MemberId)} {EscapeXml(label.StationLabel)}: u = {FormatMillimeters(label.ResultantDisplacement)}</text>");
+        builder.AppendLine($"      <text class=\"member-displacement-label\" x=\"{Format(x + 7.0)}\" y=\"{Format(y + 7.0)}\">Ux = {FormatMillimeters(label.GlobalUx)}, Uy = {FormatMillimeters(label.GlobalUy)}</text>");
+        builder.AppendLine($"      <text class=\"member-displacement-label\" x=\"{Format(x + 7.0)}\" y=\"{Format(y + 20.0)}\">x = {Format(label.Distance)} m, Rz = {Format(label.LocalRz)} rad</text>");
         builder.AppendLine("    </g>");
     }
 

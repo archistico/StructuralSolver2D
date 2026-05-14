@@ -586,3 +586,8 @@ Milestone 47 adds a standalone interactive HTML viewer export through `Interacti
 ## Recent visualization note
 
 M47 extra adds deformation value labels. `StructuralVisualizationModel` now carries nodal displacement labels in addition to the maximum displacement callout. SVG/HTML exports can show real displacement values in millimetres near the deformed shape, and the interactive viewer exposes a `Displacement labels` toggle.
+
+
+## Recent visualization note
+
+The viewer/export visualization layer includes member displacement station labels at `L/4`, `L/2` and `3L/4`. They are prepared as `VisualizationMemberDisplacementLabel` records and rendered in SVG/HTML as optional member station labels. Values are derived from `MemberDisplacementDiagram` samples when available, otherwise interpolated from nodal displacements.

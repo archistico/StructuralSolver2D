@@ -23,7 +23,8 @@ public sealed class StructuralVisualizationModel
         VisualizationDisplacementAnnotation? maximumDisplacement = null,
         IReadOnlyList<DiagramValueAnnotation>? diagramValueAnnotations = null,
         IReadOnlyList<VisualizationAnimationFrame>? animationFrames = null,
-        IReadOnlyList<VisualizationNodeDisplacementLabel>? nodeDisplacementLabels = null)
+        IReadOnlyList<VisualizationNodeDisplacementLabel>? nodeDisplacementLabels = null,
+        IReadOnlyList<VisualizationMemberDisplacementLabel>? memberDisplacementLabels = null)
     {
         Nodes = nodes;
         Members = members;
@@ -39,6 +40,7 @@ public sealed class StructuralVisualizationModel
         DiagramValueAnnotations = diagramValueAnnotations ?? Array.Empty<DiagramValueAnnotation>();
         AnimationFrames = animationFrames ?? Array.Empty<VisualizationAnimationFrame>();
         NodeDisplacementLabels = nodeDisplacementLabels ?? Array.Empty<VisualizationNodeDisplacementLabel>();
+        MemberDisplacementLabels = memberDisplacementLabels ?? Array.Empty<VisualizationMemberDisplacementLabel>();
     }
 
     /// <summary>
@@ -105,6 +107,11 @@ public sealed class StructuralVisualizationModel
     /// Gets nodal displacement labels rendered near deformed node positions.
     /// </summary>
     public IReadOnlyList<VisualizationNodeDisplacementLabel> NodeDisplacementLabels { get; }
+
+    /// <summary>
+    /// Gets displacement labels at standard member stations such as L/4, L/2 and 3L/4.
+    /// </summary>
+    public IReadOnlyList<VisualizationMemberDisplacementLabel> MemberDisplacementLabels { get; }
 
     /// <summary>
     /// Gets optional prepared animation frames for cyclic deformed-shape visualization.

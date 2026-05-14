@@ -22,6 +22,12 @@ public sealed class InteractiveViewerExportOptions
     public bool ShowNodeDisplacementLabelsByDefault { get; set; } = false;
 
     /// <summary>
+    /// Gets or sets whether member displacement labels at L/4, L/2 and 3L/4 are visible when the viewer opens.
+    /// The labels are always embedded so the user can toggle them from the toolbar.
+    /// </summary>
+    public bool ShowMemberDisplacementLabelsByDefault { get; set; } = false;
+
+    /// <summary>
     /// Gets or sets the SVG options used for the embedded scene.
     /// </summary>
     public SvgExportOptions SvgOptions { get; set; } = new()

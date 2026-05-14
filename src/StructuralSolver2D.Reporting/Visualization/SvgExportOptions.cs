@@ -108,6 +108,11 @@ public sealed class SvgExportOptions
     public bool IncludeNodeDisplacementLabels { get; set; } = false;
 
     /// <summary>
+    /// Gets or sets whether member displacement labels should be drawn at L/4, L/2 and 3L/4.
+    /// </summary>
+    public bool IncludeMemberDisplacementLabels { get; set; } = false;
+
+    /// <summary>
     /// Gets or sets whether maximum-value labels should be drawn on internal-force diagrams.
     /// </summary>
     public bool IncludeDiagramValueLabels { get; set; } = true;

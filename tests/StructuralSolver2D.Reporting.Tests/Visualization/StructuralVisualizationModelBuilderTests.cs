@@ -182,6 +182,12 @@ public sealed class StructuralVisualizationModelBuilderTests
         Assert.Equal("B", displacementLabel.NodeId);
         Assert.Equal(0.002, displacementLabel.ResultantDisplacement, precision: 12);
         Assert.Equal(-0.002, displacementLabel.Uy, precision: 12);
+        Assert.Equal(3, visualization.MemberDisplacementLabels.Count);
+        VisualizationMemberDisplacementLabel halfSpanLabel = Assert.Single(visualization.MemberDisplacementLabels, label => label.StationLabel == "L/2");
+        Assert.Equal("M1", halfSpanLabel.MemberId);
+        Assert.Equal(0.50, halfSpanLabel.NormalizedPosition, precision: 12);
+        Assert.Equal(2.0, halfSpanLabel.Distance, precision: 12);
+        Assert.Equal(0.001, halfSpanLabel.ResultantDisplacement, precision: 12);
         Assert.Equal(3, visualization.DiagramValueAnnotations.Count);
     }
 

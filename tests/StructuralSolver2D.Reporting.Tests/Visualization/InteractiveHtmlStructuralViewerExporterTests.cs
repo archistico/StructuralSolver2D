@@ -29,8 +29,10 @@ public sealed class InteractiveHtmlStructuralViewerExporterTests
         Assert.Contains("data-action=\"reset\"", html, StringComparison.Ordinal);
         Assert.Contains("data-layer=\"#undeformed-model\"", html, StringComparison.Ordinal);
         Assert.Contains("data-layer=\"#deformed-shape\"", html, StringComparison.Ordinal);
-        Assert.Contains("Displacement labels", html, StringComparison.Ordinal);
+        Assert.Contains("Nodal displacement labels", html, StringComparison.Ordinal);
+        Assert.Contains("Member station labels", html, StringComparison.Ordinal);
         Assert.Contains("data-layer=\".displacement-label,.displacement-label-anchor\"", html, StringComparison.Ordinal);
+        Assert.Contains("data-layer=\".member-displacement-label,.member-displacement-label-anchor\"", html, StringComparison.Ordinal);
         Assert.Contains("Max disp.", html, StringComparison.Ordinal);
         Assert.Contains("addEventListener('wheel'", html, StringComparison.Ordinal);
         Assert.Contains("pointerdown", html, StringComparison.Ordinal);
@@ -72,5 +74,9 @@ public sealed class InteractiveHtmlStructuralViewerExporterTests
             new[]
             {
                 new VisualizationNodeDisplacementLabel("B", "B", new VisualizationPoint(4.0, -0.2), 0.0, -0.002, 0.002, 0.0),
+            },
+            new[]
+            {
+                new VisualizationMemberDisplacementLabel("M1", "L/2", 0.50, 2.0, new VisualizationPoint(2.0, -0.1), 0.0, -0.001, 0.001, 0.0),
             });
 }

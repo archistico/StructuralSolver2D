@@ -43,6 +43,8 @@ The exporter renders:
 - scaled support reactions with value labels;
 - deformed shape;
 - maximum displacement callout;
+- optional nodal displacement labels;
+- optional member station displacement labels at `L/4`, `L/2` and `3L/4`;
 - internal-force diagrams `N`, `V`, `M` when available;
 - maximum value labels on the diagrams;
 - node labels;

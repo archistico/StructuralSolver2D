@@ -18,6 +18,7 @@ public sealed class InteractiveHtmlStructuralViewerExporter
         options ??= new InteractiveViewerExportOptions();
         options.SvgOptions.Title = options.Title;
         options.SvgOptions.IncludeNodeDisplacementLabels = true;
+        options.SvgOptions.IncludeMemberDisplacementLabels = true;
 
         string svg = StripXmlDeclaration(new SvgStructuralResultExporter().Export(model, options.SvgOptions));
         string title = EscapeHtml(options.Title);
@@ -94,7 +95,9 @@ public sealed class InteractiveHtmlStructuralViewerExporter
         builder.AppendLine("      <label><input type=\"checkbox\" data-layer=\".reaction,.reaction-label\" checked /> Reactions</label>");
         builder.AppendLine("      <label><input type=\"checkbox\" data-layer=\".dimension,.dimension-extension,.dimension-label\" checked /> Dimensions</label>");
         string displacementLabelsChecked = options.ShowNodeDisplacementLabelsByDefault ? " checked" : string.Empty;
-        builder.AppendLine($"      <label><input type=\"checkbox\" data-layer=\".displacement-label,.displacement-label-anchor\"{displacementLabelsChecked} /> Displacement labels</label>");
+        builder.AppendLine($"      <label><input type=\"checkbox\" data-layer=\".displacement-label,.displacement-label-anchor\"{displacementLabelsChecked} /> Nodal displacement labels</label>");
+        string memberDisplacementLabelsChecked = options.ShowMemberDisplacementLabelsByDefault ? " checked" : string.Empty;
+        builder.AppendLine($"      <label><input type=\"checkbox\" data-layer=\".member-displacement-label,.member-displacement-label-anchor\"{memberDisplacementLabelsChecked} /> Member station labels</label>");
         builder.AppendLine("      <span class=\"hint\">Wheel to zoom, drag to pan.</span>");
         builder.AppendLine("    </nav>");
     }

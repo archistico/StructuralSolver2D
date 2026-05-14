@@ -42,7 +42,8 @@
       <label><input type="checkbox" data-layer=".support" checked /> Supports</label>
       <label><input type="checkbox" data-layer=".reaction,.reaction-label" checked /> Reactions</label>
       <label><input type="checkbox" data-layer=".dimension,.dimension-extension,.dimension-label" checked /> Dimensions</label>
-      <label><input type="checkbox" data-layer=".displacement-label,.displacement-label-anchor" /> Displacement labels</label>
+      <label><input type="checkbox" data-layer=".displacement-label,.displacement-label-anchor" /> Nodal displacement labels</label>
+      <label><input type="checkbox" data-layer=".member-displacement-label,.member-displacement-label-anchor" /> Member station labels</label>
       <span class="hint">Wheel to zoom, drag to pan.</span>
     </nav>
     <section class="viewer-shell" aria-label="Interactive structural result viewer">
@@ -67,7 +68,7 @@
     .diagram.shear-force { stroke: #059669; stroke-width: 1.8; fill: none; }
     .diagram.bending-moment { stroke: #7c3aed; stroke-width: 1.8; fill: none; }
     .node { fill: #0f172a; }
-    .node-label, .support-label, .dimension-label, .annotation-label, .reaction-label, .legend-label, .displacement-label { fill: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }
+    .node-label, .support-label, .dimension-label, .annotation-label, .reaction-label, .legend-label, .displacement-label, .member-displacement-label { fill: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }
     .title { fill: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 20px; font-weight: bold; }
     .caption { fill: #4b5563; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }
     .support-line { stroke: #1f2937; stroke-width: 1.5; fill: none; }
@@ -76,6 +77,8 @@
     .reaction-label { fill: #0369a1; }
     .displacement-label { fill: #991b1b; font-size: 11px; }
     .displacement-label-anchor { fill: #dc2626; stroke: #ffffff; stroke-width: 1; }
+    .member-displacement-label { fill: #7f1d1d; font-size: 10.5px; }
+    .member-displacement-label-anchor { fill: #f97316; stroke: #ffffff; stroke-width: 1; }
     .dimension { stroke: #6b7280; stroke-width: 1.2; fill: none; }
     .dimension-extension { stroke: #9ca3af; stroke-width: 1; }
     .annotation-line { stroke: #dc2626; stroke-width: 1.2; stroke-dasharray: 4 3; fill: none; }
@@ -144,6 +147,24 @@
       <text class="displacement-label" x="892.055" y="326.267">B: u = 0 mm</text>
       <text class="displacement-label" x="892.055" y="339.267">Ux = 0 mm, Uy = 0 mm</text>
       <text class="displacement-label" x="892.055" y="352.267">Rz = 0.024 rad</text>
+    </g>
+    <g class="member-displacement-label" data-member-id="M1" data-station="L/4">
+      <circle class="member-displacement-label-anchor" cx="303.109" cy="665.472" r="3"/>
+      <text class="member-displacement-label" x="310.109" y="659.472">M1 L/4: u = 22.67 mm</text>
+      <text class="member-displacement-label" x="310.109" y="672.472">Ux = 0 mm, Uy = -22.67 mm</text>
+      <text class="member-displacement-label" x="310.109" y="685.472">x = 1.25 m, Rz = -0.012 rad</text>
+    </g>
+    <g class="member-displacement-label" data-member-id="M1" data-station="L/2">
+      <circle class="member-displacement-label-anchor" cx="496.757" cy="782.54" r="3"/>
+      <text class="member-displacement-label" x="503.757" y="776.54">M1 L/2: u = 30.227 mm</text>
+      <text class="member-displacement-label" x="503.757" y="789.54">Ux = 0 mm, Uy = -30.227 mm</text>
+      <text class="member-displacement-label" x="503.757" y="802.54">x = 2.5 m, Rz = -0 rad</text>
+    </g>
+    <g class="member-displacement-label" data-member-id="M1" data-station="3L/4">
+      <circle class="member-displacement-label-anchor" cx="690.406" cy="665.472" r="3"/>
+      <text class="member-displacement-label" x="697.406" y="659.472">M1 3L/4: u = 22.67 mm</text>
+      <text class="member-displacement-label" x="697.406" y="672.472">Ux = 0 mm, Uy = -22.67 mm</text>
+      <text class="member-displacement-label" x="697.406" y="685.472">x = 3.75 m, Rz = 0.012 rad</text>
     </g>
     <line class="annotation-line" x1="109.46" y1="314.267" x2="109.46" y2="314.267" marker-end="url(#reactionArrow)"/>
     <circle class="annotation-point" cx="109.46" cy="314.267" r="3.5" style="stroke:#dc2626"/>

@@ -87,6 +87,13 @@ public sealed class StructuralVisualizationModelBuilder
 
         VisualizationDisplacementAnnotation? maximumDisplacement = CreateMaximumDisplacementAnnotation(nodes);
         IReadOnlyList<VisualizationNodeDisplacementLabel> nodeDisplacementLabels = CreateNodeDisplacementLabels(nodes);
+        IReadOnlyList<VisualizationMemberDisplacementLabel> memberDisplacementLabels = CreateMemberDisplacementLabels(
+            model,
+            nodesById,
+            displacementsByNodeId,
+            displacementDiagrams,
+            options.DeformationScale,
+            allPoints);
 
         IReadOnlyList<VisualizationAnimationFrame> animationFrames = CreateAnimationFrames(
             model,
@@ -112,7 +119,8 @@ public sealed class StructuralVisualizationModelBuilder
             maximumDisplacement,
             diagramAnnotations,
             animationFrames,
-            nodeDisplacementLabels);
+            nodeDisplacementLabels,
+            memberDisplacementLabels);
     }
 
     private static VisualizationNode CreateVisualizationNode(
@@ -487,6 +495,125 @@ public sealed class StructuralVisualizationModelBuilder
 
         return labels;
     }
+
+    private static IReadOnlyList<VisualizationMemberDisplacementLabel> CreateMemberDisplacementLabels(
+        StructuralModel model,
+        IReadOnlyDictionary<string, StructuralNode> nodesById,
+        IReadOnlyDictionary<string, NodalDisplacementResult> displacementsByNodeId,
+        IReadOnlyList<MemberDisplacementDiagram> displacementDiagrams,
+        double deformationScale,
+        ICollection<VisualizationPoint> allPoints)
+    {
+        Dictionary<string, MemberDisplacementDiagram> diagramsByMemberId = displacementDiagrams.ToDictionary(item => item.MemberId, StringComparer.OrdinalIgnoreCase);
+        List<VisualizationMemberDisplacementLabel> labels = new();
+
+        foreach (StructuralMember member in model.Members)
+        {
+            StructuralNode startNode = nodesById[member.StartNodeId];
+            StructuralNode endNode = nodesById[member.EndNodeId];
+
+            if (diagramsByMemberId.TryGetValue(member.Id, out MemberDisplacementDiagram? diagram) && diagram.Samples.Count > 0)
+            {
+                AddSampledMemberDisplacementLabels(startNode, endNode, diagram, deformationScale, labels, allPoints);
+                continue;
+            }
+
+            AddInterpolatedMemberDisplacementLabels(
+                member,
+                startNode,
+                endNode,
+                displacementsByNodeId,
+                deformationScale,
+                labels,
+                allPoints);
+        }
+
+        return labels;
+    }
+
+    private static void AddSampledMemberDisplacementLabels(
+        StructuralNode startNode,
+        StructuralNode endNode,
+        MemberDisplacementDiagram diagram,
+        double deformationScale,
+        ICollection<VisualizationMemberDisplacementLabel> labels,
+        ICollection<VisualizationPoint> allPoints)
+    {
+        foreach ((double normalizedPosition, string stationLabel) in GetStandardMemberStations())
+        {
+            MemberDisplacementSample sample = diagram.GetClosestSample(normalizedPosition);
+            double baseX = Interpolate(startNode.X, endNode.X, sample.NormalizedPosition);
+            double baseY = Interpolate(startNode.Y, endNode.Y, sample.NormalizedPosition);
+            VisualizationPoint position = new(
+                baseX + (sample.GlobalUx * deformationScale),
+                baseY + (sample.GlobalUy * deformationScale));
+            double resultant = Math.Sqrt((sample.GlobalUx * sample.GlobalUx) + (sample.GlobalUy * sample.GlobalUy));
+
+            labels.Add(new VisualizationMemberDisplacementLabel(
+                diagram.MemberId,
+                stationLabel,
+                sample.NormalizedPosition,
+                sample.Distance,
+                position,
+                sample.GlobalUx,
+                sample.GlobalUy,
+                resultant,
+                sample.LocalRz));
+            allPoints.Add(position);
+        }
+    }
+
+    private static void AddInterpolatedMemberDisplacementLabels(
+        StructuralMember member,
+        StructuralNode startNode,
+        StructuralNode endNode,
+        IReadOnlyDictionary<string, NodalDisplacementResult> displacementsByNodeId,
+        double deformationScale,
+        ICollection<VisualizationMemberDisplacementLabel> labels,
+        ICollection<VisualizationPoint> allPoints)
+    {
+        displacementsByNodeId.TryGetValue(member.StartNodeId, out NodalDisplacementResult? startDisplacement);
+        displacementsByNodeId.TryGetValue(member.EndNodeId, out NodalDisplacementResult? endDisplacement);
+
+        double startUx = startDisplacement?.Ux ?? 0.0;
+        double startUy = startDisplacement?.Uy ?? 0.0;
+        double startRz = startDisplacement?.Rz ?? 0.0;
+        double endUx = endDisplacement?.Ux ?? 0.0;
+        double endUy = endDisplacement?.Uy ?? 0.0;
+        double endRz = endDisplacement?.Rz ?? 0.0;
+        double memberLength = Math.Sqrt(Math.Pow(endNode.X - startNode.X, 2.0) + Math.Pow(endNode.Y - startNode.Y, 2.0));
+
+        foreach ((double normalizedPosition, string stationLabel) in GetStandardMemberStations())
+        {
+            double ux = Interpolate(startUx, endUx, normalizedPosition);
+            double uy = Interpolate(startUy, endUy, normalizedPosition);
+            double rz = Interpolate(startRz, endRz, normalizedPosition);
+            double baseX = Interpolate(startNode.X, endNode.X, normalizedPosition);
+            double baseY = Interpolate(startNode.Y, endNode.Y, normalizedPosition);
+            VisualizationPoint position = new(baseX + (ux * deformationScale), baseY + (uy * deformationScale));
+            double resultant = Math.Sqrt((ux * ux) + (uy * uy));
+
+            labels.Add(new VisualizationMemberDisplacementLabel(
+                member.Id,
+                stationLabel,
+                normalizedPosition,
+                memberLength * normalizedPosition,
+                position,
+                ux,
+                uy,
+                resultant,
+                rz));
+            allPoints.Add(position);
+        }
+    }
+
+    private static IReadOnlyList<(double NormalizedPosition, string Label)> GetStandardMemberStations() =>
+        new[]
+        {
+            (0.25, "L/4"),
+            (0.50, "L/2"),
+            (0.75, "3L/4"),
+        };
 
     private static IReadOnlyList<VisualizationAnimationFrame> CreateAnimationFrames(
         StructuralModel model,

@@ -29,7 +29,7 @@ The first prototype supports:
 - mouse wheel zoom;
 - pointer drag pan;
 - reset view;
-- layer toggles for undeformed model, deformed shape, diagrams, supports, reactions, dimensions and nodal displacement labels;
+- layer toggles for undeformed model, deformed shape, diagrams, supports, reactions, dimensions, nodal displacement labels and member station displacement labels;
 - summary values for nodes, members, supports, reactions, diagrams, deformation scale and maximum displacement.
 
 The viewer reuses the same SVG result geometry produced by the reporting visualization layer.
@@ -61,12 +61,21 @@ Those features remain reserved for later milestones.
 
 ## Deformation value labels
 
-The viewer embeds nodal displacement labels in the SVG scene and exposes them through the `Displacement labels` toolbar toggle.
+The viewer embeds nodal displacement labels in the SVG scene and exposes them through the `Nodal displacement labels` toolbar toggle.
+
+It also embeds member station displacement labels at:
+
+- `L/4`;
+- `L/2`;
+- `3L/4`.
+
+These are controlled by the `Member station labels` toolbar toggle.
 
 The labels are expressed in engineering-friendly units:
 
 - translational displacements are shown in millimetres;
 - rotations are shown in radians;
-- the maximum displacement callout also reports `Ux`, `Uy`, resultant `u` and `Rz`.
+- the maximum displacement callout also reports `Ux`, `Uy`, resultant `u` and `Rz`;
+- station labels report member id, station, distance from member start, `u`, `Ux`, `Uy` and local `Rz` when available.
 
 This remains a visualization feature only: it does not change solver results.

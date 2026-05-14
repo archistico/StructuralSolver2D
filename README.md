@@ -904,3 +904,8 @@ Milestone 47 adds a lightweight standalone HTML viewer export through `Interacti
 ## M47 extra - Deformation value labels
 
 The static SVG export and the interactive HTML viewer now expose the real displacement values behind the amplified deformed shape. The maximum displacement annotation reports resultant displacement, `Ux`, `Uy` and `Rz`, while the viewer includes a `Displacement labels` toggle for nodal displacement labels expressed in millimetres.
+
+
+## M47 extra - Quarter-span deformation labels
+
+The visualization layer now also prepares displacement labels at standard member stations: `L/4`, `L/2` and `3L/4`. These labels show the real deformation values behind the amplified deformed shape: resultant displacement `u`, components `Ux`/`Uy`, local station distance and local rotation where available. The interactive viewer exposes them through a separate `Member station labels` toggle.
