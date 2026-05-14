@@ -9,6 +9,8 @@ using StructuralSolver2D.Cli.Output;
 using StructuralSolver2D.Core.Model;
 using StructuralSolver2D.Reporting.Csv;
 using StructuralSolver2D.Reporting.Markdown;
+using StructuralSolver2D.Reporting.Visualization;
+using StructuralSolver2D.Analysis.PublicApi;
 
 const string ApplicationName = "StructuralSolver2D";
 
@@ -38,6 +40,16 @@ try
     if (IsCsvExportCommand(args[0]))
     {
         return RunCsvExport(args);
+    }
+
+    if (IsSvgExportCommand(args[0]))
+    {
+        return RunSvgExport(args);
+    }
+
+    if (IsHtmlExportCommand(args[0]))
+    {
+        return RunHtmlExport(args);
     }
 
     CliOutputWriter.WriteError($"Unknown command '{args[0]}'.");
@@ -192,6 +204,127 @@ int RunCsvExport(string[] args)
     return 0;
 }
 
+int RunSvgExport(string[] args)
+{
+    if (args.Length < 3)
+    {
+        CliOutputWriter.WriteError("Missing SVG export arguments.");
+        CliOutputWriter.WriteHelp(ApplicationName, CliExampleModelFactory.GetAvailableExamples());
+        return 1;
+    }
+
+    string inputPath = args[1];
+    string outputPath = args[2];
+
+    StructuralModelJsonFile input = StructuralModelJsonReader.Read(inputPath);
+    string loadCaseId = args.Length >= 4 ? args[3] : input.LoadCaseId;
+
+    StructuralAnalysisOutput output = AnalyzeForVisualization(input.Model, loadCaseId);
+    StructuralVisualizationModel visualization = BuildVisualization(input.Model, output);
+
+    string? directory = Path.GetDirectoryName(outputPath);
+    if (!string.IsNullOrWhiteSpace(directory))
+    {
+        Directory.CreateDirectory(directory);
+    }
+
+    string svg = new SvgStructuralResultExporter().Export(
+        visualization,
+        new SvgExportOptions
+        {
+            Title = input.Title,
+        });
+
+    File.WriteAllText(outputPath, svg);
+    Console.WriteLine($"SVG written to: {outputPath}");
+
+    return 0;
+}
+
+int RunHtmlExport(string[] args)
+{
+    if (args.Length < 3)
+    {
+        CliOutputWriter.WriteError("Missing HTML export arguments.");
+        CliOutputWriter.WriteHelp(ApplicationName, CliExampleModelFactory.GetAvailableExamples());
+        return 1;
+    }
+
+    string inputPath = args[1];
+    string outputPath = args[2];
+
+    StructuralModelJsonFile input = StructuralModelJsonReader.Read(inputPath);
+    string loadCaseId = args.Length >= 4 ? args[3] : input.LoadCaseId;
+
+    StructuralAnalysisOutput output = AnalyzeForVisualization(input.Model, loadCaseId);
+    StructuralVisualizationModel visualization = BuildVisualization(input.Model, output);
+
+    string? directory = Path.GetDirectoryName(outputPath);
+    if (!string.IsNullOrWhiteSpace(directory))
+    {
+        Directory.CreateDirectory(directory);
+    }
+
+    string html = new HtmlStructuralResultPreviewExporter().Export(
+        visualization,
+        new HtmlPreviewExportOptions
+        {
+            Title = input.Title,
+            Description = input.Description,
+            SvgOptions = new SvgExportOptions
+            {
+                Title = input.Title,
+            },
+        });
+
+    File.WriteAllText(outputPath, html);
+    Console.WriteLine($"HTML preview written to: {outputPath}");
+
+    return 0;
+}
+
+StructuralVisualizationModel BuildVisualization(StructuralModel model, StructuralAnalysisOutput output)
+{
+    return new StructuralVisualizationModelBuilder().Build(
+        model,
+        output,
+        new VisualizationOptions
+        {
+            DeformationScale = 100.0,
+            NormalForceDiagramScale = 0.02,
+            ShearForceDiagramScale = 0.02,
+            BendingMomentDiagramScale = 0.02,
+            BoundsPadding = 0.5,
+        });
+}
+
+StructuralAnalysisOutput AnalyzeForVisualization(StructuralModel model, string loadCaseId)
+{
+    var service = new StructuralSolver2DService();
+    bool isCombination = model.LoadCombinations.Any(
+        combination => string.Equals(combination.Id, loadCaseId, StringComparison.OrdinalIgnoreCase));
+
+    return isCombination
+        ? service.AnalyzeLoadCombination(
+            model,
+            loadCaseId,
+            new StructuralAnalysisOptions
+            {
+                IncludeDisplacementDiagrams = true,
+                InternalForceSampleCount = 21,
+                DisplacementSampleCount = 21,
+            })
+        : service.AnalyzeLoadCase(
+            model,
+            loadCaseId,
+            new StructuralAnalysisOptions
+            {
+                IncludeDisplacementDiagrams = true,
+                InternalForceSampleCount = 21,
+                DisplacementSampleCount = 21,
+            });
+}
+
 void WriteCsv(string outputDirectory, string fileName, string content)
 {
     string path = Path.Combine(outputDirectory, fileName);
@@ -283,6 +416,14 @@ static bool IsReportCommand(string command) =>
 static bool IsCsvExportCommand(string command) =>
     string.Equals(command, "export-csv", StringComparison.OrdinalIgnoreCase) ||
     string.Equals(command, "csv", StringComparison.OrdinalIgnoreCase);
+
+static bool IsSvgExportCommand(string command) =>
+    string.Equals(command, "export-svg", StringComparison.OrdinalIgnoreCase) ||
+    string.Equals(command, "svg", StringComparison.OrdinalIgnoreCase);
+
+static bool IsHtmlExportCommand(string command) =>
+    string.Equals(command, "export-html", StringComparison.OrdinalIgnoreCase) ||
+    string.Equals(command, "html", StringComparison.OrdinalIgnoreCase);
 
 internal sealed record AnalysisRun(
     StructuralAnalysisResult Result,

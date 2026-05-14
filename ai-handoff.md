@@ -67,7 +67,7 @@ This is not a GUI and must remain independent from Avalonia, WPF, HTML, SVG and 
 The post-M41 roadmap has been realigned. The next recommended milestone is:
 
 ```text
-Milestone 42 — Static graphical result export: SVG, HTML and PNG
+Milestone 42 — Static graphical result export: SVG and HTML
 ```
 
 The viewer path is still planned, but it now follows the static graphical export/report/export work instead of replacing it. See `docs/structural/development-plan.md`.
@@ -253,6 +253,8 @@ Current implementation:
 - `MarkdownStructuralReportGenerator`
 - `MarkdownReportOptions`
 - `CsvStructuralResultExporter`
+- `SvgStructuralResultExporter`
+- `HtmlStructuralResultPreviewExporter`
 
 Milestone 35 report options:
 
@@ -527,7 +529,7 @@ Before changing sign conventions, update tests, reports and documentation togeth
 The next recommended milestone is:
 
 ```text
-Milestone 42 — Static graphical result export: SVG, HTML and PNG
+Milestone 42 — Static graphical result export: SVG and HTML
 ```
 
 The unified post-M39 roadmap is:

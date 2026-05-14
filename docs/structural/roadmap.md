@@ -963,7 +963,7 @@ The unified sequence is:
 ```text
 40 - Parametric model generators
 41 - Validation example files in JSON
-42 - Static graphical result export: SVG, HTML and PNG
+42 - Static graphical result export: SVG and HTML
 43 - XLSX report export
 44 - PDF technical report
 45 - Section catalog persistence
@@ -1266,7 +1266,7 @@ Automated tests load every JSON file, validate the structural model and analyze 
 ## Unified upcoming milestones after Milestone 41
 
 ```text
-42 - Static graphical result export: SVG, HTML and PNG
+42 - Static graphical result export: SVG and HTML
 43 - XLSX report export
 44 - PDF technical report
 45 - Section catalog persistence

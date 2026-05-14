@@ -51,7 +51,7 @@ The initial files cover rigid-joint frames, small bridge trusses, isostatic trus
 
 ---
 
-### Milestone 42 — Static graphical result export: SVG, HTML and PNG
+### Milestone 42 — Static graphical result export: SVG and HTML
 
 Goal: produce static visual previews from the Milestone 39 visualization model.
 
