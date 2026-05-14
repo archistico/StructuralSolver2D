@@ -882,3 +882,7 @@ This milestone remains fully UI-independent: the new data is still prepared in `
 ### Support orientation refinement
 
 Supports now include `OrientationDegrees` metadata. SVG/HTML exports use it to draw rotated classical support symbols, for example an inclined roller. The current solver still treats restraints as global `Ux`, `Uy` and `Rz` constraints; true mechanically oriented restraints remain a separate future solver extension.
+
+## Support orientation refinement
+
+Rotated translational supports are now mechanically active. `StructuralSupport.OrientationDegrees` is interpreted as the local support-axis rotation for restrained `Ux`/`Uy` directions, and the same value is used by SVG/HTML exports to rotate the support glyph. This enables inclined simple supports / rollers while keeping the model expressed with the existing `StructuralSupport` record.

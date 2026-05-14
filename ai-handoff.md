@@ -565,7 +565,7 @@ Milestone 45 — Section catalog persistence
 
 Status: completed. Core now includes `StructuralSectionCatalog` and `StructuralSectionCatalogJsonSerializer` under `StructuralSolver2D.Core/Model/Sections`. Catalogs store normal `StructuralSection` records, validate values and ids, support JSON load/save and can apply sections to a `StructuralModel`.
 
-Next milestone: 46 — First simple interactive viewer prototype.
+Next milestone: 47 — First simple interactive viewer prototype.
 
 
 ## Recent milestone note
@@ -573,6 +573,6 @@ Next milestone: 46 — First simple interactive viewer prototype.
 Milestone 46 adds support glyphs, scaled support reactions, member-length dimensions, maximum displacement callouts and `N`/`V`/`M` maximum-value labels to the SVG/HTML static preview pipeline. These are implemented in `StructuralSolver2D.Reporting.Visualization` through additional visualization primitives and do not introduce any GUI dependency.
 
 
-## Support orientation note
+## Support orientation refinement
 
-`StructuralSupport` now includes `OrientationDegrees`. This is currently visualization metadata used by SVG/HTML exporters to rotate support glyphs. It is not yet a solver-level inclined restraint transformation. The solver still constrains global `Ux`, `Uy` and `Rz`.
+Support orientation refinement now makes rotated translational restraints mechanically active. `StructuralSupport.OrientationDegrees` is interpreted by the analysis layer as the local support-axis rotation. Restrained local `Ux` and/or local `Uy` are enforced through homogeneous constraint equations, so rotated simple supports / rollers influence the solved displacements and reactions. The SVG/HTML rendering still uses the same orientation for support glyphs. Future work can add named helpers for explicit biella/pendolo and pattino/manicotto support types.

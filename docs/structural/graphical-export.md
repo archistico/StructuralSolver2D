@@ -99,4 +99,4 @@ Example JSON fragment:
 }
 ```
 
-Current limitation: the orientation is graphical/model metadata. The solver still applies restraints to global `Ux`, `Uy` and `Rz`. Full mechanically oriented restraints, such as a biella/pendolo acting along an arbitrary axis, require a dedicated solver milestone.
+Support orientation is now used consistently by both the static SVG/HTML rendering layer and the analysis layer for translational restraints. A simple support with `restrainedUy: true` and a non-zero `orientationDegrees` restrains the corresponding local support direction. Future work can add named helpers for biella/pendolo and pattino/manicotto on top of this mechanism.

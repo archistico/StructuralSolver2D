@@ -215,6 +215,11 @@ public sealed class StructuralModelValidator
                 AddError(issues, "SUPPORT_NODE_NOT_FOUND", $"Support '{support.Id}' references missing node '{support.NodeId}'.", support.Id);
             }
 
+            if (!double.IsFinite(support.OrientationDegrees))
+            {
+                AddError(issues, "SUPPORT_INVALID_ORIENTATION", $"Support '{support.Id}' has invalid orientation angle.", support.Id);
+            }
+
             if (!support.RestrainedUx && !support.RestrainedUy && !support.RestrainedRz)
             {
                 AddWarning(issues, "SUPPORT_WITHOUT_RESTRAINTS", $"Support '{support.Id}' does not restrain any degree of freedom.", support.Id);

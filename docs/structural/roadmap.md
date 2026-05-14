@@ -1321,9 +1321,9 @@ Added:
 - maximum-value labels on `N`, `V` and `M` diagrams;
 - visualization data structures for supports, reactions and annotations.
 
-These additions remain in the reporting/visualization layer and do not change solver equations.
+These additions are primarily in the reporting/visualization layer. A later refinement also made oriented translational support restraints mechanically active in the analysis layer.
 
 
 ### Support orientation refinement
 
-Added support orientation metadata for rotated support symbols in static SVG/HTML exports. This is intentionally visualization-level metadata; true inclined restraint equations remain future work.
+Added mechanically active support orientation for translational restraints. `StructuralSupport.OrientationDegrees` is now used by the analysis layer to enforce restrained local support directions through homogeneous constraint equations. SVG/HTML exports continue to use the same angle for support glyph rendering.

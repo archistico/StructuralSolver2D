@@ -1,4 +1,5 @@
 using StructuralSolver2D.Analysis.Results;
+using StructuralSolver2D.Analysis.Constraints;
 using StructuralSolver2D.Analysis.Solvers;
 using StructuralSolver2D.Core.Model;
 using StructuralSolver2D.Core.Model.Enums;
@@ -91,30 +92,22 @@ public sealed class Truss2DAnalyzer
         AssembleGlobalStiffness(model, nodeIndexById, globalStiffness);
         AssembleLoads(model, loadCaseFactors, nodeIndexById, globalLoadVector);
 
-        bool[] restrainedDofs = BuildRestrainedDofMask(model, nodeIndexById, totalDofCount);
-        List<int> freeDofs = Enumerable.Range(0, totalDofCount).Where(index => !restrainedDofs[index]).ToList();
-
-        if (freeDofs.Count == 0)
-        {
-            throw new StructuralAnalysisException("The model has no free translational degrees of freedom to solve.");
-        }
-
-        double[,] reducedStiffness = ExtractSubmatrix(globalStiffness, freeDofs, freeDofs);
-        double[] reducedLoadVector = ExtractSubvector(globalLoadVector, freeDofs);
-        double[] reducedDisplacements = DenseLinearSystemSolver.Solve(reducedStiffness, reducedLoadVector);
-        double[] globalDisplacements = new double[totalDofCount];
-
-        for (int index = 0; index < freeDofs.Count; index++)
-        {
-            globalDisplacements[freeDofs[index]] = reducedDisplacements[index];
-        }
+        double[] globalDisplacements = SupportConstraintSystem.SolveConstrainedSystem(
+            model,
+            nodeIndexById,
+            DofsPerNode,
+            totalDofCount,
+            globalStiffness,
+            globalLoadVector,
+            includeRotationalDof: false,
+            addInactiveDofConstraints: false);
 
         double[] globalResidual = Subtract(Multiply(globalStiffness, globalDisplacements), globalLoadVector);
 
         return new StructuralAnalysisResult(
             resultId,
             BuildNodalDisplacementResults(model, nodeIndexById, globalDisplacements),
-            BuildSupportReactionResults(model, nodeIndexById, globalResidual),
+            SupportConstraintSystem.BuildSupportReactionResults(model, nodeIndexById, DofsPerNode, globalResidual, includeRotationalDof: false),
             BuildMemberEndForceResults(model, nodeIndexById, globalDisplacements));
     }
 

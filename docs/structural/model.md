@@ -316,10 +316,16 @@ The model should detect at least:
 Numerical instability must produce a controlled analysis failure, not random results.
 
 
-## Support orientation metadata
+## Support orientation
 
 Supports can optionally carry `OrientationDegrees`, measured counterclockwise in model coordinates.
 
-At the current stage this value is used by the reporting/visualization layer to rotate classical support symbols in SVG/HTML exports. It does not yet alter the mechanical boundary-condition equations, which are still expressed in global `Ux`, `Uy` and `Rz` restraints.
+The analysis layer interprets this angle as the local support-axis rotation for translational restraints:
 
-This separation is intentional: graphical support orientation is useful immediately, while true inclined restraints require a later solver-level extension.
+- `RestrainedUx` restrains local support `Ux`;
+- `RestrainedUy` restrains local support `Uy`;
+- `RestrainedRz` still restrains the nodal rotation `Rz`.
+
+For example, a simple support with `RestrainedUy = true` and `OrientationDegrees = 30` restrains the local support direction rotated by 30 degrees. The SVG/HTML exporters use the same angle to rotate the classical support symbol.
+
+Named helpers for explicit biella/pendolo and pattino/manicotto support types can be added later on top of this oriented-constraint mechanism.

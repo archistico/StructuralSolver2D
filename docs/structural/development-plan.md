@@ -237,4 +237,6 @@ The next milestone is Milestone 47 — First simple interactive viewer prototype
 
 ### Support orientation refinement
 
-Added support orientation metadata for rotated support symbols in static SVG/HTML exports. This is intentionally visualization-level metadata; true inclined restraint equations remain future work.
+Added mechanically oriented translational support constraints for `StructuralSupport.OrientationDegrees`.
+
+The analysis layer now enforces restrained local support directions through homogeneous constraint equations. This makes rotated simple supports / rollers structurally active, not only graphical. Axis-aligned support behavior remains unchanged.

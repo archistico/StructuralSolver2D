@@ -1,5 +1,6 @@
 using StructuralSolver2D.Analysis;
 using StructuralSolver2D.Analysis.Frame2D;
+using StructuralSolver2D.Analysis.Results;
 using StructuralSolver2D.Core.Model;
 using StructuralSolver2D.Core.Model.Enums;
 
@@ -41,6 +42,33 @@ public sealed class Frame2DAnalyzerTests
         Assert.Equal(10.0, result.GetReaction("SA").Fy, precision: 6);
         Assert.Equal(50.0, result.GetReaction("SA").Mz, precision: 6);
         Assert.True(result.GetDisplacement("B").Uy < 0);
+    }
+
+
+    [Fact]
+    public void Analyze_WithRotatedSimpleSupport_ShouldConstrainLocalSupportDirection()
+    {
+        const double supportAngleDegrees = 45.0;
+        double angle = supportAngleDegrees * Math.PI / 180.0;
+
+        StructuralModel model = CreateBaseBeamModel()
+            .AddSupport(StructuralSupport.Fixed("SA", "A"))
+            .AddSupport(StructuralSupport.SimpleSupport("SB", "B", orientationDegrees: supportAngleDegrees))
+            .AddLoad(StructuralLoad.NodalForce("P1", "LC1", "B", StructuralLoadDirection.GlobalX, 10.0));
+
+        Frame2DAnalyzer analyzer = new();
+
+        var result = analyzer.Analyze(model, "LC1");
+        NodalDisplacementResult displacement = result.GetDisplacement("B");
+        SupportReactionResult reaction = result.GetReaction("SB");
+
+        double restrainedLocalDisplacement = (-Math.Sin(angle) * displacement.Ux) + (Math.Cos(angle) * displacement.Uy);
+        double freeLocalReaction = (Math.Cos(angle) * reaction.Fx) + (Math.Sin(angle) * reaction.Fy);
+
+        Assert.Equal(0.0, restrainedLocalDisplacement, precision: 12);
+        Assert.Equal(0.0, freeLocalReaction, precision: 6);
+        Assert.True(Math.Abs(reaction.Fx) > 1e-6);
+        Assert.True(Math.Abs(reaction.Fy) > 1e-6);
     }
 
     [Fact]

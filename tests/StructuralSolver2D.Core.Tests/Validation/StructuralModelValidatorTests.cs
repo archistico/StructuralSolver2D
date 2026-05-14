@@ -105,6 +105,21 @@ public sealed class StructuralModelValidatorTests
         Assert.Contains(result.Errors, issue => issue.Code == "SUPPORT_NODE_NOT_FOUND");
     }
 
+
+    [Fact]
+    public void Validate_ShouldDetectInvalidSupportOrientation()
+    {
+        StructuralModel model = CreateValidSimpleSupportedBeamModel();
+        model.Supports.Clear();
+        model.AddSupport(new StructuralSupport("S_BAD", "A", false, true, false, OrientationDegrees: double.NaN));
+        StructuralModelValidator validator = new();
+
+        StructuralModelValidationResult result = validator.Validate(model);
+
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, issue => issue.Code == "SUPPORT_INVALID_ORIENTATION");
+    }
+
     [Fact]
     public void Validate_ShouldWarnForSupportWithoutRestraints()
     {
