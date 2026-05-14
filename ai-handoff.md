@@ -48,7 +48,7 @@ The code should therefore remain clear, explicit and easy to test. Avoid clever 
 
 ## Latest milestone
 
-Milestone 30 adds initial theory documentation under `docs/theory/`, explaining the matrix method, Frame2D and Truss2D elements, equivalent nodal loads, local/global coordinates, sign conventions, displacement interpolation and validation strategy.
+Milestone 34 adds `StructuralMaterialLibrary` under `StructuralSolver2D.Core.Model.Materials`. It provides initial elastic material presets for steel, timber, glulam and concrete while preserving the explicit `StructuralMaterial` API.
 
 Important convention:
 
@@ -147,6 +147,7 @@ Main objects:
 - `StructuralNode`
 - `StructuralMember`
 - `StructuralMaterial`
+- `StructuralMaterialLibrary`
 - `StructuralSection`
 - `StructuralSupport`
 - `StructuralLoadCase`
@@ -917,4 +918,25 @@ CircularHollow(id, outerDiameter, innerDiameter)
 
 All dimensions are in meters. The generated `StructuralSection` records use area in m² and second moment of area in m⁴. The helper is intentionally simple and geometric: it does not select materials, does not imply a catalog profile, and does not perform code-compliant section verification.
 
-Next recommended milestone: Milestone 34 — initial material library.
+Next recommended milestone: Milestone 35 — advanced educational Markdown reports.
+
+
+---
+
+## Milestone 34 update - Initial material library
+
+Milestone 34 adds `StructuralMaterialLibrary` in `StructuralSolver2D.Core.Model.Materials`.
+
+Available presets:
+
+- `SteelS235()`;
+- `SteelS275()`;
+- `SteelS355()`;
+- `TimberC24()`;
+- `GlulamGL24h()`;
+- `GenericConcrete()`;
+- `ConcreteC25_30()`.
+
+The helpers return ordinary `StructuralMaterial` records. They provide elastic modulus and unit weight only. They are not strength-class design implementations and must not be used as a substitute for normative verification.
+
+Next recommended work: Milestone 35, focused on advanced educational Markdown reports.

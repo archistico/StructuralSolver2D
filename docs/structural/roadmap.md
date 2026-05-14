@@ -56,7 +56,8 @@ The project currently includes:
 - diagnostic analysis errors;
 - README and AI handoff documentation;
 - preliminary SLE deflection checks;
-- parametric section helpers.
+- parametric section helpers;
+- initial elastic material library.
 
 ---
 
@@ -950,62 +951,23 @@ Recently completed short-term milestones:
 30 - Initial theory documentation
 31 - Improved diagrams and characteristic points
 32 - Preliminary SLE deflection checks
+33 - Parametric sections
+34 - Initial material library
 ```
 
 The next recommended step is:
 
 ```text
-33 - Parametric sections
+35 - Advanced educational reports
 ```
 
 After that, the project can move toward:
 
 ```text
-34 - Material library
-35 - Advanced educational reports
 36 - CSV export
 37 - Public API stabilization
 38 - First technical release
 ```
-
----
-
-# Long-term direction
-
-StructuralSolver2D should remain:
-
-```text
-an independent structural analysis engine
-```
-
-Possible future clients:
-
-- CLI;
-- report generator;
-- educational examples;
-- OpenCad2D adapter;
-- lightweight viewer;
-- external applications.
-
-The long-term architecture should remain:
-
-```text
-Core
-  structural model
-
-Analysis
-  solvers and post-processing
-
-Reporting
-  textual and document output
-
-CLI
-  command line usage
-
-Future UI / CAD clients
-  optional external consumers
-```
-
 
 ---
 
@@ -1158,7 +1120,7 @@ The new theory documentation explains:
 The next recommended milestone is:
 
 ```text
-Milestone 34 — Initial material library
+Milestone 35 — Advanced educational Markdown reports
 ```
 
-This should add predefined elastic materials while making clear that material presets are not complete normative design rules.
+This should make the generated reports more useful for study, debugging and validation.

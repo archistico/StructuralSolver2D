@@ -18,7 +18,7 @@ The current implementation focuses on first-order linear elastic analysis of pla
 Supported at the current stage:
 
 - independent structural model;
-- nodes, members, materials, explicit sections, parametric sections and supports;
+- nodes, members, materials, elastic material presets, explicit sections, parametric sections and supports;
 - load cases and basic loads;
 - 2D frame analysis with three degrees of freedom per node: `Ux`, `Uy`, `Rz`;
 - nodal forces;
@@ -31,6 +31,7 @@ Supported at the current stage:
 - characteristic internal-force points for reporting and future graphical output;
 - preliminary serviceability deflection checks;
 - parametric section helpers for rectangular, timber rectangular, solid circular and hollow circular sections;
+- initial elastic material library for common steel, timber, glulam and concrete presets;
 - result extrema and analysis summaries;
 - CLI examples;
 - JSON input examples;
@@ -291,6 +292,31 @@ These helpers compute area `A` in m² and in-plane bending inertia `I` in m⁴. 
 
 ---
 
+
+## Elastic material presets
+
+Milestone 34 adds `StructuralMaterialLibrary` in `StructuralSolver2D.Core.Model.Materials`.
+
+It generates ordinary `StructuralMaterial` records for common elastic analysis presets using internal units:
+
+```csharp
+var material = StructuralMaterialLibrary.SteelS235();
+```
+
+Available helpers:
+
+- `SteelS235()`;
+- `SteelS275()`;
+- `SteelS355()`;
+- `TimberC24()`;
+- `GlulamGL24h()`;
+- `GenericConcrete()`;
+- `ConcreteC25_30()`.
+
+The presets currently provide only Young's modulus `E` in kN/m² and optional unit weight in kN/m³. They are not normative design definitions and do not include strengths, partial factors, national annex rules, duration factors, fire checks, buckling checks or connection checks.
+
+---
+
 ## Validation approach
 
 Validation is a core part of the project.
@@ -356,18 +382,18 @@ Milestone 30 - Initial theory documentation
 Milestone 31 - Improved internal-force diagrams and characteristic points
 Milestone 32 - Preliminary SLE deflection checks
 Milestone 33 - Parametric sections
+Milestone 34 - Initial material library
 ```
 
 Recommended next milestone:
 
 ```text
-Milestone 34 - Initial material library
+Milestone 35 - Advanced educational Markdown reports
 ```
 
 Medium-term roadmap:
 
 ```text
-Milestone 34 - Initial material library
 Milestone 35 - Advanced educational Markdown reports
 Milestone 36 - CSV export
 Milestone 37 - Public API stabilization
@@ -717,4 +743,6 @@ This feature is intentionally conservative in wording and scope: it is a prelimi
 
 Milestone 33 adds parametric section helpers through `StructuralSectionFactory`. The helpers generate ordinary `StructuralSection` records for rectangular, timber rectangular, solid circular and hollow circular sections.
 
-Next recommended work: Milestone 34, focused on an initial elastic material library.
+Milestone 34 adds initial elastic material presets through `StructuralMaterialLibrary`. The presets generate ordinary `StructuralMaterial` records for common steel, timber, glulam and concrete analysis inputs. They are convenience values for linear elastic analysis, not complete normative design definitions.
+
+Next recommended work: Milestone 35, focused on advanced educational Markdown reports.

@@ -197,17 +197,31 @@ Conceptual properties:
 Id
 Name
 ElasticModulus
-Density
+UnitWeight
 ```
 
 Internal units:
 
 ```text
 ElasticModulus = kN/m²
-Density = kN/m³ or mass density in a later documented convention
+UnitWeight = kN/m³
 ```
 
-Density requires a careful convention before self-weight is implemented.
+`UnitWeight` is optional. The current analyzer does not automatically generate self-weight from it.
+
+Milestone 34 adds `StructuralMaterialLibrary` in `StructuralSolver2D.Core.Model.Materials` for common elastic material presets:
+
+```text
+SteelS235()
+SteelS275()
+SteelS355()
+TimberC24()
+GlulamGL24h()
+GenericConcrete()
+ConcreteC25_30()
+```
+
+The helper methods return ordinary `StructuralMaterial` records. They provide elastic modulus and unit weight only. They are convenience presets for linear elastic analysis, not complete normative material definitions.
 
 ## StructuralSection
 
