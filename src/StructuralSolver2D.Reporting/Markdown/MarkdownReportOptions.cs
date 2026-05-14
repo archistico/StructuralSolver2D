@@ -31,6 +31,16 @@ public sealed class MarkdownReportOptions
     public int MaxSamplesPerMember { get; set; } = 21;
 
     /// <summary>
+    /// Gets or sets whether characteristic internal-force diagram points should be included in the report.
+    /// </summary>
+    public bool IncludeCharacteristicPoints { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the maximum number of characteristic points printed for each member.
+    /// </summary>
+    public int MaxCharacteristicPointsPerMember { get; set; } = 30;
+
+    /// <summary>
     /// Gets or sets whether sampled displacement/deformed-shape values should be included in the report.
     /// </summary>
     public bool IncludeDisplacementSamples { get; set; }

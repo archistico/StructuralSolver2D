@@ -48,13 +48,14 @@ The code should therefore remain clear, explicit and easy to test. Avoid clever 
 
 ## Latest milestone
 
-Milestone 29 reorganizes user-facing examples into categorized folders and documents the distinction between examples and benchmarks.
+Milestone 30 adds initial theory documentation under `docs/theory/`, explaining the matrix method, Frame2D and Truss2D elements, equivalent nodal loads, local/global coordinates, sign conventions, displacement interpolation and validation strategy.
 
 Important convention:
 
 ```text
-examples/     user-facing files for learning and CLI usage
-benchmarks/   validation and regression cases with expected results
+examples/      user-facing files for learning and CLI usage
+benchmarks/    validation and regression cases with expected results
+docs/theory/   educational notes explaining solver assumptions and mechanics
 ```
 
 Preferred example layout:
@@ -98,6 +99,16 @@ benchmarks/
   mixed/
   convergence/
   expected/
+
+docs/theory/
+  matrix-method.md
+  frame2d-element.md
+  truss2d-element.md
+  equivalent-nodal-loads.md
+  local-global-coordinates.md
+  sign-conventions.md
+  displacement-interpolation.md
+  validation-strategy.md
 
 docs/structural/
   vision.md
@@ -828,3 +839,40 @@ When adding a new solver feature:
 2. add expected results;
 3. extend the benchmark runner only if needed;
 4. then add user-facing examples if useful.
+
+
+---
+
+## Milestone 30 completion update
+
+Milestone 30 adds the first educational theory documentation layer.
+
+Added files:
+
+```text
+docs/theory/README.md
+docs/theory/matrix-method.md
+docs/theory/frame2d-element.md
+docs/theory/truss2d-element.md
+docs/theory/equivalent-nodal-loads.md
+docs/theory/local-global-coordinates.md
+docs/theory/sign-conventions.md
+docs/theory/displacement-interpolation.md
+docs/theory/validation-strategy.md
+```
+
+Purpose:
+
+- explain the current first-order linear elastic assumptions;
+- document the matrix stiffness method used by the solver;
+- clarify Frame2D and Truss2D behavior;
+- document local/global coordinates and sign conventions;
+- explain equivalent nodal loads and displacement interpolation;
+- describe the validation strategy and benchmark philosophy.
+
+When adding new solver capabilities, update the corresponding theory note or add a new one.
+
+
+## Milestone 31 status
+
+Characteristic internal-force point detection has been added. Use `Frame2DInternalForceCharacteristicFinder` to derive member endpoints, sampled extrema, zero crossings, bending-moment extremum candidates from zero shear, and candidate shear discontinuities from `MemberInternalForceDiagram` instances. The Markdown report includes a characteristic-points section by default. Remember that these points are detected from sampled diagrams, not from exact analytical closed-form functions.

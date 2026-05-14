@@ -141,6 +141,38 @@ public sealed class MarkdownStructuralReportGeneratorTests
         Assert.DoesNotContain("| Position | x [m] | u local [m] | v local [m] | rz local [rad] | Ux global [m] | Uy global [m] |", markdown);
     }
 
+
+    [Fact]
+    public void Generate_ShouldIncludeCharacteristicInternalForcePointsByDefault()
+    {
+        StructuralModel model = CreateSimpleSupportedBeam();
+        (StructuralAnalysisResult result, IReadOnlyList<MemberInternalForceDiagram> diagrams, StructuralAnalysisSummary summary) = Analyze(model, sampleCount: 21);
+
+        string markdown = new MarkdownStructuralReportGenerator().Generate(model, result, diagrams, summary);
+
+        Assert.Contains("## Characteristic internal-force points", markdown);
+        Assert.Contains("BendingMomentExtremumCandidate", markdown);
+        Assert.Contains("ZeroCrossing", markdown);
+        Assert.Contains("sampled maximum absolute M", markdown);
+    }
+
+    [Fact]
+    public void Generate_ShouldOmitCharacteristicPointsWhenOptionIsDisabled()
+    {
+        StructuralModel model = CreateSimpleSupportedBeam();
+        (StructuralAnalysisResult result, IReadOnlyList<MemberInternalForceDiagram> diagrams, StructuralAnalysisSummary summary) = Analyze(model, sampleCount: 21);
+
+        string markdown = new MarkdownStructuralReportGenerator().Generate(
+            model,
+            result,
+            diagrams,
+            summary,
+            new MarkdownReportOptions { IncludeCharacteristicPoints = false });
+
+        Assert.Contains("Characteristic internal-force points are omitted by report options.", markdown);
+        Assert.DoesNotContain("| Kind | Quantity | Position | x [m] | Value | Description |", markdown);
+    }
+
     private static (StructuralAnalysisResult Result, IReadOnlyList<MemberInternalForceDiagram> Diagrams, StructuralAnalysisSummary Summary) Analyze(
         StructuralModel model,
         int sampleCount = 21)

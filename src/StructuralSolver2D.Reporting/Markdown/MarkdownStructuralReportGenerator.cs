@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+using StructuralSolver2D.Analysis.Frame2D;
 using StructuralSolver2D.Analysis.Results;
 using StructuralSolver2D.Core.Model;
 
@@ -60,6 +61,7 @@ public sealed class MarkdownStructuralReportGenerator
         WriteModel(builder, model);
         WriteResults(builder, result, summary);
         WriteInternalForceDiagrams(builder, diagrams, options);
+        WriteCharacteristicPoints(builder, diagrams, options);
         WriteDisplacementDiagrams(builder, displacementDiagrams, options);
         WriteNotes(builder);
 
@@ -371,6 +373,66 @@ public sealed class MarkdownStructuralReportGenerator
         }
     }
 
+
+    private static void WriteCharacteristicPoints(
+        StringBuilder builder,
+        IReadOnlyList<MemberInternalForceDiagram> diagrams,
+        MarkdownReportOptions options)
+    {
+        builder.AppendLine("## Characteristic internal-force points");
+        builder.AppendLine();
+
+        if (diagrams.Count == 0)
+        {
+            builder.AppendLine("No internal-force diagrams are available for characteristic point detection.");
+            builder.AppendLine();
+            return;
+        }
+
+        if (!options.IncludeCharacteristicPoints)
+        {
+            builder.AppendLine("Characteristic internal-force points are omitted by report options.");
+            builder.AppendLine();
+            return;
+        }
+
+        builder.AppendLine("The values below are detected from sampled N/V/M diagrams. Zero crossings between adjacent samples are linearly interpolated; exact analytical characteristic points may require dedicated closed-form post-processing for some load configurations.");
+        builder.AppendLine();
+
+        Frame2DInternalForceCharacteristicFinder finder = new();
+        IReadOnlyList<MemberInternalForceCharacteristics> characteristics = finder.FindAll(diagrams);
+
+        foreach (MemberInternalForceCharacteristics memberCharacteristics in characteristics)
+        {
+            builder.AppendLine($"### Member `{memberCharacteristics.MemberId}`");
+            builder.AppendLine();
+            builder.AppendLine($"Length: **{Format(memberCharacteristics.Length)} m**");
+            builder.AppendLine();
+
+            if (memberCharacteristics.Points.Count == 0)
+            {
+                builder.AppendLine("No characteristic points were detected.");
+                builder.AppendLine();
+                continue;
+            }
+
+            builder.AppendLine("| Kind | Quantity | Position | x [m] | Value | Description |");
+            builder.AppendLine("|---|---|---:|---:|---:|---|");
+
+            foreach (InternalForceCharacteristicPoint point in memberCharacteristics.Points.Take(Math.Max(0, options.MaxCharacteristicPointsPerMember)))
+            {
+                builder.AppendLine($"| {point.Kind} | {point.Quantity} | {Format(point.Position)} | {Format(point.Distance)} | {Format(point.Value)} | {Text(point.Description)} |");
+            }
+
+            if (memberCharacteristics.Points.Count > options.MaxCharacteristicPointsPerMember)
+            {
+                builder.AppendLine("| ... | ... | ... | ... | ... | ... |");
+            }
+
+            builder.AppendLine();
+        }
+    }
+
     private static void WriteDisplacementDiagrams(
         StringBuilder builder,
         IReadOnlyList<MemberDisplacementDiagram> displacementDiagrams,
@@ -424,7 +486,7 @@ public sealed class MarkdownStructuralReportGenerator
         builder.AppendLine("## Notes and limitations");
         builder.AppendLine();
         builder.AppendLine("- The report is generated from a 2D frame linear static analysis result.");
-        builder.AppendLine("- Internal forces are sampled values; exact extrema may require analytical post-processing for some load configurations.");
+        builder.AppendLine("- Internal forces and characteristic points are derived from sampled values; exact extrema may require analytical post-processing for some load configurations.");
         builder.AppendLine("- Deformed-shape samples use finite-element interpolation of nodal displacements; for benchmark deflection checks, critical points should be modeled as explicit nodes when closed-form comparison is required.");
         builder.AppendLine("- The current scope is analysis of simple plane structural schemes, not complete normative design verification.");
         builder.AppendLine("- Results must be checked by a qualified professional before any practical engineering use.");

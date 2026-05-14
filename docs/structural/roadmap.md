@@ -1072,3 +1072,44 @@ examples/README.md
 ```
 
 This milestone prepares the project for a larger benchmark and example catalog without mixing educational examples with validation cases.
+
+---
+
+## Milestone 30 completion update
+
+Milestone 30 adds the initial theory documentation layer.
+
+Added files:
+
+```text
+docs/theory/README.md
+docs/theory/matrix-method.md
+docs/theory/frame2d-element.md
+docs/theory/truss2d-element.md
+docs/theory/equivalent-nodal-loads.md
+docs/theory/local-global-coordinates.md
+docs/theory/sign-conventions.md
+docs/theory/displacement-interpolation.md
+docs/theory/validation-strategy.md
+```
+
+This milestone reinforces the educational purpose of StructuralSolver2D.
+
+The new theory documentation explains:
+
+- the displacement/matrix stiffness method;
+- the current Frame2D element assumptions;
+- the current Truss2D element assumptions;
+- equivalent nodal loads;
+- local/global coordinate transformations;
+- sign conventions;
+- displacement interpolation and deformed-shape sampling;
+- benchmark and validation strategy.
+
+The next recommended milestone remains:
+
+```text
+Milestone 31 — Improved internal-force diagrams and characteristic points
+```
+
+which should build on the existing internal-force sampler by detecting important points such as maximum/minimum bending moments, zero-shear locations, point-load discontinuities and diagram segment boundaries.

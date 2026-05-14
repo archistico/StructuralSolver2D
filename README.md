@@ -640,3 +640,41 @@ See also:
 - `examples/README.md`
 - `docs/structural/examples-and-benchmarks.md`
 - `docs/structural/benchmark-strategy.md`
+
+---
+
+## Theory documentation
+
+Milestone 30 adds the first theory documentation layer under:
+
+```text
+docs/theory/
+```
+
+The goal is to make the project useful not only as a solver, but also as an educational codebase for studying matrix-based structural analysis.
+
+Current theory notes:
+
+- `docs/theory/matrix-method.md`
+- `docs/theory/frame2d-element.md`
+- `docs/theory/truss2d-element.md`
+- `docs/theory/equivalent-nodal-loads.md`
+- `docs/theory/local-global-coordinates.md`
+- `docs/theory/sign-conventions.md`
+- `docs/theory/displacement-interpolation.md`
+- `docs/theory/validation-strategy.md`
+
+These documents explain the assumptions, coordinate conventions, element behavior, equivalent nodal loads, displacement interpolation and validation strategy used by the current solver.
+
+
+## Milestone 31 - Characteristic internal-force points
+
+The post-processing pipeline now detects characteristic points on sampled internal-force diagrams:
+
+- member start and end points;
+- sampled minimum, maximum and maximum absolute values of `N`, `V` and `M`;
+- zero crossings of `N`, `V` and `M`;
+- bending-moment extremum candidates detected from zero shear;
+- candidate shear discontinuities between adjacent samples.
+
+These points are derived from sampled diagrams and are intended for reporting, validation, future graphical output and educational inspection. Exact analytical locations may require dedicated closed-form post-processing for specific load configurations.
