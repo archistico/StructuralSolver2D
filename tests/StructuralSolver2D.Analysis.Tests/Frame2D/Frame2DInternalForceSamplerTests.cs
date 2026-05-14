@@ -166,6 +166,33 @@ public sealed class Frame2DInternalForceSamplerTests
         Assert.Equal(18.0, diagram.MaxAbsBendingMoment, precision: 6);
     }
 
+
+    [Fact]
+    public void SampleMember_SimplySupportedBeamWithTriangularDistributedLoad_ShouldReturnQuadraticShearAndCubicMoment()
+    {
+        const double length = 6.0;
+        const double endLoad = 9.0;
+
+        StructuralModel model = CreateSingleMemberBeamModel(length)
+            .AddSupport(StructuralSupport.Hinge("SA", "A"))
+            .AddSupport(StructuralSupport.SimpleSupport("SB", "B"))
+            .AddLoad(StructuralLoad.LinearDistributedLoad("T1", "LC1", "M1", StructuralLoadDirection.GlobalY, 0.0, -endLoad));
+
+        var result = new Frame2DAnalyzer().Analyze(model, "LC1");
+        var diagram = new Frame2DInternalForceSampler().SampleMember(model, result, "M1", sampleCount: 3);
+
+        var start = diagram.GetClosestSample(0.0);
+        var middle = diagram.GetClosestSample(0.5);
+        var end = diagram.GetClosestSample(1.0);
+
+        Assert.Equal(9.0, start.ShearForce, precision: 6);
+        Assert.Equal(0.0, start.BendingMoment, precision: 6);
+        Assert.Equal(2.25, middle.ShearForce, precision: 6);
+        Assert.Equal(20.25, middle.BendingMoment, precision: 6);
+        Assert.Equal(-18.0, end.ShearForce, precision: 6);
+        Assert.Equal(0.0, end.BendingMoment, precision: 6);
+    }
+
     [Fact]
     public void SampleMember_WithInvalidSampleCount_ShouldThrowClearException()
     {

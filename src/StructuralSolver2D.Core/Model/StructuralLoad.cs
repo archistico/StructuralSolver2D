@@ -7,7 +7,7 @@ namespace StructuralSolver2D.Core.Model;
 /// Internal units depend on <see cref="Type"/>:
 /// nodal force and point member load use kilonewton [kN],
 /// nodal moment uses kilonewton meter [kNm],
-/// uniform distributed load uses kilonewton per meter [kN/m].
+/// uniform and linearly varying distributed loads use kilonewton per meter [kN/m].
 /// </summary>
 /// <param name="Id">Unique load identifier.</param>
 /// <param name="LoadCaseId">Identifier of the load case that owns this load.</param>
@@ -18,6 +18,7 @@ namespace StructuralSolver2D.Core.Model;
 /// <param name="Value">Load value in internal units.</param>
 /// <param name="Position">Optional normalized member position, from 0.0 to 1.0.</param>
 /// <param name="Label">Optional user-facing label.</param>
+/// <param name="EndValue">Optional end value for linearly varying distributed loads.</param>
 public sealed record StructuralLoad(
     string Id,
     string LoadCaseId,
@@ -27,7 +28,8 @@ public sealed record StructuralLoad(
     StructuralLoadDirection Direction,
     double Value,
     double? Position = null,
-    string? Label = null)
+    string? Label = null,
+    double? EndValue = null)
 {
     /// <summary>
     /// Creates a nodal force in the global X or Y direction.
@@ -76,4 +78,18 @@ public sealed record StructuralLoad(
         double position,
         string? label = null) =>
         new(id, loadCaseId, StructuralLoadType.PointLoadOnMember, StructuralLoadTargetType.Member, memberId, direction, value, position, label);
+
+    /// <summary>
+    /// Creates a linearly varying distributed load along a member.
+    /// Start and end values are expressed in kN/m in the selected direction.
+    /// </summary>
+    public static StructuralLoad LinearDistributedLoad(
+        string id,
+        string loadCaseId,
+        string memberId,
+        StructuralLoadDirection direction,
+        double startValue,
+        double endValue,
+        string? label = null) =>
+        new(id, loadCaseId, StructuralLoadType.LinearDistributedLoad, StructuralLoadTargetType.Member, memberId, direction, startValue, null, label, endValue);
 }

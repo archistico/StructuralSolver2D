@@ -187,6 +187,129 @@ public sealed class Frame2DAnalyzerValidationTests
         Assert.Equal(0.0, result.GetReaction("SA").Mz, precision: 6);
     }
 
+
+    [Fact]
+    public void Analyze_SimplySupportedBeamWithTriangularDistributedLoad_ShouldMatchClosedFormReactions()
+    {
+        const double length = 6.0;
+        const double endLoad = 9.0;
+
+        StructuralModel model = CreateSingleMemberBeamModel(length)
+            .AddSupport(StructuralSupport.Hinge("SA", "A"))
+            .AddSupport(StructuralSupport.SimpleSupport("SB", "B"))
+            .AddLoad(StructuralLoad.LinearDistributedLoad("T1", "LC1", "M1", StructuralLoadDirection.GlobalY, 0.0, -endLoad));
+
+        Frame2DAnalyzer analyzer = new();
+
+        var result = analyzer.Analyze(model, "LC1");
+
+        double totalLoad = endLoad * length / 2.0;
+        double expectedReactionA = totalLoad / 3.0;
+        double expectedReactionB = totalLoad * 2.0 / 3.0;
+
+        Assert.Equal(expectedReactionA, result.GetReaction("SA").Fy, precision: 6);
+        Assert.Equal(expectedReactionB, result.GetReaction("SB").Fy, precision: 6);
+        Assert.Equal(0.0, result.GetReaction("SA").Mz, precision: 6);
+    }
+
+    [Fact]
+    public void Analyze_CantileverWithTriangularDistributedLoadIncreasingToTip_ShouldMatchClosedFormReactions()
+    {
+        const double length = 5.0;
+        const double endLoad = 12.0;
+
+        StructuralModel model = CreateSingleMemberBeamModel(length)
+            .AddSupport(StructuralSupport.Fixed("SA", "A"))
+            .AddLoad(StructuralLoad.LinearDistributedLoad("T1", "LC1", "M1", StructuralLoadDirection.GlobalY, 0.0, -endLoad));
+
+        Frame2DAnalyzer analyzer = new();
+
+        var result = analyzer.Analyze(model, "LC1");
+
+        double totalLoad = endLoad * length / 2.0;
+        double expectedMoment = endLoad * length * length / 3.0;
+
+        Assert.Equal(totalLoad, result.GetReaction("SA").Fy, precision: 6);
+        Assert.Equal(expectedMoment, result.GetReaction("SA").Mz, precision: 6);
+    }
+
+    [Fact]
+    public void AnalyzeCombination_ShouldApplyManualLoadFactorsToReactions()
+    {
+        const double length = 5.0;
+        const double permanentLoad = 10.0;
+        const double variableLoad = 4.0;
+
+        StructuralModel model = CreateSingleMemberBeamModel(length)
+            .AddLoadCase(new StructuralLoadCase("Q1", "Variable load case"))
+            .AddSupport(StructuralSupport.Hinge("SA", "A"))
+            .AddSupport(StructuralSupport.SimpleSupport("SB", "B"))
+            .AddLoad(StructuralLoad.UniformDistributedLoad("G1_Q", "LC1", "M1", StructuralLoadDirection.GlobalY, -permanentLoad))
+            .AddLoad(StructuralLoad.UniformDistributedLoad("Q1_Q", "Q1", "M1", StructuralLoadDirection.GlobalY, -variableLoad))
+            .AddLoadCombination(new StructuralLoadCombination(
+                "ULS1",
+                "ULS 1",
+                new[]
+                {
+                    new StructuralLoadCombinationTerm("LC1", 1.35),
+                    new StructuralLoadCombinationTerm("Q1", 1.50),
+                }));
+
+        Frame2DAnalyzer analyzer = new();
+
+        var result = analyzer.AnalyzeCombination(model, "ULS1");
+
+        double combinedLoad = (1.35 * permanentLoad) + (1.50 * variableLoad);
+        double expectedReaction = combinedLoad * length / 2.0;
+
+        Assert.Equal("ULS1", result.LoadCaseId);
+        Assert.Equal(expectedReaction, result.GetReaction("SA").Fy, precision: 6);
+        Assert.Equal(expectedReaction, result.GetReaction("SB").Fy, precision: 6);
+    }
+
+    [Fact]
+    public void AnalyzeCombination_ShouldApplyManualLoadFactorsToDisplacements()
+    {
+        const double length = 5.0;
+        const double permanentLoad = 10.0;
+        const double variableLoad = 4.0;
+
+        StructuralModel model = CreateSingleMemberBeamModel(length)
+            .AddLoadCase(new StructuralLoadCase("Q1", "Variable load case"))
+            .AddSupport(StructuralSupport.Fixed("SA", "A"))
+            .AddLoad(StructuralLoad.UniformDistributedLoad("G1_Q", "LC1", "M1", StructuralLoadDirection.GlobalY, -permanentLoad))
+            .AddLoad(StructuralLoad.UniformDistributedLoad("Q1_Q", "Q1", "M1", StructuralLoadDirection.GlobalY, -variableLoad))
+            .AddLoadCombination(new StructuralLoadCombination(
+                "SLS1",
+                "SLS 1",
+                new[]
+                {
+                    new StructuralLoadCombinationTerm("LC1", 1.00),
+                    new StructuralLoadCombinationTerm("Q1", 0.50),
+                }));
+
+        Frame2DAnalyzer analyzer = new();
+
+        var result = analyzer.AnalyzeCombination(model, "SLS1");
+
+        double combinedLoad = permanentLoad + (0.50 * variableLoad);
+        double expectedTipDeflection = -(combinedLoad * Math.Pow(length, 4)) / (8.0 * FlexuralRigidity);
+
+        Assert.Equal(expectedTipDeflection, result.GetDisplacement("B").Uy, precision: 9);
+    }
+
+    [Fact]
+    public void AnalyzeCombination_ShouldThrowForMissingCombination()
+    {
+        StructuralModel model = CreateSingleMemberBeamModel(5.0)
+            .AddSupport(StructuralSupport.Hinge("SA", "A"))
+            .AddSupport(StructuralSupport.SimpleSupport("SB", "B"));
+
+        Frame2DAnalyzer analyzer = new();
+
+        Assert.Throws<StructuralAnalysisException>(() => analyzer.AnalyzeCombination(model, "MISSING"));
+    }
+
     private static StructuralModel CreateSingleMemberBeamModel(double length) =>
         new StructuralModel()
             .AddNode(new StructuralNode("A", 0.0, 0.0))

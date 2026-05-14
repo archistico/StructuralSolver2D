@@ -127,6 +127,8 @@ Main concepts:
 - `StructuralSupport`
 - `StructuralLoadCase`
 - `StructuralLoad`
+- `StructuralLoadCombination`
+- `StructuralLoadCombinationTerm`
 - `StructuralModelValidator`
 
 This project must remain independent from solvers, CLI, reporting, CAD, UI and rendering.
@@ -155,8 +157,8 @@ Current commands:
 
 - `help`
 - `example <name>`
-- `analyze <input.json> [loadCaseId]`
-- `report <input.json> <output.md> [loadCaseId]`
+- `analyze <input.json> [loadCaseId|combinationId]`
+- `report <input.json> <output.md> [loadCaseId|combinationId]`
 
 ### `StructuralSolver2D.Reporting`
 
@@ -288,14 +290,16 @@ Milestone 10 - Markdown report generation
 Milestone 11 - README and AI handoff documentation
 Milestone 12 - Test coverage for Reporting and CLI input
 Milestone 13 - Point loads on members in the Frame2D analyzer
+Milestone 14 - Linear, triangular and trapezoidal distributed loads
+Milestone 15 - Manual load combinations
 ```
 
 Recommended next steps:
 
 ```text
-Milestone 14 - Add self-weight generation
-Milestone 15 - Add richer example library and validation cases
-Milestone 16 - Start considering a minimal graphical viewer or future OpenCad2D adapter
+Milestone 16 - Add self-weight generation
+Milestone 17 - Add richer example library and validation cases
+Milestone 18 - Start considering a minimal graphical viewer or future OpenCad2D adapter
 ```
 
 ---
@@ -318,3 +322,22 @@ Milestone 16 - Start considering a minimal graphical viewer or future OpenCad2D 
 StructuralSolver2D is currently an experimental and educational structural analysis engine.
 
 It must not be treated as a certified structural design tool. Results should be checked independently and must not be used for real structural design, construction decisions or safety-critical work without review by a qualified professional.
+
+
+## Milestone 14 update
+
+The Frame2D solver now supports `LinearDistributedLoad` member loads. `value` is the start intensity and `endValue` is the end intensity, both in kN/m. This covers triangular and trapezoidal distributed loads in global or local X/Y directions.
+
+
+## Milestone 15 update
+
+The solver now supports manual load combinations through `StructuralLoadCombination` and `StructuralLoadCombinationTerm`. Combinations are user-defined only: no automatic NTC/Eurocode generation is performed.
+
+Example JSON command:
+
+```powershell
+dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\load-combination.json ULS1
+dotnet run --project src\StructuralSolver2D.Cli -- report examples\load-combination.json reports\load-combination.md ULS1
+```
+
+A combination such as `ULS1 = 1.35 G1 + 1.50 Q1` is analyzed by summing factored contributions from the referenced load cases. Internal force sampling and Markdown reporting understand the same combination id.

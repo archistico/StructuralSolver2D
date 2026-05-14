@@ -113,6 +113,32 @@ internal static class Frame2DElementMatrices
     }
 
 
+
+    /// <summary>
+    /// Builds the consistent local equivalent nodal load vector for a linearly varying local load.
+    /// Start values act at the start node side; end values act at the end node side.
+    /// Axial and transverse components are expressed in kN/m.
+    /// </summary>
+    public static double[] BuildLinearLocalLoad(
+        double startLocalXValue,
+        double endLocalXValue,
+        double startLocalYValue,
+        double endLocalYValue,
+        double length)
+    {
+        double[] load = new double[6];
+
+        load[0] += length * ((2.0 * startLocalXValue) + endLocalXValue) / 6.0;
+        load[3] += length * (startLocalXValue + (2.0 * endLocalXValue)) / 6.0;
+
+        load[1] += length * ((7.0 * startLocalYValue) + (3.0 * endLocalYValue)) / 20.0;
+        load[2] += length * length * ((startLocalYValue / 20.0) + (endLocalYValue / 30.0));
+        load[4] += length * ((3.0 * startLocalYValue) + (7.0 * endLocalYValue)) / 20.0;
+        load[5] += -length * length * ((startLocalYValue / 30.0) + (endLocalYValue / 20.0));
+
+        return load;
+    }
+
     /// <summary>
     /// Builds the consistent local equivalent nodal load vector for a concentrated local load.
     /// The position is normalized from 0.0 at the start node to 1.0 at the end node.

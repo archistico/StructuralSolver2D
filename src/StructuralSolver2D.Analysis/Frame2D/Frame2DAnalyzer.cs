@@ -37,6 +37,50 @@ public sealed class Frame2DAnalyzer
             throw new StructuralAnalysisException($"Load case '{loadCaseId}' was not found in the structural model.");
         }
 
+        return AnalyzeFactoredLoadCases(
+            model,
+            loadCaseId,
+            new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase)
+            {
+                [loadCaseId] = 1.0,
+            });
+    }
+
+    /// <summary>
+    /// Analyzes the supplied structural model for one user-defined manual load combination.
+    /// </summary>
+    /// <param name="model">Structural model to analyze.</param>
+    /// <param name="combinationId">Load combination identifier.</param>
+    /// <returns>Analysis result whose <see cref="StructuralAnalysisResult.LoadCaseId"/> contains the combination id.</returns>
+    /// <exception cref="StructuralAnalysisException">Thrown when the model cannot be analyzed.</exception>
+    public StructuralAnalysisResult AnalyzeCombination(StructuralModel model, string combinationId)
+    {
+        ArgumentNullException.ThrowIfNull(model);
+
+        if (string.IsNullOrWhiteSpace(combinationId))
+        {
+            throw new ArgumentException("Load combination id cannot be empty.", nameof(combinationId));
+        }
+
+        ValidateModel(model);
+
+        StructuralLoadCombination combination = model.LoadCombinations.FirstOrDefault(
+            combination => string.Equals(combination.Id, combinationId, StringComparison.OrdinalIgnoreCase))
+            ?? throw new StructuralAnalysisException($"Load combination '{combinationId}' was not found in the structural model.");
+
+        Dictionary<string, double> factors = combination.Terms.ToDictionary(
+            term => term.LoadCaseId,
+            term => term.Factor,
+            StringComparer.OrdinalIgnoreCase);
+
+        return AnalyzeFactoredLoadCases(model, combinationId, factors);
+    }
+
+    private StructuralAnalysisResult AnalyzeFactoredLoadCases(
+        StructuralModel model,
+        string resultId,
+        IReadOnlyDictionary<string, double> loadCaseFactors)
+    {
         if (model.Members.Any(member => member.Type != MemberType.Frame2D))
         {
             throw new StructuralAnalysisException("The current analyzer supports only Frame2D members.");
@@ -49,7 +93,7 @@ public sealed class Frame2DAnalyzer
         Dictionary<string, double[]> memberEquivalentLocalLoads = new(StringComparer.OrdinalIgnoreCase);
 
         AssembleGlobalStiffness(model, nodeIndexById, globalStiffness);
-        AssembleLoads(model, loadCaseId, nodeIndexById, globalLoadVector, memberEquivalentLocalLoads);
+        AssembleLoads(model, loadCaseFactors, nodeIndexById, globalLoadVector, memberEquivalentLocalLoads);
 
         bool[] restrainedDofs = BuildRestrainedDofMask(model, nodeIndexById, totalDofCount);
         List<int> freeDofs = Enumerable.Range(0, totalDofCount).Where(index => !restrainedDofs[index]).ToList();
@@ -72,7 +116,7 @@ public sealed class Frame2DAnalyzer
         double[] globalResidual = Subtract(Multiply(globalStiffness, globalDisplacements), globalLoadVector);
 
         return new StructuralAnalysisResult(
-            loadCaseId,
+            resultId,
             BuildNodalDisplacementResults(model, nodeIndexById, globalDisplacements),
             BuildSupportReactionResults(model, nodeIndexById, globalResidual),
             BuildMemberEndForceResults(model, nodeIndexById, globalDisplacements, memberEquivalentLocalLoads));
@@ -125,7 +169,7 @@ public sealed class Frame2DAnalyzer
 
     private static void AssembleLoads(
         StructuralModel model,
-        string loadCaseId,
+        IReadOnlyDictionary<string, double> loadCaseFactors,
         Dictionary<string, int> nodeIndexById,
         double[] globalLoadVector,
         Dictionary<string, double[]> memberEquivalentLocalLoads)
@@ -133,24 +177,30 @@ public sealed class Frame2DAnalyzer
         Dictionary<string, StructuralMember> members = model.Members.ToDictionary(member => member.Id, StringComparer.OrdinalIgnoreCase);
         Dictionary<string, StructuralNode> nodes = model.Nodes.ToDictionary(node => node.Id, StringComparer.OrdinalIgnoreCase);
 
-        foreach (StructuralLoad load in model.Loads.Where(load => string.Equals(load.LoadCaseId, loadCaseId, StringComparison.OrdinalIgnoreCase)))
+        foreach (StructuralLoad load in model.Loads.Where(load => loadCaseFactors.ContainsKey(load.LoadCaseId)))
         {
+            double loadFactor = loadCaseFactors[load.LoadCaseId];
+
             switch (load.Type)
             {
                 case StructuralLoadType.NodalForce:
-                    AddNodalForce(load, nodeIndexById, globalLoadVector);
+                    AddNodalForce(load, loadFactor, nodeIndexById, globalLoadVector);
                     break;
 
                 case StructuralLoadType.NodalMoment:
-                    AddNodalMoment(load, nodeIndexById, globalLoadVector);
+                    AddNodalMoment(load, loadFactor, nodeIndexById, globalLoadVector);
                     break;
 
                 case StructuralLoadType.UniformDistributedLoad:
-                    AddUniformDistributedLoad(load, members, nodes, nodeIndexById, globalLoadVector, memberEquivalentLocalLoads);
+                    AddUniformDistributedLoad(load, loadFactor, members, nodes, nodeIndexById, globalLoadVector, memberEquivalentLocalLoads);
+                    break;
+
+                case StructuralLoadType.LinearDistributedLoad:
+                    AddLinearDistributedLoad(load, loadFactor, members, nodes, nodeIndexById, globalLoadVector, memberEquivalentLocalLoads);
                     break;
 
                 case StructuralLoadType.PointLoadOnMember:
-                    AddPointLoadOnMember(load, members, nodes, nodeIndexById, globalLoadVector, memberEquivalentLocalLoads);
+                    AddPointLoadOnMember(load, loadFactor, members, nodes, nodeIndexById, globalLoadVector, memberEquivalentLocalLoads);
                     break;
 
                 case StructuralLoadType.SelfWeight:
@@ -161,6 +211,7 @@ public sealed class Frame2DAnalyzer
 
     private static void AddNodalForce(
         StructuralLoad load,
+        double loadFactor,
         Dictionary<string, int> nodeIndexById,
         double[] globalLoadVector)
     {
@@ -168,11 +219,11 @@ public sealed class Frame2DAnalyzer
 
         if (load.Direction == StructuralLoadDirection.GlobalX)
         {
-            globalLoadVector[nodeBaseDof] += load.Value;
+            globalLoadVector[nodeBaseDof] += load.Value * loadFactor;
         }
         else if (load.Direction == StructuralLoadDirection.GlobalY)
         {
-            globalLoadVector[nodeBaseDof + 1] += load.Value;
+            globalLoadVector[nodeBaseDof + 1] += load.Value * loadFactor;
         }
         else
         {
@@ -182,15 +233,17 @@ public sealed class Frame2DAnalyzer
 
     private static void AddNodalMoment(
         StructuralLoad load,
+        double loadFactor,
         Dictionary<string, int> nodeIndexById,
         double[] globalLoadVector)
     {
         int nodeBaseDof = GetNodeBaseDof(nodeIndexById[load.TargetId]);
-        globalLoadVector[nodeBaseDof + 2] += load.Value;
+        globalLoadVector[nodeBaseDof + 2] += load.Value * loadFactor;
     }
 
     private static void AddUniformDistributedLoad(
         StructuralLoad load,
+        double loadFactor,
         Dictionary<string, StructuralMember> members,
         Dictionary<string, StructuralNode> nodes,
         Dictionary<string, int> nodeIndexById,
@@ -203,6 +256,8 @@ public sealed class Frame2DAnalyzer
         MemberGeometry geometry = MemberGeometry.FromNodes(startNode, endNode);
 
         (double localXValue, double localYValue) = ResolveUniformLoadInLocalCoordinates(load, geometry);
+        localXValue *= loadFactor;
+        localYValue *= loadFactor;
         double[] localLoad = Frame2DElementMatrices.BuildUniformLocalLoad(localXValue, localYValue, geometry.Length);
         double[,] transformation = Frame2DElementMatrices.BuildTransformation(geometry.Cosine, geometry.Sine);
         double[] globalLoad = Frame2DElementMatrices.TransformLoadToGlobal(localLoad, transformation);
@@ -223,8 +278,60 @@ public sealed class Frame2DAnalyzer
     }
 
 
+    private static void AddLinearDistributedLoad(
+        StructuralLoad load,
+        double loadFactor,
+        Dictionary<string, StructuralMember> members,
+        Dictionary<string, StructuralNode> nodes,
+        Dictionary<string, int> nodeIndexById,
+        double[] globalLoadVector,
+        Dictionary<string, double[]> memberEquivalentLocalLoads)
+    {
+        if (!load.EndValue.HasValue)
+        {
+            throw new StructuralAnalysisException($"Linear distributed load '{load.Id}' has no end value.");
+        }
+
+        StructuralMember member = members[load.TargetId];
+        StructuralNode startNode = nodes[member.StartNodeId];
+        StructuralNode endNode = nodes[member.EndNodeId];
+        MemberGeometry geometry = MemberGeometry.FromNodes(startNode, endNode);
+
+        (double startLocalXValue, double startLocalYValue) = ResolveLoadValueInLocalCoordinates(load.Direction, load.Value, geometry, "linear distributed");
+        (double endLocalXValue, double endLocalYValue) = ResolveLoadValueInLocalCoordinates(load.Direction, load.EndValue.Value, geometry, "linear distributed");
+        startLocalXValue *= loadFactor;
+        startLocalYValue *= loadFactor;
+        endLocalXValue *= loadFactor;
+        endLocalYValue *= loadFactor;
+
+        double[] localLoad = Frame2DElementMatrices.BuildLinearLocalLoad(
+            startLocalXValue,
+            endLocalXValue,
+            startLocalYValue,
+            endLocalYValue,
+            geometry.Length);
+
+        double[,] transformation = Frame2DElementMatrices.BuildTransformation(geometry.Cosine, geometry.Sine);
+        double[] globalLoad = Frame2DElementMatrices.TransformLoadToGlobal(localLoad, transformation);
+        int[] dofs = GetMemberDofs(member, nodeIndexById);
+
+        AddElementVector(globalLoadVector, globalLoad, dofs);
+
+        if (!memberEquivalentLocalLoads.TryGetValue(member.Id, out double[]? existingLocalLoad))
+        {
+            existingLocalLoad = new double[6];
+            memberEquivalentLocalLoads[member.Id] = existingLocalLoad;
+        }
+
+        for (int index = 0; index < localLoad.Length; index++)
+        {
+            existingLocalLoad[index] += localLoad[index];
+        }
+    }
+
     private static void AddPointLoadOnMember(
         StructuralLoad load,
+        double loadFactor,
         Dictionary<string, StructuralMember> members,
         Dictionary<string, StructuralNode> nodes,
         Dictionary<string, int> nodeIndexById,
@@ -242,6 +349,8 @@ public sealed class Frame2DAnalyzer
         MemberGeometry geometry = MemberGeometry.FromNodes(startNode, endNode);
 
         (double localXValue, double localYValue) = ResolveConcentratedLoadInLocalCoordinates(load, geometry);
+        localXValue *= loadFactor;
+        localYValue *= loadFactor;
         double[] localLoad = Frame2DElementMatrices.BuildPointLocalLoad(localXValue, localYValue, geometry.Length, load.Position.Value);
         double[,] transformation = Frame2DElementMatrices.BuildTransformation(geometry.Cosine, geometry.Sine);
         double[] globalLoad = Frame2DElementMatrices.TransformLoadToGlobal(localLoad, transformation);
@@ -264,25 +373,25 @@ public sealed class Frame2DAnalyzer
     private static (double LocalX, double LocalY) ResolveConcentratedLoadInLocalCoordinates(
         StructuralLoad load,
         MemberGeometry geometry) =>
-        load.Direction switch
-        {
-            StructuralLoadDirection.LocalX => (load.Value, 0),
-            StructuralLoadDirection.LocalY => (0, load.Value),
-            StructuralLoadDirection.GlobalX => (geometry.Cosine * load.Value, -geometry.Sine * load.Value),
-            StructuralLoadDirection.GlobalY => (geometry.Sine * load.Value, geometry.Cosine * load.Value),
-            _ => throw new StructuralAnalysisException($"Unsupported point load direction '{load.Direction}'.")
-        };
+        ResolveLoadValueInLocalCoordinates(load.Direction, load.Value, geometry, "point");
 
     private static (double LocalX, double LocalY) ResolveUniformLoadInLocalCoordinates(
         StructuralLoad load,
         MemberGeometry geometry) =>
-        load.Direction switch
+        ResolveLoadValueInLocalCoordinates(load.Direction, load.Value, geometry, "uniform");
+
+    private static (double LocalX, double LocalY) ResolveLoadValueInLocalCoordinates(
+        StructuralLoadDirection direction,
+        double value,
+        MemberGeometry geometry,
+        string loadKind) =>
+        direction switch
         {
-            StructuralLoadDirection.LocalX => (load.Value, 0),
-            StructuralLoadDirection.LocalY => (0, load.Value),
-            StructuralLoadDirection.GlobalX => (geometry.Cosine * load.Value, -geometry.Sine * load.Value),
-            StructuralLoadDirection.GlobalY => (geometry.Sine * load.Value, geometry.Cosine * load.Value),
-            _ => throw new StructuralAnalysisException($"Unsupported uniform load direction '{load.Direction}'.")
+            StructuralLoadDirection.LocalX => (value, 0),
+            StructuralLoadDirection.LocalY => (0, value),
+            StructuralLoadDirection.GlobalX => (geometry.Cosine * value, -geometry.Sine * value),
+            StructuralLoadDirection.GlobalY => (geometry.Sine * value, geometry.Cosine * value),
+            _ => throw new StructuralAnalysisException($"Unsupported {loadKind} load direction '{direction}'.")
         };
 
     private static bool[] BuildRestrainedDofMask(

@@ -56,7 +56,7 @@ public sealed class MarkdownStructuralReportGenerator
             builder.AppendLine($"**Source:** `{options.SourceLabel}`");
         }
 
-        builder.AppendLine($"**Load case:** `{result.LoadCaseId}`");
+        builder.AppendLine($"**Analysis id:** `{result.LoadCaseId}`");
         builder.AppendLine($"**Generated UTC:** {options.GeneratedAtUtc:yyyy-MM-dd HH:mm:ss}");
         builder.AppendLine();
     }
@@ -89,6 +89,7 @@ public sealed class MarkdownStructuralReportGenerator
         WriteMembers(builder, model);
         WriteSupports(builder, model.Supports);
         WriteLoadCases(builder, model.LoadCases);
+        WriteLoadCombinations(builder, model.LoadCombinations);
         WriteLoads(builder, model.Loads);
     }
 
@@ -191,12 +192,31 @@ public sealed class MarkdownStructuralReportGenerator
         builder.AppendLine();
     }
 
+    private static void WriteLoadCombinations(StringBuilder builder, IEnumerable<StructuralLoadCombination> combinations)
+    {
+        builder.AppendLine("### Load combinations");
+        builder.AppendLine();
+        builder.AppendLine("| Id | Name | Expression | Description |");
+        builder.AppendLine("|---|---|---|---|");
+
+        foreach (StructuralLoadCombination combination in combinations)
+        {
+            string expression = combination.Terms.Count == 0
+                ? "-"
+                : string.Join(" + ", combination.Terms.Select(term => $"{Format(term.Factor)} `{term.LoadCaseId}`"));
+
+            builder.AppendLine($"| `{combination.Id}` | {Text(combination.Name)} | {expression} | {Text(combination.Description)} |");
+        }
+
+        builder.AppendLine();
+    }
+
     private static void WriteLoads(StringBuilder builder, IEnumerable<StructuralLoad> loads)
     {
         builder.AppendLine("### Loads");
         builder.AppendLine();
-        builder.AppendLine("| Id | Load case | Type | Target | Direction | Value | Position | Label |");
-        builder.AppendLine("|---|---|---|---|---|---:|---:|---|");
+        builder.AppendLine("| Id | Load case | Type | Target | Direction | Value | End value | Position | Label |");
+        builder.AppendLine("|---|---|---|---|---|---:|---:|---:|---|");
 
         foreach (StructuralLoad load in loads)
         {
@@ -204,7 +224,7 @@ public sealed class MarkdownStructuralReportGenerator
                 ? "model"
                 : $"{load.TargetType}: `{load.TargetId}`";
 
-            builder.AppendLine($"| `{load.Id}` | `{load.LoadCaseId}` | {load.Type} | {target} | {load.Direction} | {Format(load.Value)} | {FormatOptional(load.Position)} | {Text(load.Label)} |");
+            builder.AppendLine($"| `{load.Id}` | `{load.LoadCaseId}` | {load.Type} | {target} | {load.Direction} | {Format(load.Value)} | {FormatOptional(load.EndValue)} | {FormatOptional(load.Position)} | {Text(load.Label)} |");
         }
 
         builder.AppendLine();

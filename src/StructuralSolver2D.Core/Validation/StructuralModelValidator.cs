@@ -47,6 +47,7 @@ public sealed class StructuralModelValidator
         ValidateIdentifiers(model.Supports.Select(support => support.Id), "SUPPORT_DUPLICATE_ID", "Duplicate support id.", issues);
         ValidateIdentifiers(model.LoadCases.Select(loadCase => loadCase.Id), "LOAD_CASE_DUPLICATE_ID", "Duplicate load case id.", issues);
         ValidateIdentifiers(model.Loads.Select(load => load.Id), "LOAD_DUPLICATE_ID", "Duplicate load id.", issues);
+        ValidateIdentifiers(model.LoadCombinations.Select(combination => combination.Id), "LOAD_COMBINATION_DUPLICATE_ID", "Duplicate load combination id.", issues);
 
         ValidateRequiredIds(model, issues);
         ValidateNodes(model, issues);
@@ -56,6 +57,7 @@ public sealed class StructuralModelValidator
         ValidateSupports(model, issues);
         ValidateLoadCases(model, issues);
         ValidateLoads(model, issues);
+        ValidateLoadCombinations(model, issues);
 
         return issues.Count == 0
             ? StructuralModelValidationResult.Success
@@ -97,6 +99,11 @@ public sealed class StructuralModelValidator
         foreach (StructuralLoad load in model.Loads.Where(load => string.IsNullOrWhiteSpace(load.Id)))
         {
             AddError(issues, "LOAD_EMPTY_ID", "Load id cannot be empty.");
+        }
+
+        foreach (StructuralLoadCombination combination in model.LoadCombinations.Where(combination => string.IsNullOrWhiteSpace(combination.Id)))
+        {
+            AddError(issues, "LOAD_COMBINATION_EMPTY_ID", "Load combination id cannot be empty.");
         }
     }
 
@@ -239,9 +246,9 @@ public sealed class StructuralModelValidator
                 AddError(issues, "LOAD_CASE_NOT_FOUND", $"Load '{load.Id}' references missing load case '{load.LoadCaseId}'.", load.Id);
             }
 
-            if (load.Value == 0 || !double.IsFinite(load.Value))
+            if (!double.IsFinite(load.Value))
             {
-                AddError(issues, "LOAD_INVALID_VALUE", $"Load '{load.Id}' has an invalid or zero value.", load.Id);
+                AddError(issues, "LOAD_INVALID_VALUE", $"Load '{load.Id}' has an invalid value.", load.Id);
             }
 
             if (!Enum.IsDefined(load.Type))
@@ -265,34 +272,136 @@ public sealed class StructuralModelValidator
             switch (load.Type)
             {
                 case StructuralLoadType.NodalForce:
+                    ValidateNonZeroValue(load, issues);
                     ValidateNodalLoad(load, nodeIds, issues);
                     ValidateDirection(load, issues, StructuralLoadDirection.GlobalX, StructuralLoadDirection.GlobalY);
                     ValidateNoPosition(load, issues);
+                    ValidateNoEndValue(load, issues);
                     break;
 
                 case StructuralLoadType.NodalMoment:
+                    ValidateNonZeroValue(load, issues);
                     ValidateNodalLoad(load, nodeIds, issues);
                     ValidateDirection(load, issues, StructuralLoadDirection.MomentZ);
                     ValidateNoPosition(load, issues);
+                    ValidateNoEndValue(load, issues);
                     break;
 
                 case StructuralLoadType.UniformDistributedLoad:
+                    ValidateNonZeroValue(load, issues);
                     ValidateMemberLoad(load, memberIds, issues);
                     ValidateForceDirection(load, issues);
                     ValidateNoPosition(load, issues);
+                    ValidateNoEndValue(load, issues);
                     break;
 
                 case StructuralLoadType.PointLoadOnMember:
+                    ValidateNonZeroValue(load, issues);
                     ValidateMemberLoad(load, memberIds, issues);
                     ValidateForceDirection(load, issues);
                     ValidateNormalizedPosition(load, issues);
+                    ValidateNoEndValue(load, issues);
+                    break;
+
+                case StructuralLoadType.LinearDistributedLoad:
+                    ValidateMemberLoad(load, memberIds, issues);
+                    ValidateForceDirection(load, issues);
+                    ValidateNoPosition(load, issues);
+                    ValidateEndValue(load, issues);
                     break;
 
                 case StructuralLoadType.SelfWeight:
+                    ValidateNonZeroValue(load, issues);
                     ValidateSelfWeightLoad(load, issues);
                     ValidateNoPosition(load, issues);
+                    ValidateNoEndValue(load, issues);
                     break;
             }
+        }
+    }
+
+    private static void ValidateLoadCombinations(StructuralModel model, List<StructuralModelValidationIssue> issues)
+    {
+        HashSet<string> loadCaseIds = model.LoadCases.Select(loadCase => loadCase.Id).ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        foreach (StructuralLoadCombination combination in model.LoadCombinations)
+        {
+            if (string.IsNullOrWhiteSpace(combination.Name))
+            {
+                AddError(issues, "LOAD_COMBINATION_EMPTY_NAME", $"Load combination '{combination.Id}' has an empty name.", combination.Id);
+            }
+
+            if (combination.Terms.Count == 0)
+            {
+                AddError(issues, "LOAD_COMBINATION_WITHOUT_TERMS", $"Load combination '{combination.Id}' has no terms.", combination.Id);
+                continue;
+            }
+
+            IEnumerable<string> duplicateTermLoadCases = combination.Terms
+                .Where(term => !string.IsNullOrWhiteSpace(term.LoadCaseId))
+                .GroupBy(term => term.LoadCaseId, StringComparer.OrdinalIgnoreCase)
+                .Where(group => group.Count() > 1)
+                .Select(group => group.Key);
+
+            foreach (string duplicateLoadCaseId in duplicateTermLoadCases)
+            {
+                AddError(issues, "LOAD_COMBINATION_DUPLICATE_TERM", $"Load combination '{combination.Id}' references load case '{duplicateLoadCaseId}' more than once.", combination.Id);
+            }
+
+            foreach (StructuralLoadCombinationTerm term in combination.Terms)
+            {
+                if (string.IsNullOrWhiteSpace(term.LoadCaseId))
+                {
+                    AddError(issues, "LOAD_COMBINATION_TERM_EMPTY_LOAD_CASE", $"Load combination '{combination.Id}' has a term without load case id.", combination.Id);
+                    continue;
+                }
+
+                if (!loadCaseIds.Contains(term.LoadCaseId))
+                {
+                    AddError(issues, "LOAD_COMBINATION_LOAD_CASE_NOT_FOUND", $"Load combination '{combination.Id}' references missing load case '{term.LoadCaseId}'.", combination.Id);
+                }
+
+                if (term.Factor == 0 || !double.IsFinite(term.Factor))
+                {
+                    AddError(issues, "LOAD_COMBINATION_INVALID_FACTOR", $"Load combination '{combination.Id}' has an invalid factor for load case '{term.LoadCaseId}'.", combination.Id);
+                }
+            }
+        }
+    }
+
+
+    private static void ValidateNonZeroValue(StructuralLoad load, List<StructuralModelValidationIssue> issues)
+    {
+        if (load.Value == 0)
+        {
+            AddError(issues, "LOAD_INVALID_VALUE", $"Load '{load.Id}' has a zero value.", load.Id);
+        }
+    }
+
+    private static void ValidateEndValue(StructuralLoad load, List<StructuralModelValidationIssue> issues)
+    {
+        if (load.EndValue is null)
+        {
+            AddError(issues, "LOAD_END_VALUE_REQUIRED", $"Load '{load.Id}' requires an end value.", load.Id);
+            return;
+        }
+
+        if (!double.IsFinite(load.EndValue.Value))
+        {
+            AddError(issues, "LOAD_INVALID_END_VALUE", $"Load '{load.Id}' has an invalid end value.", load.Id);
+        }
+
+        if (load.Value == 0 && load.EndValue.Value == 0)
+        {
+            AddError(issues, "LOAD_INVALID_VALUE", $"Load '{load.Id}' has zero start and end values.", load.Id);
+        }
+    }
+
+    private static void ValidateNoEndValue(StructuralLoad load, List<StructuralModelValidationIssue> issues)
+    {
+        if (load.EndValue is not null)
+        {
+            AddError(issues, "LOAD_END_VALUE_NOT_ALLOWED", $"Load '{load.Id}' must not define an end value.", load.Id);
         }
     }
 

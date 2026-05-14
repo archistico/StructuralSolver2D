@@ -216,6 +216,95 @@ public sealed class StructuralModelLoadValidatorTests
         Assert.Contains(result.Errors, issue => issue.Code == "LOAD_INVALID_TARGET_TYPE_FOR_TYPE");
     }
 
+
+    [Fact]
+    public void Validate_ShouldAcceptLinearDistributedLoadWithOneZeroEnd()
+    {
+        StructuralLoad load = StructuralLoad.LinearDistributedLoad(
+            "T1",
+            "LC1",
+            "M1",
+            StructuralLoadDirection.GlobalY,
+            0.0,
+            -10.0);
+
+        StructuralModel model = CreateValidSimpleSupportedBeamModel()
+            .AddLoadCase(new StructuralLoadCase("LC1", "Permanent loads"))
+            .AddLoad(load);
+
+        StructuralModelValidationResult result = new StructuralModelValidator().Validate(model);
+
+        Assert.True(result.IsValid);
+    }
+
+    [Fact]
+    public void Validate_ShouldDetectMissingLinearDistributedLoadEndValue()
+    {
+        StructuralLoad load = new(
+            "T1",
+            "LC1",
+            StructuralLoadType.LinearDistributedLoad,
+            StructuralLoadTargetType.Member,
+            "M1",
+            StructuralLoadDirection.GlobalY,
+            0.0);
+
+        StructuralModel model = CreateValidSimpleSupportedBeamModel()
+            .AddLoadCase(new StructuralLoadCase("LC1", "Permanent loads"))
+            .AddLoad(load);
+
+        StructuralModelValidationResult result = new StructuralModelValidator().Validate(model);
+
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, issue => issue.Code == "LOAD_END_VALUE_REQUIRED");
+    }
+
+    [Fact]
+    public void Validate_ShouldDetectLinearDistributedLoadWithBothEndsZero()
+    {
+        StructuralLoad load = StructuralLoad.LinearDistributedLoad(
+            "T1",
+            "LC1",
+            "M1",
+            StructuralLoadDirection.GlobalY,
+            0.0,
+            0.0);
+
+        StructuralModel model = CreateValidSimpleSupportedBeamModel()
+            .AddLoadCase(new StructuralLoadCase("LC1", "Permanent loads"))
+            .AddLoad(load);
+
+        StructuralModelValidationResult result = new StructuralModelValidator().Validate(model);
+
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, issue => issue.Code == "LOAD_INVALID_VALUE");
+    }
+
+    [Fact]
+    public void Validate_ShouldDetectEndValueWhereNotAllowed()
+    {
+        StructuralLoad load = new(
+            "Q1",
+            "LC1",
+            StructuralLoadType.UniformDistributedLoad,
+            StructuralLoadTargetType.Member,
+            "M1",
+            StructuralLoadDirection.GlobalY,
+            -10.0,
+            null,
+            null,
+            -5.0);
+
+        StructuralModel model = CreateValidSimpleSupportedBeamModel()
+            .AddLoadCase(new StructuralLoadCase("LC1", "Permanent loads"))
+            .AddLoad(load);
+
+        StructuralModelValidationResult result = new StructuralModelValidator().Validate(model);
+
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, issue => issue.Code == "LOAD_END_VALUE_NOT_ALLOWED");
+    }
+
     private static StructuralModel CreateValidSimpleSupportedBeamModel() =>
         new StructuralModel()
             .AddNode(new StructuralNode("A", 0.0, 0.0))

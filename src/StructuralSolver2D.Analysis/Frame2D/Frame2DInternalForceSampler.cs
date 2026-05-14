@@ -52,8 +52,10 @@ public sealed class Frame2DInternalForceSampler
         StructuralNode startNode = nodes[member.StartNodeId];
         StructuralNode endNode = nodes[member.EndNodeId];
         MemberGeometry geometry = MemberGeometry.FromNodes(startNode, endNode);
-        (double localXLoad, double localYLoad) = SumUniformLoadsInLocalCoordinates(model, analysisResult.LoadCaseId, memberId, geometry);
-        IReadOnlyList<ConcentratedLocalLoad> pointLoads = GetPointLoadsInLocalCoordinates(model, analysisResult.LoadCaseId, memberId, geometry);
+        IReadOnlyDictionary<string, double> loadCaseFactors = BuildLoadCaseFactors(model, analysisResult.LoadCaseId);
+        (double localXLoad, double localYLoad) = SumUniformLoadsInLocalCoordinates(model, loadCaseFactors, memberId, geometry);
+        IReadOnlyList<LinearlyVaryingLocalLoad> linearLoads = GetLinearDistributedLoadsInLocalCoordinates(model, loadCaseFactors, memberId, geometry);
+        IReadOnlyList<ConcentratedLocalLoad> pointLoads = GetPointLoadsInLocalCoordinates(model, loadCaseFactors, memberId, geometry);
 
         List<MemberInternalForceSample> samples = new(sampleCount);
 
@@ -65,6 +67,16 @@ public sealed class Frame2DInternalForceSampler
             double normalForce = -endForces.StartAxial - (localXLoad * x);
             double shearForce = endForces.StartShear + (localYLoad * x);
             double bendingMoment = -endForces.StartMoment + (endForces.StartShear * x) + (localYLoad * x * x / 2.0);
+
+            foreach (LinearlyVaryingLocalLoad linearLoad in linearLoads)
+            {
+                double axialSlope = (linearLoad.EndLocalXValue - linearLoad.StartLocalXValue) / geometry.Length;
+                double transverseSlope = (linearLoad.EndLocalYValue - linearLoad.StartLocalYValue) / geometry.Length;
+
+                normalForce -= (linearLoad.StartLocalXValue * x) + (axialSlope * x * x / 2.0);
+                shearForce += (linearLoad.StartLocalYValue * x) + (transverseSlope * x * x / 2.0);
+                bendingMoment += (linearLoad.StartLocalYValue * x * x / 2.0) + (transverseSlope * x * x * x / 6.0);
+            }
 
             foreach (ConcentratedLocalLoad pointLoad in pointLoads.Where(pointLoad => pointLoad.DistanceFromStart <= x))
             {
@@ -102,7 +114,7 @@ public sealed class Frame2DInternalForceSampler
 
     private static (double LocalX, double LocalY) SumUniformLoadsInLocalCoordinates(
         StructuralModel model,
-        string loadCaseId,
+        IReadOnlyDictionary<string, double> loadCaseFactors,
         string memberId,
         MemberGeometry geometry)
     {
@@ -110,27 +122,54 @@ public sealed class Frame2DInternalForceSampler
         double localY = 0;
 
         foreach (StructuralLoad load in model.Loads.Where(load =>
-            string.Equals(load.LoadCaseId, loadCaseId, StringComparison.OrdinalIgnoreCase) &&
+            loadCaseFactors.ContainsKey(load.LoadCaseId) &&
             string.Equals(load.TargetId, memberId, StringComparison.OrdinalIgnoreCase) &&
             load.Type == StructuralLoadType.UniformDistributedLoad))
         {
+            double factor = loadCaseFactors[load.LoadCaseId];
             (double loadLocalX, double loadLocalY) = ResolveUniformLoadInLocalCoordinates(load, geometry);
-            localX += loadLocalX;
-            localY += loadLocalY;
+            localX += loadLocalX * factor;
+            localY += loadLocalY * factor;
         }
 
         return (localX, localY);
     }
 
 
-    private static IReadOnlyList<ConcentratedLocalLoad> GetPointLoadsInLocalCoordinates(
+    private static IReadOnlyList<LinearlyVaryingLocalLoad> GetLinearDistributedLoadsInLocalCoordinates(
         StructuralModel model,
-        string loadCaseId,
+        IReadOnlyDictionary<string, double> loadCaseFactors,
         string memberId,
         MemberGeometry geometry) =>
         model.Loads
             .Where(load =>
-                string.Equals(load.LoadCaseId, loadCaseId, StringComparison.OrdinalIgnoreCase) &&
+                loadCaseFactors.ContainsKey(load.LoadCaseId) &&
+                string.Equals(load.TargetId, memberId, StringComparison.OrdinalIgnoreCase) &&
+                load.Type == StructuralLoadType.LinearDistributedLoad)
+            .Select(load =>
+            {
+                if (!load.EndValue.HasValue)
+                {
+                    throw new StructuralAnalysisException($"Linear distributed load '{load.Id}' has no end value.");
+                }
+
+                double factor = loadCaseFactors[load.LoadCaseId];
+                (double startLocalX, double startLocalY) = ResolveLoadValueInLocalCoordinates(load.Direction, load.Value, geometry, "linear distributed");
+                (double endLocalX, double endLocalY) = ResolveLoadValueInLocalCoordinates(load.Direction, load.EndValue.Value, geometry, "linear distributed");
+
+                return new LinearlyVaryingLocalLoad(startLocalX * factor, endLocalX * factor, startLocalY * factor, endLocalY * factor);
+            })
+            .ToList();
+
+
+    private static IReadOnlyList<ConcentratedLocalLoad> GetPointLoadsInLocalCoordinates(
+        StructuralModel model,
+        IReadOnlyDictionary<string, double> loadCaseFactors,
+        string memberId,
+        MemberGeometry geometry) =>
+        model.Loads
+            .Where(load =>
+                loadCaseFactors.ContainsKey(load.LoadCaseId) &&
                 string.Equals(load.TargetId, memberId, StringComparison.OrdinalIgnoreCase) &&
                 load.Type == StructuralLoadType.PointLoadOnMember)
             .Select(load =>
@@ -140,37 +179,63 @@ public sealed class Frame2DInternalForceSampler
                     throw new StructuralAnalysisException($"Point load '{load.Id}' has no normalized position.");
                 }
 
+                double factor = loadCaseFactors[load.LoadCaseId];
                 (double localX, double localY) = ResolveConcentratedLoadInLocalCoordinates(load, geometry);
-                return new ConcentratedLocalLoad(load.Position.Value * geometry.Length, localX, localY);
+                return new ConcentratedLocalLoad(load.Position.Value * geometry.Length, localX * factor, localY * factor);
             })
             .OrderBy(load => load.DistanceFromStart)
             .ToList();
 
+    private static IReadOnlyDictionary<string, double> BuildLoadCaseFactors(StructuralModel model, string resultId)
+    {
+        StructuralLoadCombination? combination = model.LoadCombinations.FirstOrDefault(
+            combination => string.Equals(combination.Id, resultId, StringComparison.OrdinalIgnoreCase));
+
+        if (combination is not null)
+        {
+            return combination.Terms.ToDictionary(
+                term => term.LoadCaseId,
+                term => term.Factor,
+                StringComparer.OrdinalIgnoreCase);
+        }
+
+        return new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase)
+        {
+            [resultId] = 1.0,
+        };
+    }
+
     private static (double LocalX, double LocalY) ResolveConcentratedLoadInLocalCoordinates(
         StructuralLoad load,
         MemberGeometry geometry) =>
-        load.Direction switch
-        {
-            StructuralLoadDirection.LocalX => (load.Value, 0),
-            StructuralLoadDirection.LocalY => (0, load.Value),
-            StructuralLoadDirection.GlobalX => (geometry.Cosine * load.Value, -geometry.Sine * load.Value),
-            StructuralLoadDirection.GlobalY => (geometry.Sine * load.Value, geometry.Cosine * load.Value),
-            _ => throw new StructuralAnalysisException($"Unsupported point load direction '{load.Direction}'.")
-        };
+        ResolveLoadValueInLocalCoordinates(load.Direction, load.Value, geometry, "point");
 
     private static (double LocalX, double LocalY) ResolveUniformLoadInLocalCoordinates(
         StructuralLoad load,
         MemberGeometry geometry) =>
-        load.Direction switch
+        ResolveLoadValueInLocalCoordinates(load.Direction, load.Value, geometry, "uniform");
+
+    private static (double LocalX, double LocalY) ResolveLoadValueInLocalCoordinates(
+        StructuralLoadDirection direction,
+        double value,
+        MemberGeometry geometry,
+        string loadKind) =>
+        direction switch
         {
-            StructuralLoadDirection.LocalX => (load.Value, 0),
-            StructuralLoadDirection.LocalY => (0, load.Value),
-            StructuralLoadDirection.GlobalX => (geometry.Cosine * load.Value, -geometry.Sine * load.Value),
-            StructuralLoadDirection.GlobalY => (geometry.Sine * load.Value, geometry.Cosine * load.Value),
-            _ => throw new StructuralAnalysisException($"Unsupported uniform load direction '{load.Direction}'.")
+            StructuralLoadDirection.LocalX => (value, 0),
+            StructuralLoadDirection.LocalY => (0, value),
+            StructuralLoadDirection.GlobalX => (geometry.Cosine * value, -geometry.Sine * value),
+            StructuralLoadDirection.GlobalY => (geometry.Sine * value, geometry.Cosine * value),
+            _ => throw new StructuralAnalysisException($"Unsupported {loadKind} load direction '{direction}'.")
         };
 
     private sealed record ConcentratedLocalLoad(double DistanceFromStart, double LocalXValue, double LocalYValue);
+
+    private sealed record LinearlyVaryingLocalLoad(
+        double StartLocalXValue,
+        double EndLocalXValue,
+        double StartLocalYValue,
+        double EndLocalYValue);
 
     private sealed record MemberGeometry(double Length, double Cosine, double Sine)
     {

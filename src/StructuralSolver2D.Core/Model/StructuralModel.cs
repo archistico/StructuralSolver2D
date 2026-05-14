@@ -43,6 +43,11 @@ public sealed class StructuralModel
     public IList<StructuralLoad> Loads { get; } = new List<StructuralLoad>();
 
     /// <summary>
+    /// Gets the manual load combinations available in the model.
+    /// </summary>
+    public IList<StructuralLoadCombination> LoadCombinations { get; } = new List<StructuralLoadCombination>();
+
+    /// <summary>
     /// Adds a node and returns the current model for fluent construction.
     /// </summary>
     public StructuralModel AddNode(StructuralNode node)
@@ -102,6 +107,15 @@ public sealed class StructuralModel
     public StructuralModel AddLoad(StructuralLoad load)
     {
         Loads.Add(load);
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a manual load combination and returns the current model for fluent construction.
+    /// </summary>
+    public StructuralModel AddLoadCombination(StructuralLoadCombination combination)
+    {
+        LoadCombinations.Add(combination);
         return this;
     }
 }

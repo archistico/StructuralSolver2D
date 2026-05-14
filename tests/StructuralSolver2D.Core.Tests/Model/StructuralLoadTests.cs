@@ -72,4 +72,24 @@ public sealed class StructuralLoadTests
         Assert.Equal(-20.0, load.Value);
         Assert.Equal(0.5, load.Position);
     }
+
+    [Fact]
+    public void LinearDistributedLoad_ShouldCreateMemberLoadWithStartAndEndValues()
+    {
+        StructuralLoad load = StructuralLoad.LinearDistributedLoad(
+            "T1",
+            "LC1",
+            "M1",
+            StructuralLoadDirection.GlobalY,
+            0.0,
+            -10.0);
+
+        Assert.Equal(StructuralLoadType.LinearDistributedLoad, load.Type);
+        Assert.Equal(StructuralLoadTargetType.Member, load.TargetType);
+        Assert.Equal("M1", load.TargetId);
+        Assert.Equal(StructuralLoadDirection.GlobalY, load.Direction);
+        Assert.Equal(0.0, load.Value);
+        Assert.Equal(-10.0, load.EndValue);
+        Assert.Null(load.Position);
+    }
 }

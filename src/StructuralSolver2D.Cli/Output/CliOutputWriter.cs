@@ -19,8 +19,8 @@ public static class CliOutputWriter
         Console.WriteLine();
         Console.WriteLine("Usage:");
         Console.WriteLine("  dotnet run --project src/StructuralSolver2D.Cli -- example <name>");
-        Console.WriteLine("  dotnet run --project src/StructuralSolver2D.Cli -- analyze <file.json> [loadCaseId]");
-        Console.WriteLine("  dotnet run --project src/StructuralSolver2D.Cli -- report <file.json> <output.md> [loadCaseId]");
+        Console.WriteLine("  dotnet run --project src/StructuralSolver2D.Cli -- analyze <file.json> [loadCaseId|combinationId]");
+        Console.WriteLine("  dotnet run --project src/StructuralSolver2D.Cli -- report <file.json> <output.md> [loadCaseId|combinationId]");
         Console.WriteLine();
         WriteAvailableExamples(examples);
     }
@@ -70,7 +70,7 @@ public static class CliOutputWriter
         Console.WriteLine(sourceLabel);
         Console.WriteLine($"Title:   {title}");
         Console.WriteLine($"Scheme:  {description}");
-        Console.WriteLine($"Load case: {result.LoadCaseId}");
+        Console.WriteLine($"Analysis id: {result.LoadCaseId}");
         Console.WriteLine();
         Console.WriteLine("Analysis completed.");
         Console.WriteLine();

@@ -1,5 +1,6 @@
 using StructuralSolver2D.Analysis;
 using StructuralSolver2D.Analysis.Frame2D;
+using StructuralSolver2D.Analysis.Truss2D;
 using StructuralSolver2D.Analysis.Results;
 using StructuralSolver2D.Cli.Examples;
 using StructuralSolver2D.Cli.Input;
@@ -163,8 +164,24 @@ void AnalyzeAndWrite(
 
 AnalysisRun Analyze(StructuralModel model, string loadCaseId)
 {
-    var analyzer = new Frame2DAnalyzer();
-    StructuralAnalysisResult result = analyzer.Analyze(model, loadCaseId);
+    StructuralAnalysisResult result;
+
+    if (model.Members.Count > 0 && model.Members.All(member => member.Type == StructuralSolver2D.Core.Model.Enums.MemberType.Truss2D))
+    {
+        var analyzer = new Truss2DAnalyzer();
+        result = model.LoadCombinations.Any(
+            combination => string.Equals(combination.Id, loadCaseId, StringComparison.OrdinalIgnoreCase))
+            ? analyzer.AnalyzeCombination(model, loadCaseId)
+            : analyzer.Analyze(model, loadCaseId);
+    }
+    else
+    {
+        var analyzer = new Frame2DAnalyzer();
+        result = model.LoadCombinations.Any(
+            combination => string.Equals(combination.Id, loadCaseId, StringComparison.OrdinalIgnoreCase))
+            ? analyzer.AnalyzeCombination(model, loadCaseId)
+            : analyzer.Analyze(model, loadCaseId);
+    }
 
     var sampler = new Frame2DInternalForceSampler();
     IReadOnlyList<MemberInternalForceDiagram> diagrams = sampler.SampleAllMembers(model, result, sampleCount: 21);

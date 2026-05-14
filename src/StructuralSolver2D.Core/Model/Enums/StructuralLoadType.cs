@@ -30,8 +30,15 @@ public enum StructuralLoadType
     PointLoadOnMember = 3,
 
     /// <summary>
+    /// Linearly varying distributed load applied along a structural member.
+    /// <see cref="StructuralLoad.Value"/> is the start value, and <see cref="StructuralLoad.EndValue"/> is the end value.
+    /// Value unit: kilonewton per meter [kN/m].
+    /// </summary>
+    LinearDistributedLoad = 4,
+
+    /// <summary>
     /// Self-weight load derived from member section area and material unit weight.
     /// This is planned for a later analysis milestone.
     /// </summary>
-    SelfWeight = 4
+    SelfWeight = 5
 }

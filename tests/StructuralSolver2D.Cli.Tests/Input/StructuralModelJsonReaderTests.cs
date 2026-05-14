@@ -76,6 +76,44 @@ public sealed class StructuralModelJsonReaderTests
     }
 
     [Fact]
+    public void Read_ShouldLoadManualLoadCombinationsAndUseCombinationAsDefault()
+    {
+        string path = WriteTempJson("""
+        {
+          "loadCombinationId": "ULS1",
+          "nodes": [],
+          "materials": [],
+          "sections": [],
+          "members": [],
+          "supports": [],
+          "loadCases": [
+            { "id": "G1", "name": "Permanent" },
+            { "id": "Q1", "name": "Variable" }
+          ],
+          "loads": [],
+          "loadCombinations": [
+            {
+              "id": "ULS1",
+              "name": "Manual ULS",
+              "terms": [
+                { "loadCaseId": "G1", "factor": 1.35 },
+                { "loadCaseId": "Q1", "factor": 1.50 }
+              ]
+            }
+          ]
+        }
+        """);
+
+        StructuralModelJsonFile file = StructuralModelJsonReader.Read(path);
+
+        Assert.Equal("ULS1", file.LoadCaseId);
+        Assert.Single(file.Model.LoadCombinations);
+        Assert.Equal("ULS1", file.Model.LoadCombinations[0].Id);
+        Assert.Equal(2, file.Model.LoadCombinations[0].Terms.Count);
+        Assert.Equal(1.35, file.Model.LoadCombinations[0].Terms[0].Factor, precision: 6);
+    }
+
+    [Fact]
     public void Read_ShouldThrowWhenRequiredPropertyIsMissing()
     {
         string path = WriteTempJson("""

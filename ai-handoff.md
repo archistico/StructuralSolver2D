@@ -257,7 +257,7 @@ The Core model can represent:
 - `NodalForce`
 - `NodalMoment`
 - `UniformDistributedLoad`
-- `PointLoadOnMember`
+- `PointLoadOnMember, LinearDistributedLoad`
 - `SelfWeight` enum support may exist depending on current code state
 
 The current Frame2D analyzer supports:
@@ -513,3 +513,52 @@ At the time this handoff was written:
 - project is on .NET 8;
 - `.sln` classic solution is used instead of `.slnx`;
 - latest direction: continue with self-weight generation, richer examples and further numerical validation.
+
+
+## Milestone 14 update
+
+The Frame2D solver now supports `LinearDistributedLoad` member loads. `value` is the start intensity and `endValue` is the end intensity, both in kN/m. This covers triangular and trapezoidal distributed loads in global or local X/Y directions.
+
+
+## Current load-combination support
+
+Manual load combinations are supported through `StructuralLoadCombination` and `StructuralLoadCombinationTerm` in `StructuralSolver2D.Core`. The feature is deliberately manual only: do not add automatic normative generation unless explicitly requested and carefully scoped.
+
+`Frame2DAnalyzer.AnalyzeCombination(model, combinationId)` solves a factored combination by summing loads from each referenced load case with its factor. The returned `StructuralAnalysisResult.LoadCaseId` contains the combination id, so downstream CLI/reporting code treats the selected id as a generic analysis id.
+
+The CLI accepts either a load case id or a combination id in the same position:
+
+```powershell
+dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\load-combination.json ULS1
+dotnet run --project src\StructuralSolver2D.Cli -- report examples\load-combination.json reports\load-combination.md ULS1
+```
+
+The sampler resolves `analysisResult.LoadCaseId` as a combination id when it matches `model.LoadCombinations`; otherwise it treats it as a normal load case id.
+
+
+## Milestone 16 - Truss2D axial-only analysis
+
+This milestone adds a dedicated `Truss2DAnalyzer` for pure plane truss models.
+
+Supported behavior:
+
+- members with `type: Truss2D`;
+- axial-only stiffness with active translational DOFs `Ux` and `Uy`;
+- nodal force loads in `GlobalX` and `GlobalY`;
+- manual load combinations;
+- support reactions in `Fx` and `Fy`;
+- nodal displacements with `Rz = 0`;
+- axial member end forces, with positive internal `N` interpreted as tension.
+
+Current limits:
+
+- mixed `Frame2D` + `Truss2D` models are not supported yet;
+- member distributed loads, member point loads and nodal moments are not supported by the Truss2D analyzer;
+- truss members do not provide bending or shear behavior.
+
+CLI example:
+
+```powershell
+dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\simple-truss.json
+dotnet run --project src\StructuralSolver2D.Cli -- report examples\simple-truss.json reports\simple-truss.md
+```

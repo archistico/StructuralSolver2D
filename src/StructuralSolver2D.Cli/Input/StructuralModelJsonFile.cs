@@ -7,7 +7,7 @@ namespace StructuralSolver2D.Cli.Input;
 /// </summary>
 /// <param name="Title">User-facing title of the input model.</param>
 /// <param name="Description">Short description of the structural scheme.</param>
-/// <param name="LoadCaseId">Default load case to analyze.</param>
+/// <param name="LoadCaseId">Default analysis id to use. It may refer to either a load case or a manual load combination.</param>
 /// <param name="Model">Structural model built from the JSON file.</param>
 public sealed record StructuralModelJsonFile(
     string Title,

@@ -112,12 +112,27 @@ public static class StructuralModelJsonReader
                 load.Direction ?? throw new InvalidOperationException("loads[].direction is required."),
                 load.Value,
                 load.Position,
-                load.Label));
+                load.Label,
+                load.EndValue));
         }
 
-        string loadCaseId = !string.IsNullOrWhiteSpace(file.LoadCaseId)
-            ? file.LoadCaseId!
-            : model.LoadCases.FirstOrDefault()?.Id ?? throw new InvalidOperationException("The JSON model must define at least one load case.");
+        foreach (JsonLoadCombination combination in file.LoadCombinations ?? Enumerable.Empty<JsonLoadCombination>())
+        {
+            model.AddLoadCombination(new StructuralLoadCombination(
+                Required(combination.Id, "loadCombinations[].id"),
+                Required(combination.Name, "loadCombinations[].name"),
+                (combination.Terms ?? throw new InvalidOperationException("loadCombinations[].terms is required."))
+                    .Select(term => new StructuralLoadCombinationTerm(
+                        Required(term.LoadCaseId, "loadCombinations[].terms[].loadCaseId"),
+                        term.Factor)),
+                combination.Description));
+        }
+
+        string loadCaseId = !string.IsNullOrWhiteSpace(file.LoadCombinationId)
+            ? file.LoadCombinationId!
+            : !string.IsNullOrWhiteSpace(file.LoadCaseId)
+                ? file.LoadCaseId!
+                : model.LoadCases.FirstOrDefault()?.Id ?? throw new InvalidOperationException("The JSON model must define at least one load case.");
 
         return new StructuralModelJsonFile(
             file.Title ?? Path.GetFileNameWithoutExtension(filePath),
@@ -157,6 +172,8 @@ public static class StructuralModelJsonReader
 
         public string? LoadCaseId { get; set; }
 
+        public string? LoadCombinationId { get; set; }
+
         public List<JsonNode>? Nodes { get; set; }
 
         public List<JsonMaterial>? Materials { get; set; }
@@ -170,6 +187,8 @@ public static class StructuralModelJsonReader
         public List<JsonLoadCase>? LoadCases { get; set; }
 
         public List<JsonLoad>? Loads { get; set; }
+
+        public List<JsonLoadCombination>? LoadCombinations { get; set; }
     }
 
     private sealed class JsonNode
@@ -270,6 +289,26 @@ public static class StructuralModelJsonReader
 
         public double? Position { get; set; }
 
+        public double? EndValue { get; set; }
+
         public string? Label { get; set; }
+    }
+
+    private sealed class JsonLoadCombination
+    {
+        public string? Id { get; set; }
+
+        public string? Name { get; set; }
+
+        public string? Description { get; set; }
+
+        public List<JsonLoadCombinationTerm>? Terms { get; set; }
+    }
+
+    private sealed class JsonLoadCombinationTerm
+    {
+        public string? LoadCaseId { get; set; }
+
+        public double Factor { get; set; }
     }
 }
