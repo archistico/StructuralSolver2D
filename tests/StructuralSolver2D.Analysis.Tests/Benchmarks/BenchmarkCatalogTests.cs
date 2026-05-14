@@ -1,5 +1,7 @@
 using System.Text.Json;
+using StructuralSolver2D.Analysis.Equilibrium;
 using StructuralSolver2D.Analysis.Frame2D;
+using StructuralSolver2D.Analysis.PlaneStructure2D;
 using StructuralSolver2D.Analysis.Results;
 using StructuralSolver2D.Analysis.Truss2D;
 using StructuralSolver2D.Cli.Input;
@@ -46,11 +48,13 @@ public sealed class BenchmarkCatalogTests
         AssertFrameExtremaIfRequested(benchmark, model, result, expected, tolerance);
         AssertDisplacementsIfRequested(benchmark, model, result, expected, tolerance);
         AssertNamedChecksIfRequested(benchmark, result, expected.Checks, tolerance);
+        AssertGlobalEquilibrium(benchmark, model, result, tolerance);
     }
 
     private static StructuralAnalysisResult Analyze(StructuralModel model, string analysisId)
     {
         bool isTrussOnly = model.Members.All(member => member.Type == MemberType.Truss2D);
+        bool isFrameOnly = model.Members.All(member => member.Type == MemberType.Frame2D);
         bool isCombination = model.LoadCombinations.Any(combination =>
             string.Equals(combination.Id, analysisId, StringComparison.OrdinalIgnoreCase));
 
@@ -60,8 +64,14 @@ public sealed class BenchmarkCatalogTests
             return isCombination ? analyzer.AnalyzeCombination(model, analysisId) : analyzer.Analyze(model, analysisId);
         }
 
-        Frame2DAnalyzer frameAnalyzer = new();
-        return isCombination ? frameAnalyzer.AnalyzeCombination(model, analysisId) : frameAnalyzer.Analyze(model, analysisId);
+        if (isFrameOnly)
+        {
+            Frame2DAnalyzer frameAnalyzer = new();
+            return isCombination ? frameAnalyzer.AnalyzeCombination(model, analysisId) : frameAnalyzer.Analyze(model, analysisId);
+        }
+
+        PlaneStructureAnalyzer planeAnalyzer = new();
+        return isCombination ? planeAnalyzer.AnalyzeCombination(model, analysisId) : planeAnalyzer.Analyze(model, analysisId);
     }
 
     private static void AssertSupportReactions(
@@ -204,6 +214,20 @@ public sealed class BenchmarkCatalogTests
                 Assert.NotEmpty(result.Displacements);
             }
         }
+    }
+
+
+    private static void AssertGlobalEquilibrium(
+        BenchmarkCase benchmark,
+        StructuralModel model,
+        StructuralAnalysisResult result,
+        double tolerance)
+    {
+        GlobalEquilibriumResult equilibrium = new GlobalEquilibriumChecker().Check(model, result);
+        Assert.True(
+            equilibrium.IsInEquilibrium(tolerance),
+            $"Benchmark {benchmark.Id}: global equilibrium residual too large. " +
+            $"Residual Fx={equilibrium.ResidualFx}, Fy={equilibrium.ResidualFy}, Mz={equilibrium.ResidualMz}, tolerance={tolerance}.");
     }
 
     private static void AssertClose(string benchmarkId, string quantity, double expected, double actual, double tolerance)

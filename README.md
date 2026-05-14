@@ -301,12 +301,12 @@ Milestone 21 - Analysis diagnostics
 Milestone 22 - Frame2D member end moment releases
 Milestone 23 - Mixed Frame2D + Truss2D plane-structure analyzer
 Milestone 24 - Local/global load conventions and inclined member validation
+Milestone 25 - Global equilibrium checker
 ```
 
 Recommended short-term roadmap:
 
 ```text
-Milestone 25 - Global equilibrium checker
 Milestone 26 - Mesh refinement and convergence benchmarks
 Milestone 28 - Improved benchmark runner
 Milestone 29 - Examples and benchmarks reorganization

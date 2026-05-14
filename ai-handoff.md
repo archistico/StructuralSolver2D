@@ -48,23 +48,29 @@ The code should therefore remain clear, explicit and easy to test. Avoid clever 
 
 ## Latest milestone
 
-Milestone 24 added validation tests and benchmark files for inclined members and local/global load conventions.
+Milestone 25 added a global equilibrium checker.
 
-The key rule is:
+The checker sums applied loads and support reactions and verifies the global residuals:
 
 ```text
-Global loads stay in global coordinates.
-Local loads rotate with the member local axes and therefore depend on member orientation.
+ΣFx ≈ 0
+ΣFy ≈ 0
+ΣMz ≈ 0
 ```
 
-The new tests cover:
+The checker supports:
 
-- inclined Frame2D cantilever with global nodal load;
-- inclined Frame2D cantilever with `LocalY` uniform load;
-- inclined Frame2D cantilever with `GlobalY` uniform load;
-- member orientation `A -> B` versus `B -> A`;
-- axial tip load along an inclined member;
-- mixed Frame2D + Truss2D model with an inclined brace.
+- load cases;
+- manual load combinations;
+- nodal forces;
+- nodal moments;
+- point loads on Frame2D members;
+- uniform distributed loads;
+- linear/triangular/trapezoidal distributed loads;
+- local and global member load directions;
+- Frame2D, Truss2D and mixed PlaneStructure2D analysis results.
+
+The benchmark runner now applies this equilibrium check to every catalog benchmark.
 
 ## Current repository layout
 

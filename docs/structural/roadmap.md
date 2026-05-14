@@ -386,55 +386,46 @@ Covered topics:
 
 This milestone reinforces the convention that global loads stay global, while local loads rotate with the member axes.
 
-# Upcoming milestones
+### Milestone 25 — Global equilibrium checker
 
+Added an automatic global equilibrium checker.
 
-## Milestone 25 — Global equilibrium checker
-
-### Goal
-
-Add an automatic equilibrium checker.
-
-The checker should verify:
+The checker verifies, for a completed analysis result:
 
 ```text
-ΣFx = 0
-ΣFy = 0
-ΣMz = 0
+ΣFx ≈ 0
+ΣFy ≈ 0
+ΣMz ≈ 0
 ```
 
-for a completed structural analysis.
-
-### Planned class
-
-Possible class name:
+Implemented class:
 
 ```text
 GlobalEquilibriumChecker
 ```
 
-or:
-
-```text
-StructuralEquilibriumChecker
-```
-
-### Checks
-
-The checker should compute:
+The checker computes:
 
 - total applied horizontal force;
 - total applied vertical force;
 - total applied moment about a reference point;
-- total support reactions;
-- residual force and moment;
-- pass/fail result based on tolerance.
+- total support horizontal reaction;
+- total support vertical reaction;
+- total support moment reaction;
+- force and moment residuals.
 
-### Why this matters
+Supported load sources:
 
-This is one of the most useful global validation checks for a structural analysis solver.
+- nodal forces;
+- nodal moments;
+- point loads on members;
+- uniform distributed loads;
+- linearly varying distributed loads;
+- manual load combinations.
 
-It can detect:
+The benchmark runner now executes this global equilibrium check for every catalog benchmark.
+
+This milestone is important because it can detect:
 
 - missing loads;
 - wrong load signs;
@@ -444,6 +435,8 @@ It can detect:
 - member load conversion errors.
 
 ---
+
+# Upcoming milestones
 
 ## Milestone 26 — Mesh refinement and convergence benchmarks
 
@@ -909,7 +902,6 @@ The solver and validation suite remain the priority.
 The immediate recommended order is:
 
 ```text
-25 - Global equilibrium checker
 26 - Mesh refinement and convergence benchmarks
 28 - Improved benchmark runner
 29 - Examples and benchmarks reorganization
