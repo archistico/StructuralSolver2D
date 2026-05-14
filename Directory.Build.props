@@ -1,0 +1,15 @@
+<Project>
+  <PropertyGroup>
+    <Version>0.1.0</Version>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <FileVersion>0.1.0.0</FileVersion>
+    <InformationalVersion>0.1.0</InformationalVersion>
+    <Authors>Emilie Rollandin</Authors>
+    <Company>StructuralSolver2D</Company>
+    <Product>StructuralSolver2D</Product>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Description>Experimental and educational .NET 8 engine for 2D linear elastic structural analysis.</Description>
+  </PropertyGroup>
+</Project>

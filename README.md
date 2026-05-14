@@ -79,7 +79,10 @@ The CLI and future UI layers may display other units, but all analysis data shou
 ```text
 StructuralSolver2D/
   StructuralSolver2D.sln
+  Directory.Build.props
   README.md
+  CHANGELOG.md
+  VERSION
   ai-handoff.md
 
   docs/
@@ -92,6 +95,10 @@ StructuralSolver2D/
       analysis.md
       validation.md
       reporting.md
+      csv-export.md
+      public-api.md
+      release-checklist.md
+      release-notes-v0.1.0.md
       roadmap.md
 
   examples/
@@ -184,6 +191,7 @@ Current commands:
 - `example <name>`
 - `analyze <input.json> [loadCaseId|combinationId]`
 - `report <input.json> <output.md> [loadCaseId|combinationId]`
+- `export-csv <input.json> <output-directory> [loadCaseId|combinationId]`
 
 ### `StructuralSolver2D.Reporting`
 
@@ -191,7 +199,8 @@ Contains report generators.
 
 Current implementation:
 
-- Markdown report generator.
+- Markdown report generator;
+- CSV result exporter.
 
 ---
 
@@ -252,6 +261,18 @@ Generate a Markdown report for a specific load case:
 
 ```powershell
 dotnet run --project src\StructuralSolver2D.Cli -- report examples\beams\simple-supported-beam.json reports\simple-supported-beam.md LC1
+```
+
+Export CSV files for spreadsheet validation:
+
+```powershell
+dotnet run --project src\StructuralSolver2D.Cli -- export-csv examples\beams\simple-supported-beam.json reports\csv\simple-supported-beam
+```
+
+Export CSV files for a specific load case or combination:
+
+```powershell
+dotnet run --project src\StructuralSolver2D.Cli -- export-csv examples\combinations\load-combination.json reports\csv\combination ULS1
 ```
 
 ---
@@ -388,18 +409,24 @@ Milestone 34 - Initial material library
 Milestone 35 - Advanced educational Markdown reports
 Milestone 36 - CSV export
 Milestone 37 - Public API stabilization
+Milestone 38 - First technical release
+```
+
+Current technical release:
+
+```text
+v0.1.0 - First technical release
 ```
 
 Recommended next milestone:
 
 ```text
-Milestone 38 - First technical release
+Milestone 39 - Future OpenCad2D integration study
 ```
 
 Medium-term roadmap:
 
 ```text
-Milestone 38 - First technical release
 Milestone 39 - Future OpenCad2D integration study
 Milestone 40 - Experimental viewer
 ```
@@ -409,6 +436,27 @@ See the full roadmap in:
 ```text
 docs/structural/roadmap.md
 ```
+
+---
+
+## First technical release
+
+The first technical release is documented in:
+
+```text
+CHANGELOG.md
+VERSION
+docs/structural/release-notes-v0.1.0.md
+docs/structural/release-checklist.md
+```
+
+Suggested GitHub release title:
+
+```text
+StructuralSolver2D v0.1.0 - First technical release
+```
+
+This release is a technical preview and not a certified structural design product.
 
 ---
 
@@ -754,4 +802,6 @@ Milestone 36 adds CSV export through `CsvStructuralResultExporter` and the CLI `
 
 Milestone 37 adds a stable high-level public facade through `StructuralSolver2DService` in `StructuralSolver2D.Analysis.PublicApi`. Applications can now run a complete workflow from one entry point and receive a bundled result with analysis results, sampled internal-force diagrams, optional displacement diagrams, optional preliminary deflection checks and a compact summary.
 
-Next recommended work: Milestone 38, focused on preparing the first technical release.
+Milestone 38 prepares the first technical release baseline `v0.1.0` with `VERSION`, `CHANGELOG.md`, release notes and a release checklist. It does not change solver behavior.
+
+Next recommended work: Milestone 39, focused on studying a future OpenCad2D integration boundary without coupling the solver to OpenCad2D.

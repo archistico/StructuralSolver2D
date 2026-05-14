@@ -58,7 +58,9 @@ The project currently includes:
 - README and AI handoff documentation;
 - preliminary SLE deflection checks;
 - parametric section helpers;
-- initial elastic material library.
+- initial elastic material library;
+- public API facade;
+- first technical release baseline.
 
 ---
 
@@ -880,9 +882,9 @@ The API is intentionally conservative: it wraps the current first-order linear e
 
 ### Goal
 
-Prepare the first GitHub release.
+Prepare the first GitHub technical release.
 
-Possible version:
+Version:
 
 ```text
 v0.1.0
@@ -891,21 +893,29 @@ v0.1.0
 Suggested title:
 
 ```text
-StructuralSolver2D v0.1.0 - Linear 2D structural analysis core
+StructuralSolver2D v0.1.0 - First technical release
 ```
 
 Release contents:
 
 - README;
-- ai-handoff.md;
+- `VERSION`;
+- `CHANGELOG.md`;
+- `ai-handoff.md`;
 - documentation;
 - CLI;
 - JSON examples;
 - Markdown report generation;
+- CSV export;
+- public API facade;
 - benchmark catalog;
 - automated tests;
 - release notes;
 - license.
+
+### Status
+
+Completed.
 
 ---
 
@@ -973,12 +983,13 @@ Recently completed short-term milestones:
 35 - Advanced educational reports
 36 - CSV export
 37 - Public API stabilization
+38 - First technical release
 ```
 
 The next recommended step is:
 
 ```text
-38 - First technical release
+39 - Future OpenCad2D integration study
 ```
 
 After that, the project can move toward:
@@ -1136,10 +1147,34 @@ The new theory documentation explains:
 - displacement interpolation and deformed-shape sampling;
 - benchmark and validation strategy.
 
+Milestone 37 introduced a stable public facade that bundles analysis, post-processing and optional preliminary deflection checks for external applications.
+
+---
+
+## Milestone 38 completion update
+
+Milestone 38 prepares the first technical release baseline.
+
+Added release-oriented files:
+
+```text
+Directory.Build.props
+VERSION
+CHANGELOG.md
+docs/structural/release-checklist.md
+docs/structural/release-notes-v0.1.0.md
+```
+
+The release version is:
+
+```text
+v0.1.0
+```
+
+This milestone does not add new solver behavior. It consolidates the public-facing project state after Milestones 1-37 and documents how to validate, tag and publish the first technical release.
+
 The next recommended milestone is:
 
 ```text
-Milestone 38 — First technical release
+Milestone 39 — Future OpenCad2D integration study
 ```
-
-Milestone 37 has introduced a stable public facade that bundles analysis, post-processing and optional preliminary deflection checks for external applications.
