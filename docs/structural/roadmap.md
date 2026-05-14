@@ -847,19 +847,32 @@ CSV export is intended for spreadsheet validation and external post-processing. 
 
 ### Goal
 
-Review and stabilize public APIs before a first technical release.
+Introduce a stable high-level public API before a first technical release.
 
-### Review checklist
+### Completed
 
-- namespaces;
-- public class names;
-- public property names;
-- record immutability;
-- exception messages;
-- XML documentation comments;
-- separation between Core, Analysis, Reporting and CLI;
-- extensibility for future analyzers;
-- consistency of units and sign conventions.
+Milestone 37 adds `StructuralSolver2DService` in `StructuralSolver2D.Analysis.PublicApi`.
+
+The facade keeps low-level components available, but gives external applications one preferred entry point for the standard workflow:
+
+- analyze one load case;
+- analyze one manual load combination;
+- sample internal-force diagrams;
+- optionally sample displacement diagrams;
+- optionally perform preliminary deflection checks;
+- compute compact governing result summaries.
+
+New public API files:
+
+```text
+src/StructuralSolver2D.Analysis/PublicApi/StructuralSolver2DService.cs
+src/StructuralSolver2D.Analysis/PublicApi/StructuralAnalysisRequest.cs
+src/StructuralSolver2D.Analysis/PublicApi/StructuralAnalysisOptions.cs
+src/StructuralSolver2D.Analysis/PublicApi/StructuralAnalysisOutput.cs
+src/StructuralSolver2D.Analysis/PublicApi/StructuralAnalysisTargetKind.cs
+```
+
+The API is intentionally conservative: it wraps the current first-order linear elastic plane-structure analyzer and post-processing pipeline. It does not freeze future internals, does not introduce normative design checks and does not replace specialized low-level solver classes for advanced usage.
 
 ---
 
@@ -959,18 +972,18 @@ Recently completed short-term milestones:
 34 - Initial material library
 35 - Advanced educational reports
 36 - CSV export
+37 - Public API stabilization
 ```
 
 The next recommended step is:
 
 ```text
-37 - Public API stabilization
+38 - First technical release
 ```
 
 After that, the project can move toward:
 
 ```text
-38 - First technical release
 39 - Future OpenCad2D integration study
 40 - Experimental viewer
 ```
@@ -1126,7 +1139,7 @@ The new theory documentation explains:
 The next recommended milestone is:
 
 ```text
-Milestone 37 — Public API stabilization
+Milestone 38 — First technical release
 ```
 
-Milestone 36 has already made computed results easier to inspect in spreadsheets and external validation tools through CSV export.
+Milestone 37 has introduced a stable public facade that bundles analysis, post-processing and optional preliminary deflection checks for external applications.

@@ -387,18 +387,18 @@ Milestone 33 - Parametric sections
 Milestone 34 - Initial material library
 Milestone 35 - Advanced educational Markdown reports
 Milestone 36 - CSV export
+Milestone 37 - Public API stabilization
 ```
 
 Recommended next milestone:
 
 ```text
-Milestone 37 - Public API stabilization
+Milestone 38 - First technical release
 ```
 
 Medium-term roadmap:
 
 ```text
-Milestone 37 - Public API stabilization
 Milestone 38 - First technical release
 Milestone 39 - Future OpenCad2D integration study
 Milestone 40 - Experimental viewer
@@ -698,6 +698,7 @@ See also:
 - `examples/README.md`
 - `docs/structural/examples-and-benchmarks.md`
 - `docs/structural/benchmark-strategy.md`
+- `docs/structural/public-api.md`
 
 ---
 
@@ -751,4 +752,6 @@ Milestone 35 expands Markdown reports with educational guidance, an executive su
 
 Milestone 36 adds CSV export through `CsvStructuralResultExporter` and the CLI `export-csv` command. The exported tables cover nodal displacements, support reactions, member end forces, internal-force samples, displacement samples and compact result summaries. CSV output is intended for spreadsheet validation and external post-processing, not for complete model exchange.
 
-Next recommended work: Milestone 37, focused on public API stabilization before the first technical release.
+Milestone 37 adds a stable high-level public facade through `StructuralSolver2DService` in `StructuralSolver2D.Analysis.PublicApi`. Applications can now run a complete workflow from one entry point and receive a bundled result with analysis results, sampled internal-force diagrams, optional displacement diagrams, optional preliminary deflection checks and a compact summary.
+
+Next recommended work: Milestone 38, focused on preparing the first technical release.

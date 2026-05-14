@@ -927,7 +927,7 @@ CircularHollow(id, outerDiameter, innerDiameter)
 
 All dimensions are in meters. The generated `StructuralSection` records use area in m² and second moment of area in m⁴. The helper is intentionally simple and geometric: it does not select materials, does not imply a catalog profile, and does not perform code-compliant section verification.
 
-Next recommended milestone: Milestone 37 — public API stabilization.
+Next recommended milestone: Milestone 38 — first technical release.
 
 
 ---
@@ -948,7 +948,7 @@ Available presets:
 
 The helpers return ordinary `StructuralMaterial` records. They provide elastic modulus and unit weight only. They are not strength-class design implementations and must not be used as a substitute for normative verification.
 
-Next recommended work: Milestone 37, focused on public API stabilization.
+Next recommended work: Milestone 38, focused on preparing the first technical release.
 
 ## Milestone 35 update - Advanced educational Markdown reports
 
@@ -962,7 +962,7 @@ Milestone 35 adds report-layer educational sections:
 
 The new overload accepts displacement diagrams plus deflection check results. Existing report-generator overloads remain available and forward to the extended implementation with an empty check list.
 
-Next recommended work: Milestone 37, focused on public API stabilization.
+Next recommended work: Milestone 38, focused on preparing the first technical release.
 
 
 ## Milestone 36 update - CSV export
@@ -1003,4 +1003,33 @@ summary.csv
 
 CSV output uses invariant culture, comma separators and standard CSV quoting when needed. It is intended for spreadsheet validation and external post-processing, not for complete structural model exchange.
 
-Next recommended work: Milestone 37, focused on public API stabilization before the first technical release.
+Next recommended work: Milestone 38, focused on preparing the first technical release.
+
+
+## Milestone 37 update - Public API stabilization
+
+Milestone 37 adds a stable high-level facade in `StructuralSolver2D.Analysis.PublicApi`.
+
+Main public entry point:
+
+```text
+StructuralSolver2DService
+```
+
+Supported workflows:
+
+- `AnalyzeLoadCase(model, loadCaseId, options)`;
+- `AnalyzeLoadCombination(model, loadCombinationId, options)`;
+- `Analyze(request)`.
+
+The service returns `StructuralAnalysisOutput`, which bundles:
+
+- `StructuralAnalysisResult`;
+- sampled internal-force diagrams;
+- optional sampled displacement diagrams;
+- optional preliminary deflection checks;
+- compact `StructuralAnalysisSummary`.
+
+The facade is intended as the preferred integration point for external applications and future OpenCad2D experiments. Low-level analyzers, samplers and reporting components remain public and testable for advanced usage.
+
+Next recommended work: Milestone 38, focused on preparing the first technical release.
