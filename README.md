@@ -100,6 +100,8 @@ StructuralSolver2D/
       public-api.md
       release-checklist.md
       release-notes-v0.1.0.md
+      viewer-data.md
+      development-plan.md
       roadmap.md
 
   examples/
@@ -807,7 +809,11 @@ Milestone 38 prepares the first technical release baseline `v0.1.0` with `VERSIO
 
 Milestone 39 adds the first viewer-ready result data layer through `StructuralVisualizationModelBuilder`. It prepares undeformed geometry, scaled deformed shapes, nodal displacement/rotation values, N/V/M diagram polylines, bounds and optional cyclic animation frames without adding a GUI dependency.
 
-Next recommended work: Milestone 40, focused on SVG/HTML graphical result preview export.
+The roadmap has been realigned after Milestone 39 so that the previously planned engineering features are not lost while the graphical viewer path continues in a controlled sequence.
+
+Next recommended work: Milestone 40, focused on parametric model generators for common frames, trusses and Nielsen/parabolic schemes.
+
+See also `docs/structural/development-plan.md` for the unified post-M39 roadmap.
 
 
 ## Graphical result viewer foundation

@@ -48,9 +48,27 @@ The code should therefore remain clear, explicit and easy to test. Avoid clever 
 
 ## Latest milestone
 
-Milestone 38 prepares the first technical release baseline: `v0.1.0`.
+Milestone 39 adds a UI-independent viewer-ready result data model.
 
-The solver behavior is unchanged. The milestone adds release documentation, a changelog, a version file and a release checklist.
+The reporting project now contains `StructuralSolver2D.Reporting.Visualization`, which prepares:
+
+- undeformed nodes and member axes;
+- scaled deformed nodal coordinates;
+- nodal `Ux`, `Uy` and `Rz` values for labels/tooltips;
+- deformed member polylines;
+- normal-force, shear-force and bending-moment diagram polylines;
+- drawing bounds;
+- optional cyclic animation frames for deformed-shape playback.
+
+This is not a GUI and must remain independent from Avalonia, WPF, HTML, SVG and OpenCad2D.
+
+The post-M39 roadmap has been realigned. The next recommended milestone is:
+
+```text
+Milestone 40 — Parametric model generators
+```
+
+The viewer path is still planned, but it now follows the generator/report/export work instead of replacing it. See `docs/structural/development-plan.md`.
 
 Important convention:
 
@@ -502,66 +520,31 @@ Before changing sign conventions, update tests, reports and documentation togeth
 
 ## Known next-step candidates
 
-Current completed release baseline:
+The next recommended milestone is:
 
 ```text
-v0.1.0 - First technical release
+Milestone 40 — Parametric model generators
 ```
 
-Recommended next milestones:
+The unified post-M39 roadmap is:
 
-### Milestone 39 - Viewer-ready result data model
-
-Status: implemented in `StructuralSolver2D.Reporting/Visualization`.
-
-Main entry point:
-
-```csharp
-StructuralVisualizationModelBuilder
+```text
+40 - Parametric model generators
+41 - Validation example files in JSON
+42 - Static graphical result export: SVG, HTML and PNG
+43 - XLSX report export
+44 - PDF technical report
+45 - Section catalog persistence
+46 - First simple interactive viewer prototype
+47 - Viewer controls for result scale, diagram scale and animation playback
+48 - Labels/tooltips for nodal displacements, rotations and diagram values
+49 - OpenCad2D integration boundary study
 ```
 
-It prepares undeformed geometry, deformed shapes, nodal `Ux`, `Uy`, `Rz`, N/V/M diagram polylines, bounds and optional cyclic animation frames.
+Do not skip the generator, JSON validation, XLSX/PDF and section-catalog milestones just because the viewer data model now exists. The viewer path should grow after the solver has better example generation, validation files and professional exports.
 
-### Milestone 40 - SVG/HTML graphical result preview
+See:
 
-Goal: generate a static graphical preview from the visualization model.
-
-Expected output:
-
-- SVG result export or self-contained HTML preview;
-- undeformed model drawing;
-- deformed shape drawing;
-- selectable N/V/M diagram kind, at least at export-option level;
-- tests over generated SVG/HTML structure.
-
-### Milestone 41 - First interactive viewer prototype
-
-Goal: evaluate a lightweight viewer, preferably downstream of the solver.
-
-Candidate front ends:
-
-- Avalonia control;
-- WPF control;
-- static HTML + JavaScript canvas;
-- OpenCad2D integration layer.
-
-Rendering concerns must not move into Core or Analysis.
-
-
-## Viewer preparation
-
-A UI-independent visualization layer has been added under `StructuralSolver2D.Reporting/Visualization`.
-
-Main class: `StructuralVisualizationModelBuilder`.
-
-It converts structural model geometry and analysis results into renderer-ready data:
-
-- undeformed nodes and members;
-- scaled deformed node positions;
-- deformed member polylines;
-- nodal `Ux`, `Uy`, `Rz`;
-- normal-force, shear-force and bending-moment diagram polylines;
-- drawing bounds;
-- optional cyclic animation frames.
-
-This is intentionally not a GUI. It is the stable data layer for a future Avalonia/WPF/SVG/OpenCad2D viewer.
+```text
+docs/structural/development-plan.md
+```

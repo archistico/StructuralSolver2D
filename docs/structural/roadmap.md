@@ -921,61 +921,69 @@ Completed.
 
 ---
 
-## Milestone 39 — Future OpenCad2D integration study
+## Milestone 39 — Viewer-ready result data model
 
 ### Goal
 
-Study how StructuralSolver2D could be integrated into OpenCad2D.
+Create a renderer-independent data model for future graphical result viewers.
 
-### Principle
+### Status
 
-StructuralSolver2D must remain independent.
+Completed.
 
-OpenCad2D should become a possible graphical client, not a dependency of the solver.
-
-### Possible integration layer
+Implemented under:
 
 ```text
-OpenCad2D.Structural.Adapter
+src/StructuralSolver2D.Reporting/Visualization
 ```
 
-The adapter would be responsible for:
+The visualization layer prepares:
 
-- creating `StructuralModel` instances from graphical input;
-- drawing structural nodes;
-- drawing members;
-- drawing supports;
-- drawing loads;
-- displaying reactions;
-- displaying internal-force diagrams;
-- displaying deformed shapes;
-- generating reports.
+- undeformed nodes and members;
+- scaled deformed nodal coordinates;
+- nodal `Ux`, `Uy` and `Rz`;
+- deformed member polylines;
+- normal-force, shear-force and bending-moment diagram polylines;
+- drawing bounds;
+- optional cyclic animation frames.
+
+This milestone intentionally does not add a GUI dependency. It creates the stable data boundary for SVG, PNG, HTML, Avalonia, WPF or OpenCad2D clients.
 
 ---
 
-## Milestone 40 — Experimental viewer
+## Upcoming milestones after Milestone 39
 
-### Goal
+The post-M39 roadmap keeps both work streams:
 
-Evaluate a lightweight viewer before full OpenCad2D integration.
+- structural/model/reporting features planned before the viewer discussion;
+- graphical viewer features enabled by the Milestone 39 visualization data model.
 
-Possible options:
+The unified sequence is:
 
-- SVG export;
-- static HTML report with diagrams;
-- small Avalonia viewer;
-- Blazor viewer;
-- command line generated graphics.
+```text
+40 - Parametric model generators
+41 - Validation example files in JSON
+42 - Static graphical result export: SVG, HTML and PNG
+43 - XLSX report export
+44 - PDF technical report
+45 - Section catalog persistence
+46 - First simple interactive viewer prototype
+47 - Viewer controls for result scale, diagram scale and animation playback
+48 - Labels/tooltips for nodal displacements, rotations and diagram values
+49 - OpenCad2D integration boundary study
+```
 
-This is not urgent.
+Detailed planning is kept in:
 
-The solver and validation suite remain the priority.
+```text
+docs/structural/development-plan.md
+```
 
 ---
 
 # Short-term priority
 
-Recently completed short-term milestones:
+Completed short-term milestones:
 
 ```text
 31 - Improved diagrams and characteristic points
@@ -986,19 +994,24 @@ Recently completed short-term milestones:
 36 - CSV export
 37 - Public API stabilization
 38 - First technical release
+39 - Viewer-ready result data model and animation frames
 ```
+
+The roadmap has been realigned after Milestone 39 to preserve both planned work streams:
+
+1. engineering/product features already planned before the viewer discussion;
+2. graphical viewer features made possible by the new viewer-ready data model.
 
 The next recommended step is:
 
 ```text
-39 - Future OpenCad2D integration study
+40 - Parametric model generators
 ```
 
-After that, the project can move toward:
+See also:
 
 ```text
-39 - Future OpenCad2D integration study
-40 - Experimental viewer
+docs/structural/development-plan.md
 ```
 
 ---
@@ -1031,7 +1044,6 @@ The milestone validates and documents the distinction between:
 - convergence behavior under mesh refinement.
 
 This milestone reinforces the project rule that validation must evolve together with solver capabilities.
-
 
 ---
 
@@ -1077,7 +1089,6 @@ The supported automatic result checks currently include:
 - global equilibrium residuals.
 
 This milestone makes the benchmark suite easier to extend before adding more validation cases and future expected-result types.
-
 
 ---
 
@@ -1175,12 +1186,7 @@ v0.1.0
 
 This milestone does not add new solver behavior. It consolidates the public-facing project state after Milestones 1-37 and documents how to validate, tag and publish the first technical release.
 
-The next recommended milestone after the release baseline is:
-
-```text
-Milestone 39 — Viewer-ready result data model
-```
-
+---
 
 ## Validation hardening and viewer preparation
 
@@ -1210,12 +1216,21 @@ The layer prepares:
 
 This is intentionally not a GUI. It is the stable data boundary for future SVG/PNG export, Avalonia/WPF viewers, web canvases or OpenCad2D integration.
 
-Recommended next milestones:
+---
+
+## Unified upcoming milestones after Milestone 39
 
 ```text
-Milestone 40 — SVG/HTML graphical result preview
-Milestone 41 — First interactive viewer prototype
-Milestone 42 — Viewer controls for result scale, diagram scale and animation playback
-Milestone 43 — Labels/tooltips for nodal displacements, rotations and diagram values
-Milestone 44 — OpenCad2D integration boundary study
+40 - Parametric model generators
+41 - Validation example files in JSON
+42 - Static graphical result export: SVG, HTML and PNG
+43 - XLSX report export
+44 - PDF technical report
+45 - Section catalog persistence
+46 - First simple interactive viewer prototype
+47 - Viewer controls for result scale, diagram scale and animation playback
+48 - Labels/tooltips for nodal displacements, rotations and diagram values
+49 - OpenCad2D integration boundary study
 ```
+
+The previous viewer milestones are therefore not discarded. They are moved after the generator/export/reporting work so the project remains validated and useful before the interactive UI grows.
