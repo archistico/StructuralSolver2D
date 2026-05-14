@@ -5,6 +5,7 @@ using StructuralSolver2D.Cli.Examples;
 using StructuralSolver2D.Cli.Input;
 using StructuralSolver2D.Cli.Output;
 using StructuralSolver2D.Core.Model;
+using StructuralSolver2D.Reporting.Markdown;
 
 const string ApplicationName = "StructuralSolver2D";
 
@@ -24,6 +25,11 @@ try
     if (IsAnalyzeCommand(args[0]))
     {
         return RunJsonAnalysis(args);
+    }
+
+    if (IsReportCommand(args[0]))
+    {
+        return RunMarkdownReport(args);
     }
 
     CliOutputWriter.WriteError($"Unknown command '{args[0]}'.");
@@ -99,12 +105,63 @@ int RunJsonAnalysis(string[] args)
     return 0;
 }
 
+int RunMarkdownReport(string[] args)
+{
+    if (args.Length < 3)
+    {
+        CliOutputWriter.WriteError("Missing report arguments.");
+        CliOutputWriter.WriteHelp(ApplicationName, CliExampleModelFactory.GetAvailableExamples());
+        return 1;
+    }
+
+    string inputPath = args[1];
+    string outputPath = args[2];
+
+    StructuralModelJsonFile input = StructuralModelJsonReader.Read(inputPath);
+    string loadCaseId = args.Length >= 4 ? args[3] : input.LoadCaseId;
+
+    AnalysisRun run = Analyze(input.Model, loadCaseId);
+
+    var generator = new MarkdownStructuralReportGenerator();
+    string markdown = generator.Generate(
+        input.Model,
+        run.Result,
+        run.Diagrams,
+        run.Summary,
+        new MarkdownReportOptions
+        {
+            Title = input.Title,
+            Description = input.Description,
+            SourceLabel = inputPath,
+            IncludeInternalForceSamples = true,
+            MaxSamplesPerMember = 21,
+        });
+
+    string? directory = Path.GetDirectoryName(outputPath);
+    if (!string.IsNullOrWhiteSpace(directory))
+    {
+        Directory.CreateDirectory(directory);
+    }
+
+    File.WriteAllText(outputPath, markdown);
+    Console.WriteLine($"Report written to: {outputPath}");
+
+    return 0;
+}
+
 void AnalyzeAndWrite(
     string sourceLabel,
     string title,
     string description,
     StructuralModel model,
     string loadCaseId)
+{
+    AnalysisRun run = Analyze(model, loadCaseId);
+
+    CliOutputWriter.WriteAnalysisResult(ApplicationName, sourceLabel, title, description, run.Result, run.Summary);
+}
+
+AnalysisRun Analyze(StructuralModel model, string loadCaseId)
 {
     var analyzer = new Frame2DAnalyzer();
     StructuralAnalysisResult result = analyzer.Analyze(model, loadCaseId);
@@ -115,7 +172,7 @@ void AnalyzeAndWrite(
     var summarizer = new Frame2DResultSummarizer();
     StructuralAnalysisSummary summary = summarizer.Summarize(result, diagrams);
 
-    CliOutputWriter.WriteAnalysisResult(ApplicationName, sourceLabel, title, description, result, summary);
+    return new AnalysisRun(result, diagrams, summary);
 }
 
 static bool IsHelpCommand(string command) =>
@@ -130,3 +187,12 @@ static bool IsExampleCommand(string command) =>
 static bool IsAnalyzeCommand(string command) =>
     string.Equals(command, "analyze", StringComparison.OrdinalIgnoreCase) ||
     string.Equals(command, "analyse", StringComparison.OrdinalIgnoreCase);
+
+static bool IsReportCommand(string command) =>
+    string.Equals(command, "report", StringComparison.OrdinalIgnoreCase) ||
+    string.Equals(command, "markdown", StringComparison.OrdinalIgnoreCase);
+
+internal sealed record AnalysisRun(
+    StructuralAnalysisResult Result,
+    IReadOnlyList<MemberInternalForceDiagram> Diagrams,
+    StructuralAnalysisSummary Summary);

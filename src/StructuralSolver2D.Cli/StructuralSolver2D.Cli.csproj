@@ -1,8 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\StructuralSolver2D.Core\StructuralSolver2D.Core.csproj" />
     <ProjectReference Include="..\StructuralSolver2D.Analysis\StructuralSolver2D.Analysis.csproj" />
+    <ProjectReference Include="..\StructuralSolver2D.Reporting\StructuralSolver2D.Reporting.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

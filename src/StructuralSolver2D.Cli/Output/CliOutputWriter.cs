@@ -20,6 +20,7 @@ public static class CliOutputWriter
         Console.WriteLine("Usage:");
         Console.WriteLine("  dotnet run --project src/StructuralSolver2D.Cli -- example <name>");
         Console.WriteLine("  dotnet run --project src/StructuralSolver2D.Cli -- analyze <file.json> [loadCaseId]");
+        Console.WriteLine("  dotnet run --project src/StructuralSolver2D.Cli -- report <file.json> <output.md> [loadCaseId]");
         Console.WriteLine();
         WriteAvailableExamples(examples);
     }
