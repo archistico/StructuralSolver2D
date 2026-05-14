@@ -54,7 +54,9 @@ The project currently includes:
 - benchmark catalog;
 - automated benchmark runner;
 - diagnostic analysis errors;
-- README and AI handoff documentation.
+- README and AI handoff documentation;
+- preliminary SLE deflection checks;
+- parametric section helpers.
 
 ---
 
@@ -731,30 +733,41 @@ Completed.
 
 ### Goal
 
-Generate section properties from simple geometric inputs.
+Generate section properties from simple geometric inputs while preserving the existing explicit `StructuralSection` API.
 
-### Initial section types
+### Implemented scope
 
-- rectangular section;
-- circular solid section;
-- circular hollow section;
-- simple timber rectangular section.
+Milestone 33 adds:
 
-### Example
-
-```json
-{
-  "id": "RECT_100x200",
-  "type": "Rectangular",
-  "width": 0.10,
-  "height": 0.20
-}
+```text
+StructuralSolver2D.Core.Model.Sections.StructuralSectionFactory
 ```
 
-The generated section should compute:
+Implemented helpers:
 
-- area;
-- second moment of area.
+- rectangular section;
+- simple timber rectangular section;
+- circular solid section;
+- circular hollow section.
+
+Example:
+
+```csharp
+var section = StructuralSectionFactory.Rectangular(
+    "RECT_100x200",
+    width: 0.10,
+    height: 0.20);
+```
+
+The generated section computes:
+
+- area in m²;
+- second moment of area in m⁴;
+- optional height and width metadata where meaningful.
+
+### Status
+
+Completed.
 
 ---
 
@@ -1145,7 +1158,7 @@ The new theory documentation explains:
 The next recommended milestone is:
 
 ```text
-Milestone 33 — Parametric sections
+Milestone 34 — Initial material library
 ```
 
-This should add simple section-property generators while preserving the existing explicit `StructuralSection` API for advanced/manual input.
+This should add predefined elastic materials while making clear that material presets are not complete normative design rules.

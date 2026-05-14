@@ -238,6 +238,30 @@ A = area
 I = second moment of area around the relevant bending axis
 ```
 
+Sections can still be entered manually when exact or catalog-derived properties are required.
+
+Milestone 33 adds `StructuralSectionFactory` in `StructuralSolver2D.Core.Model.Sections` for common parametric shapes:
+
+```text
+Rectangular(id, width, height)
+TimberRectangular(id, width, height)
+CircularSolid(id, diameter)
+CircularHollow(id, outerDiameter, innerDiameter)
+```
+
+The helper methods use meters as input and return ordinary `StructuralSection` records. The generated properties are:
+
+```text
+rectangular area: A = b h
+rectangular inertia: I = b h³ / 12
+solid circular area: A = π d² / 4
+solid circular inertia: I = π d⁴ / 64
+hollow circular area: A = π (D² - d²) / 4
+hollow circular inertia: I = π (D⁴ - d⁴) / 64
+```
+
+This is a convenience API, not a material or code-design library. The caller is still responsible for choosing dimensions, material, orientation and appropriate structural assumptions.
+
 ## StructuralLoadCombination
 
 A `StructuralLoadCombination` combines load cases with coefficients.

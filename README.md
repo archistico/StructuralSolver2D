@@ -18,7 +18,7 @@ The current implementation focuses on first-order linear elastic analysis of pla
 Supported at the current stage:
 
 - independent structural model;
-- nodes, members, materials, sections and supports;
+- nodes, members, materials, explicit sections, parametric sections and supports;
 - load cases and basic loads;
 - 2D frame analysis with three degrees of freedom per node: `Ux`, `Uy`, `Rz`;
 - nodal forces;
@@ -29,6 +29,8 @@ Supported at the current stage:
 - local member end forces;
 - sampled internal-force diagrams `N(x)`, `V(x)`, `M(x)`;
 - characteristic internal-force points for reporting and future graphical output;
+- preliminary serviceability deflection checks;
+- parametric section helpers for rectangular, timber rectangular, solid circular and hollow circular sections;
 - result extrema and analysis summaries;
 - CLI examples;
 - JSON input examples;
@@ -143,6 +145,7 @@ Main concepts:
 - `StructuralMember`
 - `StructuralMaterial`
 - `StructuralSection`
+- `StructuralSectionFactory`
 - `StructuralSupport`
 - `StructuralLoadCase`
 - `StructuralLoad`
@@ -263,6 +266,31 @@ Current built-in and JSON examples:
 
 ---
 
+
+## Parametric sections
+
+Milestone 33 adds `StructuralSectionFactory` in `StructuralSolver2D.Core.Model.Sections`.
+
+It generates `StructuralSection` instances from simple dimensions using internal units:
+
+```csharp
+var section = StructuralSectionFactory.Rectangular(
+    "RECT_100x200",
+    width: 0.10,
+    height: 0.20);
+```
+
+Available helpers:
+
+- `Rectangular(id, width, height)`;
+- `TimberRectangular(id, width, height)`;
+- `CircularSolid(id, diameter)`;
+- `CircularHollow(id, outerDiameter, innerDiameter)`.
+
+These helpers compute area `A` in m² and in-plane bending inertia `I` in m⁴. They do not replace manual `StructuralSection` input; they only reduce mistakes for common shapes.
+
+---
+
 ## Validation approach
 
 Validation is a core part of the project.
@@ -327,12 +355,13 @@ Milestone 29 - Examples and benchmarks reorganization
 Milestone 30 - Initial theory documentation
 Milestone 31 - Improved internal-force diagrams and characteristic points
 Milestone 32 - Preliminary SLE deflection checks
+Milestone 33 - Parametric sections
 ```
 
 Recommended next milestone:
 
 ```text
-Milestone 33 - Parametric sections
+Milestone 34 - Initial material library
 ```
 
 Medium-term roadmap:
@@ -686,4 +715,6 @@ The checker evaluates sampled member displacement diagrams against simple limits
 
 This feature is intentionally conservative in wording and scope: it is a preliminary engineering aid, not a complete code-compliant serviceability verification. Internal sampled displacement values are still finite-element interpolation values; for exact benchmark comparisons at critical positions, model those positions as explicit nodes.
 
-Next recommended work: Milestone 33, focused on parametric sections.
+Milestone 33 adds parametric section helpers through `StructuralSectionFactory`. The helpers generate ordinary `StructuralSection` records for rectangular, timber rectangular, solid circular and hollow circular sections.
+
+Next recommended work: Milestone 34, focused on an initial elastic material library.
