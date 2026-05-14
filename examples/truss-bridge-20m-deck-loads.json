@@ -773,7 +773,7 @@
       "targetType": "Member",
       "targetId": "DECK_0_1",
       "direction": "GlobalY",
-      "value": -18.0,
+      "value": 18.0,
       "label": "Deck load 18"
     },
     {
@@ -783,7 +783,7 @@
       "targetType": "Member",
       "targetId": "DECK_1_2",
       "direction": "GlobalY",
-      "value": -18.0,
+      "value": 18.0,
       "label": "Deck load 18"
     },
     {
@@ -793,7 +793,7 @@
       "targetType": "Member",
       "targetId": "DECK_2_3",
       "direction": "GlobalY",
-      "value": -18.0,
+      "value": 18.0,
       "label": "Deck load 18"
     },
     {
@@ -803,7 +803,7 @@
       "targetType": "Member",
       "targetId": "DECK_3_4",
       "direction": "GlobalY",
-      "value": -30.0,
+      "value": 18.0,
       "label": "Deck load 30"
     },
     {
@@ -813,7 +813,7 @@
       "targetType": "Member",
       "targetId": "DECK_4_5",
       "direction": "GlobalY",
-      "value": -30.0,
+      "value": 18.0,
       "label": "Deck load 30"
     },
     {
@@ -823,7 +823,7 @@
       "targetType": "Member",
       "targetId": "DECK_5_6",
       "direction": "GlobalY",
-      "value": -18.0,
+      "value": 18.0,
       "label": "Deck load 18"
     },
     {
@@ -833,7 +833,7 @@
       "targetType": "Member",
       "targetId": "DECK_6_7",
       "direction": "GlobalY",
-      "value": -18.0,
+      "value": 18.0,
       "label": "Deck load 18"
     },
     {
@@ -843,50 +843,8 @@
       "targetType": "Member",
       "targetId": "DECK_7_8",
       "direction": "GlobalY",
-      "value": -18.0,
+      "value": 18.0,
       "label": "Deck load 18"
-    },
-    {
-      "id": "VIS_AXLE_LEFT",
-      "loadCaseId": "LC_VISUAL",
-      "type": "PointLoadOnMember",
-      "targetType": "Member",
-      "targetId": "DECK_3_4",
-      "direction": "GlobalY",
-      "position": 0.35,
-      "value": -55.0,
-      "label": "Truck axle L"
-    },
-    {
-      "id": "VIS_AXLE_RIGHT",
-      "loadCaseId": "LC_VISUAL",
-      "type": "PointLoadOnMember",
-      "targetType": "Member",
-      "targetId": "DECK_4_5",
-      "direction": "GlobalY",
-      "position": 0.65,
-      "value": -55.0,
-      "label": "Truck axle R"
-    },
-    {
-      "id": "VIS_CENTER_SERVICE",
-      "loadCaseId": "LC_VISUAL",
-      "type": "NodalForce",
-      "targetType": "Node",
-      "targetId": "B4",
-      "direction": "GlobalY",
-      "value": -35.0,
-      "label": "Service load"
-    },
-    {
-      "id": "VIS_WIND_TOP",
-      "loadCaseId": "LC_VISUAL",
-      "type": "NodalForce",
-      "targetType": "Node",
-      "targetId": "T4",
-      "direction": "GlobalX",
-      "value": 8.0,
-      "label": "Wind top"
     }
   ],
   "loadCombinations": [

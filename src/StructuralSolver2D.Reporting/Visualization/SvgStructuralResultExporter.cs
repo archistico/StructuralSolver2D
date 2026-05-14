@@ -65,6 +65,9 @@ public sealed class SvgStructuralResultExporter
     private static void AppendDefinitions(StringBuilder builder)
     {
         builder.AppendLine("  <defs>");
+        builder.AppendLine("    <marker id=\"loadArrow\" markerWidth=\"8\" markerHeight=\"8\" refX=\"7\" refY=\"4\" orient=\"auto\" markerUnits=\"userSpaceOnUse\">");
+        builder.AppendLine("      <path d=\"M0,0 L8,4 L0,8 z\" fill=\"#ea580c\" />");
+        builder.AppendLine("    </marker>");
         builder.AppendLine("    <marker id=\"reactionArrow\" markerWidth=\"8\" markerHeight=\"8\" refX=\"7\" refY=\"4\" orient=\"auto\" markerUnits=\"userSpaceOnUse\">");
         builder.AppendLine("      <path d=\"M0,0 L8,4 L0,8 z\" fill=\"#0ea5e9\" />");
         builder.AppendLine("    </marker>");
@@ -297,8 +300,8 @@ public sealed class SvgStructuralResultExporter
         double oy2 = mapper.MapY(load.EndOffsetPoint.Y);
 
         builder.AppendLine($"    <polygon class=\"distributed-load-shape\" data-load-id=\"{EscapeXml(load.LoadId)}\" points=\"{Format(x1)},{Format(y1)} {Format(x2)},{Format(y2)} {Format(ox2)},{Format(oy2)} {Format(ox1)},{Format(oy1)}\"/>");
-        builder.AppendLine($"    <line class=\"distributed-load-arrow\" x1=\"{Format(x1)}\" y1=\"{Format(y1)}\" x2=\"{Format(ox1)}\" y2=\"{Format(oy1)}\" marker-end=\"url(#loadArrow)\"/>");
-        builder.AppendLine($"    <line class=\"distributed-load-arrow\" x1=\"{Format(x2)}\" y1=\"{Format(y2)}\" x2=\"{Format(ox2)}\" y2=\"{Format(oy2)}\" marker-end=\"url(#loadArrow)\"/>");
+        builder.AppendLine($"    <line class=\"distributed-load-arrow\" x1=\"{Format(ox1)}\" y1=\"{Format(oy1)}\" x2=\"{Format(x1)}\" y2=\"{Format(y1)}\" marker-end=\"url(#loadArrow)\"/>");
+        builder.AppendLine($"    <line class=\"distributed-load-arrow\" x1=\"{Format(ox2)}\" y1=\"{Format(oy2)}\" x2=\"{Format(x2)}\" y2=\"{Format(y2)}\" marker-end=\"url(#loadArrow)\"/>");
 
         for (int index = 1; index <= 3; index++)
         {
@@ -307,7 +310,7 @@ public sealed class SvgStructuralResultExporter
             double ay = Interpolate(y1, y2, t);
             double bx = Interpolate(ox1, ox2, t);
             double by = Interpolate(oy1, oy2, t);
-            builder.AppendLine($"    <line class=\"distributed-load-arrow\" x1=\"{Format(ax)}\" y1=\"{Format(ay)}\" x2=\"{Format(bx)}\" y2=\"{Format(by)}\" marker-end=\"url(#loadArrow)\"/>");
+            builder.AppendLine($"    <line class=\"distributed-load-arrow\" x1=\"{Format(bx)}\" y1=\"{Format(by)}\" x2=\"{Format(ax)}\" y2=\"{Format(ay)}\" marker-end=\"url(#loadArrow)\"/>");
         }
 
         double lx = (ox1 + ox2) / 2.0 + 6.0;
