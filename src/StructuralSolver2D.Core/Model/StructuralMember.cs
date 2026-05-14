@@ -12,6 +12,8 @@ namespace StructuralSolver2D.Core.Model;
 /// <param name="SectionId">Identifier of the assigned section.</param>
 /// <param name="Type">Structural member type.</param>
 /// <param name="Label">Optional user-facing label.</param>
+/// <param name="ReleaseStartMoment">True when the local start-end rotational bending moment is released.</param>
+/// <param name="ReleaseEndMoment">True when the local end-end rotational bending moment is released.</param>
 public sealed record StructuralMember(
     string Id,
     string StartNodeId,
@@ -19,7 +21,9 @@ public sealed record StructuralMember(
     string MaterialId,
     string SectionId,
     MemberType Type = MemberType.Frame2D,
-    string? Label = null)
+    string? Label = null,
+    bool ReleaseStartMoment = false,
+    bool ReleaseEndMoment = false)
 {
     /// <summary>
     /// Computes the member length from its end nodes.

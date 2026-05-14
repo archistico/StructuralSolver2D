@@ -680,3 +680,25 @@ Regression coverage for these messages is in:
 ```text
 tests/StructuralSolver2D.Analysis.Tests/Diagnostics/StructuralAnalysisDiagnosticsTests.cs
 ```
+
+## Current milestone note - Frame2D member moment releases
+
+`StructuralMember` now has:
+
+```csharp
+bool ReleaseStartMoment
+bool ReleaseEndMoment
+```
+
+These apply only to `Frame2D` members and represent local end bending-moment releases. The `Frame2DAnalyzer` applies them through element-level static condensation in `Frame2DElementMatrices.ApplyMomentReleases(...)`.
+
+Important implementation detail: after releases, some nodal rotational DOFs may become inactive, especially for pin-ended isolated members. The analyzer automatically suppresses zero-stiffness DOFs with zero load before solving. Do not remove this behavior unless a more explicit DOF-management layer is introduced.
+
+JSON supports:
+
+```json
+"releaseStartMoment": true,
+"releaseEndMoment": true
+```
+
+Known limitation: this is not yet a full joint-release model for all possible semi-rigid or partial-release cases. It currently covers ideal local moment releases for Frame2D elements.

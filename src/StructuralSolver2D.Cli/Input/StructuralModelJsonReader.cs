@@ -78,7 +78,9 @@ public static class StructuralModelJsonReader
                 Required(member.MaterialId, "members[].materialId"),
                 Required(member.SectionId, "members[].sectionId"),
                 member.Type ?? MemberType.Frame2D,
-                member.Label));
+                member.Label,
+                member.ReleaseStartMoment,
+                member.ReleaseEndMoment));
         }
 
         foreach (JsonSupport support in file.Supports ?? Enumerable.Empty<JsonSupport>())
@@ -243,6 +245,10 @@ public static class StructuralModelJsonReader
         public MemberType? Type { get; set; }
 
         public string? Label { get; set; }
+
+        public bool ReleaseStartMoment { get; set; }
+
+        public bool ReleaseEndMoment { get; set; }
     }
 
     private sealed class JsonSupport

@@ -430,3 +430,31 @@ Analysis failure messages now include more actionable context for common modelin
 - singular reduced stiffness matrix errors report the failing pivot and mention possible mechanisms or missing restraints.
 
 This keeps the project more suitable for educational use: when an analysis fails, the message should help the user understand whether the problem is an invalid model, an unsupported feature, or an unstable/labile structural scheme.
+
+## Milestone update: Frame2D member end moment releases
+
+Frame2D members can now declare local bending moment releases at the start and/or end of the element:
+
+```json
+{
+  "id": "M1",
+  "startNodeId": "A",
+  "endNodeId": "B",
+  "materialId": "MAT",
+  "sectionId": "SEC",
+  "type": "Frame2D",
+  "releaseStartMoment": true,
+  "releaseEndMoment": true
+}
+```
+
+This is useful for modeling pin-ended beams, internal hinges and frame members whose end rotations are not fully moment-continuous.
+
+The implementation uses element-level static condensation. Inactive rotational DOFs with no stiffness and no applied load are automatically suppressed by the analyzer, so a pin-ended single member can be analyzed without artificially adding rotational restraints to the supports.
+
+Example:
+
+```powershell
+dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\released-beam.json
+dotnet run --project src\StructuralSolver2D.Cli -- report examples\released-beam.json reports\released-beam.md
+```

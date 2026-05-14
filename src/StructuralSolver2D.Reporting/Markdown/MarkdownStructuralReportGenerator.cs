@@ -165,8 +165,8 @@ public sealed class MarkdownStructuralReportGenerator
 
         builder.AppendLine("### Members");
         builder.AppendLine();
-        builder.AppendLine("| Id | Type | Start | End | Material | Section | Length [m] | Label |");
-        builder.AppendLine("|---|---|---|---|---|---|---:|---|");
+        builder.AppendLine("| Id | Type | Start | End | Material | Section | Length [m] | Start M release | End M release | Label |");
+        builder.AppendLine("|---|---|---|---|---|---|---:|---:|---:|---|");
 
         foreach (StructuralMember member in model.Members)
         {
@@ -177,7 +177,7 @@ public sealed class MarkdownStructuralReportGenerator
                 length = Format(StructuralMember.GetLength(startNode, endNode));
             }
 
-            builder.AppendLine($"| `{member.Id}` | {member.Type} | `{member.StartNodeId}` | `{member.EndNodeId}` | `{member.MaterialId}` | `{member.SectionId}` | {length} | {Text(member.Label)} |");
+            builder.AppendLine($"| `{member.Id}` | {member.Type} | `{member.StartNodeId}` | `{member.EndNodeId}` | `{member.MaterialId}` | `{member.SectionId}` | {length} | {Bool(member.ReleaseStartMoment)} | {Bool(member.ReleaseEndMoment)} | {Text(member.Label)} |");
         }
 
         builder.AppendLine();

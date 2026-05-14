@@ -167,6 +167,98 @@ internal static class Frame2DElementMatrices
         return load;
     }
 
+
+
+    /// <summary>
+    /// Applies end moment releases to a local frame stiffness matrix by static condensation.
+    /// Released rotational DOFs are local indexes 2 (start) and 5 (end).
+    /// </summary>
+    public static double[,] ApplyMomentReleasesToStiffness(
+        double[,] localStiffness,
+        bool releaseStartMoment,
+        bool releaseEndMoment) =>
+        ApplyMomentReleases(localStiffness, new double[6], releaseStartMoment, releaseEndMoment).Stiffness;
+
+    /// <summary>
+    /// Applies end moment releases to both local stiffness and equivalent local load vector.
+    /// This keeps the released end moments equal to zero in the element contribution.
+    /// </summary>
+    public static (double[,] Stiffness, double[] Load) ApplyMomentReleases(
+        double[,] localStiffness,
+        double[] localLoad,
+        bool releaseStartMoment,
+        bool releaseEndMoment)
+    {
+        ArgumentNullException.ThrowIfNull(localStiffness);
+        ArgumentNullException.ThrowIfNull(localLoad);
+
+        if (localStiffness.GetLength(0) != 6 || localStiffness.GetLength(1) != 6)
+        {
+            throw new ArgumentException("Frame2D local stiffness must be a 6x6 matrix.", nameof(localStiffness));
+        }
+
+        if (localLoad.Length != 6)
+        {
+            throw new ArgumentException("Frame2D local load vector must have six components.", nameof(localLoad));
+        }
+
+        List<int> released = new();
+        if (releaseStartMoment)
+        {
+            released.Add(2);
+        }
+
+        if (releaseEndMoment)
+        {
+            released.Add(5);
+        }
+
+        double[,] stiffness = CloneMatrix(localStiffness);
+        double[] load = (double[])localLoad.Clone();
+
+        if (released.Count == 0)
+        {
+            return (stiffness, load);
+        }
+
+        int[] retained = Enumerable.Range(0, 6).Where(index => !released.Contains(index)).ToArray();
+        double[,] kcc = ExtractMatrix(localStiffness, released, released);
+        double[,] inverseKcc = InvertSmallMatrix(kcc);
+
+        double[,] condensedStiffness = new double[6, 6];
+        double[] condensedLoad = new double[6];
+
+        foreach (int row in retained)
+        {
+            foreach (int column in retained)
+            {
+                double correction = 0;
+                for (int r1 = 0; r1 < released.Count; r1++)
+                {
+                    for (int r2 = 0; r2 < released.Count; r2++)
+                    {
+                        correction += localStiffness[row, released[r1]] * inverseKcc[r1, r2] * localStiffness[released[r2], column];
+                    }
+                }
+
+                condensedStiffness[row, column] = localStiffness[row, column] - correction;
+            }
+
+            double loadCorrection = 0;
+            for (int r1 = 0; r1 < released.Count; r1++)
+            {
+                for (int r2 = 0; r2 < released.Count; r2++)
+                {
+                    loadCorrection += localStiffness[row, released[r1]] * inverseKcc[r1, r2] * localLoad[released[r2]];
+                }
+            }
+
+            condensedLoad[row] = localLoad[row] - loadCorrection;
+        }
+
+        return (condensedStiffness, condensedLoad);
+    }
+
     /// <summary>
     /// Multiplies a matrix by a matrix.
     /// </summary>
@@ -248,4 +340,68 @@ internal static class Frame2DElementMatrices
 
         return result;
     }
+
+    private static double[,] CloneMatrix(double[,] matrix)
+    {
+        int rows = matrix.GetLength(0);
+        int columns = matrix.GetLength(1);
+        double[,] clone = new double[rows, columns];
+
+        for (int row = 0; row < rows; row++)
+        {
+            for (int column = 0; column < columns; column++)
+            {
+                clone[row, column] = matrix[row, column];
+            }
+        }
+
+        return clone;
+    }
+
+    private static double[,] ExtractMatrix(double[,] matrix, IReadOnlyList<int> rows, IReadOnlyList<int> columns)
+    {
+        double[,] result = new double[rows.Count, columns.Count];
+
+        for (int row = 0; row < rows.Count; row++)
+        {
+            for (int column = 0; column < columns.Count; column++)
+            {
+                result[row, column] = matrix[rows[row], columns[column]];
+            }
+        }
+
+        return result;
+    }
+
+    private static double[,] InvertSmallMatrix(double[,] matrix)
+    {
+        int size = matrix.GetLength(0);
+        if (size != matrix.GetLength(1) || size is < 1 or > 2)
+        {
+            throw new ArgumentException("Only 1x1 and 2x2 release matrices are supported.", nameof(matrix));
+        }
+
+        if (size == 1)
+        {
+            if (Math.Abs(matrix[0, 0]) < 1e-20)
+            {
+                throw new InvalidOperationException("Release condensation matrix is singular.");
+            }
+
+            return new[,] { { 1.0 / matrix[0, 0] } };
+        }
+
+        double determinant = (matrix[0, 0] * matrix[1, 1]) - (matrix[0, 1] * matrix[1, 0]);
+        if (Math.Abs(determinant) < 1e-20)
+        {
+            throw new InvalidOperationException("Release condensation matrix is singular.");
+        }
+
+        return new[,]
+        {
+            { matrix[1, 1] / determinant, -matrix[0, 1] / determinant },
+            { -matrix[1, 0] / determinant, matrix[0, 0] / determinant },
+        };
+    }
+
 }

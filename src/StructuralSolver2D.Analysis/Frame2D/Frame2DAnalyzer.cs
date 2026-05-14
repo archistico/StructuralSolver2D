@@ -92,22 +92,21 @@ public sealed class Frame2DAnalyzer
         AssembleGlobalStiffness(model, nodeIndexById, globalStiffness);
         AssembleLoads(model, loadCaseFactors, nodeIndexById, globalLoadVector, memberEquivalentLocalLoads);
 
-        bool[] restrainedDofs = BuildRestrainedDofMask(model, nodeIndexById, totalDofCount);
+        bool[] restrainedDofs = BuildRestrainedDofMask(model, nodeIndexById, totalDofCount, globalStiffness, globalLoadVector);
         List<int> freeDofs = Enumerable.Range(0, totalDofCount).Where(index => !restrainedDofs[index]).ToList();
 
-        if (freeDofs.Count == 0)
-        {
-            throw new StructuralAnalysisException("The model has no free degrees of freedom to solve.");
-        }
-
-        double[,] reducedStiffness = ExtractSubmatrix(globalStiffness, freeDofs, freeDofs);
-        double[] reducedLoadVector = ExtractSubvector(globalLoadVector, freeDofs);
-        double[] reducedDisplacements = DenseLinearSystemSolver.Solve(reducedStiffness, reducedLoadVector);
         double[] globalDisplacements = new double[totalDofCount];
 
-        for (int index = 0; index < freeDofs.Count; index++)
+        if (freeDofs.Count > 0)
         {
-            globalDisplacements[freeDofs[index]] = reducedDisplacements[index];
+            double[,] reducedStiffness = ExtractSubmatrix(globalStiffness, freeDofs, freeDofs);
+            double[] reducedLoadVector = ExtractSubvector(globalLoadVector, freeDofs);
+            double[] reducedDisplacements = DenseLinearSystemSolver.Solve(reducedStiffness, reducedLoadVector);
+
+            for (int index = 0; index < freeDofs.Count; index++)
+            {
+                globalDisplacements[freeDofs[index]] = reducedDisplacements[index];
+            }
         }
 
         double[] globalResidual = Subtract(Multiply(globalStiffness, globalDisplacements), globalLoadVector);
@@ -175,6 +174,10 @@ public sealed class Frame2DAnalyzer
                 section.Area,
                 section.MomentOfInertia,
                 geometry.Length);
+            localStiffness = Frame2DElementMatrices.ApplyMomentReleasesToStiffness(
+                localStiffness,
+                member.ReleaseStartMoment,
+                member.ReleaseEndMoment);
 
             double[,] transformation = Frame2DElementMatrices.BuildTransformation(geometry.Cosine, geometry.Sine);
             double[,] globalElementStiffness = Frame2DElementMatrices.TransformStiffnessToGlobal(localStiffness, transformation);
@@ -193,6 +196,8 @@ public sealed class Frame2DAnalyzer
     {
         Dictionary<string, StructuralMember> members = model.Members.ToDictionary(member => member.Id, StringComparer.OrdinalIgnoreCase);
         Dictionary<string, StructuralNode> nodes = model.Nodes.ToDictionary(node => node.Id, StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, StructuralMaterial> materials = model.Materials.ToDictionary(material => material.Id, StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, StructuralSection> sections = model.Sections.ToDictionary(section => section.Id, StringComparer.OrdinalIgnoreCase);
 
         foreach (StructuralLoad load in model.Loads.Where(load => loadCaseFactors.ContainsKey(load.LoadCaseId)))
         {
@@ -209,15 +214,15 @@ public sealed class Frame2DAnalyzer
                     break;
 
                 case StructuralLoadType.UniformDistributedLoad:
-                    AddUniformDistributedLoad(load, loadFactor, members, nodes, nodeIndexById, globalLoadVector, memberEquivalentLocalLoads);
+                    AddUniformDistributedLoad(load, loadFactor, members, nodes, materials, sections, nodeIndexById, globalLoadVector, memberEquivalentLocalLoads);
                     break;
 
                 case StructuralLoadType.LinearDistributedLoad:
-                    AddLinearDistributedLoad(load, loadFactor, members, nodes, nodeIndexById, globalLoadVector, memberEquivalentLocalLoads);
+                    AddLinearDistributedLoad(load, loadFactor, members, nodes, materials, sections, nodeIndexById, globalLoadVector, memberEquivalentLocalLoads);
                     break;
 
                 case StructuralLoadType.PointLoadOnMember:
-                    AddPointLoadOnMember(load, loadFactor, members, nodes, nodeIndexById, globalLoadVector, memberEquivalentLocalLoads);
+                    AddPointLoadOnMember(load, loadFactor, members, nodes, materials, sections, nodeIndexById, globalLoadVector, memberEquivalentLocalLoads);
                     break;
 
                 case StructuralLoadType.SelfWeight:
@@ -263,6 +268,8 @@ public sealed class Frame2DAnalyzer
         double loadFactor,
         Dictionary<string, StructuralMember> members,
         Dictionary<string, StructuralNode> nodes,
+        Dictionary<string, StructuralMaterial> materials,
+        Dictionary<string, StructuralSection> sections,
         Dictionary<string, int> nodeIndexById,
         double[] globalLoadVector,
         Dictionary<string, double[]> memberEquivalentLocalLoads)
@@ -276,6 +283,7 @@ public sealed class Frame2DAnalyzer
         localXValue *= loadFactor;
         localYValue *= loadFactor;
         double[] localLoad = Frame2DElementMatrices.BuildUniformLocalLoad(localXValue, localYValue, geometry.Length);
+        localLoad = ApplyMomentReleasesToLocalLoad(member, materials, sections, geometry, localLoad);
         double[,] transformation = Frame2DElementMatrices.BuildTransformation(geometry.Cosine, geometry.Sine);
         double[] globalLoad = Frame2DElementMatrices.TransformLoadToGlobal(localLoad, transformation);
         int[] dofs = GetMemberDofs(member, nodeIndexById);
@@ -300,6 +308,8 @@ public sealed class Frame2DAnalyzer
         double loadFactor,
         Dictionary<string, StructuralMember> members,
         Dictionary<string, StructuralNode> nodes,
+        Dictionary<string, StructuralMaterial> materials,
+        Dictionary<string, StructuralSection> sections,
         Dictionary<string, int> nodeIndexById,
         double[] globalLoadVector,
         Dictionary<string, double[]> memberEquivalentLocalLoads)
@@ -327,6 +337,7 @@ public sealed class Frame2DAnalyzer
             startLocalYValue,
             endLocalYValue,
             geometry.Length);
+        localLoad = ApplyMomentReleasesToLocalLoad(member, materials, sections, geometry, localLoad);
 
         double[,] transformation = Frame2DElementMatrices.BuildTransformation(geometry.Cosine, geometry.Sine);
         double[] globalLoad = Frame2DElementMatrices.TransformLoadToGlobal(localLoad, transformation);
@@ -351,6 +362,8 @@ public sealed class Frame2DAnalyzer
         double loadFactor,
         Dictionary<string, StructuralMember> members,
         Dictionary<string, StructuralNode> nodes,
+        Dictionary<string, StructuralMaterial> materials,
+        Dictionary<string, StructuralSection> sections,
         Dictionary<string, int> nodeIndexById,
         double[] globalLoadVector,
         Dictionary<string, double[]> memberEquivalentLocalLoads)
@@ -369,6 +382,7 @@ public sealed class Frame2DAnalyzer
         localXValue *= loadFactor;
         localYValue *= loadFactor;
         double[] localLoad = Frame2DElementMatrices.BuildPointLocalLoad(localXValue, localYValue, geometry.Length, load.Position.Value);
+        localLoad = ApplyMomentReleasesToLocalLoad(member, materials, sections, geometry, localLoad);
         double[,] transformation = Frame2DElementMatrices.BuildTransformation(geometry.Cosine, geometry.Sine);
         double[] globalLoad = Frame2DElementMatrices.TransformLoadToGlobal(localLoad, transformation);
         int[] dofs = GetMemberDofs(member, nodeIndexById);
@@ -385,6 +399,34 @@ public sealed class Frame2DAnalyzer
         {
             existingLocalLoad[index] += localLoad[index];
         }
+    }
+
+
+    private static double[] ApplyMomentReleasesToLocalLoad(
+        StructuralMember member,
+        Dictionary<string, StructuralMaterial> materials,
+        Dictionary<string, StructuralSection> sections,
+        MemberGeometry geometry,
+        double[] localLoad)
+    {
+        if (!member.ReleaseStartMoment && !member.ReleaseEndMoment)
+        {
+            return localLoad;
+        }
+
+        StructuralMaterial material = materials[member.MaterialId];
+        StructuralSection section = sections[member.SectionId];
+        double[,] localStiffness = Frame2DElementMatrices.BuildLocalStiffness(
+            material.ElasticModulus,
+            section.Area,
+            section.MomentOfInertia,
+            geometry.Length);
+
+        return Frame2DElementMatrices.ApplyMomentReleases(
+            localStiffness,
+            localLoad,
+            member.ReleaseStartMoment,
+            member.ReleaseEndMoment).Load;
     }
 
     private static (double LocalX, double LocalY) ResolveConcentratedLoadInLocalCoordinates(
@@ -414,8 +456,11 @@ public sealed class Frame2DAnalyzer
     private static bool[] BuildRestrainedDofMask(
         StructuralModel model,
         Dictionary<string, int> nodeIndexById,
-        int totalDofCount)
+        int totalDofCount,
+        double[,] globalStiffness,
+        double[] globalLoadVector)
     {
+        const double inactiveDofTolerance = 1e-12;
         bool[] restrainedDofs = new bool[totalDofCount];
 
         foreach (StructuralSupport support in model.Supports)
@@ -425,6 +470,29 @@ public sealed class Frame2DAnalyzer
             restrainedDofs[nodeBaseDof] |= support.RestrainedUx;
             restrainedDofs[nodeBaseDof + 1] |= support.RestrainedUy;
             restrainedDofs[nodeBaseDof + 2] |= support.RestrainedRz;
+        }
+
+        for (int dof = 0; dof < totalDofCount; dof++)
+        {
+            if (restrainedDofs[dof])
+            {
+                continue;
+            }
+
+            bool hasStiffness = false;
+            for (int column = 0; column < totalDofCount; column++)
+            {
+                if (Math.Abs(globalStiffness[dof, column]) > inactiveDofTolerance)
+                {
+                    hasStiffness = true;
+                    break;
+                }
+            }
+
+            if (!hasStiffness && Math.Abs(globalLoadVector[dof]) <= inactiveDofTolerance)
+            {
+                restrainedDofs[dof] = true;
+            }
         }
 
         return restrainedDofs;
@@ -487,6 +555,10 @@ public sealed class Frame2DAnalyzer
                 section.Area,
                 section.MomentOfInertia,
                 geometry.Length);
+            localStiffness = Frame2DElementMatrices.ApplyMomentReleasesToStiffness(
+                localStiffness,
+                member.ReleaseStartMoment,
+                member.ReleaseEndMoment);
 
             double[,] transformation = Frame2DElementMatrices.BuildTransformation(geometry.Cosine, geometry.Sine);
             int[] dofs = GetMemberDofs(member, nodeIndexById);
