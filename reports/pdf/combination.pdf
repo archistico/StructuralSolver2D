@@ -1,0 +1,349 @@
+%PDF-1.4
+%????
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [5 0 R 6 0 R] /Count 2 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 7 0 R >>
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 8 0 R >>
+endobj
+7 0 obj
+<< /Length 5919 >>
+stream
+0.92 0.96 1 rg
+0 808 595 34 re f
+BT /F1 9 Tf 0.20 0.25 0.35 rg
+48 820 Td (Manual load combination) Tj
+ET
+0.82 0.86 0.92 RG 0.5 w
+48 804 m 547 804 l S
+BT /F1 18 Tf 0.05 0.09 0.16 rg
+48 788 Td (Manual load combination) Tj
+ET
+BT /F1 10 Tf 0.18 0.21 0.27 rg
+48 762 Td (Simply supported beam with permanent and variable uniform loads combined manually.) Tj
+ET
+BT /F1 10 Tf 0.18 0.21 0.27 rg
+48 749 Td (Source: examples\\combinations\\load-combination.json) Tj
+ET
+BT /F1 10 Tf 0.18 0.21 0.27 rg
+48 736 Td (Analysis id: ULS1) Tj
+ET
+BT /F1 10 Tf 0.18 0.21 0.27 rg
+48 723 Td (Generated: 2026-05-14 20:39 +02:00) Tj
+ET
+BT /F1 10 Tf 0.18 0.21 0.27 rg
+48 710 Td () Tj
+ET
+BT /F1 13 Tf 0.10 0.18 0.32 rg
+48 697 Td (Model overview) Tj
+ET
+BT /F1 10 Tf 0.18 0.21 0.27 rg
+48 676 Td (Nodes: 2) Tj
+ET
+BT /F1 10 Tf 0.18 0.21 0.27 rg
+48 663 Td (Members: 1) Tj
+ET
+BT /F1 10 Tf 0.18 0.21 0.27 rg
+48 650 Td (Supports: 2) Tj
+ET
+BT /F1 10 Tf 0.18 0.21 0.27 rg
+48 637 Td (Load cases: 2) Tj
+ET
+BT /F1 10 Tf 0.18 0.21 0.27 rg
+48 624 Td (Load combinations: 2) Tj
+ET
+BT /F1 10 Tf 0.18 0.21 0.27 rg
+48 611 Td (Loads: 2) Tj
+ET
+BT /F1 10 Tf 0.18 0.21 0.27 rg
+48 598 Td () Tj
+ET
+BT /F1 13 Tf 0.10 0.18 0.32 rg
+48 585 Td (Assumptions and limitations) Tj
+ET
+BT /F1 10 Tf 0.18 0.21 0.27 rg
+48 564 Td (First-order linear elastic 2D analysis. Values are reported in StructuralSolver2D internal) Tj
+ET
+BT /F1 10 Tf 0.18 0.21 0.27 rg
+48 551 Td (units: displacements in m, rotations in rad, forces in kN and moments in kNm.) Tj
+ET
+BT /F1 10 Tf 0.18 0.21 0.27 rg
+48 538 Td (This PDF is a technical computation report. It is not a complete code-compliance document and) Tj
+ET
+BT /F1 10 Tf 0.18 0.21 0.27 rg
+48 525 Td (does not replace engineering judgement or project-specific normative checks.) Tj
+ET
+BT /F1 10 Tf 0.18 0.21 0.27 rg
+48 512 Td () Tj
+ET
+BT /F1 13 Tf 0.10 0.18 0.32 rg
+48 499 Td (Executive summary) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 478 Td (Metric                Entity/Member      Position       Distance          Value       Unit) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 467.5 Td (Max |Ux|              A                                              0.000000        m) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 457 Td (Max |Uy|              A                                              0.000000        m) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 446.5 Td (Max |Rz|              A                                             -0.024182      rad) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 436 Td (Max |Fx|              SA                                             0.000000       kN) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 425.5 Td (Max |Fy|              SA                                            48.750000       kN) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 415 Td (Max |Mz|              SA                                             0.000000      kNm) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 404.5 Td (Max |N|               M1                 0.000000     0.000000      -0.000000       kN) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 394 Td (Max |V|               M1                 0.000000     0.000000      48.750000       kN) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 383.5 Td (Max |M|               M1                 0.500000     2.500000      60.937500      kNm) Tj
+ET
+BT /F1 10 Tf 0.18 0.21 0.27 rg
+48 373 Td () Tj
+ET
+BT /F1 13 Tf 0.10 0.18 0.32 rg
+48 360 Td (Nodal displacements) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 339 Td (Node        Ux [m]          Uy [m]        Rz [rad]) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 328.5 Td (A              0.000000       0.000000      -0.024182) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 318 Td (B              0.000000       0.000000       0.024182) Tj
+ET
+BT /F1 10 Tf 0.18 0.21 0.27 rg
+48 307.5 Td () Tj
+ET
+BT /F1 13 Tf 0.10 0.18 0.32 rg
+48 294.5 Td (Support reactions) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 273.5 Td (Support  Node        Fx [kN]        Fy [kN]       Mz [kNm]) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 263 Td (SA       A            0.000000      48.750000       0.000000) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 252.5 Td (SB       B            0.000000      48.750000       0.000000) Tj
+ET
+BT /F1 10 Tf 0.18 0.21 0.27 rg
+48 242 Td () Tj
+ET
+BT /F1 13 Tf 0.10 0.18 0.32 rg
+48 229 Td (Member end forces) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 208 Td (Member      N1 [kN]       V1 [kN]      M1 [kNm]       N2 [kN]       V2 [kN]      M2 [kNm]) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 197.5 Td (M1             0.000000      48.750000       0.000000       0.000000      48.750000       0.000000) Tj
+ET
+BT /F1 10 Tf 0.18 0.21 0.27 rg
+48 187 Td () Tj
+ET
+BT /F1 13 Tf 0.10 0.18 0.32 rg
+48 174 Td (Internal-force samples) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 153 Td (Member     Pos      x [m]        N [kN]        V [kN]       M [kNm]) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 142.5 Td (M1       0.000000   0.000000     -0.000000     48.750000      0.000000) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 132 Td (M1       0.050000   0.250000     -0.000000     43.875000     11.578125) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 121.5 Td (M1       0.100000   0.500000     -0.000000     39.000000     21.937500) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 111 Td (M1       0.150000   0.750000     -0.000000     34.125000     31.078125) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 100.5 Td (M1       0.200000   1.000000     -0.000000     29.250000     39.000000) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 90 Td (M1       0.250000   1.250000     -0.000000     24.375000     45.703125) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 79.5 Td (M1       0.300000   1.500000     -0.000000     19.500000     51.187500) Tj
+ET
+0.82 0.86 0.92 RG 0.5 w
+48 34 m 547 34 l S
+BT /F1 9 Tf 0.35 0.39 0.45 rg
+499 18 Td (Page 1) Tj
+ET
+endstream
+endobj
+8 0 obj
+<< /Length 4531 >>
+stream
+0.92 0.96 1 rg
+0 808 595 34 re f
+BT /F1 9 Tf 0.20 0.25 0.35 rg
+48 820 Td (Manual load combination) Tj
+ET
+0.82 0.86 0.92 RG 0.5 w
+48 804 m 547 804 l S
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 788 Td (M1       0.350000   1.750000     -0.000000     14.625000     55.453125) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 777.5 Td (M1       0.400000   2.000000     -0.000000      9.750000     58.500000) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 767 Td (M1       0.450000   2.250000     -0.000000      4.875000     60.328125) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 756.5 Td (M1       0.500000   2.500000     -0.000000      0.000000     60.937500) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 746 Td (M1       0.550000   2.750000     -0.000000     -4.875000     60.328125) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 735.5 Td (M1       0.600000   3.000000     -0.000000     -9.750000     58.500000) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 725 Td (M1       0.650000   3.250000     -0.000000    -14.625000     55.453125) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 714.5 Td (M1       0.700000   3.500000     -0.000000    -19.500000     51.187500) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 704 Td (M1       0.750000   3.750000     -0.000000    -24.375000     45.703125) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 693.5 Td (M1       0.800000   4.000000     -0.000000    -29.250000     39.000000) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 683 Td (M1       0.850000   4.250000     -0.000000    -34.125000     31.078125) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 672.5 Td (M1       0.900000   4.500000     -0.000000    -39.000000     21.937500) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 662 Td (M1       0.950000   4.750000     -0.000000    -43.875000     11.578125) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 651.5 Td (M1       1.000000   5.000000     -0.000000    -48.750000      0.000000) Tj
+ET
+BT /F1 10 Tf 0.18 0.21 0.27 rg
+48 641 Td () Tj
+ET
+BT /F1 13 Tf 0.10 0.18 0.32 rg
+48 628 Td (Displacement samples) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 607 Td (Member     Pos      x [m]      GUx [m]      GUy [m]) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 596.5 Td (M1       0.000000   0.000000     0.000000     0.000000) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 586 Td (M1       0.050000   0.250000     0.000000    -0.005743) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 575.5 Td (M1       0.100000   0.500000     0.000000    -0.010882) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 565 Td (M1       0.150000   0.750000     0.000000    -0.015416) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 554.5 Td (M1       0.200000   1.000000     0.000000    -0.019345) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 544 Td (M1       0.250000   1.250000     0.000000    -0.022670) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 533.5 Td (M1       0.300000   1.500000     0.000000    -0.025391) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 523 Td (M1       0.350000   1.750000     0.000000    -0.027507) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 512.5 Td (M1       0.400000   2.000000     0.000000    -0.029018) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 502 Td (M1       0.450000   2.250000     0.000000    -0.029925) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 491.5 Td (M1       0.500000   2.500000     0.000000    -0.030227) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 481 Td (M1       0.550000   2.750000     0.000000    -0.029925) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 470.5 Td (M1       0.600000   3.000000     0.000000    -0.029018) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 460 Td (M1       0.650000   3.250000     0.000000    -0.027507) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 449.5 Td (M1       0.700000   3.500000     0.000000    -0.025391) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 439 Td (M1       0.750000   3.750000     0.000000    -0.022670) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 428.5 Td (M1       0.800000   4.000000     0.000000    -0.019345) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 418 Td (M1       0.850000   4.250000     0.000000    -0.015416) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 407.5 Td (M1       0.900000   4.500000     0.000000    -0.010882) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 397 Td (M1       0.950000   4.750000     0.000000    -0.005743) Tj
+ET
+BT /F2 8.5 Tf 0.10 0.10 0.10 rg
+48 386.5 Td (M1       1.000000   5.000000     0.000000     0.000000) Tj
+ET
+0.82 0.86 0.92 RG 0.5 w
+48 34 m 547 34 l S
+BT /F1 9 Tf 0.35 0.39 0.45 rg
+499 18 Td (Page 2) Tj
+ET
+endstream
+endobj
+xref
+0 9
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000127 00000 n 
+0000000197 00000 n 
+0000000265 00000 n 
+0000000401 00000 n 
+0000000537 00000 n 
+0000006507 00000 n 
+trailer
+<< /Size 9 /Root 1 0 R >>
+startxref
+11089
+%%EOF

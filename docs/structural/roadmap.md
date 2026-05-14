@@ -982,6 +982,20 @@ The workbook contains sheets for summary values, nodal displacements, support re
 
 PNG export remains intentionally deferred; the graphical export path is vector-first through SVG/HTML.
 
+### Milestone 44 — PDF technical report
+
+Added a lightweight PDF technical report exporter.
+
+The report contains model overview, assumptions, executive summary, nodal displacements, support reactions, member end forces and sampled result tables.
+
+The first implementation writes a minimal PDF directly, without external PDF-generation dependencies.
+
+The next milestone is:
+
+```text
+45 - Section catalog persistence
+```
+
 Detailed planning is kept in:
 
 ```text

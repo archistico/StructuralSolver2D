@@ -193,3 +193,22 @@ The solver projects must not reference OpenCad2D, Avalonia UI controls, WPF UI c
 ## Strategic note
 
 The viewer path is important, but the project should not skip generators, JSON validation examples and professional exports. Those features make the solver easier to validate and easier to compare with existing structural tools before investing heavily in interaction design.
+
+
+### Milestone 44 — PDF technical report
+
+Status: completed. The Reporting project now includes a lightweight dependency-free PDF exporter for technical computation reports.
+
+Scope implemented:
+
+- model overview;
+- assumptions and limitations;
+- executive summary;
+- nodal displacements;
+- support reactions;
+- member end forces;
+- sampled internal-force rows;
+- sampled displacement rows;
+- CLI command `export-pdf`.
+
+The next milestone is Milestone 45 — Section catalog persistence.

@@ -101,6 +101,7 @@ StructuralSolver2D/
       validation-json-examples.md
       graphical-export.md
       xlsx-export.md
+      pdf-report.md
       public-api.md
       release-checklist.md
       release-notes-v0.1.0.md
@@ -208,6 +209,7 @@ Current commands:
 - `report <input.json> <output.md> [loadCaseId|combinationId]`
 - `export-csv <input.json> <output-directory> [loadCaseId|combinationId]`
 - `export-xlsx <input.json> <output.xlsx> [loadCaseId|combinationId]`
+- `export-pdf <input.json> <output.pdf> [loadCaseId|combinationId]`
 - `export-svg <input.json> <output.svg> [loadCaseId|combinationId]`
 - `export-html <input.json> <output.html> [loadCaseId|combinationId]`
 
@@ -220,6 +222,7 @@ Current implementation:
 - Markdown report generator;
 - CSV result exporter;
 - XLSX result workbook exporter;
+- PDF technical report exporter;
 - SVG graphical result exporter;
 - HTML graphical preview exporter.
 
@@ -300,6 +303,12 @@ Export an XLSX workbook:
 
 ```powershell
 dotnet run --project src\StructuralSolver2D.Cli -- export-xlsx examples\beams\simple-supported-beam.json reports\xlsx\simple-supported-beam.xlsx
+```
+
+Export a PDF technical report:
+
+```powershell
+dotnet run --project src\StructuralSolver2D.Cli -- export-pdf examples\beams\simple-supported-beam.json reports\pdf\simple-supported-beam.pdf
 ```
 
 ### Static graphical exports

@@ -255,6 +255,7 @@ Current implementation:
 - `MarkdownReportOptions`
 - `CsvStructuralResultExporter`
 - `XlsxStructuralResultExporter`
+- `PdfTechnicalReportExporter`
 - `SvgStructuralResultExporter`
 - `HtmlStructuralResultPreviewExporter`
 
@@ -554,3 +555,10 @@ See:
 ```text
 docs/structural/development-plan.md
 ```
+
+
+Milestone 44 — PDF technical report
+
+Status: completed. Reporting now includes `PdfTechnicalReportExporter` and `PdfTechnicalReportOptions` under `StructuralSolver2D.Reporting/Pdf`. The CLI command is `export-pdf <file.json> <output.pdf> [loadCaseId|combinationId]`. The implementation writes a minimal PDF directly and intentionally avoids external PDF-generation dependencies.
+
+Next milestone: 45 — Section catalog persistence.

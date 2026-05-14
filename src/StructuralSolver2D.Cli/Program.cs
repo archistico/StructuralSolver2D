@@ -9,6 +9,7 @@ using StructuralSolver2D.Cli.Output;
 using StructuralSolver2D.Core.Model;
 using StructuralSolver2D.Reporting.Csv;
 using StructuralSolver2D.Reporting.Markdown;
+using StructuralSolver2D.Reporting.Pdf;
 using StructuralSolver2D.Reporting.Visualization;
 using StructuralSolver2D.Reporting.Xlsx;
 using StructuralSolver2D.Analysis.PublicApi;
@@ -46,6 +47,11 @@ try
     if (IsXlsxExportCommand(args[0]))
     {
         return RunXlsxExport(args);
+    }
+
+    if (IsPdfExportCommand(args[0]))
+    {
+        return RunPdfExport(args);
     }
 
     if (IsSvgExportCommand(args[0]))
@@ -241,6 +247,48 @@ int RunXlsxExport(string[] args)
 
     File.WriteAllBytes(outputPath, workbook);
     Console.WriteLine($"XLSX report written to: {outputPath}");
+
+    return 0;
+}
+
+int RunPdfExport(string[] args)
+{
+    if (args.Length < 3)
+    {
+        CliOutputWriter.WriteError("Missing PDF export arguments.");
+        CliOutputWriter.WriteHelp(ApplicationName, CliExampleModelFactory.GetAvailableExamples());
+        return 1;
+    }
+
+    string inputPath = args[1];
+    string outputPath = args[2];
+
+    StructuralModelJsonFile input = StructuralModelJsonReader.Read(inputPath);
+    string loadCaseId = args.Length >= 4 ? args[3] : input.LoadCaseId;
+
+    AnalysisRun run = Analyze(input.Model, loadCaseId);
+
+    string? directory = Path.GetDirectoryName(outputPath);
+    if (!string.IsNullOrWhiteSpace(directory))
+    {
+        Directory.CreateDirectory(directory);
+    }
+
+    byte[] pdf = new PdfTechnicalReportExporter().Export(
+        input.Model,
+        run.Result,
+        run.Diagrams,
+        run.DisplacementDiagrams,
+        run.Summary,
+        new PdfTechnicalReportOptions
+        {
+            Title = input.Title,
+            Description = input.Description,
+            SourceLabel = inputPath,
+        });
+
+    File.WriteAllBytes(outputPath, pdf);
+    Console.WriteLine($"PDF technical report written to: {outputPath}");
 
     return 0;
 }
@@ -461,6 +509,10 @@ static bool IsCsvExportCommand(string command) =>
 static bool IsXlsxExportCommand(string command) =>
     string.Equals(command, "export-xlsx", StringComparison.OrdinalIgnoreCase) ||
     string.Equals(command, "xlsx", StringComparison.OrdinalIgnoreCase);
+
+static bool IsPdfExportCommand(string command) =>
+    string.Equals(command, "export-pdf", StringComparison.OrdinalIgnoreCase) ||
+    string.Equals(command, "pdf", StringComparison.OrdinalIgnoreCase);
 
 static bool IsSvgExportCommand(string command) =>
     string.Equals(command, "export-svg", StringComparison.OrdinalIgnoreCase) ||
