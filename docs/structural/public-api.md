@@ -32,6 +32,18 @@ StructuralAnalysisOutput output = service.AnalyzeLoadCombination(
 - `DeflectionChecks`: preliminary serviceability deflection checks, when requested;
 - `Summary`: compact governing result values.
 
+### Support reaction convention
+
+`SupportReactionResult.Fx` and `SupportReactionResult.Fy` are always global force components.
+`SupportReactionResult.Mz` is the global support moment component.
+
+For inclined supports, a single restrained local support direction may generate both global components.
+Applications should therefore not assume that a roller has only one non-zero reaction component unless the support is aligned with the global axes.
+
+### Solver-size expectation
+
+The current implementation uses a dense linear solver. It is suitable for small/medium educational and prototype models, but it is not intended as a production-scale sparse finite element solver. The public facade is designed so that a future sparse solver can replace the dense implementation without changing application code.
+
 ## Options
 
 Use `StructuralAnalysisOptions` to configure the standard workflow:

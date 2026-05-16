@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Simply supported beam with uniform load</title>
+  <style>
+    :root { color-scheme: light; }
+    body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #0f172a; color: #e5e7eb; }
+    .viewer-page { min-height: 100vh; padding: 20px; box-sizing: border-box; }
+    .viewer-header { max-width: 1500px; margin: 0 auto 12px auto; }
+    .viewer-header h1 { margin: 0 0 6px 0; font-size: 28px; }
+    .viewer-header p { margin: 0; color: #cbd5e1; }
+    .toolbar { max-width: 1500px; margin: 0 auto 12px auto; padding: 12px; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; background: #111827; border: 1px solid #334155; border-radius: 12px; }
+    .toolbar button { border: 1px solid #475569; background: #1f2937; color: #f8fafc; border-radius: 8px; padding: 7px 10px; cursor: pointer; }
+    .toolbar button:hover { background: #374151; }
+    .toolbar label { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; color: #e2e8f0; }
+    .control-group { display: inline-flex; align-items: center; gap: 7px; padding: 6px 8px; border: 1px solid #334155; border-radius: 10px; background: #0f172a; }
+    .control-group span { color: #cbd5e1; font-size: 12px; min-width: 34px; text-align: right; }
+    .toolbar input[type=range] { width: 96px; }
+    .hint { color: #94a3b8; font-size: 12px; }
+    .viewer-shell { max-width: 1500px; margin: 0 auto; border: 1px solid #334155; border-radius: 14px; background: #020617; overflow: hidden; box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35); }
+    .viewer-canvas { height: min(78vh, 920px); overflow: hidden; cursor: grab; touch-action: none; }
+    .viewer-canvas.dragging { cursor: grabbing; }
+    .viewer-canvas svg { width: 100%; height: 100%; display: block; background: #ffffff; }
+    .viewer-canvas svg .node-label, .viewer-canvas svg .support-label, .viewer-canvas svg .dimension-label, .viewer-canvas svg .annotation-label, .viewer-canvas svg .reaction-label, .viewer-canvas svg .legend-label, .viewer-canvas svg .load-label { font-size: calc(12px * var(--viewer-label-scale, 1)) !important; }
+    .viewer-canvas svg .caption { font-size: calc(12px * var(--viewer-label-scale, 1)) !important; }
+    .viewer-canvas svg .displacement-label { font-size: calc(11px * var(--viewer-label-scale, 1)) !important; }
+    .viewer-canvas svg .member-displacement-label { font-size: calc(10.5px * var(--viewer-label-scale, 1)) !important; }
+    .summary { max-width: 1500px; margin: 12px auto 0 auto; display: grid; grid-template-columns: repeat(6, minmax(110px, 1fr)); gap: 10px; }
+    .summary div { background: #111827; border: 1px solid #334155; border-radius: 10px; padding: 10px; }
+    .summary dt { color: #94a3b8; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .summary dd { margin: 4px 0 0 0; font-weight: 700; color: #f8fafc; }
+    .hidden-layer { display: none !important; }
+  </style>
+</head>
+<body>
+  <main class="viewer-page">
+    <header class="viewer-header">
+      <h1>Simply supported beam with uniform load</h1>
+      <p>L = 5 m, q = 10 kN/m downward.</p>
+    </header>
+    <nav class="toolbar" aria-label="Viewer controls">
+      <button type="button" data-action="zoom-in">Zoom +</button>
+      <button type="button" data-action="zoom-out">Zoom -</button>
+      <button type="button" data-action="reset">Reset view</button>
+      <button type="button" data-action="play-animation">Play deformation</button>
+      <button type="button" data-action="pause-animation">Pause</button>
+      <label class="control-group">Deformed scale <input type="range" min="0" max="500" step="5" value="100" data-scale="deformed" /> <span data-scale-output="deformed">100%</span></label>
+      <label class="control-group">Text size <input type="range" min="50" max="160" step="5" value="100" data-text-scale="labels" /> <span data-text-scale-output="labels">100%</span></label>
+      <label class="control-group">Anim. speed <input type="range" min="0.25" max="4" step="0.25" value="1" data-animation="speed" /> <span data-animation-output="speed">1x</span></label>
+      <label><input type="checkbox" data-layer="#undeformed-model" checked /> Undeformed</label>
+      <label><input type="checkbox" data-layer="#deformed-shape" checked /> Deformed</label>
+      <label><input type="checkbox" data-layer="#loads" checked /> Loads</label>
+      <label><input type="checkbox" data-layer=".load-label" checked /> Load labels</label>
+      <label><input type="checkbox" data-layer=".diagram.normal-force,.diagram-fill.normal-force,.annotation-point.normal-force,.annotation-label.normal-force" checked /> N</label>
+      <label><input type="checkbox" data-layer=".diagram.shear-force,.diagram-fill.shear-force,.annotation-point.shear-force,.annotation-label.shear-force" checked /> V</label>
+      <label><input type="checkbox" data-layer=".diagram.bending-moment,.diagram-fill.bending-moment,.annotation-point.bending-moment,.annotation-label.bending-moment" checked /> M</label>
+      <label><input type="checkbox" data-layer="#diagrams" checked /> Diagrams group</label>
+      <label><input type="checkbox" data-layer=".support" checked /> Supports</label>
+      <label><input type="checkbox" data-layer=".reaction,.reaction-label" checked /> Reactions</label>
+      <label><input type="checkbox" data-layer=".dimension,.dimension-extension,.dimension-label" checked /> Dimensions</label>
+      <label><input type="checkbox" data-layer=".displacement-label,.displacement-label-anchor" /> Nodal displacement labels</label>
+      <label><input type="checkbox" data-layer=".member-displacement-label,.member-displacement-label-anchor" /> Member station labels</label>
+      <span class="hint">Wheel to zoom, drag to pan. Text size reduces or enlarges SVG labels; Deformed scale recomputes deformed coordinates from displacement data.</span>
+    </nav>
+    <section class="viewer-shell" aria-label="Interactive structural result viewer">
+      <div class="viewer-canvas" id="viewerCanvas">
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900" role="img" aria-labelledby="title desc">
+  <title id="title">Simply supported beam with uniform load</title>
+  <desc id="desc">Static structural result preview exported from StructuralSolver2D.</desc>
+  <defs>
+    <marker id="loadArrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L8,4 L0,8 z" fill="#ea580c" />
+    </marker>
+    <marker id="reactionArrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L8,4 L0,8 z" fill="#0ea5e9" />
+    </marker>
+    <marker id="dimensionArrow" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M8,0 L0,4 L8,8" fill="none" stroke="#6b7280" stroke-width="1.2" />
+    </marker>
+  </defs>
+  <style>
+    .background { fill: #ffffff; }
+    .frame { fill: none; stroke: #d1d5db; stroke-width: 1; }
+    .member.undeformed { stroke: #64748b; stroke-width: 2; fill: none; }
+    .member.deformed { stroke: #dc2626; stroke-width: 2.2; fill: none; }
+    .diagram.normal-force { stroke: #2563eb; stroke-width: 1.8; fill: none; }
+    .diagram.shear-force { stroke: #059669; stroke-width: 1.8; fill: none; }
+    .diagram.bending-moment { stroke: #7c3aed; stroke-width: 1.8; fill: none; }
+    .diagram-fill.normal-force { stroke: none; fill: rgba(37, 99, 235, 0.10); }
+    .diagram-fill.shear-force { stroke: none; fill: rgba(5, 150, 105, 0.10); }
+    .diagram-fill.bending-moment { stroke: none; fill: rgba(124, 58, 237, 0.10); }
+    .node { fill: #0f172a; }
+    .node-label, .support-label, .dimension-label, .annotation-label, .reaction-label, .legend-label, .displacement-label, .member-displacement-label { fill: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }
+    .title { fill: #111827; font-family: Arial, Helvetica, sans-serif; font-size: 20px; font-weight: bold; }
+    .caption { fill: #4b5563; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }
+    .support-line { stroke: #1f2937; stroke-width: 1.5; fill: none; }
+    .support-fill { fill: #f3f4f6; stroke: #1f2937; stroke-width: 1.5; }
+    .reaction { stroke: #0ea5e9; stroke-width: 1.8; fill: none; }
+    .reaction-label { fill: #0369a1; }
+    .displacement-label { fill: #991b1b; font-size: 11px; }
+    .displacement-label-anchor { fill: #dc2626; stroke: #ffffff; stroke-width: 1; }
+    .member-displacement-label { fill: #7f1d1d; font-size: 10.5px; }
+    .member-displacement-label-anchor { fill: #f97316; stroke: #ffffff; stroke-width: 1; }
+    .load-arrow, .distributed-load-arrow, .load-moment { stroke: #ea580c; stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .distributed-load-shape { stroke: #ea580c; stroke-width: 1.2; fill: rgba(234, 88, 12, 0.08); }
+    .load-label { fill: #9a3412; stroke: #ffffff; stroke-width: 3; paint-order: stroke fill; font-family: Arial, Helvetica, sans-serif; font-size: 12px; font-weight: 600; }
+    .dimension { stroke: #6b7280; stroke-width: 1.2; fill: none; }
+    .dimension-extension { stroke: #9ca3af; stroke-width: 1; }
+    .annotation-line { stroke: #dc2626; stroke-width: 1.2; stroke-dasharray: 4 3; fill: none; }
+    .annotation-label { font-weight: 600; }
+    .annotation-point { fill: #ffffff; stroke-width: 1.6; }
+    .annotation-point.normal-force { stroke: #2563eb; }
+    .annotation-point.shear-force { stroke: #059669; }
+    .annotation-point.bending-moment { stroke: #7c3aed; }
+  </style>
+  <rect class="background" x="0" y="0" width="1400" height="900"/>
+  <rect class="frame" x="0.5" y="0.5" width="1399" height="899"/>
+  <text class="title" x="32" y="26">Simply supported beam with uniform load</text>
+  <text class="caption" x="32" y="44">Deformation scale: 100 | Nodes: 2 | Members: 1</text>
+  <g id="undeformed-model">
+    <line class="member undeformed" x1="143.333" y1="403.511" x2="1256.667" y2="403.511"/>
+    <line class="dimension-extension" x1="143.333" y1="403.511" x2="143.333" y2="431.511"/>
+    <line class="dimension-extension" x1="1256.667" y1="403.511" x2="1256.667" y2="431.511"/>
+    <line class="dimension" x1="143.333" y1="421.511" x2="1256.667" y2="421.511" marker-start="url(#dimensionArrow)" marker-end="url(#dimensionArrow)"/>
+    <text class="dimension-label" x="700" y="417.511">L = 5 m</text>
+    <g class="support" data-support-id="SA" data-orientation-degrees="0">
+      <g class="support-symbol" transform="rotate(-0 143.333 403.511)">
+        <polygon class="support-fill" points="143.333,403.511 131.333,415.511 155.333,415.511"/>
+        <line class="support-line" x1="127.333" y1="419.511" x2="159.333" y2="419.511"/>
+      </g>
+      <text class="support-label" x="157.333" y="419.511">Hinge</text>
+    </g>
+    <g class="support" data-support-id="SB" data-orientation-degrees="0">
+      <g class="support-symbol" transform="rotate(-0 1256.667 403.511)">
+        <polygon class="support-fill" points="1256.667,403.511 1244.667,415.511 1268.667,415.511"/>
+        <circle class="support-fill" cx="1251.667" cy="419.511" r="3"/>
+        <circle class="support-fill" cx="1261.667" cy="419.511" r="3"/>
+        <line class="support-line" x1="1240.667" y1="423.511" x2="1272.667" y2="423.511"/>
+      </g>
+      <text class="support-label" x="1270.667" y="419.511">Simple support</text>
+    </g>
+    <circle class="node" cx="143.333" cy="403.511" r="3"/>
+    <text class="node-label" x="149.333" y="397.511">A</text>
+    <circle class="node" cx="1256.667" cy="403.511" r="3"/>
+    <text class="node-label" x="1262.667" y="397.511">B</text>
+    <line class="reaction" x1="143.333" y1="403.511" x2="143.333" y2="292.178" marker-end="url(#reactionArrow)"/>
+    <text class="reaction-label" x="149.333" y="341.845">Ry = 25 kN</text>
+    <line class="reaction" x1="1256.667" y1="403.511" x2="1256.667" y2="292.178" marker-end="url(#reactionArrow)"/>
+    <text class="reaction-label" x="1262.667" y="341.845">Ry = 25 kN</text>
+  </g>
+  <g id="loads">
+    <polygon class="distributed-load-shape" data-load-id="Q1" data-load-case-id="LC1" data-load-factor="1" points="143.333,403.511 1256.667,403.511 1256.667,492.578 143.333,492.578"/>
+    <line class="distributed-load-arrow" data-load-id="Q1" data-load-case-id="LC1" data-load-factor="1" x1="143.333" y1="403.511" x2="143.333" y2="492.578" marker-end="url(#loadArrow)"/>
+    <line class="distributed-load-arrow" data-load-id="Q1" data-load-case-id="LC1" data-load-factor="1" x1="1256.667" y1="403.511" x2="1256.667" y2="492.578" marker-end="url(#loadArrow)"/>
+    <line class="distributed-load-arrow" data-load-id="Q1" data-load-case-id="LC1" data-load-factor="1" x1="282.5" y1="403.511" x2="282.5" y2="492.578" marker-end="url(#loadArrow)"/>
+    <line class="distributed-load-arrow" data-load-id="Q1" data-load-case-id="LC1" data-load-factor="1" x1="421.667" y1="403.511" x2="421.667" y2="492.578" marker-end="url(#loadArrow)"/>
+    <line class="distributed-load-arrow" data-load-id="Q1" data-load-case-id="LC1" data-load-factor="1" x1="560.833" y1="403.511" x2="560.833" y2="492.578" marker-end="url(#loadArrow)"/>
+    <line class="distributed-load-arrow" data-load-id="Q1" data-load-case-id="LC1" data-load-factor="1" x1="700" y1="403.511" x2="700" y2="492.578" marker-end="url(#loadArrow)"/>
+    <line class="distributed-load-arrow" data-load-id="Q1" data-load-case-id="LC1" data-load-factor="1" x1="839.167" y1="403.511" x2="839.167" y2="492.578" marker-end="url(#loadArrow)"/>
+    <line class="distributed-load-arrow" data-load-id="Q1" data-load-case-id="LC1" data-load-factor="1" x1="978.333" y1="403.511" x2="978.333" y2="492.578" marker-end="url(#loadArrow)"/>
+    <line class="distributed-load-arrow" data-load-id="Q1" data-load-case-id="LC1" data-load-factor="1" x1="1117.5" y1="403.511" x2="1117.5" y2="492.578" marker-end="url(#loadArrow)"/>
+    <text class="load-label" data-load-id="Q1" data-load-case-id="LC1" data-load-factor="1" x="706" y="486.578">-10 kN/m</text>
+  </g>
+  <g id="diagrams">
+    <polygon class="diagram-fill normal-force" points="143.333,403.511 199,403.511 254.667,403.511 310.333,403.511 366,403.511 421.667,403.511 477.333,403.511 533,403.511 588.667,403.511 644.333,403.511 700,403.511 755.667,403.511 811.333,403.511 867,403.511 922.667,403.511 978.333,403.511 1034,403.511 1089.667,403.511 1145.333,403.511 1201,403.511 1256.667,403.511 1256.667,403.511 143.333,403.511"/>
+    <polyline class="diagram normal-force" points="143.333,403.511 199,403.511 254.667,403.511 310.333,403.511 366,403.511 421.667,403.511 477.333,403.511 533,403.511 588.667,403.511 644.333,403.511 700,403.511 755.667,403.511 811.333,403.511 867,403.511 922.667,403.511 978.333,403.511 1034,403.511 1089.667,403.511 1145.333,403.511 1201,403.511 1256.667,403.511"/>
+    <polygon class="diagram-fill shear-force" points="143.333,292.178 199,303.311 254.667,314.445 310.333,325.578 366,336.711 421.667,347.845 477.333,358.978 533,370.111 588.667,381.245 644.333,392.378 700,403.511 755.667,414.645 811.333,425.778 867,436.911 922.667,448.045 978.333,459.178 1034,470.311 1089.667,481.445 1145.333,492.578 1201,503.711 1256.667,514.845 1256.667,403.511 143.333,403.511"/>
+    <polyline class="diagram shear-force" points="143.333,292.178 199,303.311 254.667,314.445 310.333,325.578 366,336.711 421.667,347.845 477.333,358.978 533,370.111 588.667,381.245 644.333,392.378 700,403.511 755.667,414.645 811.333,425.778 867,436.911 922.667,448.045 978.333,459.178 1034,470.311 1089.667,481.445 1145.333,492.578 1201,503.711 1256.667,514.845"/>
+    <polygon class="diagram-fill bending-moment" points="143.333,403.511 199,377.07 254.667,353.411 310.333,332.536 366,314.445 421.667,299.136 477.333,286.611 533,276.87 588.667,269.911 644.333,265.736 700,264.345 755.667,265.736 811.333,269.911 867,276.87 922.667,286.611 978.333,299.136 1034,314.445 1089.667,332.536 1145.333,353.411 1201,377.07 1256.667,403.511 1256.667,403.511 143.333,403.511"/>
+    <polyline class="diagram bending-moment" points="143.333,403.511 199,377.07 254.667,353.411 310.333,332.536 366,314.445 421.667,299.136 477.333,286.611 533,276.87 588.667,269.911 644.333,265.736 700,264.345 755.667,265.736 811.333,269.911 867,276.87 922.667,286.611 978.333,299.136 1034,314.445 1089.667,332.536 1145.333,353.411 1201,377.07 1256.667,403.511"/>
+    <circle class="annotation-point normal-force" cx="1256.667" cy="403.511" r="4"/>
+    <text class="annotation-label normal-force" x="1264.667" y="397.511">Nmax = -0 kN</text>
+    <circle class="annotation-point shear-force" cx="1256.667" cy="514.845" r="4"/>
+    <text class="annotation-label shear-force" x="1264.667" y="508.845">Vmax = -25 kN</text>
+    <circle class="annotation-point bending-moment" cx="700" cy="264.345" r="4"/>
+    <text class="annotation-label bending-moment" x="708" y="258.345">Mmax = 31.25 kNm</text>
+  </g>
+  <g id="deformed-shape">
+    <polyline class="member deformed" data-deformed-polyline="true" data-base-points="143.333,403.511 199,403.511 254.667,403.511 310.333,403.511 366,403.511 421.667,403.511 477.333,403.511 533,403.511 588.667,403.511 644.333,403.511 700,403.511 755.667,403.511 811.333,403.511 867,403.511 922.667,403.511 978.333,403.511 1034,403.511 1089.667,403.511 1145.333,403.511 1201,403.511 1256.667,403.511" data-displacement-points="0,-0 0,65.58 0,124.256 0,176.029 0,220.899 0,258.867 0,289.931 0,314.091 0,331.349 0,341.704 0,345.155 0,341.704 0,331.349 0,314.091 0,289.931 0,258.867 0,220.899 0,176.029 0,124.256 0,65.58 0,0" points="143.333,403.511 199,469.091 254.667,527.767 310.333,579.541 366,624.411 421.667,662.378 477.333,693.442 533,717.603 588.667,734.86 644.333,745.215 700,748.667 755.667,745.215 811.333,734.86 867,717.603 922.667,693.442 978.333,662.378 1034,624.411 1089.667,579.541 1145.333,527.767 1201,469.091 1256.667,403.511"/>
+    <g class="displacement-label" data-deformation-label="true" data-dx="0" data-dy="-0" data-node-id="A">
+      <circle class="displacement-label-anchor" cx="143.333" cy="403.511" r="3"/>
+      <text class="displacement-label" x="151.333" y="415.511">A: u = 0 mm</text>
+      <text class="displacement-label" x="151.333" y="428.511">Ux = 0 mm, Uy = 0 mm</text>
+      <text class="displacement-label" x="151.333" y="441.511">Rz = -0.012 rad</text>
+    </g>
+    <g class="displacement-label" data-deformation-label="true" data-dx="0" data-dy="0" data-node-id="B">
+      <circle class="displacement-label-anchor" cx="1256.667" cy="403.511" r="3"/>
+      <text class="displacement-label" x="1264.667" y="415.511">B: u = 0 mm</text>
+      <text class="displacement-label" x="1264.667" y="428.511">Ux = 0 mm, Uy = 0 mm</text>
+      <text class="displacement-label" x="1264.667" y="441.511">Rz = 0.012 rad</text>
+    </g>
+    <g class="member-displacement-label" data-deformation-label="true" data-dx="0" data-dy="258.867" data-member-id="M1" data-station="L/4">
+      <circle class="member-displacement-label-anchor" cx="421.667" cy="662.378" r="3"/>
+      <text class="member-displacement-label" x="428.667" y="656.378">M1 L/4: u = 11.626 mm</text>
+      <text class="member-displacement-label" x="428.667" y="669.378">Ux = 0 mm, Uy = -11.626 mm</text>
+      <text class="member-displacement-label" x="428.667" y="682.378">x = 1.25 m, Rz = -0.006 rad</text>
+    </g>
+    <g class="member-displacement-label" data-deformation-label="true" data-dx="0" data-dy="345.155" data-member-id="M1" data-station="L/2">
+      <circle class="member-displacement-label-anchor" cx="700" cy="748.667" r="3"/>
+      <text class="member-displacement-label" x="707" y="742.667">M1 L/2: u = 15.501 mm</text>
+      <text class="member-displacement-label" x="707" y="755.667">Ux = 0 mm, Uy = -15.501 mm</text>
+      <text class="member-displacement-label" x="707" y="768.667">x = 2.5 m, Rz = -0 rad</text>
+    </g>
+    <g class="member-displacement-label" data-deformation-label="true" data-dx="0" data-dy="258.867" data-member-id="M1" data-station="3L/4">
+      <circle class="member-displacement-label-anchor" cx="978.333" cy="662.378" r="3"/>
+      <text class="member-displacement-label" x="985.333" y="656.378">M1 3L/4: u = 11.626 mm</text>
+      <text class="member-displacement-label" x="985.333" y="669.378">Ux = 0 mm, Uy = -11.626 mm</text>
+      <text class="member-displacement-label" x="985.333" y="682.378">x = 3.75 m, Rz = 0.006 rad</text>
+    </g>
+    <line class="annotation-line" x1="143.333" y1="403.511" x2="143.333" y2="403.511" marker-end="url(#reactionArrow)"/>
+    <circle class="annotation-point" cx="143.333" cy="403.511" r="3.5" style="stroke:#dc2626"/>
+    <text class="annotation-label" x="149.333" y="395.511">umax = 0 mm @ A</text>
+    <text class="annotation-label" x="149.333" y="409.511">Ux = 0 mm, Uy = 0 mm</text>
+    <text class="annotation-label" x="149.333" y="423.511">Rz = -0.012 rad (-0.711°)</text>
+  </g>
+  <g id="legend">
+    <text class="legend-label" x="1170" y="36">Legend</text>
+    <line class="member undeformed" x1="1170" y1="54" x2="1198" y2="54"/>
+    <text class="legend-label" x="1206" y="58">Undeformed model</text>
+    <line class="member deformed" x1="1170" y1="72" x2="1198" y2="72"/>
+    <text class="legend-label" x="1206" y="76">Deformed shape</text>
+    <line class="diagram normal-force" x1="1170" y1="90" x2="1198" y2="90"/>
+    <text class="legend-label" x="1206" y="94">Normal force N</text>
+    <line class="diagram shear-force" x1="1170" y1="108" x2="1198" y2="108"/>
+    <text class="legend-label" x="1206" y="112">Shear force V</text>
+    <line class="diagram bending-moment" x1="1170" y1="126" x2="1198" y2="126"/>
+    <text class="legend-label" x="1206" y="130">Bending moment M</text>
+  </g>
+</svg>
+
+      </div>
+    </section>
+    <dl class="summary">
+      <div>
+        <dt>Nodes</dt>
+        <dd>2</dd>
+      </div>
+      <div>
+        <dt>Members</dt>
+        <dd>1</dd>
+      </div>
+      <div>
+        <dt>Supports</dt>
+        <dd>2</dd>
+      </div>
+      <div>
+        <dt>Reactions</dt>
+        <dd>2</dd>
+      </div>
+      <div>
+        <dt>Applied loads</dt>
+        <dd>1</dd>
+      </div>
+      <div>
+        <dt>Diagrams</dt>
+        <dd>3</dd>
+      </div>
+      <div>
+        <dt>Deform. scale</dt>
+        <dd>100</dd>
+      </div>
+      <div>
+        <dt>Max disp.</dt>
+        <dd>0 mm</dd>
+      </div>
+    </dl>
+  </main>
+  <script>
+    (() => {
+      const canvas = document.getElementById('viewerCanvas');
+      const svg = canvas.querySelector('svg');
+      const original = svg.viewBox.baseVal;
+      let viewBox = { x: original.x, y: original.y, width: original.width, height: original.height };
+      let dragging = false;
+      let last = { x: 0, y: 0 };
+      let animationRunning = false;
+      let animationStart = 0;
+      function applyViewBox() { svg.setAttribute('viewBox', `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`); }
+      function zoom(factor, clientX, clientY) {
+        const rect = svg.getBoundingClientRect();
+        const px = clientX === undefined ? rect.left + rect.width / 2 : clientX;
+        const py = clientY === undefined ? rect.top + rect.height / 2 : clientY;
+        const mx = viewBox.x + ((px - rect.left) / rect.width) * viewBox.width;
+        const my = viewBox.y + ((py - rect.top) / rect.height) * viewBox.height;
+        viewBox.x = mx - ((mx - viewBox.x) * factor);
+        viewBox.y = my - ((my - viewBox.y) * factor);
+        viewBox.width *= factor;
+        viewBox.height *= factor;
+        applyViewBox();
+      }
+      function setOutput(selector, value, suffix) { const output = document.querySelector(selector); if (output) output.textContent = `${value}${suffix}`; }
+      function applyTextScale(value) { svg.style.setProperty('--viewer-label-scale', String(value)); }
+      function parsePointList(value) {
+        return (value || '').trim().split(/\s+/).filter(Boolean).map(pair => {
+          const parts = pair.split(',').map(Number);
+          return { x: parts[0], y: parts[1] };
+        });
+      }
+      function formatPointList(points) { return points.map(point => `${point.x.toFixed(3)},${point.y.toFixed(3)}`).join(' '); }
+      function getDeformationScaleValue() { const input = document.querySelector('[data-scale=deformed]'); return input ? Number(input.value) / 100 : 1; }
+      function applyDeformation(factor) {
+        svg.querySelectorAll('[data-deformed-polyline=true]').forEach(polyline => {
+          const base = parsePointList(polyline.dataset.basePoints);
+          const displacement = parsePointList(polyline.dataset.displacementPoints);
+          if (base.length === 0 || base.length !== displacement.length) return;
+          const points = base.map((point, index) => ({ x: point.x + displacement[index].x * factor, y: point.y + displacement[index].y * factor }));
+          polyline.setAttribute('points', formatPointList(points));
+        });
+        svg.querySelectorAll('[data-deformation-label=true]').forEach(label => {
+          const dx = Number(label.dataset.dx || '0');
+          const dy = Number(label.dataset.dy || '0');
+          label.setAttribute('transform', `translate(${(dx * (factor - 1)).toFixed(3)} ${(dy * (factor - 1)).toFixed(3)})`);
+        });
+      }
+      function applyVisualScales(animationFactor) {
+        const factor = animationFactor ?? getDeformationScaleValue();
+        applyDeformation(factor);
+      }
+      function animationSpeed() { const input = document.querySelector('[data-animation=speed]'); return input ? Number(input.value) : 1; }
+      function animationLoop(timestamp) {
+        if (!animationRunning) return;
+        if (!animationStart) animationStart = timestamp;
+        const elapsed = (timestamp - animationStart) / 1000;
+        const factor = getDeformationScaleValue() * Math.sin(elapsed * animationSpeed() * Math.PI * 2);
+        applyVisualScales(factor);
+        requestAnimationFrame(animationLoop);
+      }
+      canvas.addEventListener('wheel', event => { event.preventDefault(); zoom(event.deltaY < 0 ? 0.9 : 1.1, event.clientX, event.clientY); }, { passive: false });
+      canvas.addEventListener('pointerdown', event => { dragging = true; last = { x: event.clientX, y: event.clientY }; canvas.classList.add('dragging'); canvas.setPointerCapture(event.pointerId); });
+      canvas.addEventListener('pointermove', event => {
+        if (!dragging) return;
+        const rect = svg.getBoundingClientRect();
+        viewBox.x -= (event.clientX - last.x) / rect.width * viewBox.width;
+        viewBox.y -= (event.clientY - last.y) / rect.height * viewBox.height;
+        last = { x: event.clientX, y: event.clientY };
+        applyViewBox();
+      });
+      canvas.addEventListener('pointerup', event => { dragging = false; canvas.classList.remove('dragging'); canvas.releasePointerCapture(event.pointerId); });
+      document.querySelector('[data-action=zoom-in]').addEventListener('click', () => zoom(0.85));
+      document.querySelector('[data-action=zoom-out]').addEventListener('click', () => zoom(1.15));
+      document.querySelector('[data-action=reset]').addEventListener('click', () => { viewBox = { x: original.x, y: original.y, width: original.width, height: original.height }; applyViewBox(); });
+      document.querySelector('[data-action=play-animation]').addEventListener('click', () => { animationRunning = true; animationStart = 0; requestAnimationFrame(animationLoop); });
+      document.querySelector('[data-action=pause-animation]').addEventListener('click', () => { animationRunning = false; applyVisualScales(); });
+      document.querySelectorAll('[data-scale]').forEach(input => {
+        function applyScaleInput() { setOutput(`[data-scale-output=${input.dataset.scale}]`, input.value, '%'); if (!animationRunning) applyVisualScales(); }
+        input.addEventListener('input', applyScaleInput);
+        applyScaleInput();
+      });
+      document.querySelectorAll('[data-animation]').forEach(input => {
+        function applyAnimationInput() { setOutput(`[data-animation-output=${input.dataset.animation}]`, input.value, 'x'); }
+        input.addEventListener('input', applyAnimationInput);
+        applyAnimationInput();
+      });
+      document.querySelectorAll('[data-text-scale]').forEach(input => {
+        function applyTextScaleInput() { const value = Number(input.value) / 100; setOutput(`[data-text-scale-output=${input.dataset.textScale}]`, input.value, '%'); applyTextScale(value); }
+        input.addEventListener('input', applyTextScaleInput);
+        applyTextScaleInput();
+      });
+      document.querySelectorAll('[data-layer]').forEach(control => {
+        function applyLayerVisibility() {
+          control.dataset.layer.split(',').forEach(selector => {
+            svg.querySelectorAll(selector.trim()).forEach(element => element.classList.toggle('hidden-layer', !control.checked));
+          });
+        }
+        control.addEventListener('change', applyLayerVisibility);
+        applyLayerVisibility();
+      });
+      applyVisualScales();
+      applyViewBox();
+    })();
+  </script>
+</body>
+</html>

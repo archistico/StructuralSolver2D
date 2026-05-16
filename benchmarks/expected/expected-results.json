@@ -38,7 +38,9 @@
             "uy": -0.0193769841269841
           }
         ]
-      }
+      },
+      "reference": "Closed-form Euler-Bernoulli simply supported beam: RA=RB=qL/2, Mmax=qL^2/8, v_mid=5qL^4/(384EI).",
+      "purpose": "Validates UDL equivalent nodal loads, reactions, internal force extrema and nodal midspan displacement."
     },
     {
       "id": "B02",
@@ -69,7 +71,9 @@
             "uy": -0.0321428571428571
           }
         ]
-      }
+      },
+      "reference": "Closed-form Euler-Bernoulli simply supported beam with centered point load: RA=RB=P/2, Mmax=PL/4, v_mid=PL^3/(48EI).",
+      "purpose": "Validates nodal point load, symmetry, reactions and displacement."
     },
     {
       "id": "B03",
@@ -89,7 +93,9 @@
         "tipDisplacementY": -0.060952380952381,
         "tipRotationZ": -0.0228571428571429,
         "maxAbsMoment": 48.0
-      }
+      },
+      "reference": "Closed-form cantilever with tip point load: RA=P, MA=PL, v_tip=PL^3/(3EI), theta_tip=PL^2/(2EI).",
+      "purpose": "Validates fixed support reaction/moment, tip displacement and rotation."
     },
     {
       "id": "B04",
@@ -109,7 +115,9 @@
         "tipDisplacementY": -0.060952380952381,
         "tipRotationZ": -0.0203174603174603,
         "maxAbsMoment": 64.0
-      }
+      },
+      "reference": "Closed-form cantilever with UDL: RA=qL, MA=qL^2/2, v_tip=qL^4/(8EI), theta_tip=qL^3/(6EI).",
+      "purpose": "Validates UDL on cantilever, fixed-end actions and tip deformation."
     },
     {
       "id": "T01",
@@ -143,7 +151,9 @@
             "normalForce": 10.0
           }
         ]
-      }
+      },
+      "reference": "Method of joints for symmetric triangular truss: RAy=RBy=P/2, diagonal force=-(P/2)/sin(theta), tie force=(P/2)cot(theta).",
+      "purpose": "Validates Truss2D axial force sign convention and symmetric vertical equilibrium."
     },
     {
       "id": "F01",
@@ -158,7 +168,9 @@
           "symmetry: RAy = RBy",
           "symmetry: horizontal reactions equal and opposite"
         ]
-      }
+      },
+      "reference": "Symmetry and global equilibrium of a fixed-base single-bay portal under symmetric vertical beam load.",
+      "purpose": "Validates frame stability, vertical equilibrium and symmetric reaction behavior."
     },
     {
       "id": "F02",
@@ -175,7 +187,9 @@
             "mz": 125.0
           }
         ]
-      }
+      },
+      "reference": "3-4-5 inclined cantilever. LocalY UDL is projected through local y=(-sin(theta),cos(theta)); resultant acts at member midpoint.",
+      "purpose": "Validates local-to-global load projection for inclined Frame2D members."
     },
     {
       "id": "F03",
@@ -192,7 +206,402 @@
             "mz": 75.0
           }
         ]
+      },
+      "reference": "3-4-5 inclined cantilever. GlobalY UDL remains vertical regardless of member orientation; resultant acts at member midpoint.",
+      "purpose": "Validates global load direction independence from member local axes."
+    },
+    {
+      "id": "B05",
+      "name": "Simply supported beam with eccentric nodal point load",
+      "modelPath": "benchmarks/beams/B05-simple-supported-eccentric-point-load.json",
+      "analysisId": "LC1",
+      "tolerance": 1e-06,
+      "reference": "Closed-form Euler-Bernoulli simply supported beam with point load at x=a: RA=P(L-a)/L, RB=Pa/L, Mmax=Pab/L, v_load=P a^2 b^2/(3EIL).",
+      "purpose": "Validates unsymmetric reactions, point-load bending maximum and displacement at a non-midspan loaded node.",
+      "expected": {
+        "supportReactions": [
+          {
+            "nodeId": "A",
+            "fx": 0.0,
+            "fy": 16.0,
+            "mz": 0.0
+          },
+          {
+            "nodeId": "B",
+            "fx": 0.0,
+            "fy": 8.0,
+            "mz": 0.0
+          }
+        ],
+        "maxAbsShear": 16.0,
+        "maxAbsMoment": 32.0,
+        "nodalDisplacements": [
+          {
+            "nodeId": "C",
+            "uy": -0.0203174603174603
+          }
+        ]
       }
+    },
+    {
+      "id": "B06",
+      "name": "Simply supported beam with factored load combination",
+      "modelPath": "benchmarks/beams/B06-simple-supported-load-combination.json",
+      "analysisId": "ULS1",
+      "tolerance": 1e-06,
+      "reference": "Manual combination ULS1=1.35G+1.50Q gives qd=19.5 kN/m; then RA=RB=qdL/2, Mmax=qdL^2/8, v_mid=5qdL^4/(384EI).",
+      "purpose": "Validates load-combination arithmetic in the numerical analyzer, not only in the viewer.",
+      "expected": {
+        "supportReactions": [
+          {
+            "nodeId": "A",
+            "fx": 0.0,
+            "fy": 48.75,
+            "mz": 0.0
+          },
+          {
+            "nodeId": "B",
+            "fx": 0.0,
+            "fy": 48.75,
+            "mz": 0.0
+          }
+        ],
+        "maxAbsShear": 48.75,
+        "maxAbsMoment": 60.9375,
+        "nodalDisplacements": [
+          {
+            "nodeId": "C",
+            "uy": -0.0377836681547619
+          }
+        ]
+      }
+    },
+    {
+      "id": "T02",
+      "name": "Horizontal truss bar axial tension",
+      "modelPath": "benchmarks/trusses/T02-horizontal-bar-axial-tension.json",
+      "analysisId": "LC1",
+      "tolerance": 1e-09,
+      "reference": "Closed-form axial bar: N=P and u=PL/(EA).",
+      "purpose": "Validates Truss2D axial stiffness, tension sign convention and that truss-only sections do not require bending inertia.",
+      "expected": {
+        "supportReactions": [
+          {
+            "nodeId": "A",
+            "fx": -20.0,
+            "fy": 0.0
+          },
+          {
+            "nodeId": "B",
+            "fy": 0.0
+          }
+        ],
+        "memberAxialForces": [
+          {
+            "memberId": "AB",
+            "normalForce": 20.0
+          }
+        ],
+        "nodalDisplacements": [
+          {
+            "nodeId": "B",
+            "ux": 0.000119047619047619,
+            "uy": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "B07",
+      "name": "Continuous two-span beam with uniform distributed load",
+      "modelPath": "benchmarks/beams/B07-continuous-two-span-udl.json",
+      "analysisId": "LC1",
+      "tolerance": 1e-06,
+      "reference": "Classical equal two-span continuous beam with UDL on both spans: RA=RC=3qL/8, RB=5qL/4, M_support=qL^2/8.",
+      "purpose": "Validates an indeterminate continuous beam, moment continuity at the internal support and non-equal support reactions.",
+      "expected": {
+        "supportReactions": [
+          {
+            "nodeId": "A",
+            "fx": 0.0,
+            "fy": 12.0,
+            "mz": 0.0
+          },
+          {
+            "nodeId": "B",
+            "fy": 40.0,
+            "mz": 0.0
+          },
+          {
+            "nodeId": "C",
+            "fy": 12.0,
+            "mz": 0.0
+          }
+        ],
+        "maxAbsShear": 20.0,
+        "maxAbsMoment": 16.0
+      }
+    },
+    {
+      "id": "B08",
+      "name": "Cantilever frame member with axial tip force",
+      "modelPath": "benchmarks/beams/B08-cantilever-axial-tip-force.json",
+      "analysisId": "LC1",
+      "tolerance": 1e-09,
+      "reference": "Closed-form axial deformation of a prismatic bar: u=PL/(EA).",
+      "purpose": "Validates Frame2D axial stiffness independently from flexural behavior.",
+      "expected": {
+        "supportReactions": [
+          {
+            "nodeId": "A",
+            "fx": -30.0,
+            "fy": 0.0,
+            "mz": 0.0
+          }
+        ],
+        "nodalDisplacements": [
+          {
+            "nodeId": "B",
+            "ux": 0.00019047619047619,
+            "uy": 0.0,
+            "rz": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "T03",
+      "name": "Cantilever triangular truss with horizontal top load",
+      "modelPath": "benchmarks/trusses/T03-cantilever-truss-horizontal-load.json",
+      "analysisId": "LC1",
+      "tolerance": 1e-08,
+      "reference": "Method of joints on a 3-4-5 triangular determinate truss under horizontal top load: AC=+25 kN, BC=-15 kN, AB=0 kN.",
+      "purpose": "Validates unsymmetric truss reactions, uplift at the pinned support and zero-force member behavior.",
+      "expected": {
+        "supportReactions": [
+          {
+            "nodeId": "A",
+            "fx": -20.0,
+            "fy": -15.0
+          },
+          {
+            "nodeId": "B",
+            "fy": 15.0
+          }
+        ],
+        "memberAxialForces": [
+          {
+            "memberId": "AB",
+            "normalForce": 0.0
+          },
+          {
+            "memberId": "AC",
+            "normalForce": 25.0
+          },
+          {
+            "memberId": "BC",
+            "normalForce": -15.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "M02",
+      "name": "Two-storey braced mixed frame validator",
+      "modelPath": "benchmarks/mixed/M02-two-storey-braced-frame-validator.json",
+      "analysisId": "LC1",
+      "tolerance": 1e-06,
+      "reference": "Global equilibrium of a mixed Frame2D + Truss2D braced two-storey frame: applied loads are Fx=+25 kN and Fy=-50 kN.",
+      "purpose": "Regression validator for larger mixed models, inactive rotational DOF handling on truss members, finite response and load equilibrium.",
+      "expected": {
+        "reactionSums": {
+          "fx": -25.0,
+          "fy": 50.0
+        },
+        "checks": [
+          "stable solution",
+          "finite displacements",
+          "non-zero member forces",
+          "non-zero support reactions"
+        ]
+      }
+    },
+    {
+      "id": "B09",
+      "name": "Propped cantilever with uniform distributed load",
+      "modelPath": "benchmarks/beams/B09-propped-cantilever-udl.json",
+      "analysisId": "LC1",
+      "tolerance": 1e-06,
+      "expected": {
+        "supportReactions": [
+          {
+            "nodeId": "A",
+            "fx": 0.0,
+            "fy": 33.75,
+            "mz": 40.5
+          },
+          {
+            "nodeId": "B",
+            "fx": 0.0,
+            "fy": 20.25,
+            "mz": 0.0
+          }
+        ],
+        "maxAbsMoment": 40.5,
+        "nodalDisplacements": [
+          {
+            "nodeId": "B",
+            "uy": 0.0,
+            "rz": 0.00964285714285714
+          }
+        ]
+      },
+      "reference": "Classical propped cantilever with UDL: RB=3qL/8, RA=5qL/8, MA=qL^2/8, theta_B=qL^3/(48EI).",
+      "purpose": "Validates force-method indeterminacy, fixed-plus-roller constraints, fixed-end moment sign and the compatibility condition v_B=0."
+    },
+    {
+      "id": "B10",
+      "name": "Fixed-fixed beam with uniform distributed load",
+      "modelPath": "benchmarks/beams/B10-fixed-fixed-beam-udl.json",
+      "analysisId": "LC1",
+      "tolerance": 1e-06,
+      "expected": {
+        "supportReactions": [
+          {
+            "nodeId": "A",
+            "fx": 0.0,
+            "fy": 36.0,
+            "mz": 36.0
+          },
+          {
+            "nodeId": "B",
+            "fx": 0.0,
+            "fy": 36.0,
+            "mz": -36.0
+          }
+        ],
+        "maxAbsMoment": 36.0,
+        "memberEndForces": [
+          {
+            "memberId": "AB",
+            "startMoment": 36.0,
+            "endMoment": -36.0
+          }
+        ]
+      },
+      "reference": "Classical fixed-fixed beam with UDL: RA=RB=qL/2 and fixed-end moment magnitude qL^2/12. Member end-force signs follow the local element convention used by the solver.",
+      "purpose": "Validates rotational restraints at both ends, equal/opposite fixed-end moments and member end-force reporting."
+    },
+    {
+      "id": "B11",
+      "name": "Simply supported beam with triangular distributed load",
+      "modelPath": "benchmarks/beams/B11-simple-supported-triangular-load.json",
+      "analysisId": "LC1",
+      "tolerance": 1e-06,
+      "expected": {
+        "supportReactions": [
+          {
+            "nodeId": "A",
+            "fx": 0.0,
+            "fy": 18.0,
+            "mz": 0.0
+          },
+          {
+            "nodeId": "B",
+            "fx": 0.0,
+            "fy": 36.0,
+            "mz": 0.0
+          }
+        ],
+        "reactionSums": {
+          "fx": 0.0,
+          "fy": 54.0
+        }
+      },
+      "reference": "Closed-form statics for triangular load increasing from A to B: W=w0L/2, resultant at 2L/3 from A, RA=W/3=w0L/6, RB=2W/3=w0L/3.",
+      "purpose": "Validates linearly varying distributed load equivalent nodal loads and asymmetric support reactions."
+    },
+    {
+      "id": "B12",
+      "name": "Moment-released simply supported beam with uniform load",
+      "modelPath": "benchmarks/beams/B12-released-simply-supported-beam-udl.json",
+      "analysisId": "LC1",
+      "tolerance": 1e-06,
+      "expected": {
+        "supportReactions": [
+          {
+            "nodeId": "A",
+            "fx": 0.0,
+            "fy": 25.0,
+            "mz": 0.0
+          },
+          {
+            "nodeId": "B",
+            "fx": 0.0,
+            "fy": 25.0,
+            "mz": 0.0
+          }
+        ],
+        "maxAbsMoment": 31.25,
+        "memberEndForces": [
+          {
+            "memberId": "AB",
+            "startMoment": 0.0,
+            "endMoment": 0.0
+          }
+        ]
+      },
+      "reference": "Simply supported beam with UDL and ideal end releases: RA=RB=qL/2, Mmax=qL^2/8, member end moments are zero.",
+      "purpose": "Validates moment-release condensation, zero released end moments and preservation of simply supported bending response."
+    },
+    {
+      "id": "F04",
+      "name": "Fixed-base portal frame with lateral nodal load",
+      "modelPath": "benchmarks/frames/F04-portal-lateral-load-validator.json",
+      "analysisId": "LC1",
+      "tolerance": 1e-06,
+      "expected": {
+        "supportReactions": [
+          {
+            "nodeId": "A",
+            "fx": -11.976149979682,
+            "fy": -6.149903913458,
+            "mz": 29.479993481209
+          },
+          {
+            "nodeId": "B",
+            "fx": -12.023850020318,
+            "fy": 6.149903913458,
+            "mz": 29.620583072256
+          }
+        ],
+        "nodalDisplacements": [
+          {
+            "nodeId": "C",
+            "ux": 0.017157833011,
+            "uy": 2.9285257e-05,
+            "rz": -0.00350964668
+          },
+          {
+            "nodeId": "D",
+            "ux": 0.01725559749,
+            "uy": -2.9285257e-05,
+            "rz": -0.00353833843
+          }
+        ],
+        "reactionSums": {
+          "fx": -24.0,
+          "fy": 0.0
+        },
+        "checks": [
+          "stable solution",
+          "finite displacements",
+          "non-zero member forces",
+          "non-zero support reactions"
+        ]
+      },
+      "reference": "Independent direct-stiffness regression calculation for a one-bay fixed-base portal frame under a 24 kN top horizontal load. Global equilibrium gives \u03a3Rx=-24 kN and \u03a3Ry=0.",
+      "purpose": "Validates frame sway, coupling between columns and beam, base shear distribution and finite displaced-shape response."
     }
   ]
 }

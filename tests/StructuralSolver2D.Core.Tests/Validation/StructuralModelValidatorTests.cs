@@ -1,4 +1,5 @@
 using StructuralSolver2D.Core.Model;
+using StructuralSolver2D.Core.Model.Enums;
 using StructuralSolver2D.Core.Validation;
 
 namespace StructuralSolver2D.Core.Tests.Validation;
@@ -89,6 +90,25 @@ public sealed class StructuralModelValidatorTests
         Assert.False(result.IsValid);
         Assert.Contains(result.Errors, issue => issue.Code == "SECTION_INVALID_AREA");
         Assert.Contains(result.Errors, issue => issue.Code == "SECTION_INVALID_INERTIA");
+    }
+
+    [Fact]
+    public void Validate_ShouldAllowInvalidSectionInertia_WhenSectionIsUsedOnlyByTrussMembers()
+    {
+        StructuralModel model = new StructuralModel()
+            .AddNode(new StructuralNode("A", 0.0, 0.0))
+            .AddNode(new StructuralNode("B", 5.0, 0.0))
+            .AddMaterial(new StructuralMaterial("S235", "Steel S235", 210_000_000.0))
+            .AddSection(new StructuralSection("TRUSS_SEC", "Truss section", 0.003, 0.0))
+            .AddMember(new StructuralMember("T1", "A", "B", "S235", "TRUSS_SEC", MemberType.Truss2D))
+            .AddSupport(StructuralSupport.Hinge("SA", "A"))
+            .AddSupport(StructuralSupport.SimpleSupport("SB", "B"));
+        StructuralModelValidator validator = new();
+
+        StructuralModelValidationResult result = validator.Validate(model);
+
+        Assert.True(result.IsValid);
+        Assert.DoesNotContain(result.Errors, issue => issue.Code == "SECTION_INVALID_INERTIA");
     }
 
     [Fact]

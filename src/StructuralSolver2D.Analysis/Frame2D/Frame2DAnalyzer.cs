@@ -447,51 +447,6 @@ public sealed class Frame2DAnalyzer
             _ => throw new StructuralAnalysisException($"Unsupported {loadKind} load direction '{direction}'.")
         };
 
-    private static bool[] BuildRestrainedDofMask(
-        StructuralModel model,
-        Dictionary<string, int> nodeIndexById,
-        int totalDofCount,
-        double[,] globalStiffness,
-        double[] globalLoadVector)
-    {
-        const double inactiveDofTolerance = 1e-12;
-        bool[] restrainedDofs = new bool[totalDofCount];
-
-        foreach (StructuralSupport support in model.Supports)
-        {
-            int nodeBaseDof = GetNodeBaseDof(nodeIndexById[support.NodeId]);
-
-            restrainedDofs[nodeBaseDof] |= support.RestrainedUx;
-            restrainedDofs[nodeBaseDof + 1] |= support.RestrainedUy;
-            restrainedDofs[nodeBaseDof + 2] |= support.RestrainedRz;
-        }
-
-        for (int dof = 0; dof < totalDofCount; dof++)
-        {
-            if (restrainedDofs[dof])
-            {
-                continue;
-            }
-
-            bool hasStiffness = false;
-            for (int column = 0; column < totalDofCount; column++)
-            {
-                if (Math.Abs(globalStiffness[dof, column]) > inactiveDofTolerance)
-                {
-                    hasStiffness = true;
-                    break;
-                }
-            }
-
-            if (!hasStiffness && Math.Abs(globalLoadVector[dof]) <= inactiveDofTolerance)
-            {
-                restrainedDofs[dof] = true;
-            }
-        }
-
-        return restrainedDofs;
-    }
-
     private static IReadOnlyList<NodalDisplacementResult> BuildNodalDisplacementResults(
         StructuralModel model,
         Dictionary<string, int> nodeIndexById,
@@ -505,23 +460,6 @@ public sealed class Frame2DAnalyzer
                     globalDisplacements[nodeBaseDof],
                     globalDisplacements[nodeBaseDof + 1],
                     globalDisplacements[nodeBaseDof + 2]);
-            })
-            .ToList();
-
-    private static IReadOnlyList<SupportReactionResult> BuildSupportReactionResults(
-        StructuralModel model,
-        Dictionary<string, int> nodeIndexById,
-        double[] globalResidual) =>
-        model.Supports
-            .Select(support =>
-            {
-                int nodeBaseDof = GetNodeBaseDof(nodeIndexById[support.NodeId]);
-                return new SupportReactionResult(
-                    support.Id,
-                    support.NodeId,
-                    support.RestrainedUx ? globalResidual[nodeBaseDof] : 0,
-                    support.RestrainedUy ? globalResidual[nodeBaseDof + 1] : 0,
-                    support.RestrainedRz ? globalResidual[nodeBaseDof + 2] : 0);
             })
             .ToList();
 
@@ -611,21 +549,6 @@ public sealed class Frame2DAnalyzer
         {
             globalVector[dofs[index]] += elementVector[index];
         }
-    }
-
-    private static double[,] ExtractSubmatrix(double[,] matrix, IReadOnlyList<int> rowIndices, IReadOnlyList<int> columnIndices)
-    {
-        double[,] result = new double[rowIndices.Count, columnIndices.Count];
-
-        for (int row = 0; row < rowIndices.Count; row++)
-        {
-            for (int column = 0; column < columnIndices.Count; column++)
-            {
-                result[row, column] = matrix[rowIndices[row], columnIndices[column]];
-            }
-        }
-
-        return result;
     }
 
     private static double[] ExtractSubvector(double[] vector, IReadOnlyList<int> indices)

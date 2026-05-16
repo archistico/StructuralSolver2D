@@ -121,4 +121,4 @@ The SVG/HTML export can now draw applied loads as a dedicated `loads` layer. Sup
 
 Load labels show the load label when available and the numerical value with units. Concentrated forces are displayed in `kN`, moments in `kNm`, and distributed loads in `kN/m`.
 
-For load combinations, the viewer currently shows available model loads as graphical reference. It does not yet build a separately factored graphical load set for each combination term.
+When the selected result is a manual load combination, the viewer draws only the loads belonging to the load cases referenced by the combination. The rendered arrow lengths, distributed-load offsets and label values use the factored values, for example `1.35 G1 + 1.50 Q1`. Loads from unrelated load cases are not drawn for that combination. Labels include the applied factor suffix, such as `(1.35x)`, whenever the factor is different from 1.0.

@@ -30,12 +30,16 @@ public sealed class InteractiveHtmlStructuralViewerExporterTests
         Assert.Contains("data-action=\"play-animation\"", html, StringComparison.Ordinal);
         Assert.Contains("data-action=\"pause-animation\"", html, StringComparison.Ordinal);
         Assert.Contains("data-scale=\"deformed\"", html, StringComparison.Ordinal);
-        Assert.Contains("data-animation=\"amplitude\"", html, StringComparison.Ordinal);
+        Assert.Contains("data-text-scale=\"labels\"", html, StringComparison.Ordinal);
         Assert.Contains("data-animation=\"speed\"", html, StringComparison.Ordinal);
+        Assert.Contains("max=\"500\"", html, StringComparison.Ordinal);
+        Assert.Contains("--viewer-label-scale", html, StringComparison.Ordinal);
         Assert.Contains("data-layer=\"#undeformed-model\"", html, StringComparison.Ordinal);
         Assert.Contains("data-layer=\"#deformed-shape\"", html, StringComparison.Ordinal);
         Assert.Contains("data-layer=\"#loads\" checked", html, StringComparison.Ordinal);
         Assert.Contains("Loads", html, StringComparison.Ordinal);
+        Assert.Contains("Load labels", html, StringComparison.Ordinal);
+        Assert.Contains("data-layer=\".load-label\" checked", html, StringComparison.Ordinal);
         Assert.Contains("data-layer=\".diagram.normal-force,.diagram-fill.normal-force,.annotation-point.normal-force,.annotation-label.normal-force\"", html, StringComparison.Ordinal);
         Assert.Contains("data-layer=\".diagram.shear-force,.diagram-fill.shear-force,.annotation-point.shear-force,.annotation-label.shear-force\"", html, StringComparison.Ordinal);
         Assert.Contains("data-layer=\".diagram.bending-moment,.diagram-fill.bending-moment,.annotation-point.bending-moment,.annotation-label.bending-moment\"", html, StringComparison.Ordinal);

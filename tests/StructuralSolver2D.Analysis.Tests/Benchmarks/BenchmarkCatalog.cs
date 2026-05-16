@@ -71,6 +71,16 @@ internal sealed class BenchmarkCatalog
                 issues.Add($"Benchmark '{benchmark.Id}' has an empty analysisId.");
             }
 
+            if (string.IsNullOrWhiteSpace(benchmark.Reference))
+            {
+                issues.Add($"Benchmark '{benchmark.Id}' has an empty reference formula/source description.");
+            }
+
+            if (string.IsNullOrWhiteSpace(benchmark.Purpose))
+            {
+                issues.Add($"Benchmark '{benchmark.Id}' has an empty validation purpose.");
+            }
+
             if (!double.IsFinite(benchmark.Tolerance) || benchmark.Tolerance <= 0.0)
             {
                 issues.Add($"Benchmark '{benchmark.Id}' has an invalid tolerance '{benchmark.Tolerance}'.");
@@ -87,6 +97,8 @@ internal sealed class BenchmarkCase
     public string Name { get; set; } = string.Empty;
     public string ModelPath { get; set; } = string.Empty;
     public string AnalysisId { get; set; } = string.Empty;
+    public string Reference { get; set; } = string.Empty;
+    public string Purpose { get; set; } = string.Empty;
     public double Tolerance { get; set; } = 1e-6;
     public BenchmarkExpected Expected { get; set; } = new();
 }
@@ -99,7 +111,9 @@ internal sealed class BenchmarkExpected
     public double? TipDisplacementY { get; set; }
     public double? TipRotationZ { get; set; }
     public List<ExpectedMemberAxialForce> MemberAxialForces { get; set; } = new();
+    public List<ExpectedMemberEndForce> MemberEndForces { get; set; } = new();
     public List<ExpectedNodalDisplacement> NodalDisplacements { get; set; } = new();
+    public ExpectedReactionSums? ReactionSums { get; set; }
     public List<string> Checks { get; set; } = new();
 }
 
@@ -123,4 +137,22 @@ internal sealed class ExpectedMemberAxialForce
 {
     public string MemberId { get; set; } = string.Empty;
     public double NormalForce { get; set; }
+}
+
+internal sealed class ExpectedMemberEndForce
+{
+    public string MemberId { get; set; } = string.Empty;
+    public double? StartAxial { get; set; }
+    public double? StartShear { get; set; }
+    public double? StartMoment { get; set; }
+    public double? EndAxial { get; set; }
+    public double? EndShear { get; set; }
+    public double? EndMoment { get; set; }
+}
+
+internal sealed class ExpectedReactionSums
+{
+    public double? Fx { get; set; }
+    public double? Fy { get; set; }
+    public double? Mz { get; set; }
 }

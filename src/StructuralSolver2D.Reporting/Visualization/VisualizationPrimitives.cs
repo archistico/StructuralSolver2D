@@ -293,7 +293,8 @@ public sealed record VisualizationLoadArrow(
     VisualizationPoint End,
     double Value,
     string Unit,
-    string? Label);
+    string? Label,
+    double LoadFactor = 1.0);
 
 /// <summary>
 /// Represents a concentrated moment load glyph.
@@ -306,7 +307,8 @@ public sealed record VisualizationLoadMoment(
     bool Clockwise,
     double Value,
     string Unit,
-    string? Label);
+    string? Label,
+    double LoadFactor = 1.0);
 
 /// <summary>
 /// Represents a distributed load along a structural member.
@@ -322,4 +324,5 @@ public sealed record VisualizationDistributedLoad(
     double StartValue,
     double EndValue,
     string Unit,
-    string? Label);
+    string? Label,
+    double LoadFactor = 1.0);

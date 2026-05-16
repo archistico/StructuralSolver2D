@@ -102,9 +102,9 @@ public sealed class SvgStructuralResultExporter
         builder.AppendLine("    .displacement-label-anchor { fill: #dc2626; stroke: #ffffff; stroke-width: 1; }");
         builder.AppendLine("    .member-displacement-label { fill: #7f1d1d; font-size: 10.5px; }");
         builder.AppendLine("    .member-displacement-label-anchor { fill: #f97316; stroke: #ffffff; stroke-width: 1; }");
-        builder.AppendLine("    .load-arrow, .distributed-load-arrow, .load-moment { stroke: #ea580c; stroke-width: 1.8; fill: none; }");
+        builder.AppendLine("    .load-arrow, .distributed-load-arrow, .load-moment { stroke: #ea580c; stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }");
         builder.AppendLine("    .distributed-load-shape { stroke: #ea580c; stroke-width: 1.2; fill: rgba(234, 88, 12, 0.08); }");
-        builder.AppendLine("    .load-label { fill: #9a3412; font-family: Arial, Helvetica, sans-serif; font-size: 12px; font-weight: 600; }");
+        builder.AppendLine("    .load-label { fill: #9a3412; stroke: #ffffff; stroke-width: 3; paint-order: stroke fill; font-family: Arial, Helvetica, sans-serif; font-size: 12px; font-weight: 600; }");
         builder.AppendLine("    .dimension { stroke: #6b7280; stroke-width: 1.2; fill: none; }");
         builder.AppendLine("    .dimension-extension { stroke: #9ca3af; stroke-width: 1; }");
         builder.AppendLine("    .annotation-line { stroke: #dc2626; stroke-width: 1.2; stroke-dasharray: 4 3; fill: none; }");
@@ -268,9 +268,10 @@ public sealed class SvgStructuralResultExporter
         double y2 = mapper.MapY(arrow.End.Y);
         double lx = x2 + 6.0;
         double ly = y2 - 6.0;
+        string loadAttributes = GetLoadDataAttributes(arrow.LoadId, arrow.LoadCaseId, arrow.LoadFactor);
 
-        builder.AppendLine($"    <line class=\"load-arrow\" data-load-id=\"{EscapeXml(arrow.LoadId)}\" x1=\"{Format(x1)}\" y1=\"{Format(y1)}\" x2=\"{Format(x2)}\" y2=\"{Format(y2)}\" marker-end=\"url(#loadArrow)\"/>");
-        builder.AppendLine($"    <text class=\"load-label\" x=\"{Format(lx)}\" y=\"{Format(ly)}\">{EscapeXml(GetLoadLabel(arrow.Label, arrow.Value, arrow.Unit))}</text>");
+        builder.AppendLine($"    <line class=\"load-arrow\" {loadAttributes} x1=\"{Format(x1)}\" y1=\"{Format(y1)}\" x2=\"{Format(x2)}\" y2=\"{Format(y2)}\" marker-end=\"url(#loadArrow)\"/>");
+        builder.AppendLine($"    <text class=\"load-label\" {loadAttributes} x=\"{Format(lx)}\" y=\"{Format(ly)}\">{EscapeXml(GetLoadLabel(arrow.Label, arrow.Value, arrow.Unit, arrow.LoadFactor))}</text>");
     }
 
     private static void AppendLoadMoment(StringBuilder builder, CoordinateMapper mapper, VisualizationLoadMoment moment)
@@ -283,9 +284,10 @@ public sealed class SvgStructuralResultExporter
             : (225.0, -50.0, 0);
         (double x1, double y1) = PolarPoint(cx, cy, radius, startAngle);
         (double x2, double y2) = PolarPoint(cx, cy, radius, endAngle);
+        string loadAttributes = GetLoadDataAttributes(moment.LoadId, moment.LoadCaseId, moment.LoadFactor);
 
-        builder.AppendLine($"    <path class=\"load-moment\" data-load-id=\"{EscapeXml(moment.LoadId)}\" d=\"M {Format(x1)} {Format(y1)} A {Format(radius)} {Format(radius)} 0 1 {sweepFlag} {Format(x2)} {Format(y2)}\" marker-end=\"url(#loadArrow)\"/>");
-        builder.AppendLine($"    <text class=\"load-label\" x=\"{Format(cx + radius + 4.0)}\" y=\"{Format(cy - radius)}\">{EscapeXml(GetLoadLabel(moment.Label, moment.Value, moment.Unit))}</text>");
+        builder.AppendLine($"    <path class=\"load-moment\" {loadAttributes} d=\"M {Format(x1)} {Format(y1)} A {Format(radius)} {Format(radius)} 0 1 {sweepFlag} {Format(x2)} {Format(y2)}\" marker-end=\"url(#loadArrow)\"/>");
+        builder.AppendLine($"    <text class=\"load-label\" {loadAttributes} x=\"{Format(cx + radius + 4.0)}\" y=\"{Format(cy - radius)}\">{EscapeXml(GetLoadLabel(moment.Label, moment.Value, moment.Unit, moment.LoadFactor))}</text>");
     }
 
     private static void AppendDistributedLoad(StringBuilder builder, CoordinateMapper mapper, VisualizationDistributedLoad load)
@@ -298,41 +300,59 @@ public sealed class SvgStructuralResultExporter
         double oy1 = mapper.MapY(load.StartOffsetPoint.Y);
         double ox2 = mapper.MapX(load.EndOffsetPoint.X);
         double oy2 = mapper.MapY(load.EndOffsetPoint.Y);
+        string loadAttributes = GetLoadDataAttributes(load.LoadId, load.LoadCaseId, load.LoadFactor);
 
-        builder.AppendLine($"    <polygon class=\"distributed-load-shape\" data-load-id=\"{EscapeXml(load.LoadId)}\" points=\"{Format(x1)},{Format(y1)} {Format(x2)},{Format(y2)} {Format(ox2)},{Format(oy2)} {Format(ox1)},{Format(oy1)}\"/>");
-        builder.AppendLine($"    <line class=\"distributed-load-arrow\" x1=\"{Format(x1)}\" y1=\"{Format(y1)}\" x2=\"{Format(ox1)}\" y2=\"{Format(oy1)}\" marker-end=\"url(#loadArrow)\"/>");
-        builder.AppendLine($"    <line class=\"distributed-load-arrow\" x1=\"{Format(x2)}\" y1=\"{Format(y2)}\" x2=\"{Format(ox2)}\" y2=\"{Format(oy2)}\" marker-end=\"url(#loadArrow)\"/>");
+        builder.AppendLine($"    <polygon class=\"distributed-load-shape\" {loadAttributes} points=\"{Format(x1)},{Format(y1)} {Format(x2)},{Format(y2)} {Format(ox2)},{Format(oy2)} {Format(ox1)},{Format(oy1)}\"/>");
+        builder.AppendLine($"    <line class=\"distributed-load-arrow\" {loadAttributes} x1=\"{Format(x1)}\" y1=\"{Format(y1)}\" x2=\"{Format(ox1)}\" y2=\"{Format(oy1)}\" marker-end=\"url(#loadArrow)\"/>");
+        builder.AppendLine($"    <line class=\"distributed-load-arrow\" {loadAttributes} x1=\"{Format(x2)}\" y1=\"{Format(y2)}\" x2=\"{Format(ox2)}\" y2=\"{Format(oy2)}\" marker-end=\"url(#loadArrow)\"/>");
 
-        for (int index = 1; index <= 3; index++)
+        int intermediateArrowCount = GetIntermediateDistributedLoadArrowCount(x1, y1, x2, y2);
+
+        for (int index = 1; index <= intermediateArrowCount; index++)
         {
-            double t = index / 4.0;
+            double t = index / (double)(intermediateArrowCount + 1);
             double ax = Interpolate(x1, x2, t);
             double ay = Interpolate(y1, y2, t);
             double bx = Interpolate(ox1, ox2, t);
             double by = Interpolate(oy1, oy2, t);
-            builder.AppendLine($"    <line class=\"distributed-load-arrow\" x1=\"{Format(ax)}\" y1=\"{Format(ay)}\" x2=\"{Format(bx)}\" y2=\"{Format(by)}\" marker-end=\"url(#loadArrow)\"/>");
+            builder.AppendLine($"    <line class=\"distributed-load-arrow\" {loadAttributes} x1=\"{Format(ax)}\" y1=\"{Format(ay)}\" x2=\"{Format(bx)}\" y2=\"{Format(by)}\" marker-end=\"url(#loadArrow)\"/>");
         }
 
         double lx = (ox1 + ox2) / 2.0 + 6.0;
         double ly = (oy1 + oy2) / 2.0 - 6.0;
-        builder.AppendLine($"    <text class=\"load-label\" x=\"{Format(lx)}\" y=\"{Format(ly)}\">{EscapeXml(GetDistributedLoadLabel(load))}</text>");
+        builder.AppendLine($"    <text class=\"load-label\" {loadAttributes} x=\"{Format(lx)}\" y=\"{Format(ly)}\">{EscapeXml(GetDistributedLoadLabel(load))}</text>");
     }
 
-    private static string GetLoadLabel(string? label, double value, string unit) =>
+    private static string GetLoadDataAttributes(string loadId, string loadCaseId, double loadFactor) =>
+        $"data-load-id=\"{EscapeXml(loadId)}\" data-load-case-id=\"{EscapeXml(loadCaseId)}\" data-load-factor=\"{Format(loadFactor)}\"";
+
+
+    private static int GetIntermediateDistributedLoadArrowCount(double x1, double y1, double x2, double y2)
+    {
+        double length = Math.Sqrt(((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1)));
+        return Math.Clamp((int)Math.Round(length / 90.0), 1, 7);
+    }
+
+    private static string GetLoadLabel(string? label, double value, string unit, double loadFactor) =>
         string.IsNullOrWhiteSpace(label)
-            ? $"{Format(value)} {unit}"
-            : $"{label}: {Format(value)} {unit}";
+            ? $"{Format(value)} {unit}{GetLoadFactorSuffix(loadFactor)}"
+            : $"{label}: {Format(value)} {unit}{GetLoadFactorSuffix(loadFactor)}";
 
     private static string GetDistributedLoadLabel(VisualizationDistributedLoad load)
     {
         string valueText = Math.Abs(load.StartValue - load.EndValue) < 1e-12
-            ? $"{Format(load.StartValue)} {load.Unit}"
-            : $"{Format(load.StartValue)} → {Format(load.EndValue)} {load.Unit}";
+            ? $"{Format(load.StartValue)} {load.Unit}{GetLoadFactorSuffix(load.LoadFactor)}"
+            : $"{Format(load.StartValue)} → {Format(load.EndValue)} {load.Unit}{GetLoadFactorSuffix(load.LoadFactor)}";
 
         return string.IsNullOrWhiteSpace(load.Label)
             ? valueText
             : $"{load.Label}: {valueText}";
     }
+
+    private static string GetLoadFactorSuffix(double loadFactor) =>
+        Math.Abs(loadFactor - 1.0) < 1e-12
+            ? string.Empty
+            : $" ({Format(loadFactor)}x)";
 
     private static double Interpolate(double start, double end, double position) =>
         start + ((end - start) * position);

@@ -1,0 +1,37 @@
+{
+  "title": "E07 - Zero load combination factor is invalid",
+  "description": "A zero factor is intentionally invalid in the current model policy. The validator should reject it with LOAD_COMBINATION_INVALID_FACTOR.",
+  "loadCombinationId": "COMB_ZERO",
+  "nodes": [
+    { "id": "A", "x": 0.0, "y": 0.0 },
+    { "id": "B", "x": 5.0, "y": 0.0 }
+  ],
+  "materials": [
+    { "id": "MAT", "name": "Benchmark elastic material", "elasticModulus": 210000000.0 }
+  ],
+  "sections": [
+    { "id": "SEC", "name": "Benchmark frame section", "area": 0.003, "momentOfInertia": 0.00002 }
+  ],
+  "members": [
+    { "id": "AB", "startNodeId": "A", "endNodeId": "B", "materialId": "MAT", "sectionId": "SEC", "type": "Frame2D" }
+  ],
+  "supports": [
+    { "id": "SA", "nodeId": "A", "restrainedUx": true, "restrainedUy": true, "restrainedRz": false, "type": "Hinge" },
+    { "id": "SB", "nodeId": "B", "restrainedUx": false, "restrainedUy": true, "restrainedRz": false, "type": "SimpleSupport" }
+  ],
+  "loadCases": [
+    { "id": "G", "name": "Permanent load" }
+  ],
+  "loads": [
+    { "id": "G1", "loadCaseId": "G", "type": "UniformDistributedLoad", "targetType": "Member", "targetId": "AB", "direction": "GlobalY", "value": -10.0 }
+  ],
+  "loadCombinations": [
+    {
+      "id": "COMB_ZERO",
+      "name": "Zero factor combination",
+      "terms": [
+        { "loadCaseId": "G", "factor": 0.0 }
+      ]
+    }
+  ]
+}

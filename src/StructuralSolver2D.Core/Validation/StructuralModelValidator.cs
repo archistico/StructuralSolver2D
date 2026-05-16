@@ -153,9 +153,14 @@ public sealed class StructuralModelValidator
                 AddError(issues, "SECTION_INVALID_AREA", $"Section '{section.Id}' has invalid area.", section.Id);
             }
 
-            if (section.MomentOfInertia <= 0 || !double.IsFinite(section.MomentOfInertia))
+            bool sectionUsedByFrameMember = model.Members.Any(member =>
+                string.Equals(member.SectionId, section.Id, StringComparison.OrdinalIgnoreCase) &&
+                member.Type == MemberType.Frame2D);
+
+            if (sectionUsedByFrameMember &&
+                (section.MomentOfInertia <= 0 || !double.IsFinite(section.MomentOfInertia)))
             {
-                AddError(issues, "SECTION_INVALID_INERTIA", $"Section '{section.Id}' has invalid moment of inertia.", section.Id);
+                AddError(issues, "SECTION_INVALID_INERTIA", $"Section '{section.Id}' has invalid moment of inertia for Frame2D members.", section.Id);
             }
         }
     }
@@ -316,6 +321,11 @@ public sealed class StructuralModelValidator
                     break;
 
                 case StructuralLoadType.SelfWeight:
+                    AddError(
+                        issues,
+                        "LOAD_SELF_WEIGHT_NOT_SUPPORTED",
+                        $"Self-weight load '{load.Id}' is not yet supported by the current analysis engine.",
+                        load.Id);
                     ValidateNonZeroValue(load, issues);
                     ValidateSelfWeightLoad(load, issues);
                     ValidateNoPosition(load, issues);

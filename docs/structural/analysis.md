@@ -127,6 +127,30 @@ RestrainedUy
 RestrainedRz
 ```
 
+`RestrainedUx` and `RestrainedUy` are interpreted in the support local system.
+For a non-rotated support, the local support axes coincide with global X and global Y.
+When `OrientationDegrees` is different from zero, the translational constraint equations are rotated accordingly.
+This allows mechanically active inclined rollers and inclined translational supports without changing the JSON support schema.
+
+## Support reactions
+
+Support reactions are computed from the global residual vector:
+
+```text
+r = K · u - F
+```
+
+The result fields `Fx` and `Fy` are always global force components.
+The result field `Mz` is the global moment component.
+
+This distinction is important for inclined supports. A roller restrained along a single local direction can produce two non-zero global components because the local reaction vector is decomposed into global X and global Y. Therefore:
+
+- a vertical roller with only global/local `Uy` restrained should normally report `Fx = 0`;
+- a horizontal roller with only global/local `Ux` restrained should normally report `Fy = 0`;
+- an inclined roller may correctly report both `Fx` and `Fy` as non-zero.
+
+The public result currently exposes global components only. If local support reaction components become necessary for reporting, they should be added explicitly to the reaction DTO rather than reinterpreting the meaning of `Fx` and `Fy`.
+
 ## Loads
 
 Initial load handling:
@@ -151,6 +175,15 @@ Rz positive counterclockwise
 ```
 
 For internal forces, the convention must be documented separately and kept consistent in tests, reports and diagrams.
+
+## Current solver implementation limits
+
+The current linear equation solver is a dense Gaussian-elimination solver with partial pivoting.
+It is intentionally simple and suitable for small/medium educational, validation and prototype models.
+
+The dense implementation stores the full matrix and has approximately cubic computational cost with respect to the number of unknowns. This means it is not intended for large production-scale finite element models. Future larger models should use a sparse matrix assembly and sparse linear solver.
+
+This is an implementation limit, not a modeling convention: the public API is expected to remain stable when the internal solver is replaced.
 
 ## Failure cases
 

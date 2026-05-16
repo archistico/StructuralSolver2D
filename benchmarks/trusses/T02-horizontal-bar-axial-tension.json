@@ -1,0 +1,77 @@
+{
+  "title": "T02 - Horizontal truss bar axial tension",
+  "description": "Single horizontal Truss2D bar, L = 5 m, A = 0.004 m\u00b2, E = 210000000 kN/m\u00b2, P = 20 kN in global +X at the free end. Reference displacement: u = PL/(EA). Reference axial force: N = +20 kN tension.",
+  "loadCaseId": "LC1",
+  "nodes": [
+    {
+      "id": "A",
+      "x": 0.0,
+      "y": 0.0
+    },
+    {
+      "id": "B",
+      "x": 5.0,
+      "y": 0.0
+    }
+  ],
+  "materials": [
+    {
+      "id": "MAT",
+      "name": "Benchmark elastic material",
+      "elasticModulus": 210000000.0
+    }
+  ],
+  "sections": [
+    {
+      "id": "BAR",
+      "name": "Benchmark truss bar section",
+      "area": 0.004,
+      "momentOfInertia": 0.0
+    }
+  ],
+  "members": [
+    {
+      "id": "AB",
+      "startNodeId": "A",
+      "endNodeId": "B",
+      "materialId": "MAT",
+      "sectionId": "BAR",
+      "type": "Truss2D"
+    }
+  ],
+  "supports": [
+    {
+      "id": "SA",
+      "nodeId": "A",
+      "restrainedUx": true,
+      "restrainedUy": true,
+      "restrainedRz": false,
+      "type": "Hinge"
+    },
+    {
+      "id": "SB",
+      "nodeId": "B",
+      "restrainedUx": false,
+      "restrainedUy": true,
+      "restrainedRz": false,
+      "type": "SimpleSupport"
+    }
+  ],
+  "loadCases": [
+    {
+      "id": "LC1",
+      "name": "Axial tension"
+    }
+  ],
+  "loads": [
+    {
+      "id": "P1",
+      "loadCaseId": "LC1",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "B",
+      "direction": "GlobalX",
+      "value": 20.0
+    }
+  ]
+}

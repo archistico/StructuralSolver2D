@@ -81,6 +81,11 @@ internal static class SupportConstraintSystem
     /// <summary>
     /// Builds support reaction result objects from the global residual vector.
     /// </summary>
+    /// <remarks>
+    /// Reaction forces are reported as global components. When a translational support is rotated,
+    /// a restrained local axis may contribute to both global X and global Y. Components that are not
+    /// associated with any active restrained support direction are suppressed to zero.
+    /// </remarks>
     public static IReadOnlyList<SupportReactionResult> BuildSupportReactionResults(
         StructuralModel model,
         IReadOnlyDictionary<string, int> nodeIndexById,
@@ -96,16 +101,31 @@ internal static class SupportConstraintSystem
             .Select(support =>
             {
                 int nodeBaseDof = nodeIndexById[support.NodeId] * dofsPerNode;
-                bool hasTranslationalRestraint = support.RestrainedUx || support.RestrainedUy;
 
                 return new SupportReactionResult(
                     support.Id,
                     support.NodeId,
-                    hasTranslationalRestraint ? Clean(globalResidual[nodeBaseDof]) : 0.0,
-                    hasTranslationalRestraint ? Clean(globalResidual[nodeBaseDof + 1]) : 0.0,
+                    HasRestrainedGlobalXComponent(support) ? Clean(globalResidual[nodeBaseDof]) : 0.0,
+                    HasRestrainedGlobalYComponent(support) ? Clean(globalResidual[nodeBaseDof + 1]) : 0.0,
                     includeRotationalDof && support.RestrainedRz ? Clean(globalResidual[nodeBaseDof + 2]) : 0.0);
             })
             .ToList();
+    }
+
+    private static bool HasRestrainedGlobalXComponent(StructuralSupport support)
+    {
+        double angle = support.OrientationDegrees * Math.PI / 180.0;
+
+        return (support.RestrainedUx && Math.Abs(Math.Cos(angle)) > InactiveDofTolerance) ||
+               (support.RestrainedUy && Math.Abs(Math.Sin(angle)) > InactiveDofTolerance);
+    }
+
+    private static bool HasRestrainedGlobalYComponent(StructuralSupport support)
+    {
+        double angle = support.OrientationDegrees * Math.PI / 180.0;
+
+        return (support.RestrainedUx && Math.Abs(Math.Sin(angle)) > InactiveDofTolerance) ||
+               (support.RestrainedUy && Math.Abs(Math.Cos(angle)) > InactiveDofTolerance);
     }
 
     private static List<ConstraintEquation> BuildSupportConstraints(
@@ -160,9 +180,11 @@ internal static class SupportConstraintSystem
         double[,] globalStiffness,
         double[] globalLoadVector)
     {
+        HashSet<int> constrainedDofs = BuildConstrainedDofSet(constraints);
+
         for (int dof = 0; dof < totalDofCount; dof++)
         {
-            if (IsDofReferencedByConstraint(constraints, dof))
+            if (constrainedDofs.Contains(dof))
             {
                 continue;
             }
@@ -174,6 +196,7 @@ internal static class SupportConstraintSystem
                 {
                     new KeyValuePair<int, double>(dof, 1.0),
                 }));
+                constrainedDofs.Add(dof);
             }
         }
     }
@@ -191,8 +214,23 @@ internal static class SupportConstraintSystem
         return false;
     }
 
-    private static bool IsDofReferencedByConstraint(IEnumerable<ConstraintEquation> constraints, int dof) =>
-        constraints.Any(constraint => constraint.Coefficients.TryGetValue(dof, out double coefficient) && Math.Abs(coefficient) > InactiveDofTolerance);
+    private static HashSet<int> BuildConstrainedDofSet(IEnumerable<ConstraintEquation> constraints)
+    {
+        HashSet<int> constrainedDofs = new();
+
+        foreach (ConstraintEquation constraint in constraints)
+        {
+            foreach (KeyValuePair<int, double> coefficient in constraint.Coefficients)
+            {
+                if (Math.Abs(coefficient.Value) > InactiveDofTolerance)
+                {
+                    constrainedDofs.Add(coefficient.Key);
+                }
+            }
+        }
+
+        return constrainedDofs;
+    }
 
     private static ConstraintEquation CreateConstraint(
         int totalDofCount,

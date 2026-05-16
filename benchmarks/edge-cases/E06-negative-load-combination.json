@@ -1,0 +1,41 @@
+{
+  "title": "E06 - Negative load combination factor",
+  "description": "Simple beam with G - Q. Negative factors are allowed and represent load reversal or subtraction; the resulting equivalent uniform load is 6 kN/m downward.",
+  "loadCombinationId": "COMB_NEG",
+  "nodes": [
+    { "id": "A", "x": 0.0, "y": 0.0 },
+    { "id": "B", "x": 5.0, "y": 0.0 }
+  ],
+  "materials": [
+    { "id": "MAT", "name": "Benchmark elastic material", "elasticModulus": 210000000.0 }
+  ],
+  "sections": [
+    { "id": "SEC", "name": "Benchmark frame section", "area": 0.003, "momentOfInertia": 0.00002 }
+  ],
+  "members": [
+    { "id": "AB", "startNodeId": "A", "endNodeId": "B", "materialId": "MAT", "sectionId": "SEC", "type": "Frame2D" }
+  ],
+  "supports": [
+    { "id": "SA", "nodeId": "A", "restrainedUx": true, "restrainedUy": true, "restrainedRz": false, "type": "Hinge" },
+    { "id": "SB", "nodeId": "B", "restrainedUx": false, "restrainedUy": true, "restrainedRz": false, "type": "SimpleSupport" }
+  ],
+  "loadCases": [
+    { "id": "G", "name": "Permanent load" },
+    { "id": "Q", "name": "Reversible load" }
+  ],
+  "loads": [
+    { "id": "G1", "loadCaseId": "G", "type": "UniformDistributedLoad", "targetType": "Member", "targetId": "AB", "direction": "GlobalY", "value": -10.0 },
+    { "id": "Q1", "loadCaseId": "Q", "type": "UniformDistributedLoad", "targetType": "Member", "targetId": "AB", "direction": "GlobalY", "value": -4.0 }
+  ],
+  "loadCombinations": [
+    {
+      "id": "COMB_NEG",
+      "name": "G minus Q",
+      "description": "Negative factor validation case.",
+      "terms": [
+        { "loadCaseId": "G", "factor": 1.0 },
+        { "loadCaseId": "Q", "factor": -1.0 }
+      ]
+    }
+  ]
+}

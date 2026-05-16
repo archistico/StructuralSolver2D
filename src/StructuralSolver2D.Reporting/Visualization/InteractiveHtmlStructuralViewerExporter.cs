@@ -78,6 +78,10 @@ public sealed class InteractiveHtmlStructuralViewerExporter
         builder.AppendLine("    .viewer-canvas { height: min(78vh, 920px); overflow: hidden; cursor: grab; touch-action: none; }");
         builder.AppendLine("    .viewer-canvas.dragging { cursor: grabbing; }");
         builder.AppendLine("    .viewer-canvas svg { width: 100%; height: 100%; display: block; background: #ffffff; }");
+        builder.AppendLine("    .viewer-canvas svg .node-label, .viewer-canvas svg .support-label, .viewer-canvas svg .dimension-label, .viewer-canvas svg .annotation-label, .viewer-canvas svg .reaction-label, .viewer-canvas svg .legend-label, .viewer-canvas svg .load-label { font-size: calc(12px * var(--viewer-label-scale, 1)) !important; }");
+        builder.AppendLine("    .viewer-canvas svg .caption { font-size: calc(12px * var(--viewer-label-scale, 1)) !important; }");
+        builder.AppendLine("    .viewer-canvas svg .displacement-label { font-size: calc(11px * var(--viewer-label-scale, 1)) !important; }");
+        builder.AppendLine("    .viewer-canvas svg .member-displacement-label { font-size: calc(10.5px * var(--viewer-label-scale, 1)) !important; }");
         builder.AppendLine("    .summary { max-width: 1500px; margin: 12px auto 0 auto; display: grid; grid-template-columns: repeat(6, minmax(110px, 1fr)); gap: 10px; }");
         builder.AppendLine("    .summary div { background: #111827; border: 1px solid #334155; border-radius: 10px; padding: 10px; }");
         builder.AppendLine("    .summary dt { color: #94a3b8; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }");
@@ -89,7 +93,7 @@ public sealed class InteractiveHtmlStructuralViewerExporter
     private static void AppendToolbar(StringBuilder builder, InteractiveViewerExportOptions options)
     {
         string deformationScale = FormatPercent(options.InitialDeformationVisualScalePercent);
-        string animationAmplitude = FormatPercent(options.InitialAnimationAmplitudePercent);
+        string textScale = FormatPercent(options.InitialTextScalePercent);
         string animationSpeed = options.InitialAnimationSpeed.ToString("0.###", CultureInfo.InvariantCulture);
 
         builder.AppendLine("    <nav class=\"toolbar\" aria-label=\"Viewer controls\">");
@@ -98,13 +102,14 @@ public sealed class InteractiveHtmlStructuralViewerExporter
         builder.AppendLine("      <button type=\"button\" data-action=\"reset\">Reset view</button>");
         builder.AppendLine("      <button type=\"button\" data-action=\"play-animation\">Play deformation</button>");
         builder.AppendLine("      <button type=\"button\" data-action=\"pause-animation\">Pause</button>");
-        builder.AppendLine($"      <label class=\"control-group\">Deformed scale <input type=\"range\" min=\"0\" max=\"300\" step=\"5\" value=\"{deformationScale}\" data-scale=\"deformed\" /> <span data-scale-output=\"deformed\">{deformationScale}%</span></label>");
-        builder.AppendLine($"      <label class=\"control-group\">Anim. amplitude <input type=\"range\" min=\"0\" max=\"200\" step=\"5\" value=\"{animationAmplitude}\" data-animation=\"amplitude\" /> <span data-animation-output=\"amplitude\">{animationAmplitude}%</span></label>");
+        builder.AppendLine($"      <label class=\"control-group\">Deformed scale <input type=\"range\" min=\"0\" max=\"500\" step=\"5\" value=\"{deformationScale}\" data-scale=\"deformed\" /> <span data-scale-output=\"deformed\">{deformationScale}%</span></label>");
+        builder.AppendLine($"      <label class=\"control-group\">Text size <input type=\"range\" min=\"50\" max=\"160\" step=\"5\" value=\"{textScale}\" data-text-scale=\"labels\" /> <span data-text-scale-output=\"labels\">{textScale}%</span></label>");
         builder.AppendLine($"      <label class=\"control-group\">Anim. speed <input type=\"range\" min=\"0.25\" max=\"4\" step=\"0.25\" value=\"{animationSpeed}\" data-animation=\"speed\" /> <span data-animation-output=\"speed\">{animationSpeed}x</span></label>");
         string loadsChecked = options.ShowLoadsByDefault ? " checked" : string.Empty;
         builder.AppendLine("      <label><input type=\"checkbox\" data-layer=\"#undeformed-model\" checked /> Undeformed</label>");
         builder.AppendLine("      <label><input type=\"checkbox\" data-layer=\"#deformed-shape\" checked /> Deformed</label>");
         builder.AppendLine($"      <label><input type=\"checkbox\" data-layer=\"#loads\"{loadsChecked} /> Loads</label>");
+        builder.AppendLine($"      <label><input type=\"checkbox\" data-layer=\".load-label\"{loadsChecked} /> Load labels</label>");
         builder.AppendLine("      <label><input type=\"checkbox\" data-layer=\".diagram.normal-force,.diagram-fill.normal-force,.annotation-point.normal-force,.annotation-label.normal-force\" checked /> N</label>");
         builder.AppendLine("      <label><input type=\"checkbox\" data-layer=\".diagram.shear-force,.diagram-fill.shear-force,.annotation-point.shear-force,.annotation-label.shear-force\" checked /> V</label>");
         builder.AppendLine("      <label><input type=\"checkbox\" data-layer=\".diagram.bending-moment,.diagram-fill.bending-moment,.annotation-point.bending-moment,.annotation-label.bending-moment\" checked /> M</label>");
@@ -116,7 +121,7 @@ public sealed class InteractiveHtmlStructuralViewerExporter
         builder.AppendLine($"      <label><input type=\"checkbox\" data-layer=\".displacement-label,.displacement-label-anchor\"{displacementLabelsChecked} /> Nodal displacement labels</label>");
         string memberDisplacementLabelsChecked = options.ShowMemberDisplacementLabelsByDefault ? " checked" : string.Empty;
         builder.AppendLine($"      <label><input type=\"checkbox\" data-layer=\".member-displacement-label,.member-displacement-label-anchor\"{memberDisplacementLabelsChecked} /> Member station labels</label>");
-        builder.AppendLine("      <span class=\"hint\">Wheel to zoom, drag to pan. Deformed scale recomputes deformed coordinates from displacement data; N/V/M toggles only show or hide diagrams.</span>");
+        builder.AppendLine("      <span class=\"hint\">Wheel to zoom, drag to pan. Text size reduces or enlarges SVG labels; Deformed scale recomputes deformed coordinates from displacement data.</span>");
         builder.AppendLine("    </nav>");
     }
 
@@ -171,6 +176,7 @@ public sealed class InteractiveHtmlStructuralViewerExporter
         builder.AppendLine("        applyViewBox();");
         builder.AppendLine("      }");
         builder.AppendLine("      function setOutput(selector, value, suffix) { const output = document.querySelector(selector); if (output) output.textContent = `${value}${suffix}`; }");
+        builder.AppendLine("      function applyTextScale(value) { svg.style.setProperty('--viewer-label-scale', String(value)); }");
         builder.AppendLine("      function parsePointList(value) {");
         builder.AppendLine("        return (value || '').trim().split(/\\s+/).filter(Boolean).map(pair => {");
         builder.AppendLine("          const parts = pair.split(',').map(Number);");
@@ -197,13 +203,12 @@ public sealed class InteractiveHtmlStructuralViewerExporter
         builder.AppendLine("        const factor = animationFactor ?? getDeformationScaleValue();");
         builder.AppendLine("        applyDeformation(factor);");
         builder.AppendLine("      }");
-        builder.AppendLine("      function animationAmplitude() { const input = document.querySelector('[data-animation=amplitude]'); return input ? Number(input.value) / 100 : 1; }");
         builder.AppendLine("      function animationSpeed() { const input = document.querySelector('[data-animation=speed]'); return input ? Number(input.value) : 1; }");
         builder.AppendLine("      function animationLoop(timestamp) {");
         builder.AppendLine("        if (!animationRunning) return;");
         builder.AppendLine("        if (!animationStart) animationStart = timestamp;");
         builder.AppendLine("        const elapsed = (timestamp - animationStart) / 1000;");
-        builder.AppendLine("        const factor = getDeformationScaleValue() * animationAmplitude() * Math.sin(elapsed * animationSpeed() * Math.PI * 2);");
+        builder.AppendLine("        const factor = getDeformationScaleValue() * Math.sin(elapsed * animationSpeed() * Math.PI * 2);");
         builder.AppendLine("        applyVisualScales(factor);");
         builder.AppendLine("        requestAnimationFrame(animationLoop);");
         builder.AppendLine("      }");
@@ -229,9 +234,14 @@ public sealed class InteractiveHtmlStructuralViewerExporter
         builder.AppendLine("        applyScaleInput();");
         builder.AppendLine("      });");
         builder.AppendLine("      document.querySelectorAll('[data-animation]').forEach(input => {");
-        builder.AppendLine("        function applyAnimationInput() { const suffix = input.dataset.animation === 'speed' ? 'x' : '%'; setOutput(`[data-animation-output=${input.dataset.animation}]`, input.value, suffix); }");
+        builder.AppendLine("        function applyAnimationInput() { setOutput(`[data-animation-output=${input.dataset.animation}]`, input.value, 'x'); }");
         builder.AppendLine("        input.addEventListener('input', applyAnimationInput);");
         builder.AppendLine("        applyAnimationInput();");
+        builder.AppendLine("      });");
+        builder.AppendLine("      document.querySelectorAll('[data-text-scale]').forEach(input => {");
+        builder.AppendLine("        function applyTextScaleInput() { const value = Number(input.value) / 100; setOutput(`[data-text-scale-output=${input.dataset.textScale}]`, input.value, '%'); applyTextScale(value); }");
+        builder.AppendLine("        input.addEventListener('input', applyTextScaleInput);");
+        builder.AppendLine("        applyTextScaleInput();");
         builder.AppendLine("      });");
         builder.AppendLine("      document.querySelectorAll('[data-layer]').forEach(control => {");
         builder.AppendLine("        function applyLayerVisibility() {");

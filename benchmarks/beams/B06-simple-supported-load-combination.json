@@ -1,0 +1,142 @@
+{
+  "title": "B06 - Simply supported beam ULS load combination",
+  "description": "L = 5 m. Permanent load G = 10 kN/m and variable load Q = 4 kN/m are combined as ULS1 = 1.35G + 1.50Q. Equivalent factored load qd = 19.5 kN/m. The beam is split at midspan for a nodal displacement check.",
+  "loadCombinationId": "ULS1",
+  "nodes": [
+    {
+      "id": "A",
+      "x": 0.0,
+      "y": 0.0
+    },
+    {
+      "id": "C",
+      "x": 2.5,
+      "y": 0.0
+    },
+    {
+      "id": "B",
+      "x": 5.0,
+      "y": 0.0
+    }
+  ],
+  "materials": [
+    {
+      "id": "MAT",
+      "name": "Benchmark elastic material",
+      "elasticModulus": 210000000.0
+    }
+  ],
+  "sections": [
+    {
+      "id": "SEC",
+      "name": "Benchmark frame section",
+      "area": 0.003,
+      "momentOfInertia": 2e-05
+    }
+  ],
+  "members": [
+    {
+      "id": "M1",
+      "startNodeId": "A",
+      "endNodeId": "C",
+      "materialId": "MAT",
+      "sectionId": "SEC",
+      "type": "Frame2D"
+    },
+    {
+      "id": "M2",
+      "startNodeId": "C",
+      "endNodeId": "B",
+      "materialId": "MAT",
+      "sectionId": "SEC",
+      "type": "Frame2D"
+    }
+  ],
+  "supports": [
+    {
+      "id": "SA",
+      "nodeId": "A",
+      "restrainedUx": true,
+      "restrainedUy": true,
+      "restrainedRz": false,
+      "type": "Hinge"
+    },
+    {
+      "id": "SB",
+      "nodeId": "B",
+      "restrainedUx": false,
+      "restrainedUy": true,
+      "restrainedRz": false,
+      "type": "SimpleSupport"
+    }
+  ],
+  "loadCases": [
+    {
+      "id": "G",
+      "name": "Permanent load"
+    },
+    {
+      "id": "Q",
+      "name": "Variable load"
+    }
+  ],
+  "loads": [
+    {
+      "id": "G_M1",
+      "loadCaseId": "G",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "M1",
+      "direction": "GlobalY",
+      "value": -10.0,
+      "label": "G on left half"
+    },
+    {
+      "id": "G_M2",
+      "loadCaseId": "G",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "M2",
+      "direction": "GlobalY",
+      "value": -10.0,
+      "label": "G on right half"
+    },
+    {
+      "id": "Q_M1",
+      "loadCaseId": "Q",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "M1",
+      "direction": "GlobalY",
+      "value": -4.0,
+      "label": "Q on left half"
+    },
+    {
+      "id": "Q_M2",
+      "loadCaseId": "Q",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "M2",
+      "direction": "GlobalY",
+      "value": -4.0,
+      "label": "Q on right half"
+    }
+  ],
+  "loadCombinations": [
+    {
+      "id": "ULS1",
+      "name": "Benchmark ULS combination",
+      "description": "Manual validation combination: 1.35 G + 1.50 Q.",
+      "terms": [
+        {
+          "loadCaseId": "G",
+          "factor": 1.35
+        },
+        {
+          "loadCaseId": "Q",
+          "factor": 1.5
+        }
+      ]
+    }
+  ]
+}

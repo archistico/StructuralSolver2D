@@ -1,68 +1,70 @@
 # StructuralSolver2D
 
-StructuralSolver2D is an independent .NET 8 / C# engine for planar structural analysis of simple 2D schemes made of one-dimensional members.
+StructuralSolver2D is a free and open-source .NET 8 / C# engine for first-order linear elastic analysis of planar 2D structures made of one-dimensional members.
 
-The project is intentionally separated from OpenCad2D while the calculation engine is being consolidated. OpenCad2D may become a future graphical client, but it is not a dependency of the solver.
+It is designed as a calculation engine and educational codebase. It can read structural models from JSON, solve load cases or manual load combinations, and export numerical reports and graphical result previews.
 
-The project has two complementary goals:
-
-1. provide a lightweight 2D structural analysis engine;
-2. offer an educational codebase for understanding matrix-based structural analysis and the finite-element formulation of 2D frame members.
+The project is independent from OpenCad2D. OpenCad2D may become a graphical client in the future, but the solver can already be used from the command line or from a .NET application.
 
 ---
 
-## Current scope
+## What it can do
 
-The current implementation focuses on first-order linear elastic analysis of plane structures using 2D frame members.
+StructuralSolver2D currently supports:
 
-Supported at the current stage:
-
-- independent structural model;
-- nodes, members, materials, elastic material presets, explicit sections, parametric sections and supports;
-- load cases and basic loads;
-- 2D frame analysis with three degrees of freedom per node: `Ux`, `Uy`, `Rz`;
-- nodal forces;
-- nodal moments;
-- uniform distributed loads on members;
-- support reactions;
+- 2D structural models with nodes, members, materials, sections, supports, load cases and loads;
+- `Frame2D` members with axial, shear and bending behavior;
+- `Truss2D` members with axial-only behavior;
+- mixed `Frame2D` + `Truss2D` plane structures;
+- nodal degrees of freedom `Ux`, `Uy`, `Rz`;
+- hinged, fixed, roller/simple and custom support restraints;
+- mechanically active inclined supports through `OrientationDegrees`;
+- nodal forces and nodal moments;
+- member point loads on `Frame2D` members;
+- uniform, triangular and trapezoidal distributed loads on `Frame2D` members;
+- manual load combinations, for example `1.35 G1 + 1.50 Q1`;
 - nodal displacements;
+- support reactions;
 - local member end forces;
 - sampled internal-force diagrams `N(x)`, `V(x)`, `M(x)`;
-- characteristic internal-force points for reporting and future graphical output;
+- sampled `Frame2D` displacement diagrams;
+- result extrema and compact analysis summaries;
 - preliminary serviceability deflection checks;
-- parametric section helpers for rectangular, timber rectangular, solid circular and hollow circular sections;
-- initial elastic material library for common steel, timber, glulam and concrete presets;
-- result extrema and analysis summaries;
-- CLI examples;
-- JSON input examples;
-- validation JSON example catalog for representative frames, trusses and Gerber beams;
-- Markdown report generation, including educational guidance, executive summaries, characteristic internal-force point tables and optional preliminary deflection-check tables;
-- CSV export for spreadsheet validation and external post-processing.
-- UI-independent graphical result data for future viewers.
+- Markdown, CSV, XLSX and PDF exports;
+- static SVG/HTML graphical previews;
+- interactive HTML viewer export;
+- validation examples and benchmark cases for regression testing.
 
-Not supported yet:
+---
 
-- automatic CAD integration;
-- OpenCad2D integration;
-- automatic conversion from drawing entities to structural entities;
-- 3D analysis;
-- plates, shells, solids or 2D/3D mesh FEM;
+## What it does not do yet
+
+StructuralSolver2D is not a certified structural design product.
+
+It does not currently support:
+
+- 3D frame or truss analysis;
+- plates, shells, solids or general 2D/3D mesh FEM;
 - nonlinear material behavior;
-- geometric nonlinearity / second-order effects;
+- geometric nonlinearity or second-order effects;
 - modal, dynamic or seismic analysis;
 - automatic wind, snow or seismic load generation;
-- self-weight load generation in the analyzer;
-- structural design checks according to NTC, Eurocodes or other codes;
-- steel/timber connection design;
-- fire, fatigue or buckling checks.
+- automatic self-weight generation in the analyzer;
+- code-compliant design checks according to NTC, Eurocodes or other standards;
+- steel, timber or reinforced concrete member design;
+- connection design;
+- buckling, fire, fatigue or robustness checks;
+- automatic conversion from CAD drawing entities to structural models.
+
+Results should always be checked independently before any professional or safety-critical use.
 
 ---
 
 ## Internal units
 
-StructuralSolver2D uses fixed coherent internal units.
+All input values are expected in coherent internal units.
 
-| Quantity | Internal unit |
+| Quantity | Unit |
 |---|---:|
 | Length | m |
 | Force | kN |
@@ -70,167 +72,32 @@ StructuralSolver2D uses fixed coherent internal units.
 | Elastic modulus | kN/m² |
 | Area | m² |
 | Second moment of area | m⁴ |
-| Uniform distributed load | kN/m |
+| Distributed load | kN/m |
 
-The CLI and future UI layers may display other units, but all analysis data should be converted to these internal units before solving.
+Important sign convention for vertical gravity loads: with the usual model orientation where global `Y` is upward, a downward load is usually entered as a **negative** `GlobalY` value.
 
----
+Example:
 
-## Repository structure
-
-```text
-StructuralSolver2D/
-  StructuralSolver2D.sln
-  Directory.Build.props
-  README.md
-  CHANGELOG.md
-  VERSION
-  ai-handoff.md
-
-  docs/
-    structural/
-      vision.md
-      scope.md
-      architecture.md
-      model.md
-      units.md
-      analysis.md
-      validation.md
-      reporting.md
-      csv-export.md
-      validation-json-examples.md
-      graphical-export.md
-      interactive-viewer.md
-      section-catalog.md
-      xlsx-export.md
-      pdf-report.md
-      public-api.md
-      release-checklist.md
-      release-notes-v0.1.0.md
-      viewer-data.md
-      development-plan.md
-      roadmap.md
-
-  examples/
-    sections/basic-sections.json
-    README.md
-    beams/
-      simple-supported-beam.json
-      cantilever-point-load.json
-      cantilever-uniform-load.json
-      member-point-load.json
-      triangular-distributed-load.json
-      released-beam.json
-      axial-bar.json
-    trusses/
-      simple-truss.json
-    mixed/
-      mixed-frame-truss.json
-    combinations/
-      load-combination.json
-    validation/
-      rigid-joint-portal-frame.json
-      small-bridge-truss.json
-      isostatic-triangular-truss-beam.json
-      nielsen-parabolic-truss.json
-      inverted-parabolic-truss.json
-      double-diagonal-hyperstatic-truss.json
-      gerber-beam-asymmetric-loads.json
-
-  benchmarks/
-    beams/
-    frames/
-    trusses/
-    mixed/
-    convergence/
-    expected/
-
-  reports/
-    simple-supported-beam.md
-
-  src/
-    StructuralSolver2D.Core/
-    StructuralSolver2D.Analysis/
-    StructuralSolver2D.Cli/
-    StructuralSolver2D.Reporting/
-
-  tests/
-    StructuralSolver2D.Core.Tests/
-    StructuralSolver2D.Analysis.Tests/
+```json
+{
+  "direction": "GlobalY",
+  "value": -10.0
+}
 ```
 
 ---
 
-## Projects
+## Requirements
 
-### `StructuralSolver2D.Core`
+- .NET SDK 8.0 or later
+- Windows, Linux or macOS supported by .NET 8
+- PowerShell, Terminal, Bash or any equivalent command line shell
 
-Contains the structural model, reusable section catalogs and validation logic.
+Check your installed SDK:
 
-Main concepts:
-
-- `StructuralModel`
-- `StructuralNode`
-- `StructuralMember`
-- `StructuralMaterial`
-- `StructuralSection`
-- `StructuralSectionFactory`
-- `StructuralSectionCatalog`
-- `StructuralSectionCatalogJsonSerializer`
-- `StructuralSupport`
-- `StructuralLoadCase`
-- `StructuralLoad`
-- `StructuralLoadCombination`
-- `StructuralLoadCombinationTerm`
-- `StructuralModelValidator`
-
-This project must remain independent from solvers, CLI, reporting, CAD, UI and rendering.
-
-### `StructuralSolver2D.Analysis`
-
-Contains the current 2D frame solver and post-processing utilities.
-
-Main concepts:
-
-- `Frame2DAnalyzer`
-- `Frame2DElementMatrices`
-- `DenseLinearSystemSolver`
-- `Frame2DInternalForceSampler`
-- `Frame2DResultSummarizer`
-- `StructuralAnalysisResult`
-- `StructuralAnalysisSummary`
-
-This project depends on `StructuralSolver2D.Core`.
-
-### `StructuralSolver2D.Cli`
-
-Provides a command-line interface for quick analysis, examples and report generation.
-
-Current commands:
-
-- `help`
-- `example <name>`
-- `analyze <input.json> [loadCaseId|combinationId]`
-- `report <input.json> <output.md> [loadCaseId|combinationId]`
-- `export-csv <input.json> <output-directory> [loadCaseId|combinationId]`
-- `export-xlsx <input.json> <output.xlsx> [loadCaseId|combinationId]`
-- `export-pdf <input.json> <output.pdf> [loadCaseId|combinationId]`
-- `export-svg <input.json> <output.svg> [loadCaseId|combinationId]`
-- `export-html <input.json> <output.html> [loadCaseId|combinationId]`
-- `export-viewer <input.json> <output.html> [loadCaseId|combinationId]`
-
-### `StructuralSolver2D.Reporting`
-
-Contains report generators.
-
-Current implementation:
-
-- Markdown report generator;
-- CSV result exporter;
-- XLSX result workbook exporter;
-- PDF technical report exporter;
-- SVG graphical result exporter;
-- HTML graphical preview exporter.
+```powershell
+dotnet --version
+```
 
 ---
 
@@ -244,20 +111,18 @@ dotnet build StructuralSolver2D.sln
 dotnet test StructuralSolver2D.sln
 ```
 
-Or simply:
+The shorter form also works from the repository root:
 
 ```powershell
 dotnet build
 dotnet test
 ```
 
-The project targets `.NET 8`.
-
 ---
 
-## CLI usage
+## Command line usage
 
-Show help:
+Show the CLI help:
 
 ```powershell
 dotnet run --project src\StructuralSolver2D.Cli -- help
@@ -269,16 +134,16 @@ Run a built-in example:
 dotnet run --project src\StructuralSolver2D.Cli -- example simple-supported-beam
 ```
 
-Analyze a JSON file:
+Analyze a JSON model:
 
 ```powershell
 dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\beams\simple-supported-beam.json
 ```
 
-Analyze a JSON file and specify the load case explicitly:
+Analyze a specific load case or load combination:
 
 ```powershell
-dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\beams\simple-supported-beam.json LC1
+dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\combinations\load-combination.json ULS1
 ```
 
 Generate a Markdown report:
@@ -287,22 +152,10 @@ Generate a Markdown report:
 dotnet run --project src\StructuralSolver2D.Cli -- report examples\beams\simple-supported-beam.json reports\simple-supported-beam.md
 ```
 
-Generate a Markdown report for a specific load case:
-
-```powershell
-dotnet run --project src\StructuralSolver2D.Cli -- report examples\beams\simple-supported-beam.json reports\simple-supported-beam.md LC1
-```
-
-Export CSV files for spreadsheet validation:
+Export CSV tables:
 
 ```powershell
 dotnet run --project src\StructuralSolver2D.Cli -- export-csv examples\beams\simple-supported-beam.json reports\csv\simple-supported-beam
-```
-
-Export CSV files for a specific load case or combination:
-
-```powershell
-dotnet run --project src\StructuralSolver2D.Cli -- export-csv examples\combinations\load-combination.json reports\csv\combination ULS1
 ```
 
 Export an XLSX workbook:
@@ -311,23 +164,25 @@ Export an XLSX workbook:
 dotnet run --project src\StructuralSolver2D.Cli -- export-xlsx examples\beams\simple-supported-beam.json reports\xlsx\simple-supported-beam.xlsx
 ```
 
-Export a PDF technical report:
+Export a PDF report:
 
 ```powershell
 dotnet run --project src\StructuralSolver2D.Cli -- export-pdf examples\beams\simple-supported-beam.json reports\pdf\simple-supported-beam.pdf
 ```
 
-### Static graphical exports
+Export a static SVG preview:
 
 ```powershell
 dotnet run --project src\StructuralSolver2D.Cli -- export-svg examples\beams\simple-supported-beam.json reports\graphics\simple-supported-beam.svg
 ```
 
+Export a static HTML preview:
+
 ```powershell
 dotnet run --project src\StructuralSolver2D.Cli -- export-html examples\beams\simple-supported-beam.json reports\graphics\simple-supported-beam.html
 ```
 
-Generate an interactive HTML viewer:
+Export an interactive HTML viewer:
 
 ```powershell
 dotnet run --project src\StructuralSolver2D.Cli -- export-viewer examples\beams\simple-supported-beam.json reports\viewer\simple-supported-beam.html
@@ -335,447 +190,144 @@ dotnet run --project src\StructuralSolver2D.Cli -- export-viewer examples\beams\
 
 ---
 
-## Available examples
-
-Current built-in and JSON examples:
-
-| Example | Description |
-|---|---|
-| `simple-supported-beam` | Simply supported beam with uniform distributed load. |
-| `cantilever-point-load` | Cantilever with a point load at the free end. |
-| `cantilever-uniform-load` | Cantilever with uniform distributed load. |
-| `axial-bar` | Axially loaded bar. |
-
----
-
-
-## Parametric sections
-
-Milestone 33 adds `StructuralSectionFactory` in `StructuralSolver2D.Core.Model.Sections`.
-
-It generates `StructuralSection` instances from simple dimensions using internal units:
-
-```csharp
-var section = StructuralSectionFactory.Rectangular(
-    "RECT_100x200",
-    width: 0.10,
-    height: 0.20);
-```
-
-Available helpers:
-
-- `Rectangular(id, width, height)`;
-- `TimberRectangular(id, width, height)`;
-- `CircularSolid(id, diameter)`;
-- `CircularHollow(id, outerDiameter, innerDiameter)`.
-
-These helpers compute area `A` in m² and in-plane bending inertia `I` in m⁴. They do not replace manual `StructuralSection` input; they only reduce mistakes for common shapes.
-
----
-
-
-## Elastic material presets
-
-Milestone 34 adds `StructuralMaterialLibrary` in `StructuralSolver2D.Core.Model.Materials`.
-
-It generates ordinary `StructuralMaterial` records for common elastic analysis presets using internal units:
-
-```csharp
-var material = StructuralMaterialLibrary.SteelS235();
-```
-
-Available helpers:
-
-- `SteelS235()`;
-- `SteelS275()`;
-- `SteelS355()`;
-- `TimberC24()`;
-- `GlulamGL24h()`;
-- `GenericConcrete()`;
-- `ConcreteC25_30()`.
-
-The presets currently provide only Young's modulus `E` in kN/m² and optional unit weight in kN/m³. They are not normative design definitions and do not include strengths, partial factors, national annex rules, duration factors, fire checks, buckling checks or connection checks.
-
----
-
-## Validation approach
-
-Validation is a core part of the project.
-
-The current test suite includes checks for:
-
-- model construction;
-- structural validation errors;
-- duplicate IDs;
-- missing node/material/section/load-case references;
-- invalid materials and sections;
-- invalid load definitions;
-- simply supported beam with uniform distributed load;
-- simply supported beam with point load at midspan;
-- cantilever with point load at the free end;
-- cantilever with uniform distributed load;
-- axially loaded bar;
-- zero-load model;
-- load-case filtering;
-- symmetric portal behavior;
-- unstable/labile model detection;
-- sampled internal-force diagrams;
-- result extrema and summaries.
-
-When adding new solver features, add analytical benchmark tests before relying on the feature from the CLI or reports.
-
----
-
-## Current milestones
-
-Completed so far:
-
-```text
-Milestone 1  - Independent .NET 8 solution
-Milestone 2  - Pure structural data model
-Milestone 3  - Loads and load cases
-Milestone 4  - Minimal Frame2D solver
-Milestone 5  - Extended Frame2D validation
-Milestone 6  - Internal force sampling N/V/M
-Milestone 7  - Result summary and extrema
-Milestone 8  - CLI with built-in examples
-Milestone 9  - JSON examples and analyze command
-Milestone 10 - Markdown report generation
-Milestone 11 - README and AI handoff documentation
-Milestone 12 - Test coverage for Reporting and CLI input
-Milestone 13 - Point loads on members in the Frame2D analyzer
-Milestone 14 - Linear, triangular and trapezoidal distributed loads
-Milestone 15 - Manual load combinations
-Milestone 16 - Truss2D / axial-only members / simple trusses
-Milestone 17 - Benchmark catalog
-Milestone 18 - Automated benchmark runner
-Milestone 19 - Frame2D displacement and deformed-shape sampling
-Milestone 20 - Deformed-shape samples in Markdown reports
-Milestone 21 - Analysis diagnostics
-Milestone 22 - Frame2D member end moment releases
-Milestone 23 - Mixed Frame2D + Truss2D plane-structure analyzer
-Milestone 24 - Local/global load conventions and inclined member validation
-Milestone 25 - Global equilibrium checker
-Milestone 26 - Mesh refinement and convergence benchmarks
-Milestone 28 - Improved benchmark runner
-Milestone 29 - Examples and benchmarks reorganization
-Milestone 30 - Initial theory documentation
-Milestone 31 - Improved internal-force diagrams and characteristic points
-Milestone 32 - Preliminary SLE deflection checks
-Milestone 33 - Parametric sections
-Milestone 34 - Initial material library
-Milestone 35 - Advanced educational Markdown reports
-Milestone 36 - CSV export
-Milestone 37 - Public API stabilization
-Milestone 38 - First technical release
-```
-
-Current technical release:
-
-```text
-v0.1.0 - First technical release
-```
-
-Recommended next milestone:
-
-```text
-Milestone 39 - Future OpenCad2D integration study
-```
-
-Medium-term roadmap:
-
-```text
-Milestone 39 - Future OpenCad2D integration study
-Milestone 40 - Experimental viewer
-```
-
-See the full roadmap in:
-
-```text
-docs/structural/roadmap.md
-```
-
----
-
-## First technical release
-
-The first technical release is documented in:
-
-```text
-CHANGELOG.md
-VERSION
-docs/structural/release-notes-v0.1.0.md
-docs/structural/release-checklist.md
-```
-
-Suggested GitHub release title:
-
-```text
-StructuralSolver2D v0.1.0 - First technical release
-```
-
-This release is a technical preview and not a certified structural design product.
-
----
-
-## Design principles
-
-- Keep the solver independent from OpenCad2D.
-- Keep `Core` independent from analysis, reporting and UI.
-- Keep all units explicit.
-- Prefer small testable steps.
-- Add validation before relying on model data.
-- Add analytical benchmarks before adding user-facing features.
-- Avoid automatic structural assumptions from CAD geometry.
-- Treat the current project as an analysis engine, not as a code-compliant design tool.
-
----
-
-## Safety and professional-use note
-
-StructuralSolver2D is currently an experimental and educational structural analysis engine.
-
-It must not be treated as a certified structural design tool. Results should be checked independently and must not be used for real structural design, construction decisions or safety-critical work without review by a qualified professional.
-
-
-## Milestone 14 update
-
-The Frame2D solver now supports `LinearDistributedLoad` member loads. `value` is the start intensity and `endValue` is the end intensity, both in kN/m. This covers triangular and trapezoidal distributed loads in global or local X/Y directions.
-
-
-## Milestone 15 update
-
-The solver now supports manual load combinations through `StructuralLoadCombination` and `StructuralLoadCombinationTerm`. Combinations are user-defined only: no automatic NTC/Eurocode generation is performed.
-
-Example JSON command:
-
-```powershell
-dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\load-combination.json ULS1
-dotnet run --project src\StructuralSolver2D.Cli -- report examples\load-combination.json reports\load-combination.md ULS1
-```
-
-A combination such as `ULS1 = 1.35 G1 + 1.50 Q1` is analyzed by summing factored contributions from the referenced load cases. Internal force sampling and Markdown reporting understand the same combination id.
-
----
-
-## Benchmark catalog
-
-The project now includes a first benchmark catalog under:
-
-```text
-benchmarks/
-  README.md
-  beams/
-  frames/
-  trusses/
-  expected/
-```
-
-The catalog is used to document hand-checkable validation cases and to prepare the future automated benchmark runner.
-
-Initial benchmark groups:
-
-| Group | Purpose |
-|---|---|
-| `benchmarks/beams` | closed-form beam and cantilever checks |
-| `benchmarks/trusses` | simple axial truss checks |
-| `benchmarks/frames` | symmetry, equilibrium and stability checks for frame structures |
-| `benchmarks/expected` | expected values for future automated validation |
-
-Run a benchmark manually:
-
-```powershell
-dotnet run --project src\StructuralSolver2D.Cli -- analyze benchmarks\beams\B01-simple-supported-udl.json
-```
-
-Generate a benchmark report:
-
-```powershell
-dotnet run --project src\StructuralSolver2D.Cli -- report benchmarks\beams\B01-simple-supported-udl.json reports\B01-simple-supported-udl.md
-```
-
-The expected values are currently documented in:
-
-```text
-benchmarks/expected/expected-results.md
-benchmarks/expected/expected-results.json
-```
-
-The next planned validation milestone is an automated benchmark runner that reads `expected-results.json`, executes the benchmark models, and compares reactions, displacements and extrema against the expected values.
-
----
-
-## Milestone 19 update - Frame2D displacement sampling
-
-The analysis project now includes a dedicated finite-element displacement sampler for `Frame2D` members:
-
-```text
-Frame2DDisplacementSampler
-MemberDisplacementSample
-MemberDisplacementDiagram
-```
-
-It samples:
-
-```text
-u(x)  local axial displacement
-v(x)  local transverse displacement
-rz(x) local rotation
-Ux(x) global horizontal displacement
-Uy(x) global vertical displacement
-```
-
-Important modeling note: the sampler uses the standard finite-element interpolation of nodal displacements. This is suitable for drawing deformed shapes and for post-processing the FEM displacement field. For distributed loads, an internal sampled displacement is not always identical to the closed-form beam deflection unless that position is explicitly modeled as a structural node.
-
-For benchmark checks, critical positions such as midspan should therefore usually be modeled as nodes when their closed-form deflection is used as an expected value.
-
-
-## Milestone update: deformed shape sampling in reports
-
-Markdown reports can include sampled Frame2D deformed-shape values (`u`, `v`, `rz`, `Ux`, `Uy`). These samples are finite-element interpolation of nodal displacements and should not be confused with closed-form exact internal deflections under all load types.
-
-## Milestone update: analysis diagnostics
-
-Analysis failure messages now include more actionable context for common modeling mistakes:
-
-- analyzer/member type mismatches list the unsupported member id and type;
-- `Truss2DAnalyzer` unsupported load errors list the offending load id and type;
-- invalid model exceptions include a short summary of the first validation issues;
-- singular reduced stiffness matrix errors report the failing pivot and mention possible mechanisms or missing restraints.
-
-This keeps the project more suitable for educational use: when an analysis fails, the message should help the user understand whether the problem is an invalid model, an unsupported feature, or an unstable/labile structural scheme.
-
-## Milestone update: Frame2D member end moment releases
-
-Frame2D members can now declare local bending moment releases at the start and/or end of the element:
+## Getting started with a JSON model
+
+A JSON input file describes the structural model and the loads to analyze. The simplest workflow is:
+
+1. define the nodes;
+2. define materials and sections;
+3. define members between nodes;
+4. define supports;
+5. define one or more load cases;
+6. define the loads;
+7. run the CLI against the JSON file.
+
+Minimal simply supported beam example:
 
 ```json
 {
-  "id": "M1",
-  "startNodeId": "A",
-  "endNodeId": "B",
-  "materialId": "MAT",
-  "sectionId": "SEC",
-  "type": "Frame2D",
-  "releaseStartMoment": true,
-  "releaseEndMoment": true
+  "title": "Simply supported beam with uniform load",
+  "description": "L = 5 m, q = 10 kN/m downward.",
+  "loadCaseId": "LC1",
+  "nodes": [
+    { "id": "A", "x": 0.0, "y": 0.0 },
+    { "id": "B", "x": 5.0, "y": 0.0 }
+  ],
+  "materials": [
+    {
+      "id": "MAT",
+      "name": "Generic elastic material",
+      "elasticModulus": 210000000.0
+    }
+  ],
+  "sections": [
+    {
+      "id": "SEC",
+      "name": "Generic section",
+      "area": 0.003,
+      "momentOfInertia": 0.00002
+    }
+  ],
+  "members": [
+    {
+      "id": "M1",
+      "startNodeId": "A",
+      "endNodeId": "B",
+      "materialId": "MAT",
+      "sectionId": "SEC",
+      "type": "Frame2D"
+    }
+  ],
+  "supports": [
+    {
+      "id": "SA",
+      "nodeId": "A",
+      "restrainedUx": true,
+      "restrainedUy": true,
+      "restrainedRz": false,
+      "type": "Hinge"
+    },
+    {
+      "id": "SB",
+      "nodeId": "B",
+      "restrainedUx": false,
+      "restrainedUy": true,
+      "restrainedRz": false,
+      "type": "SimpleSupport"
+    }
+  ],
+  "loadCases": [
+    { "id": "LC1", "name": "Default load case" }
+  ],
+  "loads": [
+    {
+      "id": "Q1",
+      "loadCaseId": "LC1",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "M1",
+      "direction": "GlobalY",
+      "value": -10.0
+    }
+  ]
 }
 ```
 
-This is useful for modeling pin-ended beams, internal hinges and frame members whose end rotations are not fully moment-continuous.
+Save it as, for example:
 
-The implementation uses element-level static condensation. Inactive rotational DOFs with no stiffness and no applied load are automatically suppressed by the analyzer, so a pin-ended single member can be analyzed without artificially adding rotational restraints to the supports.
+```text
+my-beam.json
+```
 
-Example:
+Then run:
 
 ```powershell
-dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\released-beam.json
-dotnet run --project src\StructuralSolver2D.Cli -- report examples\released-beam.json reports\released-beam.md
+dotnet run --project src\StructuralSolver2D.Cli -- analyze my-beam.json
 ```
 
-## Milestone 23 - Mixed Frame2D + Truss2D analysis
-
-The project now includes a first mixed plane-structure analyzer:
-
-```text
-StructuralSolver2D.Analysis.PlaneStructure2D.PlaneStructureAnalyzer
-```
-
-It supports models containing both:
-
-- `Frame2D` members, with axial, shear and bending behavior;
-- `Truss2D` members, with axial behavior only.
-
-The mixed analyzer uses a common three-degree-of-freedom nodal layout:
-
-```text
-Ux, Uy, Rz
-```
-
-`Truss2D` members contribute stiffness only to translational degrees of freedom `Ux` and `Uy`. Rotational degrees of freedom remain available for connected `Frame2D` members.
-
-Current limits:
-
-- member distributed loads and member point loads are supported only on `Frame2D` members;
-- `Truss2D` members support nodal-force loading through the global model only;
-- this is still a first-order linear elastic analysis;
-- no second-order effects, buckling checks or design checks are included.
-
-Example:
+To generate a report:
 
 ```powershell
-dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\mixed-frame-truss.json
-dotnet run --project src\StructuralSolver2D.Cli -- report examples\mixed-frame-truss.json reports\mixed-frame-truss.md
+dotnet run --project src\StructuralSolver2D.Cli -- report my-beam.json reports\my-beam.md
 ```
 
-## Mesh refinement benchmarks
-
-The project now includes initial mesh-refinement benchmarks under:
+For the complete JSON guide, see:
 
 ```text
-benchmarks/convergence/
+docs/structural/json-input.md
 ```
-
-These benchmarks document how FEM results change when the same structural problem is discretized with different numbers of elements.
-
-They are especially useful for understanding the difference between:
-
-- nodal FEM results;
-- internally interpolated displacement samples;
-- closed-form beam theory values.
-
-The related automated tests are in:
-
-```text
-tests/StructuralSolver2D.Analysis.Tests/Benchmarks/MeshRefinementConvergenceTests.cs
-```
-
-See also:
-
-```text
-docs/structural/mesh-refinement.md
-```
-
-
-## Milestone 28 update
-
-The automated benchmark runner has been refactored into dedicated test-side components:
-
-```text
-tests/StructuralSolver2D.Analysis.Tests/Benchmarks/BenchmarkCatalog.cs
-tests/StructuralSolver2D.Analysis.Tests/Benchmarks/BenchmarkRepository.cs
-tests/StructuralSolver2D.Analysis.Tests/Benchmarks/BenchmarkAnalysisRunner.cs
-tests/StructuralSolver2D.Analysis.Tests/Benchmarks/BenchmarkResultAssertions.cs
-```
-
-The benchmark catalog test now performs two distinct steps:
-
-1. validate the benchmark catalog structure;
-2. run all benchmark models and compare computed results with expected values.
-
-This keeps `BenchmarkCatalogTests.cs` small and makes future expected-result extensions easier to add without duplicating test logic.
-
-Current benchmark checks include:
-
-- support reactions;
-- nodal displacements and rotations;
-- member axial forces;
-- maximum absolute shear and bending moment;
-- named stability/symmetry checks;
-- global equilibrium residuals.
 
 ---
 
-## Examples and benchmarks
+## Load combinations
 
-StructuralSolver2D now separates user-facing examples from validation benchmarks.
+Load combinations are manual. The solver does not generate Eurocode, NTC or other code combinations automatically.
+
+Example idea:
 
 ```text
-examples/     user-facing files for learning and CLI usage
-benchmarks/   validation and regression cases with expected results
+ULS1 = 1.35 G1 + 1.50 Q1
 ```
 
-Preferred example paths are categorized:
+Run an existing example:
+
+```powershell
+dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\combinations\load-combination.json ULS1
+```
+
+The same identifier can be used for reports and exports:
+
+```powershell
+dotnet run --project src\StructuralSolver2D.Cli -- report examples\combinations\load-combination.json reports\load-combination.md ULS1
+```
+
+Graphical exports and the interactive viewer also respect manual combinations. When you export a combination, the load layer shows only the load cases included in that combination, with arrows and labels based on the factored values.
+
+---
+
+## Examples
+
+User-facing examples are organized by category:
 
 ```text
 examples/
@@ -783,150 +335,165 @@ examples/
   trusses/
   mixed/
   combinations/
+  loads/
+  sections/
+  validation/
 ```
 
-Run an organized example:
+Useful starting points:
 
-```powershell
-dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\beams\simple-supported-beam.json
-```
-
-Run a benchmark case manually:
-
-```powershell
-dotnet run --project src\StructuralSolver2D.Cli -- analyze benchmarks\beams\B01-simple-supported-udl.json
-```
-
-Benchmarks are automatically checked by the test suite through `benchmarks/expected/expected-results.json`.
+| File | Purpose |
+|---|---|
+| `examples/beams/simple-supported-beam.json` | Basic beam with uniform load |
+| `examples/beams/cantilever-point-load.json` | Cantilever with point load |
+| `examples/beams/triangular-distributed-load.json` | Variable distributed load |
+| `examples/beams/released-beam.json` | Beam with moment releases |
+| `examples/trusses/simple-truss.json` | Basic axial truss |
+| `examples/mixed/mixed-frame-truss.json` | Mixed frame and truss model |
+| `examples/mixed/truss-bridge-20m-deck-loads.json` | 20 m truss bridge with deck loads |
+| `examples/mixed/two-storey-house-balconies.json` | Two-storey frame with balconies |
+| `examples/combinations/load-combination.json` | Manual load combinations |
+| `examples/loads/inclined-nodal-force.json` | Inclined force represented by global components |
+| `examples/validation/small-bridge-truss.json` | More realistic validation model |
 
 See also:
 
-- `examples/README.md`
-- `docs/structural/examples-and-benchmarks.md`
-- `docs/structural/benchmark-strategy.md`
-- `docs/structural/public-api.md`
+```text
+examples/README.md
+```
 
 ---
 
-## Theory documentation
+## Reports and graphical output
 
-Milestone 30 adds the first theory documentation layer under:
+The reporting project can export:
 
-```text
-docs/theory/
-```
+- Markdown reports for readable technical summaries;
+- CSV tables for spreadsheet checks;
+- XLSX workbooks;
+- PDF reports;
+- SVG previews;
+- HTML previews;
+- interactive HTML viewers.
 
-The goal is to make the project useful not only as a solver, but also as an educational codebase for studying matrix-based structural analysis.
+The graphical exports are intended for review, documentation and future viewer integration. They do not replace independent engineering validation.
 
-Current theory notes:
+---
 
-- `docs/theory/matrix-method.md`
-- `docs/theory/frame2d-element.md`
-- `docs/theory/truss2d-element.md`
-- `docs/theory/equivalent-nodal-loads.md`
-- `docs/theory/local-global-coordinates.md`
-- `docs/theory/sign-conventions.md`
-- `docs/theory/displacement-interpolation.md`
-- `docs/theory/validation-strategy.md`
+## Reactions and inclined supports
 
-These documents explain the assumptions, coordinate conventions, element behavior, equivalent nodal loads, displacement interpolation and validation strategy used by the current solver.
-
-
-## Milestone 31 - Characteristic internal-force points
-
-Milestone 31 is complete. The post-processing pipeline now detects characteristic points on sampled internal-force diagrams:
-
-- member start and end points;
-- sampled minimum, maximum and maximum absolute values of `N`, `V` and `M`;
-- zero crossings of `N`, `V` and `M`;
-- bending-moment extremum candidates detected from zero shear;
-- candidate shear discontinuities between adjacent samples.
-
-These points are derived from sampled diagrams and are intended for reporting, validation, future graphical output and educational inspection. The Markdown report includes them by default. Exact analytical locations may require dedicated closed-form post-processing for specific load configurations.
-
-Milestone 32 adds preliminary serviceability deflection checks through `PreliminaryDeflectionChecker`.
-
-The checker evaluates sampled member displacement diagrams against simple limits such as `L/200`, `L/250`, `L/300` or `L/400`. It reports the critical sample, the selected displacement direction, the allowable deflection, the maximum sampled deflection and the pass/fail status.
-
-This feature is intentionally conservative in wording and scope: it is a preliminary engineering aid, not a complete code-compliant serviceability verification. Internal sampled displacement values are still finite-element interpolation values; for exact benchmark comparisons at critical positions, model those positions as explicit nodes.
-
-Milestone 33 adds parametric section helpers through `StructuralSectionFactory`. The helpers generate ordinary `StructuralSection` records for rectangular, timber rectangular, solid circular and hollow circular sections.
-
-Milestone 34 adds initial elastic material presets through `StructuralMaterialLibrary`. The presets generate ordinary `StructuralMaterial` records for common steel, timber, glulam and concrete analysis inputs. They are convenience values for linear elastic analysis, not complete normative design definitions.
-
-Milestone 35 expands Markdown reports with educational guidance, an executive summary, model-size statistics, governing absolute values and optional preliminary serviceability deflection-check tables. These additions are report-layer features only: they do not modify solver calculations or imply normative design verification.
-
-Milestone 36 adds CSV export through `CsvStructuralResultExporter` and the CLI `export-csv` command. The exported tables cover nodal displacements, support reactions, member end forces, internal-force samples, displacement samples and compact result summaries. CSV output is intended for spreadsheet validation and external post-processing, not for complete model exchange.
-
-Milestone 37 adds a stable high-level public facade through `StructuralSolver2DService` in `StructuralSolver2D.Analysis.PublicApi`. Applications can now run a complete workflow from one entry point and receive a bundled result with analysis results, sampled internal-force diagrams, optional displacement diagrams, optional preliminary deflection checks and a compact summary.
-
-Milestone 38 prepares the first technical release baseline `v0.1.0` with `VERSION`, `CHANGELOG.md`, release notes and a release checklist. It does not change solver behavior.
-
-Milestone 39 adds the first viewer-ready result data layer through `StructuralVisualizationModelBuilder`. It prepares undeformed geometry, scaled deformed shapes, nodal displacement/rotation values, N/V/M diagram polylines, bounds and optional cyclic animation frames without adding a GUI dependency.
-
-The roadmap has been realigned after Milestone 39 so that the previously planned engineering features are not lost while the graphical viewer path continues in a controlled sequence.
-
-Next recommended work: Milestone 40, focused on parametric model generators for common frames, trusses and Nielsen/parabolic schemes.
-
-See also `docs/structural/development-plan.md` for the unified post-M39 roadmap.
-
-
-## Graphical result viewer foundation
-
-StructuralSolver2D now includes a UI-independent visualization data model for graphical result viewers.
-
-It prepares undeformed geometry, scaled deformed shapes, nodal displacement/rotation data, N/V/M diagram polylines and optional animation frames without depending on Avalonia, WPF or any other UI toolkit.
-
-See `docs/structural/viewer-data.md`.
-
-
-## Milestone 46 - Advanced static structural annotations
-
-Milestone 46 expands the static SVG/HTML preview layer with engineering-oriented annotations built on top of the existing `StructuralVisualizationModel`. The exported previews now include support symbols, scaled support reactions, member-length dimensions on the undeformed model, a maximum displacement callout on the deformed shape and maximum value labels on the `N`, `V` and `M` diagrams.
-
-This milestone remains fully UI-independent: the new data is still prepared in `StructuralSolver2D.Reporting.Visualization` and can later be reused by a desktop or web viewer without coupling the solver to a GUI framework.
-
-
-### Support orientation refinement
-
-Supports now include `OrientationDegrees` metadata. SVG/HTML exports use it to draw rotated classical support symbols, for example an inclined roller. The current solver still treats restraints as global `Ux`, `Uy` and `Rz` constraints; true mechanically oriented restraints remain a separate future solver extension.
-
-## Support orientation refinement
-
-Rotated translational supports are now mechanically active. `StructuralSupport.OrientationDegrees` is interpreted as the local support-axis rotation for restrained `Ux`/`Uy` directions, and the same value is used by SVG/HTML exports to rotate the support glyph. This enables inclined simple supports / rollers while keeping the model expressed with the existing `StructuralSupport` record.
-
-
-## Milestone 47 - First simple interactive viewer prototype
-
-Milestone 47 adds a lightweight standalone HTML viewer export through `InteractiveHtmlStructuralViewerExporter` and the CLI `export-viewer` command. The viewer supports mouse wheel zoom, pointer drag pan, reset view and layer toggles for undeformed model, deformed shape, diagrams, supports, reactions and dimensions. It consumes `StructuralVisualizationModel` only and does not add solver or GUI-framework coupling.
-
-
-## M47 extra - Deformation value labels
-
-The static SVG export and the interactive HTML viewer now expose the real displacement values behind the amplified deformed shape. The maximum displacement annotation reports resultant displacement, `Ux`, `Uy` and `Rz`, while the viewer includes a `Displacement labels` toggle for nodal displacement labels expressed in millimetres.
-
-
-## M47 extra - Quarter-span deformation labels
-
-The visualization layer now also prepares displacement labels at standard member stations: `L/4`, `L/2` and `3L/4`. These labels show the real deformation values behind the amplified deformed shape: resultant displacement `u`, components `Ux`/`Uy`, local station distance and local rotation where available. The interactive viewer exposes them through a separate `Member station labels` toggle.
-
-
-## JSON input documentation
-
-Detailed documentation for creating input JSON files is available in:
+Support reactions are reported as global components:
 
 ```text
-docs/structural/json-input.md
+Fx  global horizontal reaction [kN]
+Fy  global vertical reaction [kN]
+Mz  global moment reaction [kNm]
 ```
 
-It explains nodes, materials, sections, members, supports, load cases, loads, load combinations and how to model inclined single forces by decomposing them into global components.
+For inclined supports, the restraint is applied in the rotated local support system, but the reported reaction is still expressed in global coordinates. Therefore, an inclined roller can correctly produce both `Fx` and `Fy`.
 
+---
 
-## Milestone 48 - Viewer scale controls and animation playback
+## Solver limitations
 
-Milestone 48 extends the standalone HTML viewer with a corrected deformed-shape scale, separate `N`/`V`/`M` visibility toggles and deformation animation playback. The deformed scale now recomputes displayed coordinates from undeformed base points plus displacement vectors instead of scaling the whole SVG group.
+The current numerical backend uses a dense linear system solver. This is adequate for small and medium educational, prototyping and validation models, but it is not a production-scale sparse finite-element solver.
 
+For large structural models, a sparse solver will be needed in the future.
 
-## Viewer update - applied loads
+---
 
-The graphical SVG/HTML exporters and the interactive viewer can now display applied loads. Nodal forces, nodal moments, member point loads and distributed member loads are drawn as a dedicated loads layer with value labels.
+## Repository structure
+
+```text
+StructuralSolver2D/
+  src/
+    StructuralSolver2D.Core/       model, units, validation, catalogs
+    StructuralSolver2D.Analysis/   solvers, post-processing, public API
+    StructuralSolver2D.Cli/        command-line interface
+    StructuralSolver2D.Reporting/  reports and graphical exports
+
+  tests/                           automated tests
+  examples/                        user-facing JSON examples
+  benchmarks/                      regression and validation cases
+  docs/                            technical and theoretical documentation
+  reports/                         generated report/output samples
+```
+
+---
+
+## Documentation
+
+Main documents:
+
+| Document | Purpose |
+|---|---|
+| `docs/structural/json-input.md` | Full JSON input guide |
+| `docs/structural/model.md` | Structural model concepts |
+| `docs/structural/analysis.md` | Analysis behavior and assumptions |
+| `docs/structural/public-api.md` | High-level .NET API usage |
+| `docs/structural/validation-manual.md` | Numerical validation manual and benchmark workflow |
+| `docs/structural/benchmark-strategy.md` | Benchmark quality levels and validation strategy |
+| `docs/structural/reporting.md` | Report generation |
+| `docs/structural/interactive-viewer.md` | Interactive viewer export |
+| `docs/theory/matrix-method.md` | Matrix method background |
+| `docs/theory/frame2d-element.md` | Frame2D element theory |
+| `docs/theory/truss2d-element.md` | Truss2D element theory |
+
+---
+
+## Using StructuralSolver2D from .NET
+
+The public entry point is `StructuralSolver2DService` in `StructuralSolver2D.Analysis.PublicApi`.
+
+Typical application-level workflow:
+
+1. create or load a `StructuralModel`;
+2. validate the model;
+3. call the service with an analysis request/options object;
+4. consume the bundled result: analysis output, diagrams, summaries and optional checks.
+
+See:
+
+```text
+docs/structural/public-api.md
+```
+
+---
+
+## Development notes
+
+Before adding a new user-facing solver feature:
+
+- add validation rules first;
+- add at least one analytical or benchmark test;
+- document the expected input convention;
+- update one JSON example when useful;
+- keep `Core` independent from solvers, UI and reporting.
+
+The project favors small, testable increments and explicit engineering assumptions.
+
+---
+
+## Safety note
+
+StructuralSolver2D is experimental software for structural analysis research, education and prototyping.
+
+Do not use it as the only basis for real structural design, construction decisions or safety-critical work. Results must be independently checked by a qualified professional.
+
+---
+
+## License
+
+StructuralSolver2D is released under the GNU General Public License v3.0.
+
+See:
+
+```text
+LICENSE
+```
+
+---
+
+## Credits
+
+Created with love by Emilie Rollandin.

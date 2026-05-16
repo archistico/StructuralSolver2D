@@ -40,9 +40,10 @@ public sealed class InteractiveViewerExportOptions
     public double InitialDeformationVisualScalePercent { get; set; } = 100.0;
 
     /// <summary>
-    /// Gets or sets the default animation amplitude in percent of the exported deformed-shape amplitude.
+    /// Gets or sets the initial SVG label size in percent.
+    /// 100 means the original exported text size.
     /// </summary>
-    public double InitialAnimationAmplitudePercent { get; set; } = 100.0;
+    public double InitialTextScalePercent { get; set; } = 100.0;
 
     /// <summary>
     /// Gets or sets the default animation speed multiplier.

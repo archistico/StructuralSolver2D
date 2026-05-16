@@ -2,7 +2,9 @@ namespace StructuralSolver2D.Analysis.Solvers;
 
 /// <summary>
 /// Solves small dense linear systems with Gaussian elimination and partial pivoting.
-/// This solver is intentionally simple and will be replaced by a sparse solver when needed.
+/// This solver is intentionally simple and targets small/medium educational and prototype models.
+/// It stores the full matrix in memory and has cubic computational complexity, so large production
+/// models should use a future sparse solver implementation.
 /// </summary>
 internal static class DenseLinearSystemSolver
 {

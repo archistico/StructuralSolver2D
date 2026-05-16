@@ -47,6 +47,7 @@ public sealed class SvgStructuralResultExporterTests
         Assert.Contains("class=\"annotation-label normal-force\"", svg, StringComparison.Ordinal);
         Assert.Contains("id=\"loads\"", svg, StringComparison.Ordinal);
         Assert.Contains("id=\"loadArrow\"", svg, StringComparison.Ordinal);
+        Assert.Contains("paint-order: stroke fill", svg, StringComparison.Ordinal);
         Assert.Contains("x1=\"105.6\" y1=\"486.4\" x2=\"105.6\" y2=\"523.2\" marker-end=\"url(#loadArrow)\"", svg, StringComparison.Ordinal);
         Assert.Contains("Point P: -10 kN", svg, StringComparison.Ordinal);
         Assert.Contains("Distributed q: -5 kN/m", svg, StringComparison.Ordinal);

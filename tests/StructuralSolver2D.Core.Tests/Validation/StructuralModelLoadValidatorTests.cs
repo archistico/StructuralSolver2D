@@ -23,6 +23,28 @@ public sealed class StructuralModelLoadValidatorTests
     }
 
     [Fact]
+    public void Validate_ShouldRejectSelfWeightLoadsBecauseAnalysisEngineDoesNotSupportThemYet()
+    {
+        StructuralLoad load = new(
+            "SW1",
+            "LC1",
+            StructuralLoadType.SelfWeight,
+            StructuralLoadTargetType.Model,
+            string.Empty,
+            StructuralLoadDirection.GlobalY,
+            -1.0);
+
+        StructuralModel model = CreateValidSimpleSupportedBeamModel()
+            .AddLoadCase(new StructuralLoadCase("LC1", "Permanent loads"))
+            .AddLoad(load);
+
+        StructuralModelValidationResult result = new StructuralModelValidator().Validate(model);
+
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, issue => issue.Code == "LOAD_SELF_WEIGHT_NOT_SUPPORTED");
+    }
+
+    [Fact]
     public void Validate_ShouldDetectDuplicateLoadCaseIds()
     {
         StructuralModel model = CreateValidSimpleSupportedBeamModel()

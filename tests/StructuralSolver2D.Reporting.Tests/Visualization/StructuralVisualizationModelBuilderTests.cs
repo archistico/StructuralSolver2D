@@ -194,6 +194,60 @@ public sealed class StructuralVisualizationModelBuilderTests
         Assert.Single(visualization.DistributedLoads);
     }
 
+
+    [Fact]
+    public void Build_ForLoadCombination_ShouldVisualizeOnlyFactoredCombinationLoads()
+    {
+        StructuralModel model = CreateTwoNodeModel()
+            .AddLoadCase(new StructuralLoadCase("G", "Permanent"))
+            .AddLoadCase(new StructuralLoadCase("Q", "Variable"))
+            .AddLoadCase(new StructuralLoadCase("W", "Wind"))
+            .AddLoadCombination(new StructuralLoadCombination(
+                "ULS1",
+                "ULS 1",
+                new[]
+                {
+                    new StructuralLoadCombinationTerm("G", 1.35),
+                    new StructuralLoadCombinationTerm("Q", 1.50),
+                }))
+            .AddLoad(StructuralLoad.NodalForce("PG", "G", "B", StructuralLoadDirection.GlobalY, -10.0, "G point"))
+            .AddLoad(StructuralLoad.NodalForce("PQ", "Q", "B", StructuralLoadDirection.GlobalX, 4.0, "Q point"))
+            .AddLoad(StructuralLoad.NodalForce("PW", "W", "B", StructuralLoadDirection.GlobalY, 99.0, "Wind point"))
+            .AddLoad(StructuralLoad.UniformDistributedLoad("QG", "G", "M1", StructuralLoadDirection.GlobalY, -2.0, "G distributed"))
+            .AddLoad(StructuralLoad.LinearDistributedLoad("QQ", "Q", "M1", StructuralLoadDirection.GlobalY, -1.0, -3.0, "Q linear"));
+        var result = new StructuralAnalysisResult(
+            "ULS1",
+            Array.Empty<NodalDisplacementResult>(),
+            Array.Empty<SupportReactionResult>(),
+            Array.Empty<MemberEndForceResult>());
+
+        StructuralVisualizationModel visualization = new StructuralVisualizationModelBuilder().Build(
+            model,
+            result,
+            Array.Empty<MemberInternalForceDiagram>(),
+            Array.Empty<MemberDisplacementDiagram>(),
+            new VisualizationOptions { LoadForceScale = 0.01, DistributedLoadScale = 0.01, BoundsPadding = 0.0 });
+
+        Assert.Equal(2, visualization.LoadArrows.Count);
+        Assert.DoesNotContain(visualization.LoadArrows, load => load.LoadCaseId == "W");
+        VisualizationLoadArrow permanentPointLoad = Assert.Single(visualization.LoadArrows, load => load.LoadId == "PG");
+        VisualizationLoadArrow variablePointLoad = Assert.Single(visualization.LoadArrows, load => load.LoadId == "PQ");
+        Assert.Equal(-13.5, permanentPointLoad.Value, precision: 12);
+        Assert.Equal(1.35, permanentPointLoad.LoadFactor, precision: 12);
+        Assert.Equal(6.0, variablePointLoad.Value, precision: 12);
+        Assert.Equal(1.50, variablePointLoad.LoadFactor, precision: 12);
+
+        Assert.Equal(2, visualization.DistributedLoads.Count);
+        VisualizationDistributedLoad permanentDistributedLoad = Assert.Single(visualization.DistributedLoads, load => load.LoadId == "QG");
+        VisualizationDistributedLoad variableDistributedLoad = Assert.Single(visualization.DistributedLoads, load => load.LoadId == "QQ");
+        Assert.Equal(-2.7, permanentDistributedLoad.StartValue, precision: 12);
+        Assert.Equal(-2.7, permanentDistributedLoad.EndValue, precision: 12);
+        Assert.Equal(1.35, permanentDistributedLoad.LoadFactor, precision: 12);
+        Assert.Equal(-1.5, variableDistributedLoad.StartValue, precision: 12);
+        Assert.Equal(-4.5, variableDistributedLoad.EndValue, precision: 12);
+        Assert.Equal(1.50, variableDistributedLoad.LoadFactor, precision: 12);
+    }
+
     [Fact]
     public void Build_WithAnimationFrameCount_ShouldPrepareCyclicDeformedShapeFrames()
     {

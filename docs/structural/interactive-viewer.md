@@ -84,15 +84,15 @@ The labels are expressed in engineering-friendly units:
 This remains a visualization feature only: it does not change solver results.
 
 
-## Viewer scale and animation controls
+## Viewer scale, text size and animation controls
 
-Milestone 48 adds controls for result readability:
+The viewer includes controls for result readability:
 
-- `Deformed scale` changes the displayed amplitude of the deformed shape by recomputing deformed polyline coordinates from undeformed base points plus displacement vectors;
+- `Deformed scale` changes the displayed amplitude of the deformed shape by recomputing deformed polyline coordinates from undeformed base points plus displacement vectors. The slider range is 0% to 500%;
+- `Text size` changes the size of SVG labels directly in the viewer, which helps reduce label overlap in dense models;
 - `N`, `V` and `M` remain separate visibility toggles, not scale sliders;
 - `Play deformation` starts a cyclic deformation playback based on the same displacement vectors;
 - `Pause` stops playback and restores the current static deformation scale;
-- `Anim. amplitude` controls the playback amplitude;
 - `Anim. speed` controls the playback speed.
 
 These controls are intentionally implemented inside the standalone HTML viewer. The solver result remains unchanged.
@@ -102,4 +102,32 @@ These controls are intentionally implemented inside the standalone HTML viewer. 
 
 The interactive viewer includes a `Loads` toggle. It controls the `#loads` SVG layer, which contains graphical load arrows and distributed-load glyphs generated from the structural input model.
 
+The viewer also includes a separate `Load labels` toggle. This keeps the arrows visible while hiding only their text labels, which is useful when checking dense models where load labels overlap members, reactions or internal-force diagrams.
+
+Load labels are rendered with a light outline to remain readable over the model geometry. Distributed loads use an adaptive number of repeated arrows based on their rendered length: short members stay compact, while longer members show additional arrows along the loaded span.
+
 This layer is read-only and intended for inspection: it helps verify that the analysis input contains the expected point loads, nodal moments and distributed loads before reading deformed shapes and internal-force diagrams.
+
+For a selected manual load combination, the viewer now displays the graphical loads as a factored combination set. It includes only loads whose `loadCaseId` is referenced by the selected combination and multiplies their values by the corresponding combination factor. The rendered geometry and labels therefore match the analyzed combination rather than the unfactored base load cases. When the factor is not 1.0, load labels append the factor, for example `(1.35x)` or `(1.5x)`.
+
+## Snapshot and regression testing
+
+The viewer markup is intentionally kept deterministic so that SVG and standalone HTML exports can be protected with regression tests.
+
+The reporting test suite now checks that repeated exports of the same `StructuralVisualizationModel` produce identical SVG/HTML strings after line-ending normalization. This protects the viewer against accidental non-deterministic output such as timestamps, culture-dependent number formatting or unstable control markup.
+
+The load visualization layer also exposes stable data attributes on all load-related primitives:
+
+- `data-load-id`;
+- `data-load-case-id`;
+- `data-load-factor`.
+
+These attributes are present on force arrows, moment glyphs, distributed-load shapes, repeated distributed-load arrows and load labels. They make snapshot checks and future browser-side inspection easier without relying only on visual coordinates.
+
+For load combinations, the snapshot contract verifies that:
+
+- only load cases included in the selected combination are rendered;
+- load values are already factored;
+- labels show the factored value;
+- labels append the factor suffix when it differs from `1.0`;
+- load cases not included in the combination are not emitted in the SVG.

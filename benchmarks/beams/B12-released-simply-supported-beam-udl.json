@@ -1,0 +1,28 @@
+{
+  "title": "B12 - Moment-released simply supported beam with uniform load",
+  "description": "Single Frame2D member with moment releases at both ends. L = 5 m, q = 10 kN/m downward. Validates release handling and zero member end moments while preserving simply supported reactions.",
+  "loadCaseId": "LC1",
+  "nodes": [
+    { "id": "A", "x": 0.0, "y": 0.0 },
+    { "id": "B", "x": 5.0, "y": 0.0 }
+  ],
+  "materials": [
+    { "id": "MAT", "name": "Benchmark elastic material", "elasticModulus": 210000000.0 }
+  ],
+  "sections": [
+    { "id": "SEC", "name": "Benchmark frame section", "area": 0.003, "momentOfInertia": 2e-05 }
+  ],
+  "members": [
+    { "id": "AB", "startNodeId": "A", "endNodeId": "B", "materialId": "MAT", "sectionId": "SEC", "type": "Frame2D", "releaseStartMoment": true, "releaseEndMoment": true }
+  ],
+  "supports": [
+    { "id": "SA", "nodeId": "A", "restrainedUx": true, "restrainedUy": true, "restrainedRz": false, "type": "Hinge" },
+    { "id": "SB", "nodeId": "B", "restrainedUx": false, "restrainedUy": true, "restrainedRz": false, "type": "SimpleSupport" }
+  ],
+  "loadCases": [
+    { "id": "LC1", "name": "Uniform distributed load" }
+  ],
+  "loads": [
+    { "id": "Q1", "loadCaseId": "LC1", "type": "UniformDistributedLoad", "targetType": "Member", "targetId": "AB", "direction": "GlobalY", "value": -10.0 }
+  ]
+}

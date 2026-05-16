@@ -220,24 +220,6 @@ public sealed class Truss2DAnalyzer
         }
     }
 
-    private static bool[] BuildRestrainedDofMask(
-        StructuralModel model,
-        Dictionary<string, int> nodeIndexById,
-        int totalDofCount)
-    {
-        bool[] restrainedDofs = new bool[totalDofCount];
-
-        foreach (StructuralSupport support in model.Supports)
-        {
-            int nodeBaseDof = GetNodeBaseDof(nodeIndexById[support.NodeId]);
-
-            restrainedDofs[nodeBaseDof] |= support.RestrainedUx;
-            restrainedDofs[nodeBaseDof + 1] |= support.RestrainedUy;
-        }
-
-        return restrainedDofs;
-    }
-
     private static IReadOnlyList<NodalDisplacementResult> BuildNodalDisplacementResults(
         StructuralModel model,
         Dictionary<string, int> nodeIndexById,
@@ -250,23 +232,6 @@ public sealed class Truss2DAnalyzer
                     node.Id,
                     globalDisplacements[nodeBaseDof],
                     globalDisplacements[nodeBaseDof + 1],
-                    0.0);
-            })
-            .ToList();
-
-    private static IReadOnlyList<SupportReactionResult> BuildSupportReactionResults(
-        StructuralModel model,
-        Dictionary<string, int> nodeIndexById,
-        double[] globalResidual) =>
-        model.Supports
-            .Select(support =>
-            {
-                int nodeBaseDof = GetNodeBaseDof(nodeIndexById[support.NodeId]);
-                return new SupportReactionResult(
-                    support.Id,
-                    support.NodeId,
-                    support.RestrainedUx ? globalResidual[nodeBaseDof] : 0.0,
-                    support.RestrainedUy ? globalResidual[nodeBaseDof + 1] : 0.0,
                     0.0);
             })
             .ToList();
@@ -335,21 +300,6 @@ public sealed class Truss2DAnalyzer
                 globalMatrix[dofs[row], dofs[column]] += elementMatrix[row, column];
             }
         }
-    }
-
-    private static double[,] ExtractSubmatrix(double[,] matrix, IReadOnlyList<int> rowIndexes, IReadOnlyList<int> columnIndexes)
-    {
-        double[,] result = new double[rowIndexes.Count, columnIndexes.Count];
-
-        for (int row = 0; row < rowIndexes.Count; row++)
-        {
-            for (int column = 0; column < columnIndexes.Count; column++)
-            {
-                result[row, column] = matrix[rowIndexes[row], columnIndexes[column]];
-            }
-        }
-
-        return result;
     }
 
     private static double[] ExtractSubvector(double[] vector, IReadOnlyList<int> indexes)

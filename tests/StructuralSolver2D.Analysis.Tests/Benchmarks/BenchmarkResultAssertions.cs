@@ -20,8 +20,10 @@ internal static class BenchmarkResultAssertions
 
         AssertSupportReactions(benchmark, result, expected.SupportReactions, tolerance);
         AssertMemberAxialForces(benchmark, result, expected.MemberAxialForces, tolerance);
+        AssertMemberEndForces(benchmark, result, expected.MemberEndForces, tolerance);
         AssertFrameExtremaIfRequested(benchmark, model, result, expected, tolerance);
         AssertDisplacementsIfRequested(benchmark, result, expected, tolerance);
+        AssertReactionSumsIfRequested(benchmark, result, expected.ReactionSums, tolerance);
         AssertNamedChecksIfRequested(benchmark, result, expected.Checks, tolerance);
         AssertGlobalEquilibrium(benchmark, model, result, tolerance);
     }
@@ -66,6 +68,50 @@ internal static class BenchmarkResultAssertions
                 string.Equals(force.MemberId, expected.MemberId, StringComparison.OrdinalIgnoreCase));
 
             AssertClose(benchmark, $"normal force in member {expected.MemberId}", expected.NormalForce, force.EndAxial, tolerance);
+        }
+    }
+
+
+    private static void AssertMemberEndForces(
+        BenchmarkCase benchmark,
+        StructuralAnalysisResult result,
+        IReadOnlyList<ExpectedMemberEndForce> expectedMemberEndForces,
+        double tolerance)
+    {
+        foreach (ExpectedMemberEndForce expected in expectedMemberEndForces)
+        {
+            MemberEndForceResult force = result.MemberEndForces.Single(force =>
+                string.Equals(force.MemberId, expected.MemberId, StringComparison.OrdinalIgnoreCase));
+
+            if (expected.StartAxial.HasValue)
+            {
+                AssertClose(benchmark, $"start axial force in member {expected.MemberId}", expected.StartAxial.Value, force.StartAxial, tolerance);
+            }
+
+            if (expected.StartShear.HasValue)
+            {
+                AssertClose(benchmark, $"start shear force in member {expected.MemberId}", expected.StartShear.Value, force.StartShear, tolerance);
+            }
+
+            if (expected.StartMoment.HasValue)
+            {
+                AssertClose(benchmark, $"start moment in member {expected.MemberId}", expected.StartMoment.Value, force.StartMoment, tolerance);
+            }
+
+            if (expected.EndAxial.HasValue)
+            {
+                AssertClose(benchmark, $"end axial force in member {expected.MemberId}", expected.EndAxial.Value, force.EndAxial, tolerance);
+            }
+
+            if (expected.EndShear.HasValue)
+            {
+                AssertClose(benchmark, $"end shear force in member {expected.MemberId}", expected.EndShear.Value, force.EndShear, tolerance);
+            }
+
+            if (expected.EndMoment.HasValue)
+            {
+                AssertClose(benchmark, $"end moment in member {expected.MemberId}", expected.EndMoment.Value, force.EndMoment, tolerance);
+            }
         }
     }
 
@@ -134,6 +180,34 @@ internal static class BenchmarkResultAssertions
         }
     }
 
+
+    private static void AssertReactionSumsIfRequested(
+        BenchmarkCase benchmark,
+        StructuralAnalysisResult result,
+        ExpectedReactionSums? expectedReactionSums,
+        double tolerance)
+    {
+        if (expectedReactionSums is null)
+        {
+            return;
+        }
+
+        if (expectedReactionSums.Fx.HasValue)
+        {
+            AssertClose(benchmark, "sum of support reactions Fx", expectedReactionSums.Fx.Value, result.Reactions.Sum(reaction => reaction.Fx), tolerance);
+        }
+
+        if (expectedReactionSums.Fy.HasValue)
+        {
+            AssertClose(benchmark, "sum of support reactions Fy", expectedReactionSums.Fy.Value, result.Reactions.Sum(reaction => reaction.Fy), tolerance);
+        }
+
+        if (expectedReactionSums.Mz.HasValue)
+        {
+            AssertClose(benchmark, "sum of support reactions Mz", expectedReactionSums.Mz.Value, result.Reactions.Sum(reaction => reaction.Mz), tolerance);
+        }
+    }
+
     private static void AssertNamedChecksIfRequested(
         BenchmarkCase benchmark,
         StructuralAnalysisResult result,
@@ -162,6 +236,29 @@ internal static class BenchmarkResultAssertions
             else if (check.Contains("stable solution", StringComparison.OrdinalIgnoreCase))
             {
                 Assert.NotEmpty(result.Displacements);
+            }
+            else if (check.Contains("finite displacements", StringComparison.OrdinalIgnoreCase))
+            {
+                Assert.All(result.Displacements, displacement =>
+                {
+                    Assert.True(double.IsFinite(displacement.Ux), $"Benchmark {benchmark.Id}: non-finite Ux at node {displacement.NodeId}.");
+                    Assert.True(double.IsFinite(displacement.Uy), $"Benchmark {benchmark.Id}: non-finite Uy at node {displacement.NodeId}.");
+                    Assert.True(double.IsFinite(displacement.Rz), $"Benchmark {benchmark.Id}: non-finite Rz at node {displacement.NodeId}.");
+                });
+            }
+            else if (check.Contains("non-zero member forces", StringComparison.OrdinalIgnoreCase))
+            {
+                Assert.Contains(result.MemberEndForces, force =>
+                    Math.Abs(force.EndAxial) > tolerance ||
+                    Math.Abs(force.EndShear) > tolerance ||
+                    Math.Abs(force.EndMoment) > tolerance);
+            }
+            else if (check.Contains("non-zero support reactions", StringComparison.OrdinalIgnoreCase))
+            {
+                Assert.Contains(result.Reactions, reaction =>
+                    Math.Abs(reaction.Fx) > tolerance ||
+                    Math.Abs(reaction.Fy) > tolerance ||
+                    Math.Abs(reaction.Mz) > tolerance);
             }
             else
             {
