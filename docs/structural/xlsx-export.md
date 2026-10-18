@@ -33,6 +33,8 @@ byte[] workbook = new XlsxStructuralResultExporter().Export(
 
 The caller decides where to save the returned byte array.
 
+Numeric cell values use invariant round-trip serialization, including scientific notation when needed. Small nonzero results are preserved in the worksheet XML rather than rounded to zero by a fixed number of decimal places. Spreadsheet display formatting is separate from the stored value.
+
 ## Workbook sheets
 
 The generated workbook currently contains:

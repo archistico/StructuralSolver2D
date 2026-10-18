@@ -32,6 +32,8 @@ Located under `StructuralSolver2D.Reporting/Visualization`:
 
 These exporters consume an already prepared `StructuralVisualizationModel`.
 
+Visualization scales, minimum glyph radii, and bounds padding must be finite and non-negative; zero is accepted. SVG width and height must be finite and positive, and SVG padding must be finite and non-negative while leaving a positive drawing area. Invalid options are rejected before geometry or markup is generated.
+
 ## Rendering approach
 
 The exporter renders:

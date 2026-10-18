@@ -55,17 +55,17 @@ public sealed class SvgExportOptions
     /// </summary>
     public void Validate()
     {
-        if (Width <= 0.0)
+        if (!double.IsFinite(Width) || Width <= 0.0)
         {
             throw new ArgumentOutOfRangeException(nameof(Width), Width, "The SVG width must be greater than zero.");
         }
 
-        if (Height <= 0.0)
+        if (!double.IsFinite(Height) || Height <= 0.0)
         {
             throw new ArgumentOutOfRangeException(nameof(Height), Height, "The SVG height must be greater than zero.");
         }
 
-        if (Padding < 0.0)
+        if (!double.IsFinite(Padding) || Padding < 0.0)
         {
             throw new ArgumentOutOfRangeException(nameof(Padding), Padding, "The SVG padding cannot be negative.");
         }

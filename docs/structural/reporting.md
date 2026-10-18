@@ -34,6 +34,8 @@ The report is designed to help users understand and debug the analysis.
 
 It explains the meaning of common result symbols such as `Ux`, `Uy`, `Rz`, `N`, `V` and `M`, and reminds the reader that member diagrams are expressed along the local member axis from the start node to the end node.
 
+The support table identifies translational restraints as local `Ux`/`Uy` directions and includes `Orientation [deg]`, measured counterclockwise from the global axes. Nodal displacements and support reactions use global coordinates. This distinguishes supports with identical restraint flags but different mechanical orientations.
+
 The educational sections are useful for examples, teaching material and validation workflows. They are not a substitute for independent engineering review.
 
 ---

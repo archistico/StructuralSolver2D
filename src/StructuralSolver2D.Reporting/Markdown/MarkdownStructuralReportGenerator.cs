@@ -125,6 +125,7 @@ public sealed class MarkdownStructuralReportGenerator
         builder.AppendLine();
         builder.AppendLine("- `Ux` and `Uy` are global nodal translations.");
         builder.AppendLine("- `Rz` is the nodal rotation about the out-of-plane Z axis.");
+        builder.AppendLine("- Support `Ux` and `Uy` restraints use the local support axes, rotated by `Orientation [deg]` counterclockwise from the global axes. Reactions are reported in global coordinates.");
         builder.AppendLine("- `N`, `V` and `M` are local member axial force, shear force and bending moment.");
         builder.AppendLine("- Member diagram positions are reported both as normalized position `0..1` and distance `x` from the start node.");
         builder.AppendLine("- Positive and negative signs follow the solver sign convention; for design interpretation, always check the model orientation and support layout.");
@@ -291,12 +292,12 @@ public sealed class MarkdownStructuralReportGenerator
     {
         builder.AppendLine("### Supports");
         builder.AppendLine();
-        builder.AppendLine("| Id | Node | Type | Ux | Uy | Rz | Label |");
-        builder.AppendLine("|---|---|---|---:|---:|---:|---|");
+        builder.AppendLine("| Id | Node | Type | Ux (local) | Uy (local) | Rz | Orientation [deg] | Label |");
+        builder.AppendLine("|---|---|---|---:|---:|---:|---:|---|");
 
         foreach (StructuralSupport support in supports)
         {
-            builder.AppendLine($"| `{support.Id}` | `{support.NodeId}` | {support.Type} | {Bool(support.RestrainedUx)} | {Bool(support.RestrainedUy)} | {Bool(support.RestrainedRz)} | {Text(support.Label)} |");
+            builder.AppendLine($"| `{support.Id}` | `{support.NodeId}` | {support.Type} | {Bool(support.RestrainedUx)} | {Bool(support.RestrainedUy)} | {Bool(support.RestrainedRz)} | {Format(support.OrientationDegrees)} | {Text(support.Label)} |");
         }
 
         builder.AppendLine();

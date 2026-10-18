@@ -10,6 +10,11 @@ The format follows a simple milestone-based structure. StructuralSolver2D is sti
 
 ### Fixed
 
+- Reporting station labels interpolate sampled displacements at the requested quarter-span positions instead of relabeling the nearest sample.
+- Interactive viewer reset restores the initial view; zoom and pan account for SVG aspect-ratio margins, and the maximum displacement callout follows deformation scaling and animation.
+- PDF pagination checks every wrapped text line, Markdown reports include local support restraints and orientation, and XLSX numeric cells preserve small values with round-trip serialization.
+- Visualization and viewer options reject non-finite values and enforce the supported numeric ranges.
+- Added 80 Reporting .NET regression cases and 15 browser cases for exported viewer behavior.
 - Analysis equilibrates linear systems before relative pivot checks and verifies residuals and finite solutions, rejecting rotated and unloaded mechanisms consistently.
 - Released frame end rotations are recovered per member before displacement sampling, including factored point and distributed loads; deflection checks no longer use an artificial zero deformation.
 - Independent support directions at a shared node receive their own reactions. Redundant supports use independent equations and a documented minimum-norm reaction distribution.

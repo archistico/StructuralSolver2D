@@ -761,26 +761,35 @@ public sealed class StructuralVisualizationModelBuilder
         ICollection<VisualizationMemberDisplacementLabel> labels,
         ICollection<VisualizationPoint> allPoints)
     {
+        List<MemberDisplacementSample> samples = diagram.Samples.OrderBy(sample => sample.NormalizedPosition).ToList();
         foreach ((double normalizedPosition, string stationLabel) in GetStandardMemberStations())
         {
-            MemberDisplacementSample sample = diagram.GetClosestSample(normalizedPosition);
-            double baseX = Interpolate(startNode.X, endNode.X, sample.NormalizedPosition);
-            double baseY = Interpolate(startNode.Y, endNode.Y, sample.NormalizedPosition);
+            int upper = samples.FindIndex(sample => sample.NormalizedPosition >= normalizedPosition);
+            if (upper < 0) upper = samples.Count - 1;
+            MemberDisplacementSample right = samples[upper];
+            MemberDisplacementSample left = samples[Math.Max(0, upper - 1)];
+            double interval = right.NormalizedPosition - left.NormalizedPosition;
+            double fraction = interval > 0 ? Clamp01((normalizedPosition - left.NormalizedPosition) / interval) : 0;
+            double ux = Interpolate(left.GlobalUx, right.GlobalUx, fraction);
+            double uy = Interpolate(left.GlobalUy, right.GlobalUy, fraction);
+            double rz = Interpolate(left.LocalRz, right.LocalRz, fraction);
+            double baseX = Interpolate(startNode.X, endNode.X, normalizedPosition);
+            double baseY = Interpolate(startNode.Y, endNode.Y, normalizedPosition);
             VisualizationPoint position = new(
-                baseX + (sample.GlobalUx * deformationScale),
-                baseY + (sample.GlobalUy * deformationScale));
-            double resultant = Math.Sqrt((sample.GlobalUx * sample.GlobalUx) + (sample.GlobalUy * sample.GlobalUy));
+                baseX + (ux * deformationScale),
+                baseY + (uy * deformationScale));
+            double resultant = Math.Sqrt((ux * ux) + (uy * uy));
 
             labels.Add(new VisualizationMemberDisplacementLabel(
                 diagram.MemberId,
                 stationLabel,
-                sample.NormalizedPosition,
-                sample.Distance,
+                normalizedPosition,
+                diagram.Length * normalizedPosition,
                 position,
-                sample.GlobalUx,
-                sample.GlobalUy,
+                ux,
+                uy,
                 resultant,
-                sample.LocalRz));
+                rz));
             allPoints.Add(position);
         }
     }
@@ -893,40 +902,27 @@ public sealed class StructuralVisualizationModelBuilder
 
     private static void ValidateOptions(VisualizationOptions options)
     {
-        if (options.DeformationScale < 0.0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(options), "The deformation scale cannot be negative.");
-        }
-
-        if (options.NormalForceDiagramScale < 0.0 ||
-            options.ShearForceDiagramScale < 0.0 ||
-            options.BendingMomentDiagramScale < 0.0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(options), "Diagram scales cannot be negative.");
-        }
-
-        if (options.ReactionForceScale < 0.0 ||
-            options.ReactionMomentScale < 0.0 ||
-            options.MinimumReactionMomentRadius < 0.0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(options), "Reaction scales and minimum radius cannot be negative.");
-        }
-
-        if (options.LoadForceScale < 0.0 ||
-            options.DistributedLoadScale < 0.0 ||
-            options.MinimumLoadMomentRadius < 0.0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(options), "Load scales and minimum radius cannot be negative.");
-        }
-
-        if (options.BoundsPadding < 0.0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(options), "Bounds padding cannot be negative.");
-        }
+        ValidateNonNegativeFinite(options.DeformationScale, nameof(options.DeformationScale));
+        ValidateNonNegativeFinite(options.NormalForceDiagramScale, nameof(options.NormalForceDiagramScale));
+        ValidateNonNegativeFinite(options.ShearForceDiagramScale, nameof(options.ShearForceDiagramScale));
+        ValidateNonNegativeFinite(options.BendingMomentDiagramScale, nameof(options.BendingMomentDiagramScale));
+        ValidateNonNegativeFinite(options.ReactionForceScale, nameof(options.ReactionForceScale));
+        ValidateNonNegativeFinite(options.ReactionMomentScale, nameof(options.ReactionMomentScale));
+        ValidateNonNegativeFinite(options.MinimumReactionMomentRadius, nameof(options.MinimumReactionMomentRadius));
+        ValidateNonNegativeFinite(options.LoadForceScale, nameof(options.LoadForceScale));
+        ValidateNonNegativeFinite(options.DistributedLoadScale, nameof(options.DistributedLoadScale));
+        ValidateNonNegativeFinite(options.MinimumLoadMomentRadius, nameof(options.MinimumLoadMomentRadius));
+        ValidateNonNegativeFinite(options.BoundsPadding, nameof(options.BoundsPadding));
 
         if (options.AnimationFrameCount < 0 || options.AnimationFrameCount == 1)
         {
             throw new ArgumentOutOfRangeException(nameof(options), "Animation frame count must be 0 or at least 2.");
         }
+    }
+
+    private static void ValidateNonNegativeFinite(double value, string parameterName)
+    {
+        if (!double.IsFinite(value) || value < 0)
+            throw new ArgumentOutOfRangeException(parameterName, value, "The value must be non-negative and finite.");
     }
 }

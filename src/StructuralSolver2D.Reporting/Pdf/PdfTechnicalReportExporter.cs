@@ -218,18 +218,17 @@ public sealed class PdfTechnicalReportExporter
 
         foreach (ReportLine line in lines)
         {
-            if (y < MarginBottom + 24.0)
-            {
-                EndPage(currentPage, pageNumber);
-                pageStreams.Add(currentPage.ToString());
-                currentPage.Clear();
-                pageNumber++;
-                y = PageHeight - MarginTop;
-                StartPage(currentPage, documentTitle, pageNumber);
-            }
-
             foreach (string wrapped in Wrap(line.Text, line.Kind == ReportLineKind.Table ? TableWrapLength : BodyWrapLength))
             {
+                if (y < MarginBottom + Math.Max(24.0, GetLineHeight(line)))
+                {
+                    EndPage(currentPage, pageNumber);
+                    pageStreams.Add(currentPage.ToString());
+                    currentPage.Clear();
+                    pageNumber++;
+                    y = PageHeight - MarginTop;
+                    StartPage(currentPage, documentTitle, pageNumber);
+                }
                 AppendTextLine(currentPage, line with { Text = wrapped }, y);
                 y -= GetLineHeight(line);
             }

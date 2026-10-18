@@ -47,6 +47,8 @@ The current PDF contains:
 
 Long tabular sections are intentionally truncated in the PDF. Full tabular data should be exported through CSV or XLSX.
 
+Each visual line produced by text wrapping is checked against the remaining page height. Long source labels, titles, and identifiers continue on subsequent pages instead of extending below the bottom margin.
+
 ## Limitations
 
 This first PDF milestone intentionally does not include:

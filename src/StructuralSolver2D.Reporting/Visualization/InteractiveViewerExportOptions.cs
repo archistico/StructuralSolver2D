@@ -58,4 +58,20 @@ public sealed class InteractiveViewerExportOptions
         Width = 1400.0,
         Height = 900.0,
     };
+
+    /// <summary>Validates initial values against the ranges supported by the viewer controls.</summary>
+    public void Validate()
+    {
+        ValidateRange(InitialDeformationVisualScalePercent, 0, 500, nameof(InitialDeformationVisualScalePercent));
+        ValidateRange(InitialTextScalePercent, 50, 160, nameof(InitialTextScalePercent));
+        ValidateRange(InitialAnimationSpeed, .25, 4, nameof(InitialAnimationSpeed));
+        ArgumentNullException.ThrowIfNull(SvgOptions);
+        SvgOptions.Validate();
+    }
+
+    private static void ValidateRange(double value, double minimum, double maximum, string name)
+    {
+        if (!double.IsFinite(value) || value < minimum || value > maximum)
+            throw new ArgumentOutOfRangeException(name, value, $"The value must be finite and between {minimum} and {maximum}.");
+    }
 }

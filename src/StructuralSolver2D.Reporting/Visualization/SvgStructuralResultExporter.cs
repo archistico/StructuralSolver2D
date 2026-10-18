@@ -498,11 +498,13 @@ public sealed class SvgStructuralResultExporter
         string line2 = $"Ux = {FormatMillimeters(annotation.Ux)}, Uy = {FormatMillimeters(annotation.Uy)}";
         string line3 = $"Rz = {Format(annotation.Rz)} rad ({FormatRadiansAsDegrees(annotation.Rz)}°)";
 
+        builder.AppendLine($"    <g class=\"maximum-displacement\" data-maximum-displacement=\"true\" data-base-x=\"{Format(x1)}\" data-base-y=\"{Format(y1)}\" data-dx=\"{Format(x2 - x1)}\" data-dy=\"{Format(y2 - y1)}\">");
         builder.AppendLine($"    <line class=\"annotation-line\" x1=\"{Format(x1)}\" y1=\"{Format(y1)}\" x2=\"{Format(x2)}\" y2=\"{Format(y2)}\" marker-end=\"url(#reactionArrow)\"/>");
         builder.AppendLine($"    <circle class=\"annotation-point\" cx=\"{Format(x2)}\" cy=\"{Format(y2)}\" r=\"3.5\" style=\"stroke:#dc2626\"/>");
         builder.AppendLine($"    <text class=\"annotation-label\" x=\"{Format(tx)}\" y=\"{Format(ty)}\">{EscapeXml(line1)}</text>");
         builder.AppendLine($"    <text class=\"annotation-label\" x=\"{Format(tx)}\" y=\"{Format(ty + 14.0)}\">{EscapeXml(line2)}</text>");
         builder.AppendLine($"    <text class=\"annotation-label\" x=\"{Format(tx)}\" y=\"{Format(ty + 28.0)}\">{EscapeXml(line3)}</text>");
+        builder.AppendLine("    </g>");
     }
 
     private static void AppendNodeDisplacementLabel(StringBuilder builder, CoordinateMapper mapper, VisualizationNodeDisplacementLabel label, double deformationScale)

@@ -325,7 +325,7 @@ public sealed class XlsxStructuralResultExporter
                 .Replace("'", "&apos;", StringComparison.Ordinal);
 
     private static string Format(double value) =>
-        value.ToString("0.###############", CultureInfo.InvariantCulture);
+        value.ToString("R", CultureInfo.InvariantCulture);
 
     private sealed record WorksheetData(string Name, IReadOnlyList<IReadOnlyList<CellValue>> Rows);
 
