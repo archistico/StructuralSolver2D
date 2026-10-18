@@ -18,8 +18,6 @@ public sealed class PdfTechnicalReportExporter
     private const double MarginTop = 54.0;
     private const double MarginBottom = 48.0;
     private const double LineHeight = 13.0;
-    private const int BodyWrapLength = 94;
-    private const int TableWrapLength = 112;
 
     /// <summary>
     /// Exports the supplied model and analysis results to PDF bytes.
@@ -113,10 +111,17 @@ public sealed class PdfTechnicalReportExporter
         lines.Add(ReportLine.Blank());
 
         lines.Add(ReportLine.Heading("Member end forces"));
-        lines.Add(ReportLine.Table("Member      N1 [kN]       V1 [kN]      M1 [kNm]       N2 [kN]       V2 [kN]      M2 [kNm]"));
+        lines.Add(ReportLine.Table("Member           End           N [kN]         V [kN]        M [kNm]"));
         foreach (MemberEndForceResult item in result.MemberEndForces.Take(options.MaxRowsPerSection))
         {
-            lines.Add(ReportLine.Table($"{item.MemberId,-8} {Format(item.StartAxial),14} {Format(item.StartShear),14} {Format(item.StartMoment),14} {Format(item.EndAxial),14} {Format(item.EndShear),14} {Format(item.EndMoment),14}"));
+            string label = item.MemberId;
+            if (label.Length > 16)
+            {
+                lines.Add(ReportLine.Body($"Member: {label}"));
+                label = string.Empty;
+            }
+            lines.Add(ReportLine.Table($"{label,-16} {"Start",-5} {Format(item.StartAxial),14} {Format(item.StartShear),14} {Format(item.StartMoment),14}"));
+            lines.Add(ReportLine.Table($"{string.Empty,-16} {"End",-5} {Format(item.EndAxial),14} {Format(item.EndShear),14} {Format(item.EndMoment),14}"));
         }
 
         AddTruncationNotice(lines, result.MemberEndForces.Count, options.MaxRowsPerSection);
@@ -188,7 +193,7 @@ public sealed class PdfTechnicalReportExporter
         double value,
         string unit)
     {
-        lines.Add(ReportLine.Table($"{metric,-21} {entityOrMember,-16} {position,10} {distance,12} {Format(value),14} {unit,8}"));
+        lines.Add(ReportLine.Table($"{metric,-21} {entityOrMember,-16} {position,10} {distance,12} {Format(Math.Abs(value)),14} {unit,8}"));
     }
 
     private static void AddTruncationNotice(List<ReportLine> lines, int totalRows, int maxRowsPerSection)
@@ -201,7 +206,7 @@ public sealed class PdfTechnicalReportExporter
 
     private static IEnumerable<ReportLine> WrapBody(string text)
     {
-        foreach (string line in Wrap(text, BodyWrapLength))
+        foreach (string line in PdfTextLayout.Wrap(text, 10, false, PageWidth - MarginLeft - MarginRight - 2))
         {
             yield return ReportLine.Body(line);
         }
@@ -218,7 +223,7 @@ public sealed class PdfTechnicalReportExporter
 
         foreach (ReportLine line in lines)
         {
-            foreach (string wrapped in Wrap(line.Text, line.Kind == ReportLineKind.Table ? TableWrapLength : BodyWrapLength))
+            foreach (string wrapped in PdfTextLayout.Wrap(line.Text, GetFontSize(line), line.Kind == ReportLineKind.Table, PageWidth - MarginLeft - MarginRight - 2))
             {
                 if (y < MarginBottom + Math.Max(24.0, GetLineHeight(line)))
                 {
@@ -249,7 +254,7 @@ public sealed class PdfTechnicalReportExporter
         builder.AppendLine("0.92 0.96 1 rg");
         builder.AppendLine($"0 {FormatPdf(PageHeight - 34.0)} {FormatPdf(PageWidth)} 34 re f");
         builder.AppendLine("BT /F1 9 Tf 0.20 0.25 0.35 rg");
-        builder.AppendLine($"{FormatPdf(MarginLeft)} {FormatPdf(PageHeight - 22.0)} Td ({EscapePdfText(documentTitle)}) Tj");
+        builder.AppendLine($"{FormatPdf(MarginLeft)} {FormatPdf(PageHeight - 22.0)} Td ({PdfTextLayout.Escape(HeaderTitle(documentTitle))}) Tj");
         builder.AppendLine("ET");
         builder.AppendLine("0.82 0.86 0.92 RG 0.5 w");
         builder.AppendLine($"{FormatPdf(MarginLeft)} {FormatPdf(PageHeight - 38.0)} m {FormatPdf(PageWidth - MarginRight)} {FormatPdf(PageHeight - 38.0)} l S");
@@ -267,13 +272,7 @@ public sealed class PdfTechnicalReportExporter
     private static void AppendTextLine(StringBuilder builder, ReportLine line, double y)
     {
         string font = line.Kind == ReportLineKind.Table ? "/F2" : "/F1";
-        double fontSize = line.Kind switch
-        {
-            ReportLineKind.Title => 18.0,
-            ReportLineKind.Heading => 13.0,
-            ReportLineKind.Table => 8.5,
-            _ => 10.0,
-        };
+        double fontSize = GetFontSize(line);
 
         string color = line.Kind switch
         {
@@ -284,7 +283,7 @@ public sealed class PdfTechnicalReportExporter
         };
 
         builder.AppendLine($"BT {font} {FormatPdf(fontSize)} Tf {color}");
-        builder.AppendLine($"{FormatPdf(MarginLeft)} {FormatPdf(y)} Td ({EscapePdfText(line.Text)}) Tj");
+        builder.AppendLine($"{FormatPdf(MarginLeft)} {FormatPdf(y)} Td ({PdfTextLayout.Escape(line.Text)}) Tj");
         builder.AppendLine("ET");
     }
 
@@ -297,28 +296,18 @@ public sealed class PdfTechnicalReportExporter
             _ => LineHeight,
         };
 
-    private static IEnumerable<string> Wrap(string text, int maxLength)
+    private static double GetFontSize(ReportLine line) => line.Kind switch
     {
-        if (string.IsNullOrEmpty(text))
-        {
-            yield return string.Empty;
-            yield break;
-        }
+        ReportLineKind.Title => 18,
+        ReportLineKind.Heading => 13,
+        ReportLineKind.Table => 8.5,
+        _ => 10
+    };
 
-        string remaining = text;
-        while (remaining.Length > maxLength)
-        {
-            int splitAt = remaining.LastIndexOf(' ', maxLength);
-            if (splitAt <= 0)
-            {
-                splitAt = maxLength;
-            }
-
-            yield return remaining[..splitAt].TrimEnd();
-            remaining = remaining[splitAt..].TrimStart();
-        }
-
-        yield return remaining;
+    private static string HeaderTitle(string title)
+    {
+        var lines = PdfTextLayout.Wrap(title, 9, false, PageWidth - MarginLeft - MarginRight - 14).ToList();
+        return lines.Count > 1 ? lines[0] + "..." : lines[0];
     }
 
     private static byte[] BuildPdf(IReadOnlyList<string> pageStreams)
@@ -335,8 +324,8 @@ public sealed class PdfTechnicalReportExporter
         string kids = string.Join(" ", Enumerable.Range(0, pageStreams.Count).Select(index => $"{firstPageObjectId + index} 0 R"));
 
         objects.Add($"<< /Type /Pages /Kids [{kids}] /Count {pageStreams.Count} >>");
-        objects.Add("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
-        objects.Add("<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>");
+        objects.Add("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>");
+        objects.Add("<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>");
 
         for (int index = 0; index < pageStreams.Count; index++)
         {
@@ -376,24 +365,6 @@ public sealed class PdfTechnicalReportExporter
     {
         byte[] bytes = Encoding.ASCII.GetBytes(value);
         stream.Write(bytes, 0, bytes.Length);
-    }
-
-    private static string EscapePdfText(string value)
-    {
-        StringBuilder builder = new(value.Length);
-        foreach (char character in value)
-        {
-            builder.Append(character switch
-            {
-                '(' => "\\(",
-                ')' => "\\)",
-                '\\' => "\\\\",
-                >= ' ' and <= '~' => character.ToString(),
-                _ => "?",
-            });
-        }
-
-        return builder.ToString();
     }
 
     private static string Format(double value) =>

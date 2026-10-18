@@ -10,6 +10,11 @@ The format follows a simple milestone-based structure. StructuralSolver2D is sti
 
 ### Fixed
 
+- Second Reporting review: independent SVG context layers, one viewer animation loop, preserved caller options and exact fractional initial controls.
+- Viewer starts with model, supports and load arrows; result modes show one quantity at a time, with optional full layers, collapsed secondary controls, selection details, keyboard navigation, current amplification and Fit view. Narrow layouts no longer overflow horizontally.
+- CLI `report`/`markdown` produce a concise report; `report-full` retains model tables and sampled appendices. Critical values, locations, units, analysis context and signed result tables remain in the summary; the Markdown API keeps its full default.
+- PDF wrapping uses font widths, member forces use separate start/end rows, and WinAnsi text preserves Italian accents. Unsupported scripts fail explicitly instead of replacing identifiers. Markdown escapes special table content, report flags control only their sections, and Markdown/PDF/XLSX absolute summaries use magnitudes.
+- Added 34 Reporting and one CLI regression cases; browser coverage now runs 180 checks across three models and three viewport sizes.
 - CLI report/export commands reject output paths that would overwrite their input model, including every generated CSV filename.
 - JSON input distinguishes missing/null required numbers from explicit zero and identifies null collection elements by path and index.
 - All CLI analysis/report/export commands share the public analysis workflow; unused load cases no longer trigger different analyzer behavior between commands.

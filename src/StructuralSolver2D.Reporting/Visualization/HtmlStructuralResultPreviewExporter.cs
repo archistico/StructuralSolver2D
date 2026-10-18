@@ -16,9 +16,11 @@ public sealed class HtmlStructuralResultPreviewExporter
         ArgumentNullException.ThrowIfNull(model);
 
         options ??= new HtmlPreviewExportOptions();
-        options.SvgOptions.Title = options.Title;
+        ArgumentNullException.ThrowIfNull(options.SvgOptions);
+        SvgExportOptions svgOptions = options.SvgOptions.Copy();
+        svgOptions.Title = options.Title;
 
-        string svg = new SvgStructuralResultExporter().Export(model, options.SvgOptions);
+        string svg = new SvgStructuralResultExporter().Export(model, svgOptions);
         string title = EscapeHtml(options.Title);
         string description = EscapeHtml(options.Description);
         StringBuilder builder = new();
@@ -35,7 +37,9 @@ public sealed class HtmlStructuralResultPreviewExporter
         builder.AppendLine("    .card { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06); }");
         builder.AppendLine("    h1 { margin: 0 0 12px 0; font-size: 28px; }");
         builder.AppendLine("    p { margin: 0 0 16px 0; color: #475569; }");
-        builder.AppendLine("    dl { display: grid; grid-template-columns: repeat(4, minmax(120px, 1fr)); gap: 12px 16px; margin: 0 0 16px 0; }");
+        builder.AppendLine("    dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(120px, 100%), 1fr)); gap: 12px 16px; margin: 0 0 16px 0; }");
+        builder.AppendLine("    h1, p, dd { overflow-wrap: anywhere; }");
+        builder.AppendLine("    @media (max-width: 600px) { .page { padding: 12px; } .card { padding: 12px; } h1 { font-size: 22px; } }");
         builder.AppendLine("    dt { font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em; }");
         builder.AppendLine("    dd { margin: 4px 0 0 0; font-size: 16px; font-weight: 600; }");
         builder.AppendLine("    .svg-container svg { width: 100%; height: auto; display: block; }");

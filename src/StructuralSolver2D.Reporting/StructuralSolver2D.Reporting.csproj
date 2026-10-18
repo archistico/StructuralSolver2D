@@ -11,4 +11,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Visualization/Assets/viewer.js" LogicalName="StructuralSolver2D.Reporting.viewer.js" />
+    <EmbeddedResource Include="Visualization/Assets/viewer.css" LogicalName="StructuralSolver2D.Reporting.viewer.css" />
+  </ItemGroup>
+
 </Project>

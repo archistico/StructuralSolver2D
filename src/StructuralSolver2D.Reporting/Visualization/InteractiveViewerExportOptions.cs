@@ -5,6 +5,9 @@ namespace StructuralSolver2D.Reporting.Visualization;
 /// </summary>
 public sealed class InteractiveViewerExportOptions
 {
+    /// <summary>Initial result mode. Model keeps result diagrams and deformation hidden until requested.</summary>
+    public ViewerResultView InitialView { get; set; } = ViewerResultView.Model;
+
     /// <summary>
     /// Gets or sets the HTML page title.
     /// </summary>
@@ -62,6 +65,7 @@ public sealed class InteractiveViewerExportOptions
     /// <summary>Validates initial values against the ranges supported by the viewer controls.</summary>
     public void Validate()
     {
+        if (!Enum.IsDefined(InitialView)) throw new ArgumentOutOfRangeException(nameof(InitialView));
         ValidateRange(InitialDeformationVisualScalePercent, 0, 500, nameof(InitialDeformationVisualScalePercent));
         ValidateRange(InitialTextScalePercent, 50, 160, nameof(InitialTextScalePercent));
         ValidateRange(InitialAnimationSpeed, .25, 4, nameof(InitialAnimationSpeed));
@@ -75,3 +79,6 @@ public sealed class InteractiveViewerExportOptions
             throw new ArgumentOutOfRangeException(name, value, $"The value must be finite and between {minimum} and {maximum}.");
     }
 }
+
+/// <summary>Available initial viewer result modes.</summary>
+public enum ViewerResultView { Model, Displacements, N, V, M, All }

@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Net;
 using System.Text;
 using StructuralSolver2D.Analysis.Frame2D;
 using StructuralSolver2D.Analysis.Results;
@@ -83,11 +84,20 @@ public sealed class MarkdownStructuralReportGenerator
         WriteEducationalGuide(builder, options);
         WriteUnits(builder);
         WriteExecutiveSummary(builder, model, summary, deflectionChecks, options);
-        WriteModel(builder, model);
-        WriteResults(builder, result, summary);
-        WriteInternalForceDiagrams(builder, diagrams, options);
-        WriteCharacteristicPoints(builder, diagrams, options);
-        WriteDisplacementDiagrams(builder, displacementDiagrams, options);
+        WriteAnalysisContext(builder, model, result.LoadCaseId);
+        if (options.DetailLevel == MarkdownReportDetail.Full) WriteModel(builder, model);
+        WriteResults(builder, result, summary, options);
+        if (options.DetailLevel == MarkdownReportDetail.Full)
+        {
+            WriteInternalForceDiagrams(builder, diagrams, options);
+            WriteCharacteristicPoints(builder, diagrams, options);
+            WriteDisplacementDiagrams(builder, displacementDiagrams, options);
+        }
+        else
+        {
+            builder.AppendLine("Model tables and sampled appendices are omitted in this summary. Use a full report or CSV/XLSX for detailed data.");
+            builder.AppendLine();
+        }
         WriteDeflectionChecks(builder, deflectionChecks, options);
         WriteNotes(builder);
 
@@ -102,10 +112,10 @@ public sealed class MarkdownStructuralReportGenerator
 
         if (!string.IsNullOrWhiteSpace(options.SourceLabel))
         {
-            builder.AppendLine($"**Source:** `{options.SourceLabel}`");
+            builder.AppendLine($"**Source:** {Code(options.SourceLabel)}");
         }
 
-        builder.AppendLine($"**Analysis id:** `{result.LoadCaseId}`");
+        builder.AppendLine($"**Analysis id:** {Code(result.LoadCaseId)}");
         builder.AppendLine($"**Generated UTC:** {options.GeneratedAtUtc:yyyy-MM-dd HH:mm:ss}");
         builder.AppendLine();
     }
@@ -139,35 +149,37 @@ public sealed class MarkdownStructuralReportGenerator
         IReadOnlyList<DeflectionCheckResult> deflectionChecks,
         MarkdownReportOptions options)
     {
-        if (!options.IncludeModelStatistics)
-        {
-            return;
-        }
-
         builder.AppendLine("## Executive summary");
         builder.AppendLine();
-        builder.AppendLine("### Model size");
-        builder.AppendLine();
-        builder.AppendLine("| Item | Count |");
-        builder.AppendLine("|---|---:|");
-        builder.AppendLine($"| Nodes | {model.Nodes.Count} |");
-        builder.AppendLine($"| Members | {model.Members.Count} |");
-        builder.AppendLine($"| Supports | {model.Supports.Count} |");
-        builder.AppendLine($"| Load cases | {model.LoadCases.Count} |");
-        builder.AppendLine($"| Load combinations | {model.LoadCombinations.Count} |");
-        builder.AppendLine($"| Loads | {model.Loads.Count} |");
-        builder.AppendLine();
+        if (options.IncludeModelStatistics)
+        {
+            builder.AppendLine("### Model size");
+            builder.AppendLine();
+            builder.AppendLine("| Item | Count |");
+            builder.AppendLine("|---|---:|");
+            builder.AppendLine($"| Nodes | {model.Nodes.Count} |");
+            builder.AppendLine($"| Members | {model.Members.Count} |");
+            builder.AppendLine($"| Supports | {model.Supports.Count} |");
+            builder.AppendLine($"| Load cases | {model.LoadCases.Count} |");
+            builder.AppendLine($"| Load combinations | {model.LoadCombinations.Count} |");
+            builder.AppendLine($"| Loads | {model.Loads.Count} |");
+            builder.AppendLine();
+        }
 
         builder.AppendLine("### Governing absolute values");
         builder.AppendLine();
         builder.AppendLine("| Result | Value | Location |");
         builder.AppendLine("|---|---:|---|");
-        builder.AppendLine($"| Max \\|Ux\\| [m] | {Format(summary.MaxAbsUx.Value)} | node `{Display(summary.MaxAbsUx.EntityId)}` |");
-        builder.AppendLine($"| Max \\|Uy\\| [m] | {Format(summary.MaxAbsUy.Value)} | node `{Display(summary.MaxAbsUy.EntityId)}` |");
-        builder.AppendLine($"| Max \\|M\\| [kNm] | {Format(summary.MaxAbsBendingMoment.Value)} | member `{Display(summary.MaxAbsBendingMoment.MemberId)}`, x = {Format(summary.MaxAbsBendingMoment.Distance)} m |");
+        if (options.DetailLevel == MarkdownReportDetail.Summary) WriteAbsoluteValueRows(builder, summary);
+        else
+        {
+            builder.AppendLine($"| Max \\|Ux\\| [m] | {Format(Math.Abs(summary.MaxAbsUx.Value))} | node {Code(Display(summary.MaxAbsUx.EntityId))} |");
+            builder.AppendLine($"| Max \\|Uy\\| [m] | {Format(Math.Abs(summary.MaxAbsUy.Value))} | node {Code(Display(summary.MaxAbsUy.EntityId))} |");
+            builder.AppendLine($"| Max \\|M\\| [kNm] | {Format(Math.Abs(summary.MaxAbsBendingMoment.Value))} | member {Code(Display(summary.MaxAbsBendingMoment.MemberId))}, x = {Format(summary.MaxAbsBendingMoment.Distance)} m |");
+        }
         builder.AppendLine();
 
-        if (deflectionChecks.Count > 0)
+        if (options.IncludeDeflectionChecks && deflectionChecks.Count > 0)
         {
             int passing = deflectionChecks.Count(check => check.IsPass);
             int failing = deflectionChecks.Count - passing;
@@ -182,7 +194,7 @@ public sealed class MarkdownStructuralReportGenerator
             builder.AppendLine($"| Checks passing | {passing} |");
             builder.AppendLine($"| Checks failing | {failing} |");
             builder.AppendLine($"| Governing utilization | {Format(governing.UtilizationRatio)} |");
-            builder.AppendLine($"| Governing member | `{governing.MemberId}` |");
+            builder.AppendLine($"| Governing member | {Code(governing.MemberId)} |");
             builder.AppendLine();
         }
     }
@@ -228,7 +240,7 @@ public sealed class MarkdownStructuralReportGenerator
 
         foreach (StructuralNode node in nodes)
         {
-            builder.AppendLine($"| `{node.Id}` | {Format(node.X)} | {Format(node.Y)} | {Text(node.Label)} |");
+            builder.AppendLine($"| {Code(node.Id)} | {Format(node.X)} | {Format(node.Y)} | {Text(node.Label)} |");
         }
 
         builder.AppendLine();
@@ -243,7 +255,7 @@ public sealed class MarkdownStructuralReportGenerator
 
         foreach (StructuralMaterial material in materials)
         {
-            builder.AppendLine($"| `{material.Id}` | {Text(material.Name)} | {Format(material.ElasticModulus)} | {FormatOptional(material.UnitWeight)} |");
+            builder.AppendLine($"| {Code(material.Id)} | {Text(material.Name)} | {Format(material.ElasticModulus)} | {FormatOptional(material.UnitWeight)} |");
         }
 
         builder.AppendLine();
@@ -258,7 +270,7 @@ public sealed class MarkdownStructuralReportGenerator
 
         foreach (StructuralSection section in sections)
         {
-            builder.AppendLine($"| `{section.Id}` | {Text(section.Name)} | {Format(section.Area)} | {Format(section.MomentOfInertia)} | {FormatOptional(section.Height)} | {FormatOptional(section.Width)} |");
+            builder.AppendLine($"| {Code(section.Id)} | {Text(section.Name)} | {Format(section.Area)} | {Format(section.MomentOfInertia)} | {FormatOptional(section.Height)} | {FormatOptional(section.Width)} |");
         }
 
         builder.AppendLine();
@@ -282,7 +294,7 @@ public sealed class MarkdownStructuralReportGenerator
                 length = Format(StructuralMember.GetLength(startNode, endNode));
             }
 
-            builder.AppendLine($"| `{member.Id}` | {member.Type} | `{member.StartNodeId}` | `{member.EndNodeId}` | `{member.MaterialId}` | `{member.SectionId}` | {length} | {Bool(member.ReleaseStartMoment)} | {Bool(member.ReleaseEndMoment)} | {Text(member.Label)} |");
+            builder.AppendLine($"| {Code(member.Id)} | {member.Type} | {Code(member.StartNodeId)} | {Code(member.EndNodeId)} | {Code(member.MaterialId)} | {Code(member.SectionId)} | {length} | {Bool(member.ReleaseStartMoment)} | {Bool(member.ReleaseEndMoment)} | {Text(member.Label)} |");
         }
 
         builder.AppendLine();
@@ -297,7 +309,7 @@ public sealed class MarkdownStructuralReportGenerator
 
         foreach (StructuralSupport support in supports)
         {
-            builder.AppendLine($"| `{support.Id}` | `{support.NodeId}` | {support.Type} | {Bool(support.RestrainedUx)} | {Bool(support.RestrainedUy)} | {Bool(support.RestrainedRz)} | {Format(support.OrientationDegrees)} | {Text(support.Label)} |");
+            builder.AppendLine($"| {Code(support.Id)} | {Code(support.NodeId)} | {support.Type} | {Bool(support.RestrainedUx)} | {Bool(support.RestrainedUy)} | {Bool(support.RestrainedRz)} | {Format(support.OrientationDegrees)} | {Text(support.Label)} |");
         }
 
         builder.AppendLine();
@@ -312,7 +324,7 @@ public sealed class MarkdownStructuralReportGenerator
 
         foreach (StructuralLoadCase loadCase in loadCases)
         {
-            builder.AppendLine($"| `{loadCase.Id}` | {Text(loadCase.Name)} | {Text(loadCase.Description)} |");
+            builder.AppendLine($"| {Code(loadCase.Id)} | {Text(loadCase.Name)} | {Text(loadCase.Description)} |");
         }
 
         builder.AppendLine();
@@ -329,9 +341,9 @@ public sealed class MarkdownStructuralReportGenerator
         {
             string expression = combination.Terms.Count == 0
                 ? "-"
-                : string.Join(" + ", combination.Terms.Select(term => $"{Format(term.Factor)} `{term.LoadCaseId}`"));
+                : string.Join(" + ", combination.Terms.Select(term => $"{Format(term.Factor)} {Code(term.LoadCaseId)}"));
 
-            builder.AppendLine($"| `{combination.Id}` | {Text(combination.Name)} | {expression} | {Text(combination.Description)} |");
+            builder.AppendLine($"| {Code(combination.Id)} | {Text(combination.Name)} | {expression} | {Text(combination.Description)} |");
         }
 
         builder.AppendLine();
@@ -348,15 +360,15 @@ public sealed class MarkdownStructuralReportGenerator
         {
             string target = load.TargetType == Core.Model.Enums.StructuralLoadTargetType.Model
                 ? "model"
-                : $"{load.TargetType}: `{load.TargetId}`";
+                : $"{load.TargetType}: {Code(load.TargetId)}";
 
-            builder.AppendLine($"| `{load.Id}` | `{load.LoadCaseId}` | {load.Type} | {target} | {load.Direction} | {Format(load.Value)} | {FormatOptional(load.EndValue)} | {FormatOptional(load.Position)} | {Text(load.Label)} |");
+            builder.AppendLine($"| {Code(load.Id)} | {Code(load.LoadCaseId)} | {load.Type} | {target} | {load.Direction} | {Format(load.Value)} | {FormatOptional(load.EndValue)} | {FormatOptional(load.Position)} | {Text(load.Label)} |");
         }
 
         builder.AppendLine();
     }
 
-    private static void WriteResults(StringBuilder builder, StructuralAnalysisResult result, StructuralAnalysisSummary summary)
+    private static void WriteResults(StringBuilder builder, StructuralAnalysisResult result, StructuralAnalysisSummary summary, MarkdownReportOptions options)
     {
         builder.AppendLine("## Results");
         builder.AppendLine();
@@ -364,7 +376,7 @@ public sealed class MarkdownStructuralReportGenerator
         WriteDisplacements(builder, result.Displacements);
         WriteReactions(builder, result.Reactions);
         WriteMemberEndForces(builder, result.MemberEndForces);
-        WriteSummary(builder, summary);
+        if (options.DetailLevel == MarkdownReportDetail.Full) WriteSummary(builder, summary);
     }
 
     private static void WriteDisplacements(StringBuilder builder, IReadOnlyList<NodalDisplacementResult> displacements)
@@ -376,7 +388,7 @@ public sealed class MarkdownStructuralReportGenerator
 
         foreach (NodalDisplacementResult displacement in displacements)
         {
-            builder.AppendLine($"| `{displacement.NodeId}` | {Format(displacement.Ux)} | {Format(displacement.Uy)} | {Format(displacement.Rz)} |");
+            builder.AppendLine($"| {Code(displacement.NodeId)} | {Format(displacement.Ux)} | {Format(displacement.Uy)} | {Format(displacement.Rz)} |");
         }
 
         builder.AppendLine();
@@ -391,7 +403,7 @@ public sealed class MarkdownStructuralReportGenerator
 
         foreach (SupportReactionResult reaction in reactions)
         {
-            builder.AppendLine($"| `{reaction.SupportId}` | `{reaction.NodeId}` | {Format(reaction.Fx)} | {Format(reaction.Fy)} | {Format(reaction.Mz)} |");
+            builder.AppendLine($"| {Code(reaction.SupportId)} | {Code(reaction.NodeId)} | {Format(reaction.Fx)} | {Format(reaction.Fy)} | {Format(reaction.Mz)} |");
         }
 
         builder.AppendLine();
@@ -406,7 +418,7 @@ public sealed class MarkdownStructuralReportGenerator
 
         foreach (MemberEndForceResult force in memberEndForces)
         {
-            builder.AppendLine($"| `{force.MemberId}` | {Format(force.StartAxial)} | {Format(force.StartShear)} | {Format(force.StartMoment)} | {Format(force.EndAxial)} | {Format(force.EndShear)} | {Format(force.EndMoment)} |");
+            builder.AppendLine($"| {Code(force.MemberId)} | {Format(force.StartAxial)} | {Format(force.StartShear)} | {Format(force.StartMoment)} | {Format(force.EndAxial)} | {Format(force.EndShear)} | {Format(force.EndMoment)} |");
         }
 
         builder.AppendLine();
@@ -418,16 +430,21 @@ public sealed class MarkdownStructuralReportGenerator
         builder.AppendLine();
         builder.AppendLine("| Quantity | Value | Location |");
         builder.AppendLine("|---|---:|---|");
-        builder.AppendLine($"| Max \\|Ux\\| [m] | {Format(summary.MaxAbsUx.Value)} | node `{Display(summary.MaxAbsUx.EntityId)}` |");
-        builder.AppendLine($"| Max \\|Uy\\| [m] | {Format(summary.MaxAbsUy.Value)} | node `{Display(summary.MaxAbsUy.EntityId)}` |");
-        builder.AppendLine($"| Max \\|Rz\\| [rad] | {Format(summary.MaxAbsRz.Value)} | node `{Display(summary.MaxAbsRz.EntityId)}` |");
-        builder.AppendLine($"| Max \\|Fx\\| [kN] | {Format(summary.MaxAbsReactionFx.Value)} | support `{Display(summary.MaxAbsReactionFx.EntityId)}` |");
-        builder.AppendLine($"| Max \\|Fy\\| [kN] | {Format(summary.MaxAbsReactionFy.Value)} | support `{Display(summary.MaxAbsReactionFy.EntityId)}` |");
-        builder.AppendLine($"| Max \\|Mz\\| [kNm] | {Format(summary.MaxAbsReactionMz.Value)} | support `{Display(summary.MaxAbsReactionMz.EntityId)}` |");
-        builder.AppendLine($"| Max \\|N\\| [kN] | {Format(summary.MaxAbsNormalForce.Value)} | member `{Display(summary.MaxAbsNormalForce.MemberId)}`, x = {Format(summary.MaxAbsNormalForce.Distance)} m |");
-        builder.AppendLine($"| Max \\|V\\| [kN] | {Format(summary.MaxAbsShearForce.Value)} | member `{Display(summary.MaxAbsShearForce.MemberId)}`, x = {Format(summary.MaxAbsShearForce.Distance)} m |");
-        builder.AppendLine($"| Max \\|M\\| [kNm] | {Format(summary.MaxAbsBendingMoment.Value)} | member `{Display(summary.MaxAbsBendingMoment.MemberId)}`, x = {Format(summary.MaxAbsBendingMoment.Distance)} m |");
+        WriteAbsoluteValueRows(builder, summary);
         builder.AppendLine();
+    }
+
+    private static void WriteAbsoluteValueRows(StringBuilder builder, StructuralAnalysisSummary summary)
+    {
+        builder.AppendLine($"| Max \\|Ux\\| [m] | {Format(Math.Abs(summary.MaxAbsUx.Value))} | node {Code(Display(summary.MaxAbsUx.EntityId))} |");
+        builder.AppendLine($"| Max \\|Uy\\| [m] | {Format(Math.Abs(summary.MaxAbsUy.Value))} | node {Code(Display(summary.MaxAbsUy.EntityId))} |");
+        builder.AppendLine($"| Max \\|Rz\\| [rad] | {Format(Math.Abs(summary.MaxAbsRz.Value))} | node {Code(Display(summary.MaxAbsRz.EntityId))} |");
+        builder.AppendLine($"| Max \\|Fx\\| [kN] | {Format(Math.Abs(summary.MaxAbsReactionFx.Value))} | support {Code(Display(summary.MaxAbsReactionFx.EntityId))} |");
+        builder.AppendLine($"| Max \\|Fy\\| [kN] | {Format(Math.Abs(summary.MaxAbsReactionFy.Value))} | support {Code(Display(summary.MaxAbsReactionFy.EntityId))} |");
+        builder.AppendLine($"| Max \\|Mz\\| [kNm] | {Format(Math.Abs(summary.MaxAbsReactionMz.Value))} | support {Code(Display(summary.MaxAbsReactionMz.EntityId))} |");
+        builder.AppendLine($"| Max \\|N\\| [kN] | {Format(Math.Abs(summary.MaxAbsNormalForce.Value))} | member {Code(Display(summary.MaxAbsNormalForce.MemberId))}, x = {Format(summary.MaxAbsNormalForce.Distance)} m |");
+        builder.AppendLine($"| Max \\|V\\| [kN] | {Format(Math.Abs(summary.MaxAbsShearForce.Value))} | member {Code(Display(summary.MaxAbsShearForce.MemberId))}, x = {Format(summary.MaxAbsShearForce.Distance)} m |");
+        builder.AppendLine($"| Max \\|M\\| [kNm] | {Format(Math.Abs(summary.MaxAbsBendingMoment.Value))} | member {Code(Display(summary.MaxAbsBendingMoment.MemberId))}, x = {Format(summary.MaxAbsBendingMoment.Distance)} m |");
     }
 
     private static void WriteInternalForceDiagrams(
@@ -447,7 +464,7 @@ public sealed class MarkdownStructuralReportGenerator
 
         foreach (MemberInternalForceDiagram diagram in diagrams)
         {
-            builder.AppendLine($"### Member `{diagram.MemberId}`");
+            builder.AppendLine($"### Member {Code(diagram.MemberId)}");
             builder.AppendLine();
             builder.AppendLine($"Length: **{Format(diagram.Length)} m**");
             builder.AppendLine();
@@ -507,7 +524,7 @@ public sealed class MarkdownStructuralReportGenerator
 
         foreach (MemberInternalForceCharacteristics memberCharacteristics in characteristics)
         {
-            builder.AppendLine($"### Member `{memberCharacteristics.MemberId}`");
+            builder.AppendLine($"### Member {Code(memberCharacteristics.MemberId)}");
             builder.AppendLine();
             builder.AppendLine($"Length: **{Format(memberCharacteristics.Length)} m**");
             builder.AppendLine();
@@ -563,7 +580,7 @@ public sealed class MarkdownStructuralReportGenerator
 
         foreach (MemberDisplacementDiagram diagram in displacementDiagrams)
         {
-            builder.AppendLine($"### Member `{diagram.MemberId}`");
+            builder.AppendLine($"### Member {Code(diagram.MemberId)}");
             builder.AppendLine();
             builder.AppendLine($"Length: **{Format(diagram.Length)} m**");
             builder.AppendLine();
@@ -617,7 +634,7 @@ public sealed class MarkdownStructuralReportGenerator
 
         foreach (DeflectionCheckResult check in deflectionChecks.OrderByDescending(check => check.UtilizationRatio))
         {
-            builder.AppendLine($"| `{check.MemberId}` | {check.Direction} | L/{Format(check.LimitDenominator)} | {Format(check.ReferenceLength)} | {Format(check.AllowedDeflection)} | {Format(check.MaxAbsDeflection)} | {Format(check.SignedDeflectionAtCriticalSample)} | {Format(check.Distance)} | {Format(check.UtilizationRatio)} | {check.Status} |");
+            builder.AppendLine($"| {Code(check.MemberId)} | {check.Direction} | L/{Format(check.LimitDenominator)} | {Format(check.ReferenceLength)} | {Format(check.AllowedDeflection)} | {Format(check.MaxAbsDeflection)} | {Format(check.SignedDeflectionAtCriticalSample)} | {Format(check.Distance)} | {Format(check.UtilizationRatio)} | {check.Status} |");
         }
 
         builder.AppendLine();
@@ -646,6 +663,21 @@ public sealed class MarkdownStructuralReportGenerator
     private static string Display(string value) =>
         string.IsNullOrWhiteSpace(value) ? "-" : value;
 
+    private static string Code(string? value)
+    {
+        value = string.IsNullOrWhiteSpace(value) ? "-" : value;
+        if (value.IndexOfAny(new[] { '|', '`', '\r', '\n', '<', '>' }) < 0) return $"`{value}`";
+        return "<code>" + InlineHtml(value).Replace("|", "&#124;", StringComparison.Ordinal) + "</code>";
+    }
+
+    private static void WriteAnalysisContext(StringBuilder builder, StructuralModel model, string id)
+    {
+        var combination = model.LoadCombinations.FirstOrDefault(item => string.Equals(item.Id, id, StringComparison.OrdinalIgnoreCase));
+        if (combination is null) builder.AppendLine($"Load case: {Code(id)}.");
+        else builder.AppendLine("Load combination: " + Code(id) + " = " + string.Join(" + ", combination.Terms.Select(term => $"{Format(term.Factor)} × {Code(term.LoadCaseId)}")) + ".");
+        builder.AppendLine();
+    }
+
     private static string Text(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
@@ -653,6 +685,17 @@ public sealed class MarkdownStructuralReportGenerator
             return "-";
         }
 
-        return value.Replace("|", "\\|", StringComparison.Ordinal);
+        return InlineHtml(value).Replace("|", "\\|", StringComparison.Ordinal);
+    }
+
+    private static string InlineHtml(string value)
+    {
+        string encoded = WebUtility.HtmlEncode(value);
+        // Markdown still parses inline content between HTML tags. Preserve literal delimiters
+        // and backslashes, including a backslash immediately before a table separator.
+        foreach (char delimiter in "\\`*_[]")
+            encoded = encoded.Replace(delimiter.ToString(), $"&#{(int)delimiter};", StringComparison.Ordinal);
+        return encoded
+            .Replace("\r\n", "<br />", StringComparison.Ordinal).Replace("\r", "<br />", StringComparison.Ordinal).Replace("\n", "<br />", StringComparison.Ordinal);
     }
 }

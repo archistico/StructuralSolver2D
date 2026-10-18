@@ -146,11 +146,13 @@ Analyze a specific load case or load combination:
 dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\combinations\load-combination.json ULS1
 ```
 
-Generate a Markdown report:
+Generate a concise Markdown report (critical values, signed result tables and analysis context):
 
 ```powershell
 dotnet run --project src\StructuralSolver2D.Cli -- report examples\beams\simple-supported-beam.json reports\simple-supported-beam.md
 ```
+
+Use `report-full` with the same arguments to include model tables, characteristic points and sampled appendices. The `markdown` alias uses the concise profile.
 
 Export CSV tables:
 
@@ -187,6 +189,8 @@ Export an interactive HTML viewer:
 ```powershell
 dotnet run --project src\StructuralSolver2D.Cli -- export-viewer examples\beams\simple-supported-beam.json reports\viewer\simple-supported-beam.html
 ```
+
+The viewer opens with model, supports and load arrows. Choose Displacements, N, V or M to inspect one result quantity, then select a node or member for values. Secondary layers and animation are under `Layers and display`; `All layers` restores the complete scene. Mouse/touch selection, keyboard pan/zoom and `Fit view` are available. See [viewer controls](docs/structural/interactive-viewer.md).
 
 ---
 

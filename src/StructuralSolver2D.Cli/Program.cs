@@ -159,6 +159,7 @@ int RunMarkdownReport(string[] args)
         new MarkdownReportOptions
         {
             Title = input.Title,
+            DetailLevel = string.Equals(args[0], "report-full", StringComparison.OrdinalIgnoreCase) ? MarkdownReportDetail.Full : MarkdownReportDetail.Summary,
             Description = input.Description,
             SourceLabel = inputPath,
             IncludeInternalForceSamples = true,
@@ -480,6 +481,7 @@ static bool IsAnalyzeCommand(string command) =>
 
 static bool IsReportCommand(string command) =>
     string.Equals(command, "report", StringComparison.OrdinalIgnoreCase) ||
+    string.Equals(command, "report-full", StringComparison.OrdinalIgnoreCase) ||
     string.Equals(command, "markdown", StringComparison.OrdinalIgnoreCase);
 
 static bool IsCsvExportCommand(string command) =>

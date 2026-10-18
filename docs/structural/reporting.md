@@ -44,6 +44,7 @@ The educational sections are useful for examples, teaching material and validati
 
 `MarkdownReportOptions` controls optional report content:
 
+- `DetailLevel` (`MarkdownReportDetail.Full` or `Summary`);
 - `IncludeEducationalExplanations`;
 - `IncludeModelStatistics`;
 - `IncludeInternalForceSamples`;
@@ -52,6 +53,14 @@ The educational sections are useful for examples, teaching material and validati
 - `IncludeDeflectionChecks`.
 
 Sample count limits are available for internal-force samples, characteristic points and displacement samples.
+
+`Full` remains the API default. `Summary` retains units, the selected case or combination and its factors, all governing absolute values and locations, signed nodal displacements, reactions and member end forces, requested deflection checks, and limitations. It omits model tables, sampled appendices and the repeated absolute-value table. It explicitly identifies the omitted data.
+
+The CLI commands `report` and its `markdown` alias select `Summary`. Use `report-full input.json output.md [loadCaseId|combinationId]` for the complete profile, including displacement samples.
+
+`IncludeModelStatistics` controls only the model-size subsection; the executive summary remains available. `IncludeDeflectionChecks` controls both the check table and its executive summary. Sample flags and limits apply to the full profile.
+
+User identifiers and labels containing pipes, backticks, HTML characters or line breaks are escaped so they stay inside their table cells. Absolute-value summaries use non-negative magnitudes; detailed result tables preserve the signs from the analysis.
 
 ---
 

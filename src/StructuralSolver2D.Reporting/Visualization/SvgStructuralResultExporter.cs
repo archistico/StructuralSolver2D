@@ -38,6 +38,8 @@ public sealed class SvgStructuralResultExporter
             AppendUndeformedModel(builder, model, options, mapper);
         }
 
+        AppendModelContext(builder, model, options, mapper);
+
         if (options.IncludeLoads)
         {
             AppendLoads(builder, model, mapper);
@@ -122,38 +124,48 @@ public sealed class SvgStructuralResultExporter
 
         foreach (VisualizationMember member in model.Members)
         {
-            builder.AppendLine($"    <line class=\"member undeformed\" x1=\"{Format(mapper.MapX(member.Start.X))}\" y1=\"{Format(mapper.MapY(member.Start.Y))}\" x2=\"{Format(mapper.MapX(member.End.X))}\" y2=\"{Format(mapper.MapY(member.End.Y))}\"/>");
-        }
-
-        if (options.IncludeMemberDimensions)
-        {
-            foreach (MemberDimensionAnnotation dimension in model.MemberDimensions)
-            {
-                AppendDimension(builder, mapper, dimension);
-            }
-        }
-
-        if (options.IncludeSupportSymbols)
-        {
-            foreach (VisualizationSupport support in model.Supports)
-            {
-                AppendSupportGlyph(builder, mapper, support);
-            }
+            builder.AppendLine($"    <line class=\"member undeformed\" data-member-id=\"{EscapeXml(member.MemberId)}\" x1=\"{Format(mapper.MapX(member.Start.X))}\" y1=\"{Format(mapper.MapY(member.Start.Y))}\" x2=\"{Format(mapper.MapX(member.End.X))}\" y2=\"{Format(mapper.MapY(member.End.Y))}\"/>");
         }
 
         foreach (VisualizationNode node in model.Nodes)
         {
             double x = mapper.MapX(node.Position.X);
             double y = mapper.MapY(node.Position.Y);
-            builder.AppendLine($"    <circle class=\"node\" cx=\"{Format(x)}\" cy=\"{Format(y)}\" r=\"3\"/>");
+            builder.AppendLine($"    <circle class=\"node\" data-node-id=\"{EscapeXml(node.NodeId)}\" cx=\"{Format(x)}\" cy=\"{Format(y)}\" r=\"3\"/>");
             if (options.IncludeNodeLabels)
             {
                 builder.AppendLine($"    <text class=\"node-label\" x=\"{Format(x + 6.0)}\" y=\"{Format(y - 6.0)}\">{EscapeXml(node.Label ?? node.NodeId)}</text>");
             }
         }
 
+        builder.AppendLine("  </g>");
+    }
+
+    private static void AppendModelContext(StringBuilder builder, StructuralVisualizationModel model, SvgExportOptions options, CoordinateMapper mapper)
+    {
+        if (options.IncludeMemberDimensions)
+        {
+            builder.AppendLine("  <g id=\"dimensions\">");
+            foreach (MemberDimensionAnnotation dimension in model.MemberDimensions)
+            {
+                AppendDimension(builder, mapper, dimension);
+            }
+            builder.AppendLine("  </g>");
+        }
+
+        if (options.IncludeSupportSymbols)
+        {
+            builder.AppendLine("  <g id=\"supports\">");
+            foreach (VisualizationSupport support in model.Supports)
+            {
+                AppendSupportGlyph(builder, mapper, support);
+            }
+            builder.AppendLine("  </g>");
+        }
+
         if (options.IncludeReactions)
         {
+            builder.AppendLine("  <g id=\"reactions\">");
             foreach (VisualizationReactionArrow arrow in model.ReactionArrows)
             {
                 AppendReactionArrow(builder, mapper, arrow);
@@ -163,9 +175,9 @@ public sealed class SvgStructuralResultExporter
             {
                 AppendReactionMoment(builder, mapper, moment);
             }
+            builder.AppendLine("  </g>");
         }
 
-        builder.AppendLine("  </g>");
     }
 
     private static void AppendDiagrams(StringBuilder builder, StructuralVisualizationModel model, SvgExportOptions options, CoordinateMapper mapper)
@@ -183,7 +195,7 @@ public sealed class SvgStructuralResultExporter
                 builder.AppendLine($"    <polygon class=\"diagram-fill {suffix}\" points=\"{BuildDiagramFillPoints(diagram, member, mapper)}\"/>");
             }
 
-            builder.AppendLine($"    <polyline class=\"{className}\" points=\"{BuildPoints(diagram.Points, mapper)}\"/>");
+            builder.AppendLine($"    <polyline class=\"{className}\" data-member-id=\"{EscapeXml(diagram.MemberId)}\" points=\"{BuildPoints(diagram.Points, mapper)}\"/>");
         }
 
         if (options.IncludeDiagramValueLabels)
@@ -210,7 +222,7 @@ public sealed class SvgStructuralResultExporter
                 deformationData = $" data-base-points=\"{BuildInterpolatedBasePoints(member, shape.Points.Count, mapper)}\" data-displacement-points=\"{BuildDisplacementPoints(member, shape.Points, mapper)}\"";
             }
 
-            builder.AppendLine($"    <polyline class=\"member deformed\" data-deformed-polyline=\"true\"{deformationData} points=\"{BuildPoints(shape.Points, mapper)}\"/>");
+            builder.AppendLine($"    <polyline class=\"member deformed\" data-member-id=\"{EscapeXml(shape.MemberId)}\" data-deformed-polyline=\"true\"{deformationData} points=\"{BuildPoints(shape.Points, mapper)}\"/>");
         }
 
         if (options.IncludeNodeDisplacementLabels)

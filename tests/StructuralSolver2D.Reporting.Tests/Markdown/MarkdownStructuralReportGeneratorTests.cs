@@ -208,7 +208,8 @@ public sealed class MarkdownStructuralReportGeneratorTests
             });
 
         Assert.DoesNotContain("## How to read this report", markdown);
-        Assert.DoesNotContain("## Executive summary", markdown);
+        Assert.Contains("## Executive summary", markdown);
+        Assert.DoesNotContain("### Model size", markdown);
     }
 
     [Fact]

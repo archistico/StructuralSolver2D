@@ -49,6 +49,10 @@ Long tabular sections are intentionally truncated in the PDF. Full tabular data 
 
 Each visual line produced by text wrapping is checked against the remaining page height. Long source labels, titles, and identifiers continue on subsequent pages instead of extending below the bottom margin.
 
+Horizontal wrapping uses Helvetica advances for text and Courier advances for tables at the actual font size. Long running headers are shortened; the complete title remains in the body. Member end forces have separate `Start` and `End` rows with N/V/M units, and long member identifiers are placed on their own line. Absolute summary values are magnitudes; detailed tables keep signed values.
+
+Text uses Windows-1252 with PDF WinAnsi font encoding, preserving Italian and other supported Western European accents, typographic punctuation and the euro sign. Text outside that character set raises `NotSupportedException` instead of silently replacing characters with `?`. Use Markdown or XLSX for other scripts; Unicode font embedding is not implemented.
+
 ## Limitations
 
 This first PDF milestone intentionally does not include:

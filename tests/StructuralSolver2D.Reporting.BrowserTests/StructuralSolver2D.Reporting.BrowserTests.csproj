@@ -7,6 +7,8 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/StructuralSolver2D.Reporting/StructuralSolver2D.Reporting.csproj" />
+    <ProjectReference Include="../../src/StructuralSolver2D.Cli/StructuralSolver2D.Cli.csproj" />
     <None Update="viewer-regressions.js" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../../examples/mixed/two-storey-house-balconies.json;../../examples/mixed/truss-bridge-20m-deck-loads.json" Link="Fixtures/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

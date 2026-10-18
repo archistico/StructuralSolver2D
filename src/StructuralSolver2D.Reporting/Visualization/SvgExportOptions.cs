@@ -5,6 +5,8 @@ namespace StructuralSolver2D.Reporting.Visualization;
 /// </summary>
 public sealed class SvgExportOptions
 {
+    internal SvgExportOptions Copy() => (SvgExportOptions)MemberwiseClone();
+
     /// <summary>
     /// Gets or sets the output SVG width in CSS pixels.
     /// </summary>

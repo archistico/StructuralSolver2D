@@ -1,4 +1,4 @@
-# Interactive HTML viewer prototype
+# Interactive HTML viewer
 
 Milestone 47 introduces a first lightweight interactive viewer prototype.
 
@@ -24,20 +24,33 @@ dotnet run --project src\StructuralSolver2D.Cli -- export-viewer examples\combin
 
 ## Features
 
-The first prototype supports:
+The viewer supports:
 
+- initial `Model` view with undeformed members, supports and load arrows, without global value labels;
+- `Displacements`, `Normal force N`, `Shear force V` and `Bending moment M` modes, showing one result quantity at a time;
+- explicit `All layers` mode for the complete scene;
+- node/member selection by mouse, touch or keyboard, with physical values in a details panel;
 - mouse wheel zoom;
 - pointer drag pan;
+- Fit view for the currently visible geometry;
 - reset view;
 - layer toggles for undeformed model, deformed shape, diagrams, supports, reactions, dimensions, nodal displacement labels and member station displacement labels;
 - separate visibility toggles for `N`, `V` and `M`;
 - a deformation scale control that recomputes the displayed deformed coordinates from the embedded displacement data;
 - deformation animation playback with amplitude and speed controls;
-- summary values for nodes, members, supports, reactions, diagrams, deformation scale and maximum displacement.
+- current deformation amplification and maximum nodal displacement, plus a collapsed model summary.
+
+The main toolbar contains the view selector and Zoom, Fit and Reset buttons. `Layers and display` contains the secondary switches, scales and animation controls. The description and model summary are collapsed initially. The layout adapts to narrow screens, and model/diagram strokes remain readable when the scene is reduced.
+
+Select a node to inspect coordinates, Ux/Uy in millimetres and Rz in radians. Select a member to inspect its type, endpoints, length, maximum absolute N/V/M values and available quarter-span displacement values. Wide transparent hit areas make thin geometry easier to select. Load and support graphics do not intercept node selection; dragging pans without selecting an element.
+
+Tab reaches the canvas and selectable members/nodes; Enter or Space opens their details. On the canvas, arrow keys pan, `+`/`-` zoom and Home fits the scene. Close details returns focus to the canvas. Supports, reactions and dimensions remain independent when the undeformed model is hidden.
 
 The viewer reuses the same SVG result geometry produced by the reporting visualization layer.
 
 Reset restores a copy of the initial view rectangle. Wheel zoom and pointer pan convert screen coordinates through the SVG transformation matrix, so their anchors remain consistent when the canvas and SVG have different aspect ratios.
+
+`Fit view` bounds the visible model, context and result geometry, including the current deformed shape. It differs from Reset, which restores the initial fitted rectangle. `InteractiveViewerExportOptions.InitialView` selects the initial result mode through `ViewerResultView` and defaults to `Model`.
 
 ## Architecture
 
@@ -56,12 +69,11 @@ This prototype still does not provide:
 
 - editable model geometry;
 - dynamic recomputation;
-- point inspection tooltips;
 - OpenCad2D integration.
 
 The deformation scale and animation controls are viewer-side controls. They do not recompute the structural analysis, but they do recompute the displayed deformed coordinates from embedded base-point and displacement-point data. This avoids the incorrect behavior of simply scaling the entire SVG group around its visual centre.
 
-Those features remain reserved for later milestones.
+Model editing, recomputation and CAD integration remain reserved for later milestones.
 
 
 ## Deformation value labels
@@ -75,6 +87,8 @@ It also embeds member station displacement labels at:
 - `3L/4`.
 
 These are controlled by the `Member station labels` toolbar toggle.
+
+Global value labels are off by default; the same physical displacement values remain accessible through selection details.
 
 Station coordinates and distances refer to the requested quarter-span positions. When a station falls between displacement samples, its displacement and rotation are linearly interpolated from the adjacent samples. This is an approximation of the sampled field; increasing the analysis sample count improves its resolution.
 
@@ -93,17 +107,21 @@ This remains a visualization feature only: it does not change solver results.
 The viewer includes controls for result readability:
 
 - `Deformed scale` changes the displayed amplitude of the deformed shape by recomputing deformed polyline coordinates from undeformed base points plus displacement vectors. The slider range is 0% to 500%;
-- `Text size` changes the size of SVG labels directly in the viewer, which helps reduce label overlap in dense models;
+- `Text size` changes the size of enabled SVG labels directly in the viewer;
 - `N`, `V` and `M` remain separate visibility toggles, not scale sliders;
 - `Play deformation` starts a cyclic deformation playback based on the same displacement vectors;
 - `Pause` stops playback and restores the current static deformation scale;
 - `Anim. speed` controls the playback speed.
+
+The status line shows the current effective amplification: base visualization scale multiplied by the slider percentage and, during playback, by the animation phase. At base scale 100 and slider 200%, the feedback is `Amplification ×200`. The base scale remains under Model summary. Repeated Play actions start only one animation loop; Pause cancels its pending frame and restores the static slider amplitude.
 
 These controls are intentionally implemented inside the standalone HTML viewer. The solver result remains unchanged.
 
 The maximum displacement callout moves with the corresponding deformed point, including negative animation phases. Its numerical displacement values remain the physical analysis results, independent of visual amplification.
 
 Initial control values must be finite and within the slider ranges: deformation scale 0–500%, text size 50–160%, and animation speed 0.25–4. Invalid values are rejected before export.
+
+Accepted fractional values are preserved in the browser instead of being rounded to a fixed slider step. Viewer export does not mutate the caller's SVG options. CSS, JavaScript, geometry and inspection data are embedded in the HTML file; no network access is required to open it.
 
 
 ## Applied loads layer
@@ -115,6 +133,8 @@ The viewer also includes a separate `Load labels` toggle. This keeps the arrows 
 Load labels are rendered with a light outline to remain readable over the model geometry. Distributed loads use an adaptive number of repeated arrows based on their rendered length: short members stay compact, while longer members show additional arrows along the loaded span.
 
 This layer is read-only and intended for inspection: it helps verify that the analysis input contains the expected point loads, nodal moments and distributed loads before reading deformed shapes and internal-force diagrams.
+
+Load arrows are visible by default; load labels are available separately under Layers and display.
 
 For a selected manual load combination, the viewer now displays the graphical loads as a factored combination set. It includes only loads whose `loadCaseId` is referenced by the selected combination and multiplies their values by the corresponding combination factor. The rendered geometry and labels therefore match the analyzed combination rather than the unfactored base load cases. When the factor is not 1.0, load labels append the factor, for example `(1.35x)` or `(1.5x)`.
 
@@ -146,6 +166,6 @@ Behavioral regression tests also execute the exported document in a real headles
 node scripts/run-reporting-browser-tests.mjs
 ```
 
-This separate test command requires .NET 8, Node.js, and an installed Chrome, Chromium, or Edge browser. Set `CHROME_PATH` if the browser is not in a detected location. No npm packages are required. It generates the viewer fixture and writes results under `out/reporting-browser-tests/`, including `results.json`.
+This separate test command requires .NET 8, Node.js, and an installed Chrome, Chromium, or Edge browser. Set `CHROME_PATH` if the browser is not in a detected location. No npm packages are required. It generates cantilever, house and bridge fixtures, runs each at 390, 768 and 1366 px window sizes, and writes results under `out/reporting-browser-tests/`, including `results.json`.
 
-The browser cases verify reset after zoom and pan, cursor anchoring and dragging at different canvas aspect ratios, and maximum displacement annotation geometry at static and animated scales. Run the portable .NET suite separately with `dotnet test StructuralSolver2D.sln`.
+The 180 browser checks cover initial controls, uncluttered defaults, responsive layout, single-quantity modes, independent context layers, effective amplification and Fit, animation lifecycle, keyboard and pointer inspection, node hit targets under loads/supports, reset, cursor anchoring and maximum displacement annotation geometry at static and animated scales. Run the portable .NET suite separately with `dotnet test StructuralSolver2D.sln`.

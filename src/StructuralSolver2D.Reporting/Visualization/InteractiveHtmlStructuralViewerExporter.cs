@@ -1,301 +1,111 @@
 using System.Globalization;
+using System.Net;
 using System.Text;
+using System.Text.Json;
 
 namespace StructuralSolver2D.Reporting.Visualization;
 
-/// <summary>
-/// Exports a <see cref="StructuralVisualizationModel"/> to a standalone HTML viewer with basic pan, zoom and layer controls.
-/// </summary>
+/// <summary>Exports a standalone viewer with result modes, inspection, and pan/zoom controls.</summary>
 public sealed class InteractiveHtmlStructuralViewerExporter
 {
-    /// <summary>
-    /// Exports the supplied visualization model to a complete interactive HTML document.
-    /// </summary>
+    private static readonly string Styles = ReadAsset("viewer.css");
+    private static readonly string Script = ReadAsset("viewer.js");
+
     public string Export(StructuralVisualizationModel model, InteractiveViewerExportOptions? options = null)
     {
         ArgumentNullException.ThrowIfNull(model);
-
         options ??= new InteractiveViewerExportOptions();
         options.Validate();
-        options.SvgOptions.Title = options.Title;
-        options.SvgOptions.IncludeNodeDisplacementLabels = true;
-        options.SvgOptions.IncludeMemberDisplacementLabels = true;
-
-        string svg = StripXmlDeclaration(new SvgStructuralResultExporter().Export(model, options.SvgOptions));
-        string title = EscapeHtml(options.Title);
-        string description = EscapeHtml(options.Description);
-        StringBuilder builder = new();
-
-        builder.AppendLine("<!DOCTYPE html>");
-        builder.AppendLine("<html lang=\"en\">");
-        builder.AppendLine("<head>");
-        builder.AppendLine("  <meta charset=\"utf-8\" />");
-        builder.AppendLine("  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />");
-        builder.AppendLine($"  <title>{title}</title>");
-        AppendStyles(builder);
-        builder.AppendLine("</head>");
-        builder.AppendLine("<body>");
-        builder.AppendLine("  <main class=\"viewer-page\">");
-        builder.AppendLine("    <header class=\"viewer-header\">");
-        builder.AppendLine($"      <h1>{title}</h1>");
-        if (!string.IsNullOrWhiteSpace(description))
-        {
-            builder.AppendLine($"      <p>{description}</p>");
-        }
-        builder.AppendLine("    </header>");
+        SvgExportOptions svgOptions = options.SvgOptions.Copy();
+        svgOptions.Title = options.Title;
+        svgOptions.IncludeNodeLabels = true;
+        svgOptions.IncludeNodeDisplacementLabels = true;
+        svgOptions.IncludeMemberDisplacementLabels = true;
+        svgOptions.IncludeLegend = false;
+        string svg = new SvgStructuralResultExporter().Export(model, svgOptions);
+        svg = svg[(svg.IndexOf("?>", StringComparison.Ordinal) + 2)..].TrimStart();
+        var builder = new StringBuilder();
+        builder.AppendLine("<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\" />");
+        builder.AppendLine("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />");
+        builder.AppendLine($"<title>{Html(options.Title)}</title><style>{Styles}</style></head><body>");
+        builder.AppendLine("<main class=\"viewer-page\"><header class=\"viewer-header\">");
+        builder.AppendLine($"<h1>{Html(options.Title)}</h1>");
+        if (!string.IsNullOrWhiteSpace(options.Description))
+            builder.AppendLine($"<details class=\"model-description\"><summary>About this model</summary><p>{Html(options.Description)}</p></details>");
+        builder.AppendLine("</header>");
         AppendToolbar(builder, options);
-        builder.AppendLine("    <section class=\"viewer-shell\" aria-label=\"Interactive structural result viewer\">");
-        builder.AppendLine("      <div class=\"viewer-canvas\" id=\"viewerCanvas\">");
+        builder.AppendLine("<section class=\"viewer-workspace\" aria-label=\"Interactive structural result viewer\"><div class=\"viewer-shell\">");
+        builder.AppendLine("<div class=\"viewer-canvas\" id=\"viewerCanvas\" tabindex=\"0\" aria-label=\"Diagram. Arrow keys pan; plus and minus zoom; Home fits the visible model.\">");
         builder.AppendLine(svg);
-        builder.AppendLine("      </div>");
-        builder.AppendLine("    </section>");
-        AppendSummary(builder, model);
-        builder.AppendLine("  </main>");
-        AppendScript(builder);
-        builder.AppendLine("</body>");
-        builder.AppendLine("</html>");
-
+        builder.AppendLine("</div></div><aside id=\"inspector\" class=\"inspector\" hidden aria-label=\"Selected element\">");
+        builder.AppendLine("<button type=\"button\" data-action=\"close-inspector\">Close details</button><div id=\"selection-details\" aria-live=\"polite\"></div></aside></section>");
+        builder.AppendLine($"<div class=\"view-status\"><span data-view-status></span><span>Amplification <strong data-effective-scale>×{Number(model.DeformationScale)}</strong></span>");
+        if (model.MaximumDisplacement is not null)
+            builder.AppendLine($"<span>Max nodal disp. <strong>{(model.MaximumDisplacement.Magnitude * 1000).ToString("G6", CultureInfo.InvariantCulture)} mm</strong></span>");
+        builder.AppendLine("</div><p class=\"hint\">Select a member or node for values. Wheel to zoom, drag to pan; keyboard: arrows, +/−, Home.</p>");
+        builder.AppendLine("<details class=\"model-summary\"><summary>Model summary</summary><dl class=\"summary\">");
+        foreach (var (label, value) in new[] { ("Nodes", model.Nodes.Count), ("Members", model.Members.Count), ("Supports", model.Supports.Count), ("Diagrams", model.Diagrams.Count) })
+            builder.AppendLine($"<div><dt>{label}</dt><dd>{value}</dd></div>");
+        builder.AppendLine($"<div><dt>Base deformation scale</dt><dd>{Number(model.DeformationScale)}</dd></div></dl></details></main>");
+        builder.AppendLine($"<script type=\"application/json\" id=\"viewer-data\">{BuildData(model, options)}</script>");
+        builder.AppendLine($"<script>{Script}</script></body></html>");
         return builder.ToString();
-    }
-
-    private static void AppendStyles(StringBuilder builder)
-    {
-        builder.AppendLine("  <style>");
-        builder.AppendLine("    :root { color-scheme: light; }");
-        builder.AppendLine("    body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #0f172a; color: #e5e7eb; }");
-        builder.AppendLine("    .viewer-page { min-height: 100vh; padding: 20px; box-sizing: border-box; }");
-        builder.AppendLine("    .viewer-header { max-width: 1500px; margin: 0 auto 12px auto; }");
-        builder.AppendLine("    .viewer-header h1 { margin: 0 0 6px 0; font-size: 28px; }");
-        builder.AppendLine("    .viewer-header p { margin: 0; color: #cbd5e1; }");
-        builder.AppendLine("    .toolbar { max-width: 1500px; margin: 0 auto 12px auto; padding: 12px; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; background: #111827; border: 1px solid #334155; border-radius: 12px; }");
-        builder.AppendLine("    .toolbar button { border: 1px solid #475569; background: #1f2937; color: #f8fafc; border-radius: 8px; padding: 7px 10px; cursor: pointer; }");
-        builder.AppendLine("    .toolbar button:hover { background: #374151; }");
-        builder.AppendLine("    .toolbar label { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; color: #e2e8f0; }");
-        builder.AppendLine("    .control-group { display: inline-flex; align-items: center; gap: 7px; padding: 6px 8px; border: 1px solid #334155; border-radius: 10px; background: #0f172a; }");
-        builder.AppendLine("    .control-group span { color: #cbd5e1; font-size: 12px; min-width: 34px; text-align: right; }");
-        builder.AppendLine("    .toolbar input[type=range] { width: 96px; }");
-        builder.AppendLine("    .hint { color: #94a3b8; font-size: 12px; }");
-        builder.AppendLine("    .viewer-shell { max-width: 1500px; margin: 0 auto; border: 1px solid #334155; border-radius: 14px; background: #020617; overflow: hidden; box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35); }");
-        builder.AppendLine("    .viewer-canvas { height: min(78vh, 920px); overflow: hidden; cursor: grab; touch-action: none; }");
-        builder.AppendLine("    .viewer-canvas.dragging { cursor: grabbing; }");
-        builder.AppendLine("    .viewer-canvas svg { width: 100%; height: 100%; display: block; background: #ffffff; }");
-        builder.AppendLine("    .viewer-canvas svg .node-label, .viewer-canvas svg .support-label, .viewer-canvas svg .dimension-label, .viewer-canvas svg .annotation-label, .viewer-canvas svg .reaction-label, .viewer-canvas svg .legend-label, .viewer-canvas svg .load-label { font-size: calc(12px * var(--viewer-label-scale, 1)) !important; }");
-        builder.AppendLine("    .viewer-canvas svg .caption { font-size: calc(12px * var(--viewer-label-scale, 1)) !important; }");
-        builder.AppendLine("    .viewer-canvas svg .displacement-label { font-size: calc(11px * var(--viewer-label-scale, 1)) !important; }");
-        builder.AppendLine("    .viewer-canvas svg .member-displacement-label { font-size: calc(10.5px * var(--viewer-label-scale, 1)) !important; }");
-        builder.AppendLine("    .summary { max-width: 1500px; margin: 12px auto 0 auto; display: grid; grid-template-columns: repeat(6, minmax(110px, 1fr)); gap: 10px; }");
-        builder.AppendLine("    .summary div { background: #111827; border: 1px solid #334155; border-radius: 10px; padding: 10px; }");
-        builder.AppendLine("    .summary dt { color: #94a3b8; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }");
-        builder.AppendLine("    .summary dd { margin: 4px 0 0 0; font-weight: 700; color: #f8fafc; }");
-        builder.AppendLine("    .hidden-layer { display: none !important; }");
-        builder.AppendLine("  </style>");
     }
 
     private static void AppendToolbar(StringBuilder builder, InteractiveViewerExportOptions options)
     {
-        string deformationScale = FormatPercent(options.InitialDeformationVisualScalePercent);
-        string textScale = FormatPercent(options.InitialTextScalePercent);
-        string animationSpeed = options.InitialAnimationSpeed.ToString("0.###", CultureInfo.InvariantCulture);
-
-        builder.AppendLine("    <nav class=\"toolbar\" aria-label=\"Viewer controls\">");
-        builder.AppendLine("      <button type=\"button\" data-action=\"zoom-in\">Zoom +</button>");
-        builder.AppendLine("      <button type=\"button\" data-action=\"zoom-out\">Zoom -</button>");
-        builder.AppendLine("      <button type=\"button\" data-action=\"reset\">Reset view</button>");
-        builder.AppendLine("      <button type=\"button\" data-action=\"play-animation\">Play deformation</button>");
-        builder.AppendLine("      <button type=\"button\" data-action=\"pause-animation\">Pause</button>");
-        builder.AppendLine($"      <label class=\"control-group\">Deformed scale <input type=\"range\" min=\"0\" max=\"500\" step=\"5\" value=\"{deformationScale}\" data-scale=\"deformed\" /> <span data-scale-output=\"deformed\">{deformationScale}%</span></label>");
-        builder.AppendLine($"      <label class=\"control-group\">Text size <input type=\"range\" min=\"50\" max=\"160\" step=\"5\" value=\"{textScale}\" data-text-scale=\"labels\" /> <span data-text-scale-output=\"labels\">{textScale}%</span></label>");
-        builder.AppendLine($"      <label class=\"control-group\">Anim. speed <input type=\"range\" min=\"0.25\" max=\"4\" step=\"0.25\" value=\"{animationSpeed}\" data-animation=\"speed\" /> <span data-animation-output=\"speed\">{animationSpeed}x</span></label>");
-        string loadsChecked = options.ShowLoadsByDefault ? " checked" : string.Empty;
-        builder.AppendLine("      <label><input type=\"checkbox\" data-layer=\"#undeformed-model\" checked /> Undeformed</label>");
-        builder.AppendLine("      <label><input type=\"checkbox\" data-layer=\"#deformed-shape\" checked /> Deformed</label>");
-        builder.AppendLine($"      <label><input type=\"checkbox\" data-layer=\"#loads\"{loadsChecked} /> Loads</label>");
-        builder.AppendLine($"      <label><input type=\"checkbox\" data-layer=\".load-label\"{loadsChecked} /> Load labels</label>");
-        builder.AppendLine("      <label><input type=\"checkbox\" data-layer=\".diagram.normal-force,.diagram-fill.normal-force,.annotation-point.normal-force,.annotation-label.normal-force\" checked /> N</label>");
-        builder.AppendLine("      <label><input type=\"checkbox\" data-layer=\".diagram.shear-force,.diagram-fill.shear-force,.annotation-point.shear-force,.annotation-label.shear-force\" checked /> V</label>");
-        builder.AppendLine("      <label><input type=\"checkbox\" data-layer=\".diagram.bending-moment,.diagram-fill.bending-moment,.annotation-point.bending-moment,.annotation-label.bending-moment\" checked /> M</label>");
-        builder.AppendLine("      <label><input type=\"checkbox\" data-layer=\"#diagrams\" checked /> Diagrams group</label>");
-        builder.AppendLine("      <label><input type=\"checkbox\" data-layer=\".support\" checked /> Supports</label>");
-        builder.AppendLine("      <label><input type=\"checkbox\" data-layer=\".reaction,.reaction-label\" checked /> Reactions</label>");
-        builder.AppendLine("      <label><input type=\"checkbox\" data-layer=\".dimension,.dimension-extension,.dimension-label\" checked /> Dimensions</label>");
-        string displacementLabelsChecked = options.ShowNodeDisplacementLabelsByDefault ? " checked" : string.Empty;
-        builder.AppendLine($"      <label><input type=\"checkbox\" data-layer=\".displacement-label,.displacement-label-anchor\"{displacementLabelsChecked} /> Nodal displacement labels</label>");
-        string memberDisplacementLabelsChecked = options.ShowMemberDisplacementLabelsByDefault ? " checked" : string.Empty;
-        builder.AppendLine($"      <label><input type=\"checkbox\" data-layer=\".member-displacement-label,.member-displacement-label-anchor\"{memberDisplacementLabelsChecked} /> Member station labels</label>");
-        builder.AppendLine("      <span class=\"hint\">Wheel to zoom, drag to pan. Text size reduces or enlarges SVG labels; Deformed scale recomputes deformed coordinates from displacement data.</span>");
-        builder.AppendLine("    </nav>");
+        builder.AppendLine("<nav class=\"toolbar\" aria-label=\"Viewer controls\"><div class=\"primary-controls\">");
+        builder.AppendLine("<label>View <select data-view aria-label=\"Result view\"><option value=\"model\">Model</option><option value=\"displacements\">Displacements</option><option value=\"n\">Normal force N</option><option value=\"v\">Shear force V</option><option value=\"m\">Bending moment M</option><option value=\"all\">All layers</option><option value=\"custom\" hidden>Custom layers</option></select></label>");
+        builder.AppendLine("<button type=\"button\" data-action=\"zoom-in\" aria-label=\"Zoom in\">Zoom +</button><button type=\"button\" data-action=\"zoom-out\" aria-label=\"Zoom out\">Zoom −</button><button type=\"button\" data-action=\"fit\">Fit view</button><button type=\"button\" data-action=\"reset\">Reset view</button></div>");
+        builder.AppendLine("<details class=\"viewer-details\"><summary>Layers and display</summary><div class=\"secondary-controls\">");
+        Layer(builder, "Undeformed", "#undeformed-model", true);
+        Layer(builder, "Deformed", "#deformed-shape", false);
+        Layer(builder, "Loads", "#loads", options.ShowLoadsByDefault);
+        Layer(builder, "Load labels", ".load-label", false);
+        Layer(builder, "N", DiagramSelector("normal-force"), false);
+        Layer(builder, "V", DiagramSelector("shear-force"), false);
+        Layer(builder, "M", DiagramSelector("bending-moment"), false);
+        Layer(builder, "Supports", "#supports", true);
+        Layer(builder, "Reactions", "#reactions", false);
+        Layer(builder, "Dimensions", "#dimensions", false);
+        Layer(builder, "Node names", ".node-label,.support-label", false);
+        Layer(builder, "Diagram values", "#diagrams .annotation-label,#diagrams .annotation-point", false);
+        Layer(builder, "Nodal displacement labels", ".displacement-label,.displacement-label-anchor", options.ShowNodeDisplacementLabelsByDefault);
+        Layer(builder, "Member station labels", ".member-displacement-label,.member-displacement-label-anchor", options.ShowMemberDisplacementLabelsByDefault);
+        builder.AppendLine("</div><div class=\"secondary-controls\">");
+        builder.AppendLine($"<label class=\"control-group\">Deformed scale <input type=\"range\" min=\"0\" max=\"500\" step=\"any\" value=\"{Number(options.InitialDeformationVisualScalePercent)}\" data-scale=\"deformed\" /><output data-scale-output=\"deformed\"></output></label>");
+        builder.AppendLine($"<label class=\"control-group\">Text size <input type=\"range\" min=\"50\" max=\"160\" step=\"any\" value=\"{Number(options.InitialTextScalePercent)}\" data-text-scale=\"labels\" /><output data-text-scale-output=\"labels\"></output></label>");
+        builder.AppendLine($"<label class=\"control-group\">Anim. speed <input type=\"range\" min=\"0.25\" max=\"4\" step=\"any\" value=\"{Number(options.InitialAnimationSpeed)}\" data-animation=\"speed\" /><output data-animation-output=\"speed\"></output></label>");
+        builder.AppendLine("<button type=\"button\" data-action=\"play-animation\">Play deformation</button><button type=\"button\" data-action=\"pause-animation\" disabled>Pause</button><span class=\"hint\">Visual playback of static results.</span></div></details></nav>");
     }
 
-    private static void AppendSummary(StringBuilder builder, StructuralVisualizationModel model)
+    private static string DiagramSelector(string kind) => $".diagram.{kind},.diagram-fill.{kind},.annotation-point.{kind},.annotation-label.{kind}";
+    private static void Layer(StringBuilder builder, string label, string selector, bool visible) =>
+        builder.AppendLine($"<label><input type=\"checkbox\" data-layer=\"{selector}\"{(visible ? " checked" : "")} /> {label}</label>");
+
+    private static string BuildData(StructuralVisualizationModel model, InteractiveViewerExportOptions options) => JsonSerializer.Serialize(new
     {
-        builder.AppendLine("    <dl class=\"summary\">");
-        AppendSummaryItem(builder, "Nodes", model.Nodes.Count.ToString(CultureInfo.InvariantCulture));
-        AppendSummaryItem(builder, "Members", model.Members.Count.ToString(CultureInfo.InvariantCulture));
-        AppendSummaryItem(builder, "Supports", model.Supports.Count.ToString(CultureInfo.InvariantCulture));
-        AppendSummaryItem(builder, "Reactions", (model.ReactionArrows.Count + model.ReactionMoments.Count).ToString(CultureInfo.InvariantCulture));
-        AppendSummaryItem(builder, "Applied loads", (model.LoadArrows.Count + model.LoadMoments.Count + model.DistributedLoads.Count).ToString(CultureInfo.InvariantCulture));
-        AppendSummaryItem(builder, "Diagrams", model.Diagrams.Count.ToString(CultureInfo.InvariantCulture));
-        AppendSummaryItem(builder, "Deform. scale", model.DeformationScale.ToString("0.###", CultureInfo.InvariantCulture));
-        if (model.MaximumDisplacement is not null)
+        baseScale = model.DeformationScale,
+        initialView = options.InitialView.ToString().ToLowerInvariant(),
+        nodes = model.Nodes.ToDictionary(node => node.NodeId, node => new { id = node.NodeId, label = node.Label, x = node.Position.X, y = node.Position.Y, ux = node.Ux, uy = node.Uy, rz = node.Rz }),
+        members = model.Members.ToDictionary(member => member.MemberId, member => new
         {
-            AppendSummaryItem(builder, "Max disp.", FormatMillimeters(model.MaximumDisplacement.Magnitude));
-        }
-        builder.AppendLine("    </dl>");
-    }
+            id = member.MemberId,
+            type = member.MemberType.ToString(),
+            start = member.StartNodeId,
+            end = member.EndNodeId,
+            length = Math.Sqrt(Math.Pow(member.End.X - member.Start.X, 2) + Math.Pow(member.End.Y - member.Start.Y, 2)),
+            forces = model.Diagrams.Where(diagram => diagram.MemberId == member.MemberId).ToDictionary(diagram => diagram.Kind.ToString(), diagram => Math.Abs(diagram.MaxAbsValue)),
+            stations = model.MemberDisplacementLabels.Where(label => label.MemberId == member.MemberId).Select(label => new { label = label.StationLabel, x = label.Distance, ux = label.GlobalUx, uy = label.GlobalUy, rz = label.LocalRz })
+        })
+    });
 
-    private static void AppendSummaryItem(StringBuilder builder, string label, string value)
+    private static string Html(string? value) => WebUtility.HtmlEncode(value ?? string.Empty);
+    private static string Number(double value) => value.ToString("R", CultureInfo.InvariantCulture);
+    private static string ReadAsset(string name)
     {
-        builder.AppendLine("      <div>");
-        builder.AppendLine($"        <dt>{EscapeHtml(label)}</dt>");
-        builder.AppendLine($"        <dd>{EscapeHtml(value)}</dd>");
-        builder.AppendLine("      </div>");
+        using Stream stream = typeof(InteractiveHtmlStructuralViewerExporter).Assembly.GetManifestResourceStream("StructuralSolver2D.Reporting." + name)!;
+        using var reader = new StreamReader(stream);
+        return reader.ReadToEnd();
     }
-
-    private static void AppendScript(StringBuilder builder)
-    {
-        builder.AppendLine("  <script>");
-        builder.AppendLine("    (() => {");
-        builder.AppendLine("      const canvas = document.getElementById('viewerCanvas');");
-        builder.AppendLine("      const svg = canvas.querySelector('svg');");
-        builder.AppendLine("      const original = { x: svg.viewBox.baseVal.x, y: svg.viewBox.baseVal.y, width: svg.viewBox.baseVal.width, height: svg.viewBox.baseVal.height };");
-        builder.AppendLine("      let viewBox = { x: original.x, y: original.y, width: original.width, height: original.height };");
-        builder.AppendLine("      let dragging = false;");
-        builder.AppendLine("      let last = { x: 0, y: 0 };");
-        builder.AppendLine("      let animationRunning = false;");
-        builder.AppendLine("      let animationStart = 0;");
-        builder.AppendLine("      function applyViewBox() { svg.setAttribute('viewBox', `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`); }");
-        builder.AppendLine("      function screenToSvg(x, y) { const matrix = svg.getScreenCTM(); return matrix ? new DOMPoint(x, y).matrixTransform(matrix.inverse()) : null; }");
-        builder.AppendLine("      function zoom(factor, clientX, clientY) {");
-        builder.AppendLine("        const rect = svg.getBoundingClientRect();");
-        builder.AppendLine("        const px = clientX === undefined ? rect.left + rect.width / 2 : clientX;");
-        builder.AppendLine("        const py = clientY === undefined ? rect.top + rect.height / 2 : clientY;");
-        builder.AppendLine("        const anchor = screenToSvg(px, py); if (!anchor) return;");
-        builder.AppendLine("        const mx = anchor.x, my = anchor.y;");
-        builder.AppendLine("        viewBox.x = mx - ((mx - viewBox.x) * factor);");
-        builder.AppendLine("        viewBox.y = my - ((my - viewBox.y) * factor);");
-        builder.AppendLine("        viewBox.width *= factor;");
-        builder.AppendLine("        viewBox.height *= factor;");
-        builder.AppendLine("        applyViewBox();");
-        builder.AppendLine("      }");
-        builder.AppendLine("      function setOutput(selector, value, suffix) { const output = document.querySelector(selector); if (output) output.textContent = `${value}${suffix}`; }");
-        builder.AppendLine("      function applyTextScale(value) { svg.style.setProperty('--viewer-label-scale', String(value)); }");
-        builder.AppendLine("      function parsePointList(value) {");
-        builder.AppendLine("        return (value || '').trim().split(/\\s+/).filter(Boolean).map(pair => {");
-        builder.AppendLine("          const parts = pair.split(',').map(Number);");
-        builder.AppendLine("          return { x: parts[0], y: parts[1] };");
-        builder.AppendLine("        });");
-        builder.AppendLine("      }");
-        builder.AppendLine("      function formatPointList(points) { return points.map(point => `${point.x.toFixed(3)},${point.y.toFixed(3)}`).join(' '); }");
-        builder.AppendLine("      function getDeformationScaleValue() { const input = document.querySelector('[data-scale=deformed]'); return input ? Number(input.value) / 100 : 1; }");
-        builder.AppendLine("      function applyDeformation(factor) {");
-        builder.AppendLine("        svg.querySelectorAll('[data-deformed-polyline=true]').forEach(polyline => {");
-        builder.AppendLine("          const base = parsePointList(polyline.dataset.basePoints);");
-        builder.AppendLine("          const displacement = parsePointList(polyline.dataset.displacementPoints);");
-        builder.AppendLine("          if (base.length === 0 || base.length !== displacement.length) return;");
-        builder.AppendLine("          const points = base.map((point, index) => ({ x: point.x + displacement[index].x * factor, y: point.y + displacement[index].y * factor }));");
-        builder.AppendLine("          polyline.setAttribute('points', formatPointList(points));");
-        builder.AppendLine("        });");
-        builder.AppendLine("        svg.querySelectorAll('[data-deformation-label=true]').forEach(label => {");
-        builder.AppendLine("          const dx = Number(label.dataset.dx || '0');");
-        builder.AppendLine("          const dy = Number(label.dataset.dy || '0');");
-        builder.AppendLine("          label.setAttribute('transform', `translate(${(dx * (factor - 1)).toFixed(3)} ${(dy * (factor - 1)).toFixed(3)})`);");
-        builder.AppendLine("        });");
-        builder.AppendLine("        svg.querySelectorAll('[data-maximum-displacement=true]').forEach(annotation => {");
-        builder.AppendLine("          const x1 = Number(annotation.dataset.baseX), y1 = Number(annotation.dataset.baseY);");
-        builder.AppendLine("          const x2 = x1 + Number(annotation.dataset.dx) * factor, y2 = y1 + Number(annotation.dataset.dy) * factor;");
-        builder.AppendLine("          const line = annotation.querySelector('.annotation-line'), point = annotation.querySelector('.annotation-point');");
-        builder.AppendLine("          line.setAttribute('x2', x2.toFixed(3)); line.setAttribute('y2', y2.toFixed(3));");
-        builder.AppendLine("          point.setAttribute('cx', x2.toFixed(3)); point.setAttribute('cy', y2.toFixed(3));");
-        builder.AppendLine("          annotation.querySelectorAll('text.annotation-label').forEach((label, index) => {");
-        builder.AppendLine("            label.setAttribute('x', ((x1 + x2) / 2 + 6).toFixed(3)); label.setAttribute('y', ((y1 + y2) / 2 - 8 + index * 14).toFixed(3));");
-        builder.AppendLine("          });");
-        builder.AppendLine("        });");
-        builder.AppendLine("      }");
-        builder.AppendLine("      function applyVisualScales(animationFactor) {");
-        builder.AppendLine("        const factor = animationFactor ?? getDeformationScaleValue();");
-        builder.AppendLine("        applyDeformation(factor);");
-        builder.AppendLine("      }");
-        builder.AppendLine("      function animationSpeed() { const input = document.querySelector('[data-animation=speed]'); return input ? Number(input.value) : 1; }");
-        builder.AppendLine("      function animationLoop(timestamp) {");
-        builder.AppendLine("        if (!animationRunning) return;");
-        builder.AppendLine("        if (!animationStart) animationStart = timestamp;");
-        builder.AppendLine("        const elapsed = (timestamp - animationStart) / 1000;");
-        builder.AppendLine("        const factor = getDeformationScaleValue() * Math.sin(elapsed * animationSpeed() * Math.PI * 2);");
-        builder.AppendLine("        applyVisualScales(factor);");
-        builder.AppendLine("        requestAnimationFrame(animationLoop);");
-        builder.AppendLine("      }");
-        builder.AppendLine("      canvas.addEventListener('wheel', event => { event.preventDefault(); zoom(event.deltaY < 0 ? 0.9 : 1.1, event.clientX, event.clientY); }, { passive: false });");
-        builder.AppendLine("      canvas.addEventListener('pointerdown', event => { dragging = true; last = { x: event.clientX, y: event.clientY }; canvas.classList.add('dragging'); canvas.setPointerCapture(event.pointerId); });");
-        builder.AppendLine("      canvas.addEventListener('pointermove', event => {");
-        builder.AppendLine("        if (!dragging) return;");
-        builder.AppendLine("        const previous = screenToSvg(last.x, last.y), current = screenToSvg(event.clientX, event.clientY); if (!previous || !current) return;");
-        builder.AppendLine("        viewBox.x -= current.x - previous.x;");
-        builder.AppendLine("        viewBox.y -= current.y - previous.y;");
-        builder.AppendLine("        last = { x: event.clientX, y: event.clientY };");
-        builder.AppendLine("        applyViewBox();");
-        builder.AppendLine("      });");
-        builder.AppendLine("      function endDrag(event) { dragging = false; canvas.classList.remove('dragging'); if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId); }");
-        builder.AppendLine("      canvas.addEventListener('pointerup', endDrag);");
-        builder.AppendLine("      canvas.addEventListener('pointercancel', endDrag);");
-        builder.AppendLine("      document.querySelector('[data-action=zoom-in]').addEventListener('click', () => zoom(0.85));");
-        builder.AppendLine("      document.querySelector('[data-action=zoom-out]').addEventListener('click', () => zoom(1.15));");
-        builder.AppendLine("      document.querySelector('[data-action=reset]').addEventListener('click', () => { viewBox = { x: original.x, y: original.y, width: original.width, height: original.height }; applyViewBox(); });");
-        builder.AppendLine("      document.querySelector('[data-action=play-animation]').addEventListener('click', () => { animationRunning = true; animationStart = 0; requestAnimationFrame(animationLoop); });");
-        builder.AppendLine("      document.querySelector('[data-action=pause-animation]').addEventListener('click', () => { animationRunning = false; applyVisualScales(); });");
-        builder.AppendLine("      document.querySelectorAll('[data-scale]').forEach(input => {");
-        builder.AppendLine("        function applyScaleInput() { setOutput(`[data-scale-output=${input.dataset.scale}]`, input.value, '%'); if (!animationRunning) applyVisualScales(); }");
-        builder.AppendLine("        input.addEventListener('input', applyScaleInput);");
-        builder.AppendLine("        applyScaleInput();");
-        builder.AppendLine("      });");
-        builder.AppendLine("      document.querySelectorAll('[data-animation]').forEach(input => {");
-        builder.AppendLine("        function applyAnimationInput() { setOutput(`[data-animation-output=${input.dataset.animation}]`, input.value, 'x'); }");
-        builder.AppendLine("        input.addEventListener('input', applyAnimationInput);");
-        builder.AppendLine("        applyAnimationInput();");
-        builder.AppendLine("      });");
-        builder.AppendLine("      document.querySelectorAll('[data-text-scale]').forEach(input => {");
-        builder.AppendLine("        function applyTextScaleInput() { const value = Number(input.value) / 100; setOutput(`[data-text-scale-output=${input.dataset.textScale}]`, input.value, '%'); applyTextScale(value); }");
-        builder.AppendLine("        input.addEventListener('input', applyTextScaleInput);");
-        builder.AppendLine("        applyTextScaleInput();");
-        builder.AppendLine("      });");
-        builder.AppendLine("      document.querySelectorAll('[data-layer]').forEach(control => {");
-        builder.AppendLine("        function applyLayerVisibility() {");
-        builder.AppendLine("          control.dataset.layer.split(',').forEach(selector => {");
-        builder.AppendLine("            svg.querySelectorAll(selector.trim()).forEach(element => element.classList.toggle('hidden-layer', !control.checked));");
-        builder.AppendLine("          });");
-        builder.AppendLine("        }");
-        builder.AppendLine("        control.addEventListener('change', applyLayerVisibility);");
-        builder.AppendLine("        applyLayerVisibility();");
-        builder.AppendLine("      });");
-        builder.AppendLine("      applyVisualScales();");
-        builder.AppendLine("      applyViewBox();");
-        builder.AppendLine("    })();");
-        builder.AppendLine("  </script>");
-    }
-
-    private static string StripXmlDeclaration(string svg)
-    {
-        string trimmedStart = svg.TrimStart();
-        if (!trimmedStart.StartsWith("<?xml", StringComparison.OrdinalIgnoreCase))
-        {
-            return svg;
-        }
-
-        int end = trimmedStart.IndexOf("?>", StringComparison.Ordinal);
-        return end < 0 ? svg : trimmedStart[(end + 2)..].TrimStart();
-    }
-
-    private static string FormatPercent(double percent) =>
-        percent.ToString("0.###", CultureInfo.InvariantCulture);
-
-    private static string FormatMillimeters(double meters) =>
-        $"{(meters * 1000.0).ToString("0.###", CultureInfo.InvariantCulture)} mm";
-
-    private static string EscapeHtml(string? value) =>
-        string.IsNullOrWhiteSpace(value)
-            ? string.Empty
-            : value.Replace("&", "&amp;", StringComparison.Ordinal)
-                .Replace("<", "&lt;", StringComparison.Ordinal)
-                .Replace(">", "&gt;", StringComparison.Ordinal)
-                .Replace("\"", "&quot;", StringComparison.Ordinal)
-                .Replace("'", "&#39;", StringComparison.Ordinal);
 }

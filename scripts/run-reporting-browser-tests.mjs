@@ -18,14 +18,21 @@ const browser = [process.env.CHROME_PATH,
   '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome']
   .find(candidate => candidate && existsSync(candidate));
 if (!browser) throw new Error('Chrome/Chromium not found. Set CHROME_PATH to the browser executable.');
-const result = spawnSync(browser, ['--headless', '--disable-gpu', '--no-first-run', '--no-default-browser-check',
-  '--disable-background-networking', '--disable-extensions',
-  `--user-data-dir=${mkdtempSync(join(directory, 'profile-'))}`, '--dump-dom', pathToFileURL(html).href],
-  { cwd: root, encoding: 'utf8', windowsHide: true, timeout: 20000, maxBuffer: 8 * 1024 * 1024 });
-const encoded = result.stdout?.match(/<pre id="browser-test-results">([^<]+)<\/pre>/)?.[1];
-if (!encoded) throw new Error(`Browser tests did not complete: ${result.error?.message || result.stderr}`);
-const summary = JSON.parse(Buffer.from(encoded, 'base64').toString('utf8'));
+const summary = { passed: 0, failed: 0, results: [] };
+for (const [width,height] of [[390,844],[768,900],[1366,900]]) {
+  for (const fixture of ['viewer-tests.html','two-storey-house-balconies.html','truss-bridge-20m-deck-loads.html']) {
+    const result = spawnSync(browser, ['--headless', '--disable-gpu', '--no-first-run', '--no-default-browser-check',
+      '--disable-background-networking', '--disable-extensions', `--window-size=${width},${height}`, '--force-device-scale-factor=1',
+      `--user-data-dir=${mkdtempSync(join(directory, 'profile-'))}`, '--dump-dom', pathToFileURL(join(directory,fixture)).href],
+      { cwd: root, encoding: 'utf8', windowsHide: true, timeout: 20000, maxBuffer: 8 * 1024 * 1024 });
+    const encoded = result.stdout?.match(/<pre id="browser-test-results">([^<]+)<\/pre>/)?.[1];
+    if (!encoded || result.status !== 0) throw new Error(`Browser tests did not complete (${fixture}, ${width}): ${result.error?.message || result.stderr}`);
+    const group = JSON.parse(Buffer.from(encoded, 'base64').toString('utf8'));
+    summary.passed += group.passed; summary.failed += group.failed;
+    summary.results.push(...group.results.map(test => ({ ...test, name: `[${fixture} ${width}×${height}] ${test.name}` })));
+  }
+}
 writeFileSync(join(directory, 'results.json'), JSON.stringify(summary, null, 2));
 for (const test of summary.results) console.log(`${test.passed ? 'PASS' : 'FAIL'} ${test.name}${test.error ? ': ' + test.error : ''}`);
 console.log(`Browser tests: ${summary.passed} passed, ${summary.failed} failed`);
-if (summary.failed || result.status !== 0) process.exitCode = 1;
+if (summary.failed) process.exitCode = 1;

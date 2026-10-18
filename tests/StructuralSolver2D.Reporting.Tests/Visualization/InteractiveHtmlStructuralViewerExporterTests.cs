@@ -39,7 +39,7 @@ public sealed class InteractiveHtmlStructuralViewerExporterTests
         Assert.Contains("data-layer=\"#loads\" checked", html, StringComparison.Ordinal);
         Assert.Contains("Loads", html, StringComparison.Ordinal);
         Assert.Contains("Load labels", html, StringComparison.Ordinal);
-        Assert.Contains("data-layer=\".load-label\" checked", html, StringComparison.Ordinal);
+        Assert.Contains("data-layer=\".load-label\" />", html, StringComparison.Ordinal);
         Assert.Contains("data-layer=\".diagram.normal-force,.diagram-fill.normal-force,.annotation-point.normal-force,.annotation-label.normal-force\"", html, StringComparison.Ordinal);
         Assert.Contains("data-layer=\".diagram.shear-force,.diagram-fill.shear-force,.annotation-point.shear-force,.annotation-label.shear-force\"", html, StringComparison.Ordinal);
         Assert.Contains("data-layer=\".diagram.bending-moment,.diagram-fill.bending-moment,.annotation-point.bending-moment,.annotation-label.bending-moment\"", html, StringComparison.Ordinal);
@@ -47,7 +47,7 @@ public sealed class InteractiveHtmlStructuralViewerExporterTests
         Assert.Contains("Member station labels", html, StringComparison.Ordinal);
         Assert.Contains("data-layer=\".displacement-label,.displacement-label-anchor\"", html, StringComparison.Ordinal);
         Assert.Contains("data-layer=\".member-displacement-label,.member-displacement-label-anchor\"", html, StringComparison.Ordinal);
-        Assert.Contains("Max disp.", html, StringComparison.Ordinal);
+        Assert.Contains("Max nodal disp.", html, StringComparison.Ordinal);
         Assert.Contains("addEventListener('wheel'", html, StringComparison.Ordinal);
         Assert.Contains("requestAnimationFrame(animationLoop)", html, StringComparison.Ordinal);
         Assert.Contains("applyVisualScales", html, StringComparison.Ordinal);

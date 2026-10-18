@@ -67,15 +67,15 @@ public sealed class XlsxStructuralResultExporter
         {
             Row("Metric", "Entity", "Member", "Position", "Distance_m", "Value", "Unit"),
             Row("Analysis id", summary.LoadCaseId, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty),
-            Row("Max |Ux|", summary.MaxAbsUx.EntityId, string.Empty, string.Empty, string.Empty, summary.MaxAbsUx.Value, "m"),
-            Row("Max |Uy|", summary.MaxAbsUy.EntityId, string.Empty, string.Empty, string.Empty, summary.MaxAbsUy.Value, "m"),
-            Row("Max |Rz|", summary.MaxAbsRz.EntityId, string.Empty, string.Empty, string.Empty, summary.MaxAbsRz.Value, "rad"),
-            Row("Max |Fx|", summary.MaxAbsReactionFx.EntityId, string.Empty, string.Empty, string.Empty, summary.MaxAbsReactionFx.Value, "kN"),
-            Row("Max |Fy|", summary.MaxAbsReactionFy.EntityId, string.Empty, string.Empty, string.Empty, summary.MaxAbsReactionFy.Value, "kN"),
-            Row("Max |Mz|", summary.MaxAbsReactionMz.EntityId, string.Empty, string.Empty, string.Empty, summary.MaxAbsReactionMz.Value, "kNm"),
-            Row("Max |N|", string.Empty, summary.MaxAbsNormalForce.MemberId, summary.MaxAbsNormalForce.Position, summary.MaxAbsNormalForce.Distance, summary.MaxAbsNormalForce.Value, "kN"),
-            Row("Max |V|", string.Empty, summary.MaxAbsShearForce.MemberId, summary.MaxAbsShearForce.Position, summary.MaxAbsShearForce.Distance, summary.MaxAbsShearForce.Value, "kN"),
-            Row("Max |M|", string.Empty, summary.MaxAbsBendingMoment.MemberId, summary.MaxAbsBendingMoment.Position, summary.MaxAbsBendingMoment.Distance, summary.MaxAbsBendingMoment.Value, "kNm"),
+            Row("Max |Ux|", summary.MaxAbsUx.EntityId, string.Empty, string.Empty, string.Empty, Math.Abs(summary.MaxAbsUx.Value), "m"),
+            Row("Max |Uy|", summary.MaxAbsUy.EntityId, string.Empty, string.Empty, string.Empty, Math.Abs(summary.MaxAbsUy.Value), "m"),
+            Row("Max |Rz|", summary.MaxAbsRz.EntityId, string.Empty, string.Empty, string.Empty, Math.Abs(summary.MaxAbsRz.Value), "rad"),
+            Row("Max |Fx|", summary.MaxAbsReactionFx.EntityId, string.Empty, string.Empty, string.Empty, Math.Abs(summary.MaxAbsReactionFx.Value), "kN"),
+            Row("Max |Fy|", summary.MaxAbsReactionFy.EntityId, string.Empty, string.Empty, string.Empty, Math.Abs(summary.MaxAbsReactionFy.Value), "kN"),
+            Row("Max |Mz|", summary.MaxAbsReactionMz.EntityId, string.Empty, string.Empty, string.Empty, Math.Abs(summary.MaxAbsReactionMz.Value), "kNm"),
+            Row("Max |N|", string.Empty, summary.MaxAbsNormalForce.MemberId, summary.MaxAbsNormalForce.Position, summary.MaxAbsNormalForce.Distance, Math.Abs(summary.MaxAbsNormalForce.Value), "kN"),
+            Row("Max |V|", string.Empty, summary.MaxAbsShearForce.MemberId, summary.MaxAbsShearForce.Position, summary.MaxAbsShearForce.Distance, Math.Abs(summary.MaxAbsShearForce.Value), "kN"),
+            Row("Max |M|", string.Empty, summary.MaxAbsBendingMoment.MemberId, summary.MaxAbsBendingMoment.Position, summary.MaxAbsBendingMoment.Distance, Math.Abs(summary.MaxAbsBendingMoment.Value), "kNm"),
         };
 
         return new WorksheetData("Summary", rows);

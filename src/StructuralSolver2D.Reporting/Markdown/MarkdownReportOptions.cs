@@ -5,6 +5,9 @@ namespace StructuralSolver2D.Reporting.Markdown;
 /// </summary>
 public sealed class MarkdownReportOptions
 {
+    /// <summary>Full preserves the detailed API report; Summary omits model tables and sampled appendices.</summary>
+    public MarkdownReportDetail DetailLevel { get; set; } = MarkdownReportDetail.Full;
+
     /// <summary>
     /// Gets or sets the report title.
     /// </summary>
@@ -70,3 +73,6 @@ public sealed class MarkdownReportOptions
     /// </summary>
     public DateTime GeneratedAtUtc { get; set; } = DateTime.UtcNow;
 }
+
+/// <summary>Controls the amount of detail in a Markdown report.</summary>
+public enum MarkdownReportDetail { Summary, Full }

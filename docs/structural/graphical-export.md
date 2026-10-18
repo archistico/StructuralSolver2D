@@ -54,6 +54,8 @@ The exporter renders:
 
 The HTML export is intentionally simple: it wraps the SVG in a lightweight page with a title and a few summary values.
 
+SVG context groups `#supports`, `#reactions` and `#dimensions` are siblings of `#undeformed-model`. Their options remain effective when the undeformed members and nodes are omitted. HTML preview and interactive viewer export copy the supplied `SvgExportOptions`; exporting does not change the caller's title or flags. The preview summary uses adaptive columns to avoid horizontal document overflow on narrow screens.
+
 ## CLI usage
 
 ```powershell
@@ -108,7 +110,7 @@ Support orientation is now used consistently by both the static SVG/HTML renderi
 
 ## Interactive viewer
 
-A separate standalone HTML viewer can be generated with `export-viewer`. It embeds the SVG result scene and adds pan, zoom, reset view and layer toggles. The viewer remains read-only and uses the same `StructuralVisualizationModel` data as the static exports.
+A separate standalone HTML viewer can be generated with `export-viewer`. It embeds the SVG result scene and adds result modes, node/member inspection, pan, zoom, Fit view, reset view and independent layer toggles. The initial scene shows model, supports and load arrows. The viewer remains read-only and uses the same `StructuralVisualizationModel` data as the static exports. See [interactive viewer](interactive-viewer.md) for controls and keyboard commands.
 
 
 ## Applied load visualization

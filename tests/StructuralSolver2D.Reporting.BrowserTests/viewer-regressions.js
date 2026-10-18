@@ -14,6 +14,16 @@
   const reset = () => document.querySelector('[data-action=reset]').click();
   const toSvg = (x, y) => new DOMPoint(x, y).matrixTransform(svg.getScreenCTM().inverse());
 
+  test('Accepted fractional initial controls survive browser initialization', () => {
+    close(Number(document.querySelector('[data-scale=deformed]').value),102,1e-12,'Initial deformation rounded');
+    close(Number(document.querySelector('[data-text-scale=labels]').value),117,1e-12,'Initial text rounded');
+    close(Number(document.querySelector('[data-animation=speed]').value),1.1,1e-12,'Initial speed rounded');
+  });
+  document.querySelector('[data-animation=speed]').value='1';
+  document.querySelector('[data-animation=speed]').dispatchEvent(new Event('input'));
+
+  if (window.simpleTestFixture) {
+
   test('Reset restores original viewBox after zoom', () => {
     document.querySelector('[data-action=zoom-in]').click();
     assert(svg.getAttribute('viewBox') !== initial, 'Zoom did not change the view');
@@ -87,6 +97,7 @@
   test('Maximum annotation follows negative animation phase', () => {
     setScale(100);
     const queue = [];
+    const originalRequest = window.requestAnimationFrame;
     window.requestAnimationFrame = callback => { queue.push(callback); return queue.length; };
     document.querySelector('[data-action=play-animation]').click();
     assert(queue.length > 0, 'Animation did not schedule a frame');
@@ -94,6 +105,127 @@
     queue.shift()(1750); // speed 1, negative peak at t = 0.75 s.
     checkAnnotation();
     document.querySelector('[data-action=pause-animation]').click();
+    window.requestAnimationFrame = originalRequest;
+  });
+  }
+
+  const view=document.querySelector('[data-view]');
+  const changeView=value => {view.value=value;view.dispatchEvent(new Event('change'));};
+  const layer=selector => [...document.querySelectorAll('[data-layer]')].find(input => input.dataset.layer===selector);
+  const toggle=(selector,value) => {const input=layer(selector);input.checked=value;input.dispatchEvent(new Event('change'));};
+  function visible(element) {
+    if(!element) return false;
+    for(let current=element;current && current!==canvas;current=current.parentElement)
+      if(getComputedStyle(current).display==='none') return false;
+    return true;
+  }
+  canvas.style.width='';canvas.style.height='';changeView('model');
+  test('Default model view stays uncluttered and secondary controls are collapsed',() => {
+    assert(!document.querySelector('.viewer-details').open,'Secondary controls expanded');
+    assert(!visible(svg.querySelector('[data-deformed-polyline]')),'Deformation initially visible');
+    assert([...svg.querySelectorAll('.diagram')].every(element=>!visible(element)),'Diagram initially visible');
+    assert([...svg.querySelectorAll('text')].filter(visible).length<=3,'Too many initial labels');
+    assert(document.querySelectorAll('.primary-controls button,.primary-controls input,.primary-controls select').length<=6,'Too many primary controls');
+  });
+  test('Responsive layout keeps the diagram in the first viewport without document overflow',() => {
+    assert(document.documentElement.scrollWidth<=innerWidth+1,`Document overflows: ${document.documentElement.scrollWidth} > ${innerWidth}`);
+    const rect=canvas.getBoundingClientRect();
+    assert(rect.top<innerHeight*.5,`Diagram starts too low: ${rect.top}`);
+    assert(Math.min(rect.bottom,innerHeight)-Math.max(rect.top,0)>innerHeight*.4,'Too little diagram area visible');
+  });
+  for(const [name,kind] of [['n','normal-force'],['v','shear-force'],['m','bending-moment']]) test(`Mode ${name} shows one result quantity`,() => {
+    changeView(name);
+    assert(!visible(svg.querySelector('[data-deformed-polyline]')),'Deformation overlaps force mode');
+    for(const diagram of svg.querySelectorAll('.diagram')) assert(visible(diagram)===diagram.classList.contains(kind),'Other quantity remains visible');
+  });
+  test('Context layers remain visible when the undeformed model is hidden',() => {
+    changeView('model');toggle('#supports',true);toggle('#reactions',true);toggle('#dimensions',true);toggle('#undeformed-model',false);
+    for(const selector of ['#supports','#reactions','#dimensions']) {
+      assert(layer(selector).checked,'Context checkbox was cleared');
+      assert(visible(svg.querySelector(selector)),'Context layer hidden: '+selector);
+      assert(svg.querySelector(selector).parentElement===svg,'Context group is nested');
+    }
+    toggle('#undeformed-model',true);toggle('#reactions',false);toggle('#dimensions',false);
+  });
+  test('All layers remains available on request',() => {
+    changeView('all');assert([...svg.querySelectorAll('.diagram')].every(visible),'Full view omits diagrams');
+    assert(visible(svg.querySelector('[data-deformed-polyline]')),'Full view omits deformation');
+    // Return to the quiet defaults for the remaining checks.
+    for(const input of document.querySelectorAll('[data-layer]')) input.checked=['#undeformed-model','#supports','#loads'].includes(input.dataset.layer);
+    changeView('model');
+  });
+  test('Amplification feedback and Fit view follow the current deformation',() => {
+    changeView('displacements');const input=document.querySelector('[data-scale=deformed]');
+    input.value='200';input.dispatchEvent(new Event('input'));
+    const data=JSON.parse(document.getElementById('viewer-data').textContent);
+    assert(document.querySelector('[data-effective-scale]').textContent==='×'+(data.baseScale*2),'Feedback still shows base amplification');
+    document.querySelector('[data-action=fit]').click();const box=svg.viewBox.baseVal;
+    for(const polyline of svg.querySelectorAll('[data-deformed-polyline]')) for(const pair of polyline.getAttribute('points').split(' ')) {
+      const [x,y]=pair.split(',').map(Number);assert(x>=box.x-.01 && x<=box.x+box.width+.01 && y>=box.y-.01 && y<=box.y+box.height+.01,'Fit clips deformation');
+    }
+    input.value='100';input.dispatchEvent(new Event('input'));
+  });
+  test('Play is idempotent and Pause cancels every pending frame',() => {
+    const request=window.requestAnimationFrame,cancel=window.cancelAnimationFrame;
+    const callbacks=new Map();let id=0;
+    window.requestAnimationFrame=callback=>{callbacks.set(++id,callback);return id;};window.cancelAnimationFrame=key=>callbacks.delete(key);
+    const play=document.querySelector('[data-action=play-animation]'),pause=document.querySelector('[data-action=pause-animation]');
+    try {
+      for(let i=0;i<10;i++) play.click();assert(callbacks.size===1,'More than one animation chain');
+      const [key,callback]=[...callbacks][0];callbacks.delete(key);callback(0);assert(callbacks.size===1,'Frame multiplies callbacks');
+      pause.click();assert(callbacks.size===0,'Pause leaves a pending frame');
+      play.click();assert(callbacks.size===1,'Pause/Play duplicates callbacks');pause.click();assert(callbacks.size===0,'Second pause leaves callback');
+    } finally {pause.click();window.requestAnimationFrame=request;window.cancelAnimationFrame=cancel;}
+  });
+  test('Keyboard can pan and fit the scene',() => {
+    changeView('model');canvas.focus();assert(document.activeElement===canvas,'Canvas cannot receive focus');
+    const before=svg.viewBox.baseVal.x;canvas.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true,cancelable:true}));
+    assert(svg.viewBox.baseVal.x!==before,'Keyboard pan did not change view');
+    canvas.dispatchEvent(new KeyboardEvent('keydown',{key:'Home',bubbles:true,cancelable:true}));
+    close(svg.viewBox.baseVal.x,before,.01,'Home did not fit the scene');
+  });
+  test('Node values are available through keyboard selection',() => {
+    changeView('model');const data=JSON.parse(document.getElementById('viewer-data').textContent);
+    const node=Object.values(data.nodes).sort((a,b)=>(Math.abs(b.ux)+Math.abs(b.uy))-(Math.abs(a.ux)+Math.abs(a.uy)))[0];
+    const element=[...svg.querySelectorAll('[data-node-id][tabindex]')].find(item=>item.dataset.nodeId===node.id);
+    element.focus();element.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true,cancelable:true}));
+    const text=document.getElementById('selection-details').textContent;
+    assert(!document.getElementById('inspector').hidden && text.includes(node.id),'Node details unavailable');
+    assert(text.includes('Ux') && text.includes('Uy') && text.includes('mm') && text.includes('Rz'),'Node details omit physical values/units');
+    document.querySelector('[data-action=close-inspector]').click();
+  });
+  test('Member values and stations are available without global labels',() => {
+    const element=svg.querySelector('.member-hit');element.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true,cancelable:true}));
+    const text=document.getElementById('selection-details').textContent;
+    assert(text.includes(element.dataset.memberId) && text.includes('Length') && text.includes('Max |N|'),'Member details omit results');
+    const data=JSON.parse(document.getElementById('viewer-data').textContent);
+    if(data.members[element.dataset.memberId].stations.length) assert(text.includes('L/4') && text.includes('L/2') && text.includes('3L/4'),'Station values missing');
+    document.querySelector('[data-action=close-inspector]').click();
+  });
+  test('Pointer selection opens details and a drag does not select',() => {
+    changeView('model');
+    const capture=canvas.setPointerCapture,release=canvas.releasePointerCapture,has=canvas.hasPointerCapture;
+    canvas.setPointerCapture=()=>{};canvas.releasePointerCapture=()=>{};canvas.hasPointerCapture=()=>false;
+    const element=svg.querySelector('.member-hit');
+    try {
+      element.dispatchEvent(new PointerEvent('pointerdown',{pointerId:7,clientX:100,clientY:100,bubbles:true}));
+      canvas.dispatchEvent(new PointerEvent('pointerup',{pointerId:7,clientX:100,clientY:100,bubbles:true}));
+      assert(!document.getElementById('inspector').hidden,'Pointer capture prevents selection');
+      document.querySelector('[data-action=close-inspector]').click();
+      element.dispatchEvent(new PointerEvent('pointerdown',{pointerId:7,clientX:100,clientY:100,bubbles:true}));
+      for(let delta=1;delta<=12;delta++) canvas.dispatchEvent(new PointerEvent('pointermove',{pointerId:7,clientX:100+delta,clientY:100,bubbles:true}));
+      canvas.dispatchEvent(new PointerEvent('pointerup',{pointerId:7,clientX:112,clientY:100,bubbles:true}));
+      assert(document.getElementById('inspector').hidden,'Dragging selected a member');
+    } finally {canvas.setPointerCapture=capture;canvas.releasePointerCapture=release;canvas.hasPointerCapture=has;}
+  });
+  test('Load and support graphics do not block node hit targets',() => {
+    changeView('model');document.querySelector('[data-action=fit]').click();
+    for(const node of svg.querySelectorAll('.node[data-node-id]')) {
+      const rect=node.getBoundingClientRect(),x=(rect.left+rect.right)/2,y=(rect.top+rect.bottom)/2;
+      if(x<0 || x>=innerWidth || y<0 || y>=innerHeight) continue;
+      const hit=document.elementFromPoint(x,y)?.closest('[data-node-id]');
+      assert(hit?.dataset.nodeId===node.dataset.nodeId,'Node hit target is covered: '+node.dataset.nodeId);
+    }
   });
   const summary = { passed: results.filter(result => result.passed).length, failed: results.filter(result => !result.passed).length, results };
   const pre = document.createElement('pre');
