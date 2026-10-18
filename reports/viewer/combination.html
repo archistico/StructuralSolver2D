@@ -69,7 +69,7 @@ input[type=range] { width: 100px; } output { min-width: 42px; font-variant-numer
 <label class="control-group">Deformed scale <input type="range" min="0" max="500" step="any" value="100" data-scale="deformed" /><output data-scale-output="deformed"></output></label>
 <label class="control-group">Text size <input type="range" min="50" max="160" step="any" value="100" data-text-scale="labels" /><output data-text-scale-output="labels"></output></label>
 <label class="control-group">Anim. speed <input type="range" min="0.25" max="4" step="any" value="1" data-animation="speed" /><output data-animation-output="speed"></output></label>
-<button type="button" data-action="play-animation">Play deformation</button><button type="button" data-action="pause-animation" disabled>Pause</button><span class="hint">Visual playback of static results.</span></div></details></nav>
+<button type="button" data-action="play-animation">Play deformation</button><button type="button" data-action="pause-animation" disabled>Pause</button><span class="hint">Static result preview: undeformed → deformed → undeformed.</span></div></details></nav>
 <section class="viewer-workspace" aria-label="Interactive structural result viewer"><div class="viewer-shell">
 <div class="viewer-canvas" id="viewerCanvas" tabindex="0" aria-label="Diagram. Arrow keys pan; plus and minus zoom; Home fits the visible model.">
 <svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900" role="img" aria-labelledby="title desc">
@@ -1886,14 +1886,14 @@ input[type=range] { width: 100px; } output { min-width: 42px; font-variant-numer
       const a = screenToSvg(bounds.left,bounds.top), b = screenToSvg(bounds.right,bounds.bottom);
       if (a && b) points.push(a,b);
     });
-    // Fit the whole cycle once, rather than moving the camera or clipping its negative peak.
+    // Fit the whole loading/unloading cycle once, keeping the camera fixed between frames.
     if (animationRunning) svg.querySelectorAll('[data-deformed-polyline]').forEach(polyline => {
       if (!visible(polyline)) return;
       const base=parsePointList(polyline.dataset.basePoints),displacement=parsePointList(polyline.dataset.displacementPoints);
       if (base.length!==displacement.length) return;
       const amplitude=Number(scaleInput.value)/100;
       base.forEach((point,index)=>{
-        for (const sign of [-1,1]) points.push({x:point[0]+sign*amplitude*displacement[index][0],y:point[1]+sign*amplitude*displacement[index][1]});
+        for (const fraction of [0,1]) points.push({x:point[0]+fraction*amplitude*displacement[index][0],y:point[1]+fraction*amplitude*displacement[index][1]});
       });
     });
     // The maximum callout follows the midpoint of its moving leader. Include its text
@@ -1903,9 +1903,9 @@ input[type=range] { width: 100px; } output { min-width: 42px; font-variant-numer
       annotation.querySelectorAll('text.annotation-label').forEach((label,index) => {
         if (!visible(label)) return;
         const bounds=label.getBBox(),x=Number(label.getAttribute('x')),y=Number(label.getAttribute('y'));
-        const anchors=animationRunning ? [-1,1].map(sign=>({
-          x:Number(annotation.dataset.baseX)+Number(annotation.dataset.dx)*Number(scaleInput.value)/100*sign/2+6,
-          y:Number(annotation.dataset.baseY)+Number(annotation.dataset.dy)*Number(scaleInput.value)/100*sign/2-8+index*14
+        const anchors=animationRunning ? [0,1].map(fraction=>({
+          x:Number(annotation.dataset.baseX)+Number(annotation.dataset.dx)*Number(scaleInput.value)/100*fraction/2+6,
+          y:Number(annotation.dataset.baseY)+Number(annotation.dataset.dy)*Number(scaleInput.value)/100*fraction/2-8+index*14
         })) : [{x,y}];
         anchors.forEach(anchor=>points.push({x:anchor.x+bounds.x-x,y:anchor.y+bounds.y-y},
           {x:anchor.x+bounds.x-x+bounds.width,y:anchor.y+bounds.y-y+bounds.height}));
@@ -1962,6 +1962,8 @@ input[type=range] { width: 100px; } output { min-width: 42px; font-variant-numer
     applyDeformation(factor);
     document.querySelector('[data-effective-scale]').textContent = '×'+number(data.baseScale*factor);
   }
+  // Smoothly reveal the static result and return to zero without reversing its displacement.
+  const animationFactor = () => (1-Math.cos(animationPhase*Math.PI*2))/2;
   function animationLoop(timestamp) {
     frameId = null;
     if (!animationRunning) return;
@@ -1969,7 +1971,7 @@ input[type=range] { width: 100px; } output { min-width: 42px; font-variant-numer
     if (animationTimestamp !== null)
       animationPhase=(animationPhase+Math.max(0,timestamp-animationTimestamp)/1000*Number(speedInput.value))%1;
     animationTimestamp=timestamp;
-    applyVisualScales(Number(scaleInput.value)/100 * Math.sin(animationPhase*Math.PI*2));
+    applyVisualScales(Number(scaleInput.value)/100 * animationFactor());
     frameId = requestAnimationFrame(animationLoop);
   }
   play.addEventListener('click',() => {
@@ -1988,7 +1990,7 @@ input[type=range] { width: 100px; } output { min-width: 42px; font-variant-numer
   scaleInput.addEventListener('input',() => {
     document.querySelector('[data-scale-output=deformed]').textContent=scaleInput.value+'%';
     if (animationRunning) {
-      applyVisualScales(Number(scaleInput.value)/100*Math.sin(animationPhase*Math.PI*2));
+      applyVisualScales(Number(scaleInput.value)/100*animationFactor());
       fitView();
     } else applyVisualScales();
   });

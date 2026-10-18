@@ -1,5 +1,15 @@
 # Verifica dell'animazione della deformata — 2026-10-18
 
+## Aggiornamento: ciclo coerente con il report statico
+
+La prima verifica riportata sotto assumeva intenzionalmente un ciclo con fattore positivo e negativo. Il riscontro sulla trave con carico uniforme ha evidenziato che questa scelta suggeriva un'inversione del carico. Il comportamento è stato corretto: **indeformata → deformata statica → indeformata**, con fattore `(1 - cos(2π × fase)) / 2` compreso fra zero e uno. Anche i frame preparati dal builder e il Fit usano questo intervallo; Pause continua a ripristinare la deformata statica.
+
+Aggiunta la trave appoggiata con carico uniforme come quinto modello browser. Un test controlla 65 istanti di un ciclo intero: nessun punto sale oltre l'asse indeformato, l'ampiezza non supera quella statica, i vincoli restano fermi, il massimo è raggiunto a metà ciclo e la deformata torna a zero alla fine. Aggiunti quattro casi .NET con 2, 4, 17 e 24 frame. Il test browser falliva prima del cambio di ciclo a tutte e tre le dimensioni della finestra.
+
+Verifica aggiornata: **774 test .NET e 333 verifiche browser superati, nessun fallimento**. Log: [suite completa](../out/DeformationAnimationAudit/loading-cycle-all-tests.log), [browser](../out/DeformationAnimationAudit/loading-cycle-browser.log). Rigenerati i due viewer di esempio. Le sezioni successive conservano la verifica precedente; i riferimenti alla fase negativa descrivono il comportamento sostituito da questo aggiornamento.
+
+## Prima verifica
+
 L'animazione dei viewer HTML è stata confrontata con gli spostamenti dell'analisi e, per due mensole, con una soluzione analitica indipendente. Individuati e corretti quattro problemi. I viewer di esempio della trave e del ponte sono stati rigenerati con il nuovo script incorporato.
 
 ## Criterio di correttezza

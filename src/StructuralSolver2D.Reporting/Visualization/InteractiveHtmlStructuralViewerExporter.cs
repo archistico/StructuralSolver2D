@@ -76,7 +76,7 @@ public sealed class InteractiveHtmlStructuralViewerExporter
         builder.AppendLine($"<label class=\"control-group\">Deformed scale <input type=\"range\" min=\"0\" max=\"500\" step=\"any\" value=\"{Number(options.InitialDeformationVisualScalePercent)}\" data-scale=\"deformed\" /><output data-scale-output=\"deformed\"></output></label>");
         builder.AppendLine($"<label class=\"control-group\">Text size <input type=\"range\" min=\"50\" max=\"160\" step=\"any\" value=\"{Number(options.InitialTextScalePercent)}\" data-text-scale=\"labels\" /><output data-text-scale-output=\"labels\"></output></label>");
         builder.AppendLine($"<label class=\"control-group\">Anim. speed <input type=\"range\" min=\"0.25\" max=\"4\" step=\"any\" value=\"{Number(options.InitialAnimationSpeed)}\" data-animation=\"speed\" /><output data-animation-output=\"speed\"></output></label>");
-        builder.AppendLine("<button type=\"button\" data-action=\"play-animation\">Play deformation</button><button type=\"button\" data-action=\"pause-animation\" disabled>Pause</button><span class=\"hint\">Visual playback of static results.</span></div></details></nav>");
+        builder.AppendLine("<button type=\"button\" data-action=\"play-animation\">Play deformation</button><button type=\"button\" data-action=\"pause-animation\" disabled>Pause</button><span class=\"hint\">Static result preview: undeformed → deformed → undeformed.</span></div></details></nav>");
     }
 
     private static string DiagramSelector(string kind) => $".diagram.{kind},.diagram-fill.{kind},.annotation-point.{kind},.annotation-label.{kind}";

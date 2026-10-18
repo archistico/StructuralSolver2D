@@ -94,7 +94,7 @@
     setScale(value);
     checkAnnotation();
   });
-  test('Maximum annotation follows negative animation phase', () => {
+  test('Maximum annotation follows the unloading phase', () => {
     setScale(100);
     const queue = [];
     const originalRequest = window.requestAnimationFrame;
@@ -102,7 +102,7 @@
     document.querySelector('[data-action=play-animation]').click();
     assert(queue.length > 0, 'Animation did not schedule a frame');
     queue.shift()(1000);
-    queue.shift()(1750); // speed 1, negative peak at t = 0.75 s.
+    queue.shift()(1750); // speed 1, half amplitude while unloading at t = 0.75 s.
     checkAnnotation();
     document.querySelector('[data-action=pause-animation]').click();
     window.requestAnimationFrame = originalRequest;
@@ -262,18 +262,18 @@
       });
     }
   }
-  test('Every animated sample matches physical displacement at zero, positive and negative phases',()=>animationFrames(step=>{
+  test('Every animated sample matches physical displacement during loading and unloading',()=>animationFrames(step=>{
     const physicalText=[...svg.querySelectorAll('#deformed-shape text')].map(item=>item.textContent).join('\n');
     for(const amplitude of [0,100,200]) {
       setAmplitude(amplitude);play();
-      for(const [time,phase] of [[1000,0],[1250,1],[1500,0],[1750,-1],[2000,0]]) {step(time);checkPhysicalGeometry(phase*amplitude/100);}
+      for(const [time,factor] of [[1000,0],[1250,.5],[1500,1],[1750,.5],[2000,0]]) {step(time);checkPhysicalGeometry(factor*amplitude/100);}
       assert([...svg.querySelectorAll('#deformed-shape text')].map(item=>item.textContent).join('\n')===physicalText,'Animation changes physical result labels');
       document.querySelector('[data-action=pause-animation]').click();checkPhysicalGeometry(amplitude/100);
     }
   }));
-  test('Animation and Fit retain both deformation peaks after amplitude changes',()=>animationFrames(step=>{
+  test('Animation and Fit retain the full loading cycle after amplitude changes',()=>animationFrames(step=>{
     setAmplitude(100);play();step(1000);
-    for(const [amplitude,times] of [[100,[1250,1750]],[500,[2250,2750]]]) {
+    for(const [amplitude,times] of [[100,[1250,1500,1750,2000]],[500,[2250,2500,2750,3000]]]) {
     setAmplitude(amplitude);
     document.querySelector('[data-action=fit]').click();
     const box=svg.getAttribute('viewBox');
@@ -296,7 +296,7 @@
     const before=curves().map(curve=>curve.getAttribute('points'));
     const speed=document.querySelector('[data-animation=speed]');speed.value='2';speed.dispatchEvent(new Event('input'));step(1125);
     assert(curves().every((curve,index)=>curve.getAttribute('points')===before[index]),'Speed change jumps to another phase');
-    step(1187.5);checkPhysicalGeometry(1);
+    step(1312.5);checkPhysicalGeometry(1);
   }));
   test('Leaving the deformation view stops playback and restores static geometry',()=>animationFrames((step,callbacks)=>{
     setAmplitude(100);play();step(1000);step(1125);changeView('m');
@@ -305,6 +305,24 @@
     checkPhysicalGeometry(1);
     play();step(2000);toggle('#deformed-shape',false);
     assert(callbacks.size===0,'Hiding deformation leaves playback running');
+  }));
+  if(window.uniformLoadFixture) test('Uniform downward load never animates upward and returns to undeformed geometry',()=>animationFrames(step=>{
+    setAmplitude(100);changeView('displacements');
+    const axis=svg.querySelector('#undeformed-model .member'),baseY=Number(axis.getAttribute('y1'));
+    const curve=curves()[0],staticPoints=points(curve),middle=Math.floor(staticPoints.length/2);
+    assert(staticPoints[middle][1]>baseY+.01,'Fixture does not deflect downward');
+    play();const trace=[];
+    for(let index=0;index<=64;index++) {
+      step(1000+index*1000/64);const current=points(curve);
+      for(let point=0;point<current.length;point++)
+        assert(current[point][1]>=baseY-.01 && current[point][1]<=staticPoints[point][1]+.01,'Uniform-load deflection reversed or exceeded static amplitude');
+      close(current[0][1],baseY,.01,'Left support moved');close(current.at(-1)[1],baseY,.01,'Right support moved');
+      if(index%16===0) trace.push(current[middle][1]);
+    }
+    close(trace[0],baseY,.01,'Playback does not start undeformed');
+    close(trace[2],staticPoints[middle][1],.01,'Playback does not reach static deformation');
+    close(trace[4],baseY,.01,'Playback does not return to undeformed geometry');
+    close(trace[1],trace[3],.01,'Loading and unloading are not symmetric');
   }));
   const summary = { passed: results.filter(result => result.passed).length, failed: results.filter(result => !result.passed).length, results };
   const pre = document.createElement('pre');

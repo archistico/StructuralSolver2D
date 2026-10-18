@@ -26,7 +26,7 @@ var visualization = new StructuralVisualizationModelBuilder().Build(model, outpu
 string tests = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "viewer-regressions.js"));
 Directory.CreateDirectory(Path.GetDirectoryName(path)!);
 WriteFixture(path, visualization, true, "Cantilever viewer regression", "Small cantilever model.", ExpectedSamples(model, output.DisplacementDiagrams, true));
-foreach (string name in new[] { "two-storey-house-balconies", "truss-bridge-20m-deck-loads" })
+foreach (string name in new[] { "two-storey-house-balconies", "truss-bridge-20m-deck-loads", "simple-supported-beam" })
 {
     var file = StructuralModelJsonReader.Read(Path.Combine(AppContext.BaseDirectory, "Fixtures", name + ".json"));
     var service = new StructuralSolver2DService();
@@ -72,5 +72,6 @@ void WriteFixture(string filePath, StructuralVisualizationModel scene, bool simp
         Title = title, Description = description,
         InitialDeformationVisualScalePercent = 102, InitialTextScalePercent = 117, InitialAnimationSpeed = 1.1
     });
-    File.WriteAllText(filePath, html.Replace("</body>", $"<script type=\"application/json\" id=\"deformation-oracle\">{JsonSerializer.Serialize(expected)}</script><script>window.simpleTestFixture = {simple.ToString().ToLowerInvariant()};</script><script>{tests}</script></body>", StringComparison.Ordinal));
+    bool uniformLoad = Path.GetFileName(filePath) == "simple-supported-beam.html";
+    File.WriteAllText(filePath, html.Replace("</body>", $"<script type=\"application/json\" id=\"deformation-oracle\">{JsonSerializer.Serialize(expected)}</script><script>window.simpleTestFixture = {simple.ToString().ToLowerInvariant()};window.uniformLoadFixture = {uniformLoad.ToString().ToLowerInvariant()};</script><script>{tests}</script></body>", StringComparison.Ordinal));
 }

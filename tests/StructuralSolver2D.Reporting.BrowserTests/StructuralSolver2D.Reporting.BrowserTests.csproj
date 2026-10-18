@@ -10,5 +10,6 @@
     <ProjectReference Include="../../src/StructuralSolver2D.Cli/StructuralSolver2D.Cli.csproj" />
     <None Update="viewer-regressions.js" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../../examples/mixed/two-storey-house-balconies.json;../../examples/mixed/truss-bridge-20m-deck-loads.json" Link="Fixtures/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../../examples/beams/simple-supported-beam.json" Link="Fixtures/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

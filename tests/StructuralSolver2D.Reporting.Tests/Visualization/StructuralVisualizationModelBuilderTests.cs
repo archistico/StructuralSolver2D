@@ -276,15 +276,16 @@ public sealed class StructuralVisualizationModelBuilderTests
 
         Assert.Equal(4, visualization.AnimationFrames.Count);
         Assert.Equal(0.0, visualization.AnimationFrames[0].Factor, precision: 12);
-        Assert.Equal(1.0, visualization.AnimationFrames[1].Factor, precision: 12);
-        Assert.Equal(0.0, visualization.AnimationFrames[2].Factor, precision: 12);
-        Assert.Equal(-1.0, visualization.AnimationFrames[3].Factor, precision: 12);
+        Assert.Equal(0.5, visualization.AnimationFrames[1].Factor, precision: 12);
+        Assert.Equal(1.0, visualization.AnimationFrames[2].Factor, precision: 12);
+        Assert.Equal(0.5, visualization.AnimationFrames[3].Factor, precision: 12);
 
-        VisualizationNode positivePeak = Assert.Single(visualization.AnimationFrames[1].Nodes, node => node.NodeId == "B");
-        VisualizationNode negativePeak = Assert.Single(visualization.AnimationFrames[3].Nodes, node => node.NodeId == "B");
+        VisualizationNode peak = Assert.Single(visualization.AnimationFrames[2].Nodes, node => node.NodeId == "B");
+        VisualizationNode unloading = Assert.Single(visualization.AnimationFrames[3].Nodes, node => node.NodeId == "B");
 
-        Assert.Equal(-0.2, positivePeak.DeformedPosition.Y, precision: 12);
-        Assert.Equal(0.2, negativePeak.DeformedPosition.Y, precision: 12);
+        Assert.Equal(-0.2, peak.DeformedPosition.Y, precision: 12);
+        Assert.Equal(-0.1, unloading.DeformedPosition.Y, precision: 12);
+        Assert.All(visualization.AnimationFrames, frame => Assert.InRange(frame.Factor, 0, 1));
     }
 
     [Fact]

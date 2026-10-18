@@ -1,13 +1,51 @@
 using System.Globalization;
 using System.Xml.Linq;
+using StructuralSolver2D.Analysis.PublicApi;
 using StructuralSolver2D.Analysis.Results;
 using StructuralSolver2D.Core.Model;
+using StructuralSolver2D.Core.Model.Enums;
 using StructuralSolver2D.Reporting.Visualization;
 
 namespace StructuralSolver2D.Reporting.Tests.Visualization;
 
 public sealed class DeformationAnimationRegressionTests
 {
+    [Theory]
+    [InlineData(2)]
+    [InlineData(4)]
+    [InlineData(17)]
+    [InlineData(24)]
+    public void UniformlyLoadedBeam_ShouldLoadAndUnloadWithoutReversingDisplacement(int frameCount)
+    {
+        var model = new StructuralModel()
+            .AddNode(new StructuralNode("A", 0, 0)).AddNode(new StructuralNode("B", 5, 0))
+            .AddMaterial(new StructuralMaterial("MAT", "Steel", 210000000))
+            .AddSection(new StructuralSection("SEC", "Section", .003, .00002))
+            .AddMember(new StructuralMember("M1", "A", "B", "MAT", "SEC"))
+            .AddSupport(StructuralSupport.Hinge("SA", "A")).AddSupport(StructuralSupport.SimpleSupport("SB", "B"))
+            .AddLoadCase(new StructuralLoadCase("LC1", "Uniform downward load"))
+            .AddLoad(StructuralLoad.UniformDistributedLoad("Q1", "LC1", "M1", StructuralLoadDirection.GlobalY, -10));
+        var output = new StructuralSolver2DService().AnalyzeLoadCase(model, "LC1");
+        var scene = new StructuralVisualizationModelBuilder().Build(model, output,
+            new VisualizationOptions { DeformationScale = 100, AnimationFrameCount = frameCount });
+        var staticPoints = scene.DeformedShapes.Single().Points;
+        Assert.True(staticPoints.Min(point => point.Y) < 0);
+        foreach (var frame in scene.AnimationFrames)
+        {
+            Assert.InRange(frame.Factor, 0, 1);
+            var points = frame.DeformedShapes.Single().Points;
+            for (int i = 0; i < points.Count; i++)
+            {
+                Assert.InRange(points[i].Y, staticPoints[i].Y - 1e-12, 1e-12);
+                Assert.Equal(staticPoints[i].Y * frame.Factor, points[i].Y, 10);
+            }
+            Assert.Equal(0, points[0].Y, 10);
+            Assert.Equal(0, points[^1].Y, 10);
+        }
+        Assert.Equal(0, scene.AnimationFrames[0].Factor, 12);
+        if (frameCount % 2 == 0) Assert.Equal(1, scene.AnimationFrames[frameCount / 2].Factor, 12);
+    }
+
     [Theory]
     [InlineData(5, 0)]
     [InlineData(3, 4)]

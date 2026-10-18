@@ -862,7 +862,8 @@ public sealed class StructuralVisualizationModelBuilder
 
         for (int index = 0; index < options.AnimationFrameCount; index++)
         {
-            double factor = Math.Sin((Math.PI * 2.0 * index) / options.AnimationFrameCount);
+            // Smooth loading/unloading of the static solution, with no displacement reversal.
+            double factor = (1.0 - Math.Cos((Math.PI * 2.0 * index) / options.AnimationFrameCount)) / 2.0;
             double frameScale = options.DeformationScale * factor;
             List<VisualizationNode> frameNodes = model.Nodes
                 .Select(node => CreateVisualizationNode(node, displacementsByNodeId, frameScale, allPoints))

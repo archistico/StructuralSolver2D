@@ -158,7 +158,7 @@ Each `VisualizationAnimationFrame` contains:
 - frame-specific nodes;
 - frame-specific deformed member shapes.
 
-The factor follows a sinusoidal cycle, so the prepared frames can be used directly by a simple viewer animation loop.
+The factor follows a smooth loading/unloading cycle `(1 - cos(2π × index / frameCount)) / 2` in the range `[0, 1]`. Prepared frames preview the transition from undeformed geometry to the static solution and back, without reversing the displacement vector. They use the same cycle as the HTML viewer.
 
 `DeformedMemberShape.BasePoints` stores the undeformed origin of each polyline sample, in model coordinates. The builder fills it from actual normalized station positions, which may be nonuniform. Prepared frames retain these origins. The SVG exporter uses them to embed displacement vectors for browser animation. Custom shapes constructed with the original two-argument constructor and empty `BasePoints` retain the legacy convention of uniformly spaced samples; supplying origins requires one per deformed point.
 

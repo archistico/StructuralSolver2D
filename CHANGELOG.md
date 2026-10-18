@@ -10,6 +10,7 @@ The format follows a simple milestone-based structure. StructuralSolver2D is sti
 
 ### Fixed
 
+- Static deformation playback now follows undeformed → deformed → undeformed with a non-negative loading/unloading factor, replacing the misleading displacement reversal. Prepared frames use the same cycle. Added uniform-load beam regressions across the whole browser cycle and four frame counts; browser coverage now runs 333 checks.
 - Deformation animation preserves nonuniform sample origins, fits both cycle peaks and the moving maximum callout, changes speed without phase jumps, and stops when the deformed layer is hidden. Added analytical cantilever and per-sample browser comparisons; coverage now includes 273 browser checks and three additional Reporting cases.
 - Second Reporting review: independent SVG context layers, one viewer animation loop, preserved caller options and exact fractional initial controls.
 - Viewer starts with model, supports and load arrows; result modes show one quantity at a time, with optional full layers, collapsed secondary controls, selection details, keyboard navigation, current amplification and Fit view. Narrow layouts no longer overflow horizontally.

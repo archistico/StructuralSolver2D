@@ -44,14 +44,14 @@
       const a = screenToSvg(bounds.left,bounds.top), b = screenToSvg(bounds.right,bounds.bottom);
       if (a && b) points.push(a,b);
     });
-    // Fit the whole cycle once, rather than moving the camera or clipping its negative peak.
+    // Fit the whole loading/unloading cycle once, keeping the camera fixed between frames.
     if (animationRunning) svg.querySelectorAll('[data-deformed-polyline]').forEach(polyline => {
       if (!visible(polyline)) return;
       const base=parsePointList(polyline.dataset.basePoints),displacement=parsePointList(polyline.dataset.displacementPoints);
       if (base.length!==displacement.length) return;
       const amplitude=Number(scaleInput.value)/100;
       base.forEach((point,index)=>{
-        for (const sign of [-1,1]) points.push({x:point[0]+sign*amplitude*displacement[index][0],y:point[1]+sign*amplitude*displacement[index][1]});
+        for (const fraction of [0,1]) points.push({x:point[0]+fraction*amplitude*displacement[index][0],y:point[1]+fraction*amplitude*displacement[index][1]});
       });
     });
     // The maximum callout follows the midpoint of its moving leader. Include its text
@@ -61,9 +61,9 @@
       annotation.querySelectorAll('text.annotation-label').forEach((label,index) => {
         if (!visible(label)) return;
         const bounds=label.getBBox(),x=Number(label.getAttribute('x')),y=Number(label.getAttribute('y'));
-        const anchors=animationRunning ? [-1,1].map(sign=>({
-          x:Number(annotation.dataset.baseX)+Number(annotation.dataset.dx)*Number(scaleInput.value)/100*sign/2+6,
-          y:Number(annotation.dataset.baseY)+Number(annotation.dataset.dy)*Number(scaleInput.value)/100*sign/2-8+index*14
+        const anchors=animationRunning ? [0,1].map(fraction=>({
+          x:Number(annotation.dataset.baseX)+Number(annotation.dataset.dx)*Number(scaleInput.value)/100*fraction/2+6,
+          y:Number(annotation.dataset.baseY)+Number(annotation.dataset.dy)*Number(scaleInput.value)/100*fraction/2-8+index*14
         })) : [{x,y}];
         anchors.forEach(anchor=>points.push({x:anchor.x+bounds.x-x,y:anchor.y+bounds.y-y},
           {x:anchor.x+bounds.x-x+bounds.width,y:anchor.y+bounds.y-y+bounds.height}));
@@ -120,6 +120,8 @@
     applyDeformation(factor);
     document.querySelector('[data-effective-scale]').textContent = '×'+number(data.baseScale*factor);
   }
+  // Smoothly reveal the static result and return to zero without reversing its displacement.
+  const animationFactor = () => (1-Math.cos(animationPhase*Math.PI*2))/2;
   function animationLoop(timestamp) {
     frameId = null;
     if (!animationRunning) return;
@@ -127,7 +129,7 @@
     if (animationTimestamp !== null)
       animationPhase=(animationPhase+Math.max(0,timestamp-animationTimestamp)/1000*Number(speedInput.value))%1;
     animationTimestamp=timestamp;
-    applyVisualScales(Number(scaleInput.value)/100 * Math.sin(animationPhase*Math.PI*2));
+    applyVisualScales(Number(scaleInput.value)/100 * animationFactor());
     frameId = requestAnimationFrame(animationLoop);
   }
   play.addEventListener('click',() => {
@@ -146,7 +148,7 @@
   scaleInput.addEventListener('input',() => {
     document.querySelector('[data-scale-output=deformed]').textContent=scaleInput.value+'%';
     if (animationRunning) {
-      applyVisualScales(Number(scaleInput.value)/100*Math.sin(animationPhase*Math.PI*2));
+      applyVisualScales(Number(scaleInput.value)/100*animationFactor());
       fitView();
     } else applyVisualScales();
   });
