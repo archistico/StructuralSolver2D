@@ -8,6 +8,11 @@ The format follows a simple milestone-based structure. StructuralSolver2D is sti
 
 ## Unreleased
 
+### Changed
+
+- PDF reports use a navy/teal A4 layout with numbered sections, model statistics, highlighted results, and a vector geometry/deformation schematic. Tables use separate aligned columns, alternating backgrounds, repeated headers, and page totals. Added pagination, PDF structure, option and signed-deformation regressions; example PDFs have been regenerated.
+- Marked PDF artifacts as binary so Git line-ending normalization cannot corrupt their object offsets or stream lengths.
+
 ### Fixed
 
 - Second Core review: section catalog JSON rejects missing/null inertia while preserving explicit zero; model validation checks optional section dimensions and support enums. Null model entries and combination terms produce indexed validation issues, and fluent additions reject null immediately.

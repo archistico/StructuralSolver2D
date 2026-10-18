@@ -5,23 +5,10 @@ using StructuralSolver2D.Core.Model;
 
 namespace StructuralSolver2D.Reporting.Pdf;
 
-/// <summary>
-/// Exports a compact technical structural analysis report as a self-contained PDF file.
-/// The implementation writes a minimal PDF document directly and does not require external PDF libraries.
-/// </summary>
+/// <summary>Exports a self-contained, paginated technical report without external PDF libraries.</summary>
 public sealed class PdfTechnicalReportExporter
 {
-    private const double PageWidth = 595.0;
-    private const double PageHeight = 842.0;
-    private const double MarginLeft = 48.0;
-    private const double MarginRight = 48.0;
-    private const double MarginTop = 54.0;
-    private const double MarginBottom = 48.0;
-    private const double LineHeight = 13.0;
-
-    /// <summary>
-    /// Exports the supplied model and analysis results to PDF bytes.
-    /// </summary>
+    /// <summary>Exports the supplied model and analysis results to PDF bytes.</summary>
     public byte[] Export(
         StructuralModel model,
         StructuralAnalysisResult result,
@@ -35,362 +22,133 @@ public sealed class PdfTechnicalReportExporter
         ArgumentNullException.ThrowIfNull(internalForceDiagrams);
         ArgumentNullException.ThrowIfNull(displacementDiagrams);
         ArgumentNullException.ThrowIfNull(summary);
-
         options ??= new PdfTechnicalReportOptions();
         options.Validate();
 
-        List<ReportLine> lines = BuildReportLines(model, result, internalForceDiagrams, displacementDiagrams, summary, options);
-        List<string> pageStreams = Paginate(lines, options.Title);
-
-        return BuildPdf(pageStreams);
-    }
-
-    private static List<ReportLine> BuildReportLines(
-        StructuralModel model,
-        StructuralAnalysisResult result,
-        IReadOnlyList<MemberInternalForceDiagram> internalForceDiagrams,
-        IReadOnlyList<MemberDisplacementDiagram> displacementDiagrams,
-        StructuralAnalysisSummary summary,
-        PdfTechnicalReportOptions options)
-    {
-        List<ReportLine> lines = new()
+        var report = new PdfReportLayout(options.Title);
+        report.Hero(options.Title, options.Description, result.LoadCaseId, options.SourceLabel);
+        report.Heading("Model overview");
+        report.Statistics(new[]
         {
-            ReportLine.Title(options.Title),
-        };
+            ("Nodes", model.Nodes.Count), ("Members", model.Members.Count), ("Supports", model.Supports.Count),
+            ("Load cases", model.LoadCases.Count), ("Combinations", model.LoadCombinations.Count), ("Loads", model.Loads.Count)
+        });
+        report.ModelFigure(model, displacementDiagrams);
 
-        if (!string.IsNullOrWhiteSpace(options.Description))
+        report.Heading("Executive summary");
+        report.Highlights(new[]
         {
-            lines.AddRange(WrapBody(options.Description));
-        }
+            ("Nodal max |Uy| [m]", Format(Math.Abs(summary.MaxAbsUy.Value))),
+            ("Max |V| [kN]", Format(Math.Abs(summary.MaxAbsShearForce.Value))),
+            ("Max |M| [kNm]", Format(Math.Abs(summary.MaxAbsBendingMoment.Value)))
+        });
+        report.Table("Executive summary", new[] { "Metric", "Entity / member", "Pos [0-1]", "x [m]", "Value", "Unit" },
+            new[] { 76d, 123, 68, 76, 107, 49 }, SummaryRows(summary), rightAlignedFrom: 2);
 
-        if (!string.IsNullOrWhiteSpace(options.SourceLabel))
-        {
-            lines.Add(ReportLine.Body($"Source: {options.SourceLabel}"));
-        }
+        report.Heading("Assumptions and limitations");
+        report.Paragraph("First-order linear elastic 2D analysis. Units: m, rad, kN and kNm. Summary values are absolute magnitudes; detail tables retain their signs.", muted: true);
+        report.Paragraph("This is a technical computation report. It does not replace engineering judgement or project-specific normative checks.", muted: true);
 
-        lines.Add(ReportLine.Body($"Analysis id: {result.LoadCaseId}"));
-        lines.Add(ReportLine.Body($"Generated: {DateTimeOffset.Now:yyyy-MM-dd HH:mm zzz}"));
-        lines.Add(ReportLine.Blank());
+        report.Heading("Nodal displacements");
+        report.Table("Nodal displacements", new[] { "Node", "Ux [m]", "Uy [m]", "Rz [rad]" },
+            new[] { 151d, 116, 116, 116 }, result.Displacements.Take(options.MaxRowsPerSection)
+                .Select(item => new[] { item.NodeId, Format(item.Ux), Format(item.Uy), Format(item.Rz) }), 1);
+        Truncation(report, result.Displacements.Count, options.MaxRowsPerSection);
 
-        lines.Add(ReportLine.Heading("Model overview"));
-        lines.Add(ReportLine.Body($"Nodes: {model.Nodes.Count}"));
-        lines.Add(ReportLine.Body($"Members: {model.Members.Count}"));
-        lines.Add(ReportLine.Body($"Supports: {model.Supports.Count}"));
-        lines.Add(ReportLine.Body($"Load cases: {model.LoadCases.Count}"));
-        lines.Add(ReportLine.Body($"Load combinations: {model.LoadCombinations.Count}"));
-        lines.Add(ReportLine.Body($"Loads: {model.Loads.Count}"));
-        lines.Add(ReportLine.Blank());
+        report.Heading("Support reactions");
+        report.Table("Support reactions", new[] { "Support", "Node", "Fx [kN]", "Fy [kN]", "Mz [kNm]" },
+            new[] { 85d, 84, 110, 110, 110 }, result.Reactions.Take(options.MaxRowsPerSection)
+                .Select(item => new[] { item.SupportId, item.NodeId, Format(item.Fx), Format(item.Fy), Format(item.Mz) }), 2);
+        Truncation(report, result.Reactions.Count, options.MaxRowsPerSection);
 
-        lines.Add(ReportLine.Heading("Assumptions and limitations"));
-        lines.AddRange(WrapBody("First-order linear elastic 2D analysis. Values are reported in StructuralSolver2D internal units: displacements in m, rotations in rad, forces in kN and moments in kNm."));
-        lines.AddRange(WrapBody("This PDF is a technical computation report. It is not a complete code-compliance document and does not replace engineering judgement or project-specific normative checks."));
-        lines.Add(ReportLine.Blank());
-
-        lines.Add(ReportLine.Heading("Executive summary"));
-        AddSummaryRows(lines, summary);
-        lines.Add(ReportLine.Blank());
-
-        lines.Add(ReportLine.Heading("Nodal displacements"));
-        lines.Add(ReportLine.Table("Node        Ux [m]          Uy [m]        Rz [rad]"));
-        foreach (NodalDisplacementResult item in result.Displacements.Take(options.MaxRowsPerSection))
-        {
-            lines.Add(ReportLine.Table($"{item.NodeId,-8} {Format(item.Ux),14} {Format(item.Uy),14} {Format(item.Rz),14}"));
-        }
-
-        AddTruncationNotice(lines, result.Displacements.Count, options.MaxRowsPerSection);
-        lines.Add(ReportLine.Blank());
-
-        lines.Add(ReportLine.Heading("Support reactions"));
-        lines.Add(ReportLine.Table("Support  Node        Fx [kN]        Fy [kN]       Mz [kNm]"));
-        foreach (SupportReactionResult item in result.Reactions.Take(options.MaxRowsPerSection))
-        {
-            lines.Add(ReportLine.Table($"{item.SupportId,-8} {item.NodeId,-6} {Format(item.Fx),14} {Format(item.Fy),14} {Format(item.Mz),14}"));
-        }
-
-        AddTruncationNotice(lines, result.Reactions.Count, options.MaxRowsPerSection);
-        lines.Add(ReportLine.Blank());
-
-        lines.Add(ReportLine.Heading("Member end forces"));
-        lines.Add(ReportLine.Table("Member           End           N [kN]         V [kN]        M [kNm]"));
-        foreach (MemberEndForceResult item in result.MemberEndForces.Take(options.MaxRowsPerSection))
-        {
-            string label = item.MemberId;
-            if (label.Length > 16)
+        report.Heading("Member end forces");
+        report.Table("Member end forces", new[] { "Member", "End", "N [kN]", "V [kN]", "M [kNm]" },
+            new[] { 113d, 56, 110, 110, 110 }, result.MemberEndForces.Take(options.MaxRowsPerSection).SelectMany(item => new[]
             {
-                lines.Add(ReportLine.Body($"Member: {label}"));
-                label = string.Empty;
-            }
-            lines.Add(ReportLine.Table($"{label,-16} {"Start",-5} {Format(item.StartAxial),14} {Format(item.StartShear),14} {Format(item.StartMoment),14}"));
-            lines.Add(ReportLine.Table($"{string.Empty,-16} {"End",-5} {Format(item.EndAxial),14} {Format(item.EndShear),14} {Format(item.EndMoment),14}"));
-        }
-
-        AddTruncationNotice(lines, result.MemberEndForces.Count, options.MaxRowsPerSection);
-        lines.Add(ReportLine.Blank());
+                new[] { item.MemberId, "Start", Format(item.StartAxial), Format(item.StartShear), Format(item.StartMoment) },
+                new[] { item.MemberId, "End", Format(item.EndAxial), Format(item.EndShear), Format(item.EndMoment) }
+            }), 2);
+        Truncation(report, result.MemberEndForces.Count, options.MaxRowsPerSection);
 
         if (options.IncludeInternalForceSamples)
         {
-            lines.Add(ReportLine.Heading("Internal-force samples"));
-            lines.Add(ReportLine.Table("Member     Pos      x [m]        N [kN]        V [kN]       M [kNm]"));
-            int written = 0;
-            foreach (MemberInternalForceSample sample in internalForceDiagrams.SelectMany(diagram => diagram.Samples).Take(options.MaxRowsPerSection))
-            {
-                lines.Add(ReportLine.Table($"{sample.MemberId,-8} {Format(sample.Position),8} {Format(sample.Distance),10} {Format(sample.NormalForce),13} {Format(sample.ShearForce),13} {Format(sample.BendingMoment),13}"));
-                written++;
-            }
-
-            int totalSamples = internalForceDiagrams.Sum(diagram => diagram.Samples.Count);
-            AddTruncationNotice(lines, totalSamples, options.MaxRowsPerSection);
-            if (written == 0)
-            {
-                lines.Add(ReportLine.Body("No internal-force samples available."));
-            }
-
-            lines.Add(ReportLine.Blank());
+            report.Heading("Internal-force samples");
+            report.Table("Internal-force samples", new[] { "Member", "Pos [0-1]", "x [m]", "N [kN]", "V [kN]", "M [kNm]" },
+                new[] { 91d, 64, 77, 89, 89, 89 }, internalForceDiagrams.SelectMany(diagram => diagram.Samples).Take(options.MaxRowsPerSection)
+                    .Select(item => new[] { item.MemberId, Format(item.Position), Format(item.Distance), Format(item.NormalForce), Format(item.ShearForce), Format(item.BendingMoment) }), 1);
+            Truncation(report, internalForceDiagrams.Sum(diagram => diagram.Samples.Count), options.MaxRowsPerSection);
         }
 
         if (options.IncludeDisplacementSamples)
         {
-            lines.Add(ReportLine.Heading("Displacement samples"));
-            lines.Add(ReportLine.Table("Member     Pos      x [m]      GUx [m]      GUy [m]"));
-            int written = 0;
-            foreach (MemberDisplacementSample sample in displacementDiagrams.SelectMany(diagram => diagram.Samples).Take(options.MaxRowsPerSection))
-            {
-                lines.Add(ReportLine.Table($"{sample.MemberId,-8} {Format(sample.NormalizedPosition),8} {Format(sample.Distance),10} {Format(sample.GlobalUx),12} {Format(sample.GlobalUy),12}"));
-                written++;
-            }
-
-            int totalSamples = displacementDiagrams.Sum(diagram => diagram.Samples.Count);
-            AddTruncationNotice(lines, totalSamples, options.MaxRowsPerSection);
-            if (written == 0)
-            {
-                lines.Add(ReportLine.Body("No displacement samples available."));
-            }
+            report.Heading("Displacement samples");
+            report.Table("Displacement samples", new[] { "Member", "Pos [0-1]", "x [m]", "GUx [m]", "GUy [m]" },
+                new[] { 119d, 70, 90, 110, 110 }, displacementDiagrams.SelectMany(diagram => diagram.Samples).Take(options.MaxRowsPerSection)
+                    .Select(item => new[] { item.MemberId, Format(item.NormalizedPosition), Format(item.Distance), Format(item.GlobalUx), Format(item.GlobalUy) }), 1);
+            Truncation(report, displacementDiagrams.Sum(diagram => diagram.Samples.Count), options.MaxRowsPerSection);
         }
 
-        return lines;
+        return BuildPdf(report.Finish());
     }
 
-    private static void AddSummaryRows(List<ReportLine> lines, StructuralAnalysisSummary summary)
+    private static IEnumerable<string[]> SummaryRows(StructuralAnalysisSummary summary)
     {
-        lines.Add(ReportLine.Table("Metric                Entity/Member      Position       Distance          Value       Unit"));
-        AddSummaryRow(lines, "Max |Ux|", summary.MaxAbsUx.EntityId, string.Empty, string.Empty, summary.MaxAbsUx.Value, "m");
-        AddSummaryRow(lines, "Max |Uy|", summary.MaxAbsUy.EntityId, string.Empty, string.Empty, summary.MaxAbsUy.Value, "m");
-        AddSummaryRow(lines, "Max |Rz|", summary.MaxAbsRz.EntityId, string.Empty, string.Empty, summary.MaxAbsRz.Value, "rad");
-        AddSummaryRow(lines, "Max |Fx|", summary.MaxAbsReactionFx.EntityId, string.Empty, string.Empty, summary.MaxAbsReactionFx.Value, "kN");
-        AddSummaryRow(lines, "Max |Fy|", summary.MaxAbsReactionFy.EntityId, string.Empty, string.Empty, summary.MaxAbsReactionFy.Value, "kN");
-        AddSummaryRow(lines, "Max |Mz|", summary.MaxAbsReactionMz.EntityId, string.Empty, string.Empty, summary.MaxAbsReactionMz.Value, "kNm");
-        AddSummaryRow(lines, "Max |N|", summary.MaxAbsNormalForce.MemberId, Format(summary.MaxAbsNormalForce.Position), Format(summary.MaxAbsNormalForce.Distance), summary.MaxAbsNormalForce.Value, "kN");
-        AddSummaryRow(lines, "Max |V|", summary.MaxAbsShearForce.MemberId, Format(summary.MaxAbsShearForce.Position), Format(summary.MaxAbsShearForce.Distance), summary.MaxAbsShearForce.Value, "kN");
-        AddSummaryRow(lines, "Max |M|", summary.MaxAbsBendingMoment.MemberId, Format(summary.MaxAbsBendingMoment.Position), Format(summary.MaxAbsBendingMoment.Distance), summary.MaxAbsBendingMoment.Value, "kNm");
+        yield return Nodal("Max |Ux|", summary.MaxAbsUx, "m");
+        yield return Nodal("Max |Uy|", summary.MaxAbsUy, "m");
+        yield return Nodal("Max |Rz|", summary.MaxAbsRz, "rad");
+        yield return Nodal("Max |Fx|", summary.MaxAbsReactionFx, "kN");
+        yield return Nodal("Max |Fy|", summary.MaxAbsReactionFy, "kN");
+        yield return Nodal("Max |Mz|", summary.MaxAbsReactionMz, "kNm");
+        yield return Member("Max |N|", summary.MaxAbsNormalForce, "kN");
+        yield return Member("Max |V|", summary.MaxAbsShearForce, "kN");
+        yield return Member("Max |M|", summary.MaxAbsBendingMoment, "kNm");
+
+        static string[] Nodal(string metric, AnalysisResultExtreme value, string unit) =>
+            new[] { metric, value.EntityId, "", "", Format(Math.Abs(value.Value)), unit };
+        static string[] Member(string metric, InternalForceExtreme value, string unit) =>
+            new[] { metric, value.MemberId, Format(value.Position), Format(value.Distance), Format(Math.Abs(value.Value)), unit };
     }
 
-    private static void AddSummaryRow(
-        List<ReportLine> lines,
-        string metric,
-        string entityOrMember,
-        string position,
-        string distance,
-        double value,
-        string unit)
+    private static void Truncation(PdfReportLayout report, int total, int limit)
     {
-        lines.Add(ReportLine.Table($"{metric,-21} {entityOrMember,-16} {position,10} {distance,12} {Format(Math.Abs(value)),14} {unit,8}"));
+        if (total > limit)
+            report.Paragraph($"Only the first {limit} of {total} rows are shown in this PDF. Use CSV/XLSX exports for full tabular data.", muted: true);
     }
 
-    private static void AddTruncationNotice(List<ReportLine> lines, int totalRows, int maxRowsPerSection)
+    private static byte[] BuildPdf(IReadOnlyList<string> pages)
     {
-        if (totalRows > maxRowsPerSection)
-        {
-            lines.Add(ReportLine.Body($"Only the first {maxRowsPerSection} of {totalRows} rows are shown in this PDF. Use CSV/XLSX exports for full tabular data."));
-        }
-    }
-
-    private static IEnumerable<ReportLine> WrapBody(string text)
-    {
-        foreach (string line in PdfTextLayout.Wrap(text, 10, false, PageWidth - MarginLeft - MarginRight - 2))
-        {
-            yield return ReportLine.Body(line);
-        }
-    }
-
-    private static List<string> Paginate(IReadOnlyList<ReportLine> lines, string documentTitle)
-    {
-        List<string> pageStreams = new();
-        StringBuilder currentPage = new();
-        int pageNumber = 1;
-        double y = PageHeight - MarginTop;
-
-        StartPage(currentPage, documentTitle, pageNumber);
-
-        foreach (ReportLine line in lines)
-        {
-            foreach (string wrapped in PdfTextLayout.Wrap(line.Text, GetFontSize(line), line.Kind == ReportLineKind.Table, PageWidth - MarginLeft - MarginRight - 2))
-            {
-                if (y < MarginBottom + Math.Max(24.0, GetLineHeight(line)))
-                {
-                    EndPage(currentPage, pageNumber);
-                    pageStreams.Add(currentPage.ToString());
-                    currentPage.Clear();
-                    pageNumber++;
-                    y = PageHeight - MarginTop;
-                    StartPage(currentPage, documentTitle, pageNumber);
-                }
-                AppendTextLine(currentPage, line with { Text = wrapped }, y);
-                y -= GetLineHeight(line);
-            }
-
-            if (line.Kind is ReportLineKind.Title or ReportLineKind.Heading)
-            {
-                y -= 4.0;
-            }
-        }
-
-        EndPage(currentPage, pageNumber);
-        pageStreams.Add(currentPage.ToString());
-        return pageStreams;
-    }
-
-    private static void StartPage(StringBuilder builder, string documentTitle, int pageNumber)
-    {
-        builder.AppendLine("0.92 0.96 1 rg");
-        builder.AppendLine($"0 {FormatPdf(PageHeight - 34.0)} {FormatPdf(PageWidth)} 34 re f");
-        builder.AppendLine("BT /F1 9 Tf 0.20 0.25 0.35 rg");
-        builder.AppendLine($"{FormatPdf(MarginLeft)} {FormatPdf(PageHeight - 22.0)} Td ({PdfTextLayout.Escape(HeaderTitle(documentTitle))}) Tj");
-        builder.AppendLine("ET");
-        builder.AppendLine("0.82 0.86 0.92 RG 0.5 w");
-        builder.AppendLine($"{FormatPdf(MarginLeft)} {FormatPdf(PageHeight - 38.0)} m {FormatPdf(PageWidth - MarginRight)} {FormatPdf(PageHeight - 38.0)} l S");
-    }
-
-    private static void EndPage(StringBuilder builder, int pageNumber)
-    {
-        builder.AppendLine("0.82 0.86 0.92 RG 0.5 w");
-        builder.AppendLine($"{FormatPdf(MarginLeft)} {FormatPdf(MarginBottom - 14.0)} m {FormatPdf(PageWidth - MarginRight)} {FormatPdf(MarginBottom - 14.0)} l S");
-        builder.AppendLine("BT /F1 9 Tf 0.35 0.39 0.45 rg");
-        builder.AppendLine($"{FormatPdf(PageWidth - MarginRight - 48.0)} {FormatPdf(MarginBottom - 30.0)} Td (Page {pageNumber}) Tj");
-        builder.AppendLine("ET");
-    }
-
-    private static void AppendTextLine(StringBuilder builder, ReportLine line, double y)
-    {
-        string font = line.Kind == ReportLineKind.Table ? "/F2" : "/F1";
-        double fontSize = GetFontSize(line);
-
-        string color = line.Kind switch
-        {
-            ReportLineKind.Title => "0.05 0.09 0.16 rg",
-            ReportLineKind.Heading => "0.10 0.18 0.32 rg",
-            ReportLineKind.Table => "0.10 0.10 0.10 rg",
-            _ => "0.18 0.21 0.27 rg",
-        };
-
-        builder.AppendLine($"BT {font} {FormatPdf(fontSize)} Tf {color}");
-        builder.AppendLine($"{FormatPdf(MarginLeft)} {FormatPdf(y)} Td ({PdfTextLayout.Escape(line.Text)}) Tj");
-        builder.AppendLine("ET");
-    }
-
-    private static double GetLineHeight(ReportLine line) =>
-        line.Kind switch
-        {
-            ReportLineKind.Title => 22.0,
-            ReportLineKind.Heading => 17.0,
-            ReportLineKind.Table => 10.5,
-            _ => LineHeight,
-        };
-
-    private static double GetFontSize(ReportLine line) => line.Kind switch
-    {
-        ReportLineKind.Title => 18,
-        ReportLineKind.Heading => 13,
-        ReportLineKind.Table => 8.5,
-        _ => 10
-    };
-
-    private static string HeaderTitle(string title)
-    {
-        var lines = PdfTextLayout.Wrap(title, 9, false, PageWidth - MarginLeft - MarginRight - 14).ToList();
-        return lines.Count > 1 ? lines[0] + "..." : lines[0];
-    }
-
-    private static byte[] BuildPdf(IReadOnlyList<string> pageStreams)
-    {
+        int firstPage = 6;
+        int firstContent = firstPage + pages.Count;
+        string kids = string.Join(" ", Enumerable.Range(0, pages.Count).Select(index => $"{firstPage + index} 0 R"));
         var objects = new List<string>
         {
             "<< /Type /Catalog /Pages 2 0 R >>",
+            $"<< /Type /Pages /Kids [{kids}] /Count {pages.Count} >>",
+            "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>",
+            "<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>",
+            "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>"
         };
-
-        int font1Id = 3;
-        int font2Id = 4;
-        int firstPageObjectId = 5;
-        int firstContentObjectId = firstPageObjectId + pageStreams.Count;
-        string kids = string.Join(" ", Enumerable.Range(0, pageStreams.Count).Select(index => $"{firstPageObjectId + index} 0 R"));
-
-        objects.Add($"<< /Type /Pages /Kids [{kids}] /Count {pageStreams.Count} >>");
-        objects.Add("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>");
-        objects.Add("<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>");
-
-        for (int index = 0; index < pageStreams.Count; index++)
-        {
-            int contentId = firstContentObjectId + index;
-            objects.Add($"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 {FormatPdf(PageWidth)} {FormatPdf(PageHeight)}] /Resources << /Font << /F1 {font1Id} 0 R /F2 {font2Id} 0 R >> >> /Contents {contentId} 0 R >>");
-        }
-
-        foreach (string pageStream in pageStreams)
-        {
-            int length = Encoding.ASCII.GetByteCount(pageStream);
-            objects.Add($"<< /Length {length} >>\nstream\n{pageStream}endstream");
-        }
+        for (int index = 0; index < pages.Count; index++)
+            objects.Add($"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents {firstContent + index} 0 R >>");
+        foreach (string page in pages)
+            objects.Add($"<< /Length {Encoding.ASCII.GetByteCount(page)} >>\nstream\n{page}endstream");
 
         using var stream = new MemoryStream();
-        WriteAscii(stream, "%PDF-1.4\n%\u00E2\u00E3\u00CF\u00D3\n");
+        Write("%PDF-1.4\n%StructuralSolver2D\n");
         var offsets = new List<long> { 0 };
-
         for (int index = 0; index < objects.Count; index++)
         {
             offsets.Add(stream.Position);
-            WriteAscii(stream, $"{index + 1} 0 obj\n{objects[index]}\nendobj\n");
+            Write($"{index + 1} 0 obj\n{objects[index]}\nendobj\n");
         }
-
-        long xrefOffset = stream.Position;
-        WriteAscii(stream, $"xref\n0 {objects.Count + 1}\n");
-        WriteAscii(stream, "0000000000 65535 f \n");
-        for (int index = 1; index < offsets.Count; index++)
-        {
-            WriteAscii(stream, $"{offsets[index]:0000000000} 00000 n \n");
-        }
-
-        WriteAscii(stream, $"trailer\n<< /Size {objects.Count + 1} /Root 1 0 R >>\nstartxref\n{xrefOffset}\n%%EOF\n");
+        long xref = stream.Position;
+        Write($"xref\n0 {objects.Count + 1}\n0000000000 65535 f \n");
+        foreach (long offset in offsets.Skip(1)) Write($"{offset:0000000000} 00000 n \n");
+        Write($"trailer\n<< /Size {objects.Count + 1} /Root 1 0 R >>\nstartxref\n{xref}\n%%EOF\n");
         return stream.ToArray();
+
+        void Write(string value) => stream.Write(Encoding.ASCII.GetBytes(value));
     }
 
-    private static void WriteAscii(Stream stream, string value)
-    {
-        byte[] bytes = Encoding.ASCII.GetBytes(value);
-        stream.Write(bytes, 0, bytes.Length);
-    }
-
-    private static string Format(double value) =>
-        value.ToString("0.000000", CultureInfo.InvariantCulture);
-
-    private static string FormatPdf(double value) =>
-        value.ToString("0.###", CultureInfo.InvariantCulture);
-
-    private sealed record ReportLine(string Text, ReportLineKind Kind)
-    {
-        public static ReportLine Title(string text) => new(text, ReportLineKind.Title);
-
-        public static ReportLine Heading(string text) => new(text, ReportLineKind.Heading);
-
-        public static ReportLine Body(string text) => new(text, ReportLineKind.Body);
-
-        public static ReportLine Table(string text) => new(text, ReportLineKind.Table);
-
-        public static ReportLine Blank() => new(string.Empty, ReportLineKind.Body);
-    }
-
-    private enum ReportLineKind
-    {
-        Title,
-        Heading,
-        Body,
-        Table,
-    }
+    private static string Format(double value) => value.ToString("0.000000", CultureInfo.InvariantCulture);
 }

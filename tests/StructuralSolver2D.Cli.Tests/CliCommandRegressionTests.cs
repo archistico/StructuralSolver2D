@@ -305,7 +305,8 @@ public sealed class CliCommandRegressionTests
         {
             "analyze" => result.Stdout,
             "export-csv" => File.ReadAllText(Path.Combine(destination, "support-reactions.csv")),
-            "export-pdf" => Encoding.ASCII.GetString(File.ReadAllBytes(destination)),
+            "export-pdf" => string.Join(" ", Regex.Matches(Encoding.ASCII.GetString(File.ReadAllBytes(destination)),
+                @"\((?<text>(?:\\.|[^\\\r\n)])*)\) Tj").Select(match => match.Groups["text"].Value)),
             _ => File.ReadAllText(destination)
         };
         if (command == "report") Assert.Contains($"| `SA` | `A` | 0.000000 | {value} | {moment} |", text);

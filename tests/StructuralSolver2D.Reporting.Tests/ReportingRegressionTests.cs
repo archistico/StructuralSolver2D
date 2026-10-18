@@ -68,12 +68,17 @@ public sealed class ReportingRegressionTests
         };
         string pdf = Encoding.ASCII.GetString(new PdfTechnicalReportExporter().Export(model, output.Result,
             output.InternalForceDiagrams, output.DisplacementDiagrams, output.Summary, options));
-        var lines = Regex.Matches(pdf, @"BT /F[12] (?<font>[\d.]+) Tf[^\r\n]*\r?\n48 (?<y>-?[\d.]+) Td");
+        var lines = Regex.Matches(pdf, @"BT /F[123] (?<font>[\d.]+) Tf[^\r\n]*\r?\n[\d.]+ (?<y>-?[\d.]+) Td \((?<text>[^\r\n]*)\) Tj");
         Assert.NotEmpty(lines);
         foreach (Match line in lines)
         {
-            if (line.Groups["font"].Value == "9") continue; // Page header/footer, outside the body area.
             double y = double.Parse(line.Groups["y"].Value, CultureInfo.InvariantCulture);
+            if (y == 817) continue; // Fixed running header.
+            if (y == 23)
+            {
+                Assert.Matches(@"^(StructuralSolver2D  /  Linear elastic 2D analysis|Page \d+ of \d+)$", line.Groups["text"].Value);
+                continue;
+            }
             Assert.InRange(y, 48, 788);
         }
     }
