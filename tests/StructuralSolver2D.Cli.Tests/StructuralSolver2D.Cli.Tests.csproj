@@ -23,4 +23,8 @@
     <ProjectReference Include="..\..\src\StructuralSolver2D.Cli\StructuralSolver2D.Cli.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="../../examples/**/*.json" Link="Examples/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

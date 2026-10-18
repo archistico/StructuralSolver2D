@@ -192,6 +192,12 @@ dotnet run --project src\StructuralSolver2D.Cli -- export-viewer examples\beams\
 
 ## Getting started with a JSON model
 
+CLI commands reject missing or extra arguments. Report/export destinations must differ from the source model path; CSV checks every generated filename before writing any table. Existing reports at other paths can be replaced.
+
+All analysis, report and export commands use the same public analysis workflow. Console summaries show non-negative maximum magnitudes; detailed result tables retain signed values and the summary retains the location of each extreme.
+
+Exit codes are `0` for success, `1` for command/input errors, `2` for analysis or analysis-target errors, and `3` for other failures. Input error messages identify missing required fields and null collection entries. Run CLI regression tests with `dotnet test tests/StructuralSolver2D.Cli.Tests` or include them through `dotnet test StructuralSolver2D.sln`.
+
 A JSON input file describes the structural model and the loads to analyze. The simplest workflow is:
 
 1. define the nodes;

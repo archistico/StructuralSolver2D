@@ -82,22 +82,10 @@
       "label": "Balcony R2"
     },
     {
-      "id": "A3",
-      "x": 0.0,
-      "y": 6.0,
-      "label": "Eave L"
-    },
-    {
       "id": "B3",
       "x": 4.0,
       "y": 7.2,
       "label": "Ridge"
-    },
-    {
-      "id": "C3",
-      "x": 8.0,
-      "y": 6.0,
-      "label": "Eave R"
     }
   ],
   "materials": [

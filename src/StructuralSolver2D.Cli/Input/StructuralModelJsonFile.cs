@@ -13,4 +13,8 @@ public sealed record StructuralModelJsonFile(
     string Title,
     string Description,
     string LoadCaseId,
-    StructuralModel Model);
+    StructuralModel Model)
+{
+    /// <summary>Whether the default id came from the JSON loadCombinationId property.</summary>
+    public bool DefaultTargetIsCombination { get; init; }
+}

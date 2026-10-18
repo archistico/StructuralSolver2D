@@ -148,15 +148,15 @@ public static class CliOutputWriter
     private static void WriteSummary(StructuralAnalysisSummary summary)
     {
         Console.WriteLine("Maximum absolute results:");
-        Console.WriteLine($"  Max |Ux| = {Format(summary.MaxAbsUx.Value)} m       at node {DisplayEntity(summary.MaxAbsUx.EntityId)}");
-        Console.WriteLine($"  Max |Uy| = {Format(summary.MaxAbsUy.Value)} m       at node {DisplayEntity(summary.MaxAbsUy.EntityId)}");
-        Console.WriteLine($"  Max |Rz| = {Format(summary.MaxAbsRz.Value)} rad     at node {DisplayEntity(summary.MaxAbsRz.EntityId)}");
-        Console.WriteLine($"  Max |Fx| = {Format(summary.MaxAbsReactionFx.Value)} kN      at support {DisplayEntity(summary.MaxAbsReactionFx.EntityId)}");
-        Console.WriteLine($"  Max |Fy| = {Format(summary.MaxAbsReactionFy.Value)} kN      at support {DisplayEntity(summary.MaxAbsReactionFy.EntityId)}");
-        Console.WriteLine($"  Max |Mz| = {Format(summary.MaxAbsReactionMz.Value)} kNm     at support {DisplayEntity(summary.MaxAbsReactionMz.EntityId)}");
-        Console.WriteLine($"  Max |N|  = {Format(summary.MaxAbsNormalForce.Value)} kN      at member {DisplayEntity(summary.MaxAbsNormalForce.MemberId)}, x = {Format(summary.MaxAbsNormalForce.Distance)} m");
-        Console.WriteLine($"  Max |V|  = {Format(summary.MaxAbsShearForce.Value)} kN      at member {DisplayEntity(summary.MaxAbsShearForce.MemberId)}, x = {Format(summary.MaxAbsShearForce.Distance)} m");
-        Console.WriteLine($"  Max |M|  = {Format(summary.MaxAbsBendingMoment.Value)} kNm     at member {DisplayEntity(summary.MaxAbsBendingMoment.MemberId)}, x = {Format(summary.MaxAbsBendingMoment.Distance)} m");
+        Console.WriteLine($"  Max |Ux| = {Format(Math.Abs(summary.MaxAbsUx.Value))} m       at node {DisplayEntity(summary.MaxAbsUx.EntityId)}");
+        Console.WriteLine($"  Max |Uy| = {Format(Math.Abs(summary.MaxAbsUy.Value))} m       at node {DisplayEntity(summary.MaxAbsUy.EntityId)}");
+        Console.WriteLine($"  Max |Rz| = {Format(Math.Abs(summary.MaxAbsRz.Value))} rad     at node {DisplayEntity(summary.MaxAbsRz.EntityId)}");
+        Console.WriteLine($"  Max |Fx| = {Format(Math.Abs(summary.MaxAbsReactionFx.Value))} kN      at support {DisplayEntity(summary.MaxAbsReactionFx.EntityId)}");
+        Console.WriteLine($"  Max |Fy| = {Format(Math.Abs(summary.MaxAbsReactionFy.Value))} kN      at support {DisplayEntity(summary.MaxAbsReactionFy.EntityId)}");
+        Console.WriteLine($"  Max |Mz| = {Format(Math.Abs(summary.MaxAbsReactionMz.Value))} kNm     at support {DisplayEntity(summary.MaxAbsReactionMz.EntityId)}");
+        Console.WriteLine($"  Max |N|  = {Format(Math.Abs(summary.MaxAbsNormalForce.Value))} kN      at member {DisplayEntity(summary.MaxAbsNormalForce.MemberId)}, x = {Format(summary.MaxAbsNormalForce.Distance)} m");
+        Console.WriteLine($"  Max |V|  = {Format(Math.Abs(summary.MaxAbsShearForce.Value))} kN      at member {DisplayEntity(summary.MaxAbsShearForce.MemberId)}, x = {Format(summary.MaxAbsShearForce.Distance)} m");
+        Console.WriteLine($"  Max |M|  = {Format(Math.Abs(summary.MaxAbsBendingMoment.Value))} kNm     at member {DisplayEntity(summary.MaxAbsBendingMoment.MemberId)}, x = {Format(summary.MaxAbsBendingMoment.Distance)} m");
     }
 
     private static string Format(double value) =>

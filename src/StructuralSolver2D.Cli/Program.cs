@@ -1,8 +1,6 @@
+using System.Text.Json;
 using StructuralSolver2D.Analysis;
-using StructuralSolver2D.Analysis.Frame2D;
-using StructuralSolver2D.Analysis.PlaneStructure2D;
-using StructuralSolver2D.Analysis.Truss2D;
-using StructuralSolver2D.Analysis.Results;
+using StructuralSolver2D.Analysis.PublicApi;
 using StructuralSolver2D.Cli.Examples;
 using StructuralSolver2D.Cli.Input;
 using StructuralSolver2D.Cli.Output;
@@ -12,11 +10,10 @@ using StructuralSolver2D.Reporting.Markdown;
 using StructuralSolver2D.Reporting.Pdf;
 using StructuralSolver2D.Reporting.Visualization;
 using StructuralSolver2D.Reporting.Xlsx;
-using StructuralSolver2D.Analysis.PublicApi;
 
 const string ApplicationName = "StructuralSolver2D";
 
-if (args.Length == 0 || IsHelpCommand(args[0]))
+if (args.Length == 0)
 {
     CliOutputWriter.WriteHelp(ApplicationName, CliExampleModelFactory.GetAvailableExamples());
     return 0;
@@ -24,6 +21,14 @@ if (args.Length == 0 || IsHelpCommand(args[0]))
 
 try
 {
+    if (!ValidateArguments(args)) return 1;
+
+    if (IsHelpCommand(args[0]))
+    {
+        CliOutputWriter.WriteHelp(ApplicationName, CliExampleModelFactory.GetAvailableExamples());
+        return 0;
+    }
+
     if (IsExampleCommand(args[0]))
     {
         return RunBuiltInExample(args);
@@ -94,6 +99,11 @@ catch (StructuralAnalysisException exception)
 
     return 2;
 }
+catch (Exception exception) when (exception is JsonException or InvalidOperationException or ArgumentException)
+{
+    CliOutputWriter.WriteError(exception.Message);
+    return 1;
+}
 catch (Exception exception)
 {
     CliOutputWriter.WriteError(exception.Message);
@@ -102,13 +112,6 @@ catch (Exception exception)
 
 int RunBuiltInExample(string[] args)
 {
-    if (args.Length < 2)
-    {
-        CliOutputWriter.WriteError("Missing example name.");
-        CliOutputWriter.WriteHelp(ApplicationName, CliExampleModelFactory.GetAvailableExamples());
-        return 1;
-    }
-
     CliExample example = CliExampleModelFactory.Create(args[1]);
     AnalyzeAndWrite(
         sourceLabel: $"Example: {example.Name}",
@@ -122,15 +125,8 @@ int RunBuiltInExample(string[] args)
 
 int RunJsonAnalysis(string[] args)
 {
-    if (args.Length < 2)
-    {
-        CliOutputWriter.WriteError("Missing JSON input file path.");
-        CliOutputWriter.WriteHelp(ApplicationName, CliExampleModelFactory.GetAvailableExamples());
-        return 1;
-    }
-
     StructuralModelJsonFile input = StructuralModelJsonReader.Read(args[1]);
-    string loadCaseId = args.Length >= 3 ? args[2] : input.LoadCaseId;
+    string loadCaseId = ResolveTargetId(input, args.ElementAtOrDefault(2));
 
     AnalyzeAndWrite(
         sourceLabel: $"Input file: {args[1]}",
@@ -144,26 +140,20 @@ int RunJsonAnalysis(string[] args)
 
 int RunMarkdownReport(string[] args)
 {
-    if (args.Length < 3)
-    {
-        CliOutputWriter.WriteError("Missing report arguments.");
-        CliOutputWriter.WriteHelp(ApplicationName, CliExampleModelFactory.GetAvailableExamples());
-        return 1;
-    }
-
     string inputPath = args[1];
     string outputPath = args[2];
+    EnsureDifferentPaths(inputPath, outputPath);
 
     StructuralModelJsonFile input = StructuralModelJsonReader.Read(inputPath);
-    string loadCaseId = args.Length >= 4 ? args[3] : input.LoadCaseId;
+    string loadCaseId = ResolveTargetId(input, args.ElementAtOrDefault(3));
 
-    AnalysisRun run = Analyze(input.Model, loadCaseId);
+    StructuralAnalysisOutput run = Analyze(input.Model, loadCaseId);
 
     var generator = new MarkdownStructuralReportGenerator();
     string markdown = generator.Generate(
         input.Model,
         run.Result,
-        run.Diagrams,
+        run.InternalForceDiagrams,
         run.DisplacementDiagrams,
         run.Summary,
         new MarkdownReportOptions
@@ -191,30 +181,27 @@ int RunMarkdownReport(string[] args)
 
 int RunCsvExport(string[] args)
 {
-    if (args.Length < 3)
-    {
-        CliOutputWriter.WriteError("Missing CSV export arguments.");
-        CliOutputWriter.WriteHelp(ApplicationName, CliExampleModelFactory.GetAvailableExamples());
-        return 1;
-    }
-
     string inputPath = args[1];
     string outputDirectory = args[2];
 
     StructuralModelJsonFile input = StructuralModelJsonReader.Read(inputPath);
-    string loadCaseId = args.Length >= 4 ? args[3] : input.LoadCaseId;
+    string loadCaseId = ResolveTargetId(input, args.ElementAtOrDefault(3));
 
-    AnalysisRun run = Analyze(input.Model, loadCaseId);
-
-    Directory.CreateDirectory(outputDirectory);
+    StructuralAnalysisOutput run = Analyze(input.Model, loadCaseId);
 
     var exporter = new CsvStructuralResultExporter();
-    WriteCsv(outputDirectory, "nodal-displacements.csv", exporter.ExportNodalDisplacements(run.Result));
-    WriteCsv(outputDirectory, "support-reactions.csv", exporter.ExportSupportReactions(run.Result));
-    WriteCsv(outputDirectory, "member-end-forces.csv", exporter.ExportMemberEndForces(run.Result));
-    WriteCsv(outputDirectory, "internal-force-samples.csv", exporter.ExportInternalForceSamples(run.Result.LoadCaseId, run.Diagrams));
-    WriteCsv(outputDirectory, "displacement-samples.csv", exporter.ExportDisplacementSamples(run.Result.LoadCaseId, run.DisplacementDiagrams));
-    WriteCsv(outputDirectory, "summary.csv", exporter.ExportSummary(run.Summary));
+    var files = new Dictionary<string, string>
+    {
+        ["nodal-displacements.csv"] = exporter.ExportNodalDisplacements(run.Result),
+        ["support-reactions.csv"] = exporter.ExportSupportReactions(run.Result),
+        ["member-end-forces.csv"] = exporter.ExportMemberEndForces(run.Result),
+        ["internal-force-samples.csv"] = exporter.ExportInternalForceSamples(run.Result.LoadCaseId, run.InternalForceDiagrams),
+        ["displacement-samples.csv"] = exporter.ExportDisplacementSamples(run.Result.LoadCaseId, run.DisplacementDiagrams),
+        ["summary.csv"] = exporter.ExportSummary(run.Summary)
+    };
+    foreach (string fileName in files.Keys) EnsureDifferentPaths(inputPath, Path.Combine(outputDirectory, fileName));
+    Directory.CreateDirectory(outputDirectory);
+    foreach (var file in files) WriteCsv(outputDirectory, file.Key, file.Value);
 
     Console.WriteLine($"CSV files written to: {outputDirectory}");
 
@@ -223,20 +210,14 @@ int RunCsvExport(string[] args)
 
 int RunXlsxExport(string[] args)
 {
-    if (args.Length < 3)
-    {
-        CliOutputWriter.WriteError("Missing XLSX export arguments.");
-        CliOutputWriter.WriteHelp(ApplicationName, CliExampleModelFactory.GetAvailableExamples());
-        return 1;
-    }
-
     string inputPath = args[1];
     string outputPath = args[2];
+    EnsureDifferentPaths(inputPath, outputPath);
 
     StructuralModelJsonFile input = StructuralModelJsonReader.Read(inputPath);
-    string loadCaseId = args.Length >= 4 ? args[3] : input.LoadCaseId;
+    string loadCaseId = ResolveTargetId(input, args.ElementAtOrDefault(3));
 
-    AnalysisRun run = Analyze(input.Model, loadCaseId);
+    StructuralAnalysisOutput run = Analyze(input.Model, loadCaseId);
 
     string? directory = Path.GetDirectoryName(outputPath);
     if (!string.IsNullOrWhiteSpace(directory))
@@ -246,7 +227,7 @@ int RunXlsxExport(string[] args)
 
     byte[] workbook = new XlsxStructuralResultExporter().Export(
         run.Result,
-        run.Diagrams,
+        run.InternalForceDiagrams,
         run.DisplacementDiagrams,
         run.Summary);
 
@@ -258,20 +239,14 @@ int RunXlsxExport(string[] args)
 
 int RunPdfExport(string[] args)
 {
-    if (args.Length < 3)
-    {
-        CliOutputWriter.WriteError("Missing PDF export arguments.");
-        CliOutputWriter.WriteHelp(ApplicationName, CliExampleModelFactory.GetAvailableExamples());
-        return 1;
-    }
-
     string inputPath = args[1];
     string outputPath = args[2];
+    EnsureDifferentPaths(inputPath, outputPath);
 
     StructuralModelJsonFile input = StructuralModelJsonReader.Read(inputPath);
-    string loadCaseId = args.Length >= 4 ? args[3] : input.LoadCaseId;
+    string loadCaseId = ResolveTargetId(input, args.ElementAtOrDefault(3));
 
-    AnalysisRun run = Analyze(input.Model, loadCaseId);
+    StructuralAnalysisOutput run = Analyze(input.Model, loadCaseId);
 
     string? directory = Path.GetDirectoryName(outputPath);
     if (!string.IsNullOrWhiteSpace(directory))
@@ -282,7 +257,7 @@ int RunPdfExport(string[] args)
     byte[] pdf = new PdfTechnicalReportExporter().Export(
         input.Model,
         run.Result,
-        run.Diagrams,
+        run.InternalForceDiagrams,
         run.DisplacementDiagrams,
         run.Summary,
         new PdfTechnicalReportOptions
@@ -300,20 +275,14 @@ int RunPdfExport(string[] args)
 
 int RunSvgExport(string[] args)
 {
-    if (args.Length < 3)
-    {
-        CliOutputWriter.WriteError("Missing SVG export arguments.");
-        CliOutputWriter.WriteHelp(ApplicationName, CliExampleModelFactory.GetAvailableExamples());
-        return 1;
-    }
-
     string inputPath = args[1];
     string outputPath = args[2];
+    EnsureDifferentPaths(inputPath, outputPath);
 
     StructuralModelJsonFile input = StructuralModelJsonReader.Read(inputPath);
-    string loadCaseId = args.Length >= 4 ? args[3] : input.LoadCaseId;
+    string loadCaseId = ResolveTargetId(input, args.ElementAtOrDefault(3));
 
-    StructuralAnalysisOutput output = AnalyzeForVisualization(input.Model, loadCaseId);
+    StructuralAnalysisOutput output = Analyze(input.Model, loadCaseId);
     StructuralVisualizationModel visualization = BuildVisualization(input.Model, output);
 
     string? directory = Path.GetDirectoryName(outputPath);
@@ -337,20 +306,14 @@ int RunSvgExport(string[] args)
 
 int RunHtmlExport(string[] args)
 {
-    if (args.Length < 3)
-    {
-        CliOutputWriter.WriteError("Missing HTML export arguments.");
-        CliOutputWriter.WriteHelp(ApplicationName, CliExampleModelFactory.GetAvailableExamples());
-        return 1;
-    }
-
     string inputPath = args[1];
     string outputPath = args[2];
+    EnsureDifferentPaths(inputPath, outputPath);
 
     StructuralModelJsonFile input = StructuralModelJsonReader.Read(inputPath);
-    string loadCaseId = args.Length >= 4 ? args[3] : input.LoadCaseId;
+    string loadCaseId = ResolveTargetId(input, args.ElementAtOrDefault(3));
 
-    StructuralAnalysisOutput output = AnalyzeForVisualization(input.Model, loadCaseId);
+    StructuralAnalysisOutput output = Analyze(input.Model, loadCaseId);
     StructuralVisualizationModel visualization = BuildVisualization(input.Model, output);
 
     string? directory = Path.GetDirectoryName(outputPath);
@@ -379,20 +342,14 @@ int RunHtmlExport(string[] args)
 
 int RunViewerExport(string[] args)
 {
-    if (args.Length < 3)
-    {
-        CliOutputWriter.WriteError("Missing viewer export arguments.");
-        CliOutputWriter.WriteHelp(ApplicationName, CliExampleModelFactory.GetAvailableExamples());
-        return 1;
-    }
-
     string inputPath = args[1];
     string outputPath = args[2];
+    EnsureDifferentPaths(inputPath, outputPath);
 
     StructuralModelJsonFile input = StructuralModelJsonReader.Read(inputPath);
-    string loadCaseId = args.Length >= 4 ? args[3] : input.LoadCaseId;
+    string loadCaseId = ResolveTargetId(input, args.ElementAtOrDefault(3));
 
-    StructuralAnalysisOutput output = AnalyzeForVisualization(input.Model, loadCaseId);
+    StructuralAnalysisOutput output = Analyze(input.Model, loadCaseId);
     StructuralVisualizationModel visualization = BuildVisualization(input.Model, output);
 
     string? directory = Path.GetDirectoryName(outputPath);
@@ -436,31 +393,21 @@ StructuralVisualizationModel BuildVisualization(StructuralModel model, Structura
         });
 }
 
-StructuralAnalysisOutput AnalyzeForVisualization(StructuralModel model, string loadCaseId)
+StructuralAnalysisOutput Analyze(StructuralModel model, string loadCaseId)
 {
     var service = new StructuralSolver2DService();
     bool isCombination = model.LoadCombinations.Any(
         combination => string.Equals(combination.Id, loadCaseId, StringComparison.OrdinalIgnoreCase));
+    var options = new StructuralAnalysisOptions
+    {
+        IncludeDisplacementDiagrams = true,
+        InternalForceSampleCount = 21,
+        DisplacementSampleCount = 21
+    };
 
     return isCombination
-        ? service.AnalyzeLoadCombination(
-            model,
-            loadCaseId,
-            new StructuralAnalysisOptions
-            {
-                IncludeDisplacementDiagrams = true,
-                InternalForceSampleCount = 21,
-                DisplacementSampleCount = 21,
-            })
-        : service.AnalyzeLoadCase(
-            model,
-            loadCaseId,
-            new StructuralAnalysisOptions
-            {
-                IncludeDisplacementDiagrams = true,
-                InternalForceSampleCount = 21,
-                DisplacementSampleCount = 21,
-            });
+        ? service.AnalyzeLoadCombination(model, loadCaseId, options)
+        : service.AnalyzeLoadCase(model, loadCaseId, options);
 }
 
 void WriteCsv(string outputDirectory, string fileName, string content)
@@ -476,62 +423,46 @@ void AnalyzeAndWrite(
     StructuralModel model,
     string loadCaseId)
 {
-    AnalysisRun run = Analyze(model, loadCaseId);
+    StructuralAnalysisOutput run = Analyze(model, loadCaseId);
 
     CliOutputWriter.WriteAnalysisResult(ApplicationName, sourceLabel, title, description, run.Result, run.Summary);
 }
 
-AnalysisRun Analyze(StructuralModel model, string loadCaseId)
+string ResolveTargetId(StructuralModelJsonFile input, string? explicitTargetId)
 {
-    StructuralAnalysisResult result;
-    IReadOnlyList<MemberDisplacementDiagram> displacementDiagrams;
+    if (explicitTargetId is not null) return explicitTargetId;
+    if (input.DefaultTargetIsCombination && !input.Model.LoadCombinations.Any(combination =>
+        string.Equals(combination.Id, input.LoadCaseId, StringComparison.OrdinalIgnoreCase)))
+        throw new StructuralAnalysisException($"Default load combination '{input.LoadCaseId}' was not found in the structural model.");
+    return input.LoadCaseId;
+}
 
-    bool isTrussOnlyModel = model.Members.Count > 0 &&
-        model.Members.All(member => member.Type == StructuralSolver2D.Core.Model.Enums.MemberType.Truss2D);
-    bool isFrameOnlyModel = model.Members.Count > 0 &&
-        model.Members.All(member => member.Type == StructuralSolver2D.Core.Model.Enums.MemberType.Frame2D);
-    bool isCombination = model.LoadCombinations.Any(
-        combination => string.Equals(combination.Id, loadCaseId, StringComparison.OrdinalIgnoreCase));
+void EnsureDifferentPaths(string inputPath, string outputPath)
+{
+    StringComparison comparison = OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+    if (string.Equals(Path.GetFullPath(inputPath), Path.GetFullPath(outputPath), comparison))
+        throw new ArgumentException("The output path must be different from the input model path.");
+}
 
-    if (isTrussOnlyModel)
+bool ValidateArguments(string[] arguments)
+{
+    string command = arguments[0];
+    (int Minimum, int Maximum)? arity = command switch
     {
-        var analyzer = new Truss2DAnalyzer();
-        result = isCombination
-            ? analyzer.AnalyzeCombination(model, loadCaseId)
-            : analyzer.Analyze(model, loadCaseId);
-
-        displacementDiagrams = Array.Empty<MemberDisplacementDiagram>();
-    }
-    else if (isFrameOnlyModel)
-    {
-        var analyzer = new Frame2DAnalyzer();
-        result = isCombination
-            ? analyzer.AnalyzeCombination(model, loadCaseId)
-            : analyzer.Analyze(model, loadCaseId);
-
-        displacementDiagrams = new Frame2DDisplacementSampler().SampleAllMembers(model, result, sampleCount: 21);
-    }
-    else
-    {
-        var analyzer = new PlaneStructureAnalyzer();
-        result = isCombination
-            ? analyzer.AnalyzeCombination(model, loadCaseId)
-            : analyzer.Analyze(model, loadCaseId);
-
-        var displacementSampler = new Frame2DDisplacementSampler();
-        displacementDiagrams = model.Members
-            .Where(member => member.Type == StructuralSolver2D.Core.Model.Enums.MemberType.Frame2D)
-            .Select(member => displacementSampler.SampleMember(model, result, member.Id, sampleCount: 21))
-            .ToList();
-    }
-
-    var sampler = new Frame2DInternalForceSampler();
-    IReadOnlyList<MemberInternalForceDiagram> diagrams = sampler.SampleAllMembers(model, result, sampleCount: 21);
-
-    var summarizer = new Frame2DResultSummarizer();
-    StructuralAnalysisSummary summary = summarizer.Summarize(result, diagrams);
-
-    return new AnalysisRun(result, diagrams, displacementDiagrams, summary);
+        _ when IsHelpCommand(command) => (1, 1),
+        _ when IsExampleCommand(command) => (2, 2),
+        _ when IsAnalyzeCommand(command) => (2, 3),
+        _ when IsReportCommand(command) || IsCsvExportCommand(command) || IsXlsxExportCommand(command) ||
+            IsPdfExportCommand(command) || IsSvgExportCommand(command) || IsHtmlExportCommand(command) || IsViewerExportCommand(command) => (3, 4),
+        _ => null
+    };
+    if (arity is null) return true; // The dispatcher reports unknown commands.
+    if (arguments.Length >= arity.Value.Minimum && arguments.Length <= arity.Value.Maximum) return true;
+    CliOutputWriter.WriteError(arguments.Length < arity.Value.Minimum
+        ? $"Missing arguments for command '{command}'."
+        : $"Unexpected argument(s) for command '{command}': {string.Join(" ", arguments.Skip(arity.Value.Maximum))}");
+    CliOutputWriter.WriteHelp(ApplicationName, CliExampleModelFactory.GetAvailableExamples());
+    return false;
 }
 
 static bool IsHelpCommand(string command) =>
@@ -574,9 +505,3 @@ static bool IsHtmlExportCommand(string command) =>
 static bool IsViewerExportCommand(string command) =>
     string.Equals(command, "export-viewer", StringComparison.OrdinalIgnoreCase) ||
     string.Equals(command, "viewer", StringComparison.OrdinalIgnoreCase);
-
-internal sealed record AnalysisRun(
-    StructuralAnalysisResult Result,
-    IReadOnlyList<MemberInternalForceDiagram> Diagrams,
-    IReadOnlyList<MemberDisplacementDiagram> DisplacementDiagrams,
-    StructuralAnalysisSummary Summary);

@@ -116,6 +116,12 @@ Example:
 | `loads` | no | Loads assigned to load cases. |
 | `loadCombinations` | no | Manual load combinations. |
 
+When the default comes from `loadCombinationId`, it must identify a defined combination; an existing load case with that id is not used as a fallback. The explicit final CLI argument overrides the default and may select either a case or a combination. For compatibility, `loadCaseId` also accepts an existing combination id.
+
+Required numeric properties must be present and non-null: node `x`/`y`, material `elasticModulus`, section `area`/`momentOfInertia`, load `value`, and combination term `factor`. An explicit zero remains distinct from an absent property and is accepted wherever the model rules allow it, such as a node coordinate, a triangular load start value, or truss inertia. Optional numeric properties retain their documented defaults.
+
+Collection entries must be objects, not `null`. Invalid entries report their path and index, for example `loadCombinations[0].terms[1]`.
+
 ---
 
 ## Nodes

@@ -10,6 +10,12 @@ The format follows a simple milestone-based structure. StructuralSolver2D is sti
 
 ### Fixed
 
+- CLI report/export commands reject output paths that would overwrite their input model, including every generated CSV filename.
+- JSON input distinguishes missing/null required numbers from explicit zero and identifies null collection elements by path and index.
+- All CLI analysis/report/export commands share the public analysis workflow; unused load cases no longer trigger different analyzer behavior between commands.
+- A default `loadCombinationId` must identify a combination, explicit target overrides remain supported, and commands reject extra arguments before reading or writing files.
+- Removed disconnected duplicate roof nodes from the distributed house-with-balconies example, and console absolute summaries now show magnitudes while detailed results retain their signs.
+- Added CLI reader and process regression coverage for source preservation, aliases, input errors, case/combination selection, reactions, extrema and distributed examples.
 - Reporting station labels interpolate sampled displacements at the requested quarter-span positions instead of relabeling the nearest sample.
 - Interactive viewer reset restores the initial view; zoom and pan account for SVG aspect-ratio margins, and the maximum displacement callout follows deformation scaling and animation.
 - PDF pagination checks every wrapped text line, Markdown reports include local support restraints and orientation, and XLSX numeric cells preserve small values with round-trip serialization.
