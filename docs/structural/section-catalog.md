@@ -97,6 +97,10 @@ The catalog validates:
 The model validator requires strictly positive inertia whenever a section is assigned to a `Frame2D` member.
 Negative and non-finite inertia are rejected for all sections, including those assigned only to `Truss2D` members.
 
+JSON `area` and `momentOfInertia` must be present and non-null. An explicit `"momentOfInertia": 0` remains valid for axial-only sections; omitting or misspelling the property is rejected with its `sections[index]` path. Optional height and width may be null; when supplied, their positive/finite checks agree with the model validator.
+
+The geometric section factories compute products with binary scaling and factor hollow-section formulas to avoid losing thin walls through subtraction of large powers. Calculated area and inertia must be representable as positive finite `double` values; otherwise the factory throws `ArgumentOutOfRangeException`. Positive subnormal properties are preserved when representable. These factory checks concern geometric sections; the catalog still supports explicitly supplied zero inertia for axial-only sections.
+
 ## Current scope
 
 This milestone intentionally does not yet add:

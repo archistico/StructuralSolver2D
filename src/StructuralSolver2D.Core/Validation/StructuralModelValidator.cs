@@ -39,6 +39,7 @@ public sealed class StructuralModelValidator
         ArgumentNullException.ThrowIfNull(model);
 
         List<StructuralModelValidationIssue> issues = new();
+        model = RemoveNullEntries(model, issues);
 
         ValidateIdentifiers(model.Nodes.Select(node => node.Id), "NODE_DUPLICATE_ID", "Duplicate node id.", issues);
         ValidateIdentifiers(model.Members.Select(member => member.Id), "MEMBER_DUPLICATE_ID", "Duplicate member id.", issues);
@@ -107,6 +108,49 @@ public sealed class StructuralModelValidator
         }
     }
 
+    private static StructuralModel RemoveNullEntries(StructuralModel source, List<StructuralModelValidationIssue> issues)
+    {
+        if (!source.Nodes.Any(item => item is null) && !source.Members.Any(item => item is null) &&
+            !source.Materials.Any(item => item is null) && !source.Sections.Any(item => item is null) &&
+            !source.Supports.Any(item => item is null) && !source.LoadCases.Any(item => item is null) &&
+            !source.Loads.Any(item => item is null) &&
+            !source.LoadCombinations.Any(item => item is null || item.Terms.Any(term => term is null)))
+            return source;
+
+        // Continue checking other errors in a local snapshot, without modifying the caller's lists.
+        var clean = new StructuralModel();
+        CopyNonNull(source.Nodes, clean.Nodes, "Nodes", "NODE_NULL_ENTRY", issues);
+        CopyNonNull(source.Members, clean.Members, "Members", "MEMBER_NULL_ENTRY", issues);
+        CopyNonNull(source.Materials, clean.Materials, "Materials", "MATERIAL_NULL_ENTRY", issues);
+        CopyNonNull(source.Sections, clean.Sections, "Sections", "SECTION_NULL_ENTRY", issues);
+        CopyNonNull(source.Supports, clean.Supports, "Supports", "SUPPORT_NULL_ENTRY", issues);
+        CopyNonNull(source.LoadCases, clean.LoadCases, "LoadCases", "LOAD_CASE_NULL_ENTRY", issues);
+        CopyNonNull(source.Loads, clean.Loads, "Loads", "LOAD_NULL_ENTRY", issues);
+        for (int index = 0; index < source.LoadCombinations.Count; index++)
+        {
+            var combination = source.LoadCombinations[index];
+            if (combination is null)
+            {
+                AddError(issues, "LOAD_COMBINATION_NULL_ENTRY", $"LoadCombinations[{index}] must not be null.");
+                continue;
+            }
+            var terms = new List<StructuralLoadCombinationTerm>();
+            CopyNonNull(combination.Terms, terms, $"LoadCombinations[{index}].Terms", "LOAD_COMBINATION_NULL_TERM", issues);
+            clean.AddLoadCombination(new StructuralLoadCombination(combination.Id, combination.Name, terms, combination.Description));
+        }
+        return clean;
+    }
+
+    private static void CopyNonNull<T>(IList<T> source, IList<T> target, string path, string code,
+        List<StructuralModelValidationIssue> issues) where T : class
+    {
+        for (int index = 0; index < source.Count; index++)
+        {
+            if (source[index] is { } item) target.Add(item);
+            else AddError(issues, code, $"{path}[{index}] must not be null.");
+        }
+    }
+
     private static void ValidateNodes(StructuralModel model, List<StructuralModelValidationIssue> issues)
     {
         foreach (StructuralNode node in model.Nodes)
@@ -152,6 +196,11 @@ public sealed class StructuralModelValidator
             {
                 AddError(issues, "SECTION_INVALID_AREA", $"Section '{section.Id}' has invalid area.", section.Id);
             }
+
+            if (section.Height is { } height && (height <= 0 || !double.IsFinite(height)))
+                AddError(issues, "SECTION_INVALID_HEIGHT", $"Section '{section.Id}' must have positive finite height when specified.", section.Id);
+            if (section.Width is { } width && (width <= 0 || !double.IsFinite(width)))
+                AddError(issues, "SECTION_INVALID_WIDTH", $"Section '{section.Id}' must have positive finite width when specified.", section.Id);
 
             bool sectionUsedByFrameMember = model.Members.Any(member =>
                 string.Equals(member.SectionId, section.Id, StringComparison.OrdinalIgnoreCase) &&
@@ -207,7 +256,11 @@ public sealed class StructuralModelValidator
                 nodesById.TryGetValue(member.EndNodeId, out StructuralNode? endNode))
             {
                 double length = StructuralMember.GetLength(startNode, endNode);
-                if (length <= lengthTolerance)
+                if (!double.IsFinite(length))
+                {
+                    AddError(issues, "MEMBER_INVALID_LENGTH", $"Member '{member.Id}' has a non-finite or unrepresentable length.", member.Id);
+                }
+                else if (length <= lengthTolerance)
                 {
                     AddError(issues, "MEMBER_ZERO_LENGTH", $"Member '{member.Id}' has zero or near-zero length.", member.Id);
                 }
@@ -221,6 +274,8 @@ public sealed class StructuralModelValidator
 
         foreach (StructuralSupport support in model.Supports)
         {
+            if (!Enum.IsDefined(support.Type))
+                AddError(issues, "SUPPORT_INVALID_TYPE", $"Support '{support.Id}' has an invalid support type.", support.Id);
             if (!nodeIds.Contains(support.NodeId))
             {
                 AddError(issues, "SUPPORT_NODE_NOT_FOUND", $"Support '{support.Id}' references missing node '{support.NodeId}'.", support.Id);

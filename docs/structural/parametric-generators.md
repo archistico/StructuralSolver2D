@@ -19,6 +19,8 @@ Most generators do not add design loads automatically. This keeps geometry gener
 
 All dimensions must be positive and finite. Zero, negative values, NaN and infinity are rejected with `ArgumentOutOfRangeException`.
 
+Beam interpolation and parabolic ordinates normalize the position before multiplying large dimensions, avoiding overflow when the final coordinate is representable. Rounded coincident panel/division nodes, a collapsed curved-chord ordinate, and Gerber span endpoints that overflow or collapse onto the preceding endpoint are rejected with `ArgumentOutOfRangeException`. Member lengths outside the numeric range are diagnosed by the model validator.
+
 ## Beam generators
 
 ```csharp

@@ -309,11 +309,19 @@ The model should detect at least:
 - invalid elastic modulus;
 - invalid area;
 - invalid moment of inertia;
+- non-positive/non-finite optional section height or width;
+- undefined support type values;
+- non-finite or unrepresentable member lengths;
+- null entries in entity collections or load-combination terms, identified by collection/index;
 - loads targeting missing nodes or members;
 - supports targeting missing nodes;
 - missing restraints that may cause instability.
 
 Numerical instability must produce a controlled analysis failure, not random results.
+
+`StructuralMember.GetLength` uses a scaled norm so representable large or small lengths are not lost by squaring their components. The validator distinguishes a non-finite length (`MEMBER_INVALID_LENGTH`) from a zero or near-zero length (`MEMBER_ZERO_LENGTH`) and honors the configured length tolerance.
+
+Fluent `Add*` methods reject null arguments immediately; the load-combination constructor also rejects null terms. Lists remain mutable. If a caller inserts null into a list afterwards, validation records an indexed error and continues checking the remaining entities in a local snapshot, leaving the original model untouched. `SupportType` is checked as metadata; the explicit restraint flags continue to define the mechanical constraints.
 
 
 ## Support orientation

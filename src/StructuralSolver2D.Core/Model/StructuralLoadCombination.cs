@@ -22,6 +22,8 @@ public sealed class StructuralLoadCombination
         Id = id;
         Name = name;
         Terms = terms?.ToList() ?? throw new ArgumentNullException(nameof(terms));
+        if (Terms.Any(term => term is null))
+            throw new ArgumentException("Combination terms must not contain null entries.", nameof(terms));
         Description = description;
     }
 

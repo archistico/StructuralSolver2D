@@ -129,16 +129,23 @@ public static class ParametricTrussGenerator
 
         // Both chords meet at the same structural node at each support.
         string CurvedNodeId(int index) => index == 0 || index == panels ? BottomNodeId(index) : TopNodeId(index);
+        double previousX = -1;
         for (int i = 0; i < panels; i++)
         {
             double t = (double)i / panels;
-            model.AddNode(new StructuralNode(BottomNodeId(i), span * t, 0.0, "Bottom chord node"));
+            double x = span * t;
+            EnsureDistinctCoordinate(x, previousX, panels);
+            previousX = x;
+            model.AddNode(new StructuralNode(BottomNodeId(i), x, 0.0, "Bottom chord node"));
             if (i > 0)
             {
-                double ordinate = 4.0 * rise * t * (1.0 - t);
-                model.AddNode(new StructuralNode(TopNodeId(i), span * t, inverted ? -ordinate : ordinate, "Curved chord node"));
+                double ordinate = rise * Math.Min(1.0, 4.0 * t * (1.0 - t));
+                if (ordinate == 0)
+                    throw new ArgumentOutOfRangeException(nameof(rise), rise, "The curved chord ordinate cannot be represented separately from the deck.");
+                model.AddNode(new StructuralNode(TopNodeId(i), x, inverted ? -ordinate : ordinate, "Curved chord node"));
             }
         }
+        EnsureDistinctCoordinate(span, previousX, panels);
         model.AddNode(new StructuralNode(BottomNodeId(panels), span, 0.0, "Bottom chord node"));
 
         int memberIndex = 1;
@@ -172,10 +179,13 @@ public static class ParametricTrussGenerator
         int panels,
         Func<double, double> topYSelector)
     {
+        double previousX = -1;
         for (int i = 0; i <= panels; i++)
         {
             double t = (double)i / panels;
             double x = span * t;
+            EnsureDistinctCoordinate(x, previousX, panels);
+            previousX = x;
             model.AddNode(new StructuralNode(BottomNodeId(i), x, 0.0, "Bottom chord node"));
             model.AddNode(new StructuralNode(TopNodeId(i), x, topYSelector(t), "Upper/lower curved chord node"));
         }
@@ -240,6 +250,12 @@ public static class ParametricTrussGenerator
     private static string BottomNodeId(int index) => FormattableString.Invariant($"B{index}");
 
     private static string TopNodeId(int index) => FormattableString.Invariant($"T{index}");
+
+    private static void EnsureDistinctCoordinate(double x, double previousX, int panels)
+    {
+        if (x <= previousX)
+            throw new ArgumentOutOfRangeException(nameof(panels), panels, "The panel spacing cannot be represented by distinct coordinates.");
+    }
 
     private static void EnsurePositive(double value, string parameterName)
     {

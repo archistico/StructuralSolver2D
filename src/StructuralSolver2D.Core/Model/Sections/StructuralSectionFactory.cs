@@ -28,8 +28,9 @@ public static class StructuralSectionFactory
         ValidatePositiveFinite(width, nameof(width));
         ValidatePositiveFinite(height, nameof(height));
 
-        double area = width * height;
-        double momentOfInertia = width * Math.Pow(height, 3.0) / 12.0;
+        double area = Product(width, height);
+        double momentOfInertia = Product(1.0 / 12.0, width, height, height, height);
+        ValidateProperties(area, momentOfInertia);
 
         return new StructuralSection(
             id,
@@ -78,8 +79,9 @@ public static class StructuralSectionFactory
         ValidateIdentifier(id);
         ValidatePositiveFinite(diameter, nameof(diameter));
 
-        double area = Math.PI * Math.Pow(diameter, 2.0) / 4.0;
-        double momentOfInertia = Math.PI * Math.Pow(diameter, 4.0) / 64.0;
+        double area = Product(Math.PI / 4.0, diameter, diameter);
+        double momentOfInertia = Product(Math.PI / 64.0, diameter, diameter, diameter, diameter);
+        ValidateProperties(area, momentOfInertia);
 
         return new StructuralSection(
             id,
@@ -117,8 +119,13 @@ public static class StructuralSectionFactory
                 "The inner diameter must be smaller than the outer diameter.");
         }
 
-        double area = Math.PI * (Math.Pow(outerDiameter, 2.0) - Math.Pow(innerDiameter, 2.0)) / 4.0;
-        double momentOfInertia = Math.PI * (Math.Pow(outerDiameter, 4.0) - Math.Pow(innerDiameter, 4.0)) / 64.0;
+        // Factor differences of powers; the diameter gap remains accurate for thin walls.
+        double gap = outerDiameter - innerDiameter;
+        double ratio = innerDiameter / outerDiameter;
+        double area = Product(Math.PI / 4.0, gap, outerDiameter, 1 + ratio);
+        double momentOfInertia = Product(Math.PI / 64.0, gap, outerDiameter, outerDiameter, outerDiameter,
+            (1 + ratio) * (1 + ratio * ratio));
+        ValidateProperties(area, momentOfInertia);
 
         return new StructuralSection(
             id,
@@ -135,6 +142,29 @@ public static class StructuralSectionFactory
         {
             throw new ArgumentException("The section identifier must not be empty.", nameof(id));
         }
+    }
+
+    private static double Product(params double[] factors)
+    {
+        // Multiply normalized mantissas and apply the combined binary exponent once.
+        // All factors here are positive and finite, with at most six bounded mantissas.
+        double mantissa = 1;
+        int exponent = 0;
+        foreach (double factor in factors)
+        {
+            int factorExponent = Math.ILogB(factor);
+            mantissa *= Math.ScaleB(factor, -factorExponent);
+            exponent += factorExponent;
+        }
+        return Math.ScaleB(mantissa, exponent);
+    }
+
+    private static void ValidateProperties(double area, double momentOfInertia)
+    {
+        if (area <= 0 || !double.IsFinite(area))
+            throw new ArgumentOutOfRangeException(nameof(area), area, "Calculated section area must be representable as a positive finite value.");
+        if (momentOfInertia <= 0 || !double.IsFinite(momentOfInertia))
+            throw new ArgumentOutOfRangeException(nameof(momentOfInertia), momentOfInertia, "Calculated section inertia must be representable as a positive finite value.");
     }
 
     private static void ValidatePositiveFinite(double value, string parameterName)

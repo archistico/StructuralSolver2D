@@ -10,6 +10,9 @@ The format follows a simple milestone-based structure. StructuralSolver2D is sti
 
 ### Fixed
 
+- Second Core review: section catalog JSON rejects missing/null inertia while preserving explicit zero; model validation checks optional section dimensions and support enums. Null model entries and combination terms produce indexed validation issues, and fluent additions reject null immediately.
+- Member lengths use a scaled norm and reject non-finite lengths during validation. Section factories avoid intermediate overflow/underflow, preserve representable subnormal results and thin walls, and reject unrepresentable properties. Generators normalize interpolation before multiplying dimensions and reject collapsed or overflowing coordinates.
+- Added 88 Core regression cases and four CLI process cases for the second review; the complete .NET suite passes 866 cases.
 - Static deformation playback now follows undeformed → deformed → undeformed with a non-negative loading/unloading factor, replacing the misleading displacement reversal. Prepared frames use the same cycle. Added uniform-load beam regressions across the whole browser cycle and four frame counts; browser coverage now runs 333 checks.
 - Deformation animation preserves nonuniform sample origins, fits both cycle peaks and the moving maximum callout, changes speed without phase jumps, and stops when the deformed layer is hidden. Added analytical cantilever and per-sample browser comparisons; coverage now includes 273 browser checks and three additional Reporting cases.
 - Second Reporting review: independent SVG context layers, one viewer animation loop, preserved caller options and exact fractional initial controls.

@@ -47,7 +47,7 @@ public static class StructuralSectionCatalogJsonSerializer
             throw new ArgumentException("The section catalog JSON cannot be empty.", nameof(json));
         }
 
-        SectionCatalogDocument? document = JsonSerializer.Deserialize<SectionCatalogDocument>(json, JsonOptions);
+        SectionCatalogInputDocument? document = JsonSerializer.Deserialize<SectionCatalogInputDocument>(json, JsonOptions);
         if (document is null)
         {
             throw new InvalidOperationException("The section catalog JSON could not be read.");
@@ -63,7 +63,15 @@ public static class StructuralSectionCatalogJsonSerializer
             throw new InvalidOperationException("The section catalog JSON does not contain a sections array.");
         }
 
-        return new StructuralSectionCatalog(document.Sections);
+        return new StructuralSectionCatalog(document.Sections.Select((section, index) =>
+        {
+            if (section is null)
+                throw new InvalidOperationException($"sections[{index}] must not be null.");
+            return new StructuralSection(section.Id, section.Name,
+                section.Area ?? throw new InvalidOperationException($"sections[{index}].area is required."),
+                section.MomentOfInertia ?? throw new InvalidOperationException($"sections[{index}].momentOfInertia is required."),
+                section.Height, section.Width);
+        }));
     }
 
     /// <summary>
@@ -102,4 +110,8 @@ public static class StructuralSectionCatalogJsonSerializer
         int SchemaVersion,
         string Title,
         IReadOnlyList<StructuralSection> Sections);
+
+    // Nullable input numbers distinguish omission/null from an intentionally declared zero.
+    private sealed record SectionCatalogInputDocument(int SchemaVersion, string? Title, IReadOnlyList<SectionInput?>? Sections);
+    private sealed record SectionInput(string Id, string Name, double? Area, double? MomentOfInertia, double? Height, double? Width);
 }

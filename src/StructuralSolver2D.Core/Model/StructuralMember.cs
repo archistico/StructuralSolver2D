@@ -34,9 +34,11 @@ public sealed record StructuralMember(
     /// <returns>Member length in meters.</returns>
     public static double GetLength(StructuralNode startNode, StructuralNode endNode)
     {
-        double dx = endNode.X - startNode.X;
-        double dy = endNode.Y - startNode.Y;
-
-        return Math.Sqrt((dx * dx) + (dy * dy));
+        double dx = Math.Abs(endNode.X - startNode.X);
+        double dy = Math.Abs(endNode.Y - startNode.Y);
+        double largest = Math.Max(dx, dy);
+        if (largest == 0 || !double.IsFinite(largest)) return largest;
+        double ratio = Math.Min(dx, dy) / largest;
+        return largest * Math.Sqrt(1 + ratio * ratio);
     }
 }

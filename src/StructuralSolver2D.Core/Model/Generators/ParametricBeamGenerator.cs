@@ -23,7 +23,9 @@ public static class ParametricBeamGenerator
 
         for (int i = 0; i <= divisions; i++)
         {
-            double x = span * i / divisions;
+            double x = span * ((double)i / divisions);
+            if (i > 0 && x <= model.Nodes[^1].X)
+                throw new ArgumentOutOfRangeException(nameof(divisions), divisions, "The division spacing cannot be represented by distinct coordinates.");
             model.AddNode(new StructuralNode(NodeId(i), x, 0.0));
         }
 
@@ -65,8 +67,8 @@ public static class ParametricBeamGenerator
 
         double x0 = 0.0;
         double x1 = leftSpan;
-        double x2 = leftSpan + suspendedSpan;
-        double x3 = leftSpan + suspendedSpan + rightSpan;
+        double x2 = AddSpan(x1, suspendedSpan, nameof(suspendedSpan));
+        double x3 = AddSpan(x2, rightSpan, nameof(rightSpan));
 
         model.AddNode(new StructuralNode("N0", x0, 0.0, "Left support"));
         model.AddNode(new StructuralNode("N1", x1, 0.0, "Left internal hinge"));
@@ -107,6 +109,14 @@ public static class ParametricBeamGenerator
     private static string NodeId(int index) => FormattableString.Invariant($"N{index}");
 
     private static string MemberId(int index) => FormattableString.Invariant($"M{index}");
+
+    private static double AddSpan(double start, double span, string parameterName)
+    {
+        double end = start + span;
+        if (!double.IsFinite(end) || end <= start)
+            throw new ArgumentOutOfRangeException(parameterName, span, "The span endpoint cannot be represented by a distinct finite coordinate.");
+        return end;
+    }
 
     private static void EnsurePositive(double value, string parameterName)
     {

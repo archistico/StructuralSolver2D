@@ -52,6 +52,7 @@ public sealed class StructuralModel
     /// </summary>
     public StructuralModel AddNode(StructuralNode node)
     {
+        ArgumentNullException.ThrowIfNull(node);
         Nodes.Add(node);
         return this;
     }
@@ -61,6 +62,7 @@ public sealed class StructuralModel
     /// </summary>
     public StructuralModel AddMember(StructuralMember member)
     {
+        ArgumentNullException.ThrowIfNull(member);
         Members.Add(member);
         return this;
     }
@@ -70,6 +72,7 @@ public sealed class StructuralModel
     /// </summary>
     public StructuralModel AddMaterial(StructuralMaterial material)
     {
+        ArgumentNullException.ThrowIfNull(material);
         Materials.Add(material);
         return this;
     }
@@ -79,6 +82,7 @@ public sealed class StructuralModel
     /// </summary>
     public StructuralModel AddSection(StructuralSection section)
     {
+        ArgumentNullException.ThrowIfNull(section);
         Sections.Add(section);
         return this;
     }
@@ -88,6 +92,7 @@ public sealed class StructuralModel
     /// </summary>
     public StructuralModel AddSupport(StructuralSupport support)
     {
+        ArgumentNullException.ThrowIfNull(support);
         Supports.Add(support);
         return this;
     }
@@ -97,6 +102,7 @@ public sealed class StructuralModel
     /// </summary>
     public StructuralModel AddLoadCase(StructuralLoadCase loadCase)
     {
+        ArgumentNullException.ThrowIfNull(loadCase);
         LoadCases.Add(loadCase);
         return this;
     }
@@ -106,6 +112,7 @@ public sealed class StructuralModel
     /// </summary>
     public StructuralModel AddLoad(StructuralLoad load)
     {
+        ArgumentNullException.ThrowIfNull(load);
         Loads.Add(load);
         return this;
     }
@@ -115,6 +122,7 @@ public sealed class StructuralModel
     /// </summary>
     public StructuralModel AddLoadCombination(StructuralLoadCombination combination)
     {
+        ArgumentNullException.ThrowIfNull(combination);
         LoadCombinations.Add(combination);
         return this;
     }
