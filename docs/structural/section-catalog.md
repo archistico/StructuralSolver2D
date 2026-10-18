@@ -89,10 +89,13 @@ The catalog validates:
 - non-empty id;
 - non-empty name;
 - positive finite area;
-- positive finite moment of inertia;
+- non-negative finite moment of inertia (zero is allowed for axial-only sections);
 - positive finite optional height;
 - positive finite optional width;
 - duplicate section ids, matched case-insensitively.
+
+The model validator requires strictly positive inertia whenever a section is assigned to a `Frame2D` member.
+Negative and non-finite inertia are rejected for all sections, including those assigned only to `Truss2D` members.
 
 ## Current scope
 

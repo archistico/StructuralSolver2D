@@ -1,5 +1,6 @@
 using StructuralSolver2D.Cli.Input;
 using StructuralSolver2D.Core.Model.Enums;
+using StructuralSolver2D.Core.Validation;
 
 namespace StructuralSolver2D.Cli.Tests.Input;
 
@@ -139,6 +140,34 @@ public sealed class StructuralModelJsonReaderTests
         string missingPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"), "missing.json");
 
         Assert.Throws<FileNotFoundException>(() => StructuralModelJsonReader.Read(missingPath));
+    }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(999)]
+    public void Read_NumericUndefinedMemberType_ShouldFailModelValidation(int type)
+    {
+        string path = WriteTempJson($$"""
+        {
+          "nodes": [{ "id": "A", "x": 0, "y": 0 }, { "id": "B", "x": 5, "y": 0 }],
+          "materials": [{ "id": "MAT", "name": "Steel", "elasticModulus": 210000000 }],
+          "sections": [{ "id": "SEC", "name": "Section", "area": 0.01, "momentOfInertia": 0.00002 }],
+          "members": [{ "id": "M1", "startNodeId": "A", "endNodeId": "B", "materialId": "MAT", "sectionId": "SEC", "type": {{type}} }],
+          "loadCases": [{ "id": "LC1", "name": "Default" }]
+        }
+        """);
+        try
+        {
+            var model = StructuralModelJsonReader.Read(path).Model;
+            var validation = new StructuralModelValidator().Validate(model);
+            Assert.False(validation.IsValid);
+            Assert.Contains(validation.Errors, issue => issue.Code == "MEMBER_INVALID_TYPE");
+        }
+        finally
+        {
+            File.Delete(path);
+            Directory.Delete(Path.GetDirectoryName(path)!);
+        }
     }
 
     private static string WriteTempJson(string json)

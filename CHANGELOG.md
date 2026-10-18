@@ -6,6 +6,17 @@ The format follows a simple milestone-based structure. StructuralSolver2D is sti
 
 ---
 
+## Unreleased
+
+### Fixed
+
+- Parabolic truss generators now share chord end nodes and avoid duplicate end-panel diagonals.
+- The Gerber generator uses stable cantilever end restraints around its suspended span.
+- Validation rejects conflicting load-case/combination identifiers and undefined member types, and reports null member-node references without throwing.
+- Section catalogs support zero inertia for truss sections; model validation still requires positive inertia for frame use and rejects negative or non-finite inertia everywhere.
+- All parametric generators reject non-finite dimensions.
+- Added regression coverage for generator topology, analytical reactions and deflections, nodal equilibrium, load diagrams, section persistence and invalid inputs.
+
 ## 0.1.0 - First technical release
 
 ### Release type

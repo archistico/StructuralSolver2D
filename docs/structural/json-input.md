@@ -571,6 +571,9 @@ This is useful when the load is naturally described relative to the member, for 
 
 Manual load combinations combine existing load cases.
 
+Case and combination identifiers must also be distinct from each other, ignoring case.
+For example, a combination `lc1` conflicts with an existing case `LC1` and produces validation error `LOAD_COMBINATION_ID_CONFLICT`.
+
 ```json
 {
   "id": "ULS1",

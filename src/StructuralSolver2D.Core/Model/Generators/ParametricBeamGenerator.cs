@@ -47,6 +47,8 @@ public static class ParametricBeamGenerator
     /// <summary>
     /// Creates a Gerber beam with two internal hinges and asymmetric vertical point loads.
     /// The hinges are represented by end moment releases on the adjacent frame members.
+    /// The outer spans are cantilevers: the left end is fixed and the right end restrains
+    /// vertical translation and rotation while allowing horizontal translation.
     /// </summary>
     public static StructuralModel GerberBeamWithAsymmetricLoads(
         double leftSpan,
@@ -75,8 +77,8 @@ public static class ParametricBeamGenerator
         model.AddMember(new StructuralMember("M2", "N1", "N2", options.Material.Id, options.Section.Id, options.FrameMemberType, ReleaseStartMoment: true, ReleaseEndMoment: true));
         model.AddMember(new StructuralMember("M3", "N2", "N3", options.Material.Id, options.Section.Id, options.FrameMemberType, ReleaseStartMoment: true));
 
-        model.AddSupport(StructuralSupport.Hinge("S1", "N0", "Left hinge"));
-        model.AddSupport(StructuralSupport.SimpleSupport("S2", "N3", "Right roller"));
+        model.AddSupport(StructuralSupport.Fixed("S1", "N0", "Left fixed support"));
+        model.AddSupport(new StructuralSupport("S2", "N3", false, true, true, Label: "Right guided support"));
 
         if (options.AddDefaultLoadCase)
         {
@@ -108,9 +110,9 @@ public static class ParametricBeamGenerator
 
     private static void EnsurePositive(double value, string parameterName)
     {
-        if (value <= 0.0)
+        if (value <= 0.0 || !double.IsFinite(value))
         {
-            throw new ArgumentOutOfRangeException(parameterName, value, "The value must be greater than zero.");
+            throw new ArgumentOutOfRangeException(parameterName, value, "The value must be positive and finite.");
         }
     }
 

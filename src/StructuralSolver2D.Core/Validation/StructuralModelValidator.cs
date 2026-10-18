@@ -157,10 +157,10 @@ public sealed class StructuralModelValidator
                 string.Equals(member.SectionId, section.Id, StringComparison.OrdinalIgnoreCase) &&
                 member.Type == MemberType.Frame2D);
 
-            if (sectionUsedByFrameMember &&
-                (section.MomentOfInertia <= 0 || !double.IsFinite(section.MomentOfInertia)))
+            if (!double.IsFinite(section.MomentOfInertia) || section.MomentOfInertia < 0 ||
+                (sectionUsedByFrameMember && section.MomentOfInertia == 0))
             {
-                AddError(issues, "SECTION_INVALID_INERTIA", $"Section '{section.Id}' has invalid moment of inertia for Frame2D members.", section.Id);
+                AddError(issues, "SECTION_INVALID_INERTIA", $"Section '{section.Id}' must have finite non-negative inertia, and positive inertia when used by Frame2D members.", section.Id);
             }
         }
     }
@@ -177,12 +177,17 @@ public sealed class StructuralModelValidator
 
         foreach (StructuralMember member in model.Members)
         {
-            if (!nodeIds.Contains(member.StartNodeId))
+            if (!Enum.IsDefined(member.Type))
+            {
+                AddError(issues, "MEMBER_INVALID_TYPE", $"Member '{member.Id}' has an invalid member type.", member.Id);
+            }
+
+            if (member.StartNodeId is null || !nodeIds.Contains(member.StartNodeId))
             {
                 AddError(issues, "MEMBER_START_NODE_NOT_FOUND", $"Member '{member.Id}' references missing start node '{member.StartNodeId}'.", member.Id);
             }
 
-            if (!nodeIds.Contains(member.EndNodeId))
+            if (member.EndNodeId is null || !nodeIds.Contains(member.EndNodeId))
             {
                 AddError(issues, "MEMBER_END_NODE_NOT_FOUND", $"Member '{member.Id}' references missing end node '{member.EndNodeId}'.", member.Id);
             }
@@ -197,7 +202,8 @@ public sealed class StructuralModelValidator
                 AddError(issues, "MEMBER_SECTION_NOT_FOUND", $"Member '{member.Id}' references missing section '{member.SectionId}'.", member.Id);
             }
 
-            if (nodesById.TryGetValue(member.StartNodeId, out StructuralNode? startNode) &&
+            if (member.StartNodeId is not null && member.EndNodeId is not null &&
+                nodesById.TryGetValue(member.StartNodeId, out StructuralNode? startNode) &&
                 nodesById.TryGetValue(member.EndNodeId, out StructuralNode? endNode))
             {
                 double length = StructuralMember.GetLength(startNode, endNode);
@@ -341,6 +347,11 @@ public sealed class StructuralModelValidator
 
         foreach (StructuralLoadCombination combination in model.LoadCombinations)
         {
+            if (!string.IsNullOrWhiteSpace(combination.Id) && loadCaseIds.Contains(combination.Id))
+            {
+                AddError(issues, "LOAD_COMBINATION_ID_CONFLICT", $"Load combination '{combination.Id}' has the same id as a load case.", combination.Id);
+            }
+
             if (string.IsNullOrWhiteSpace(combination.Name))
             {
                 AddError(issues, "LOAD_COMBINATION_EMPTY_NAME", $"Load combination '{combination.Id}' has an empty name.", combination.Id);

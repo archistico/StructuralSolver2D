@@ -127,21 +127,33 @@ public static class ParametricTrussGenerator
         options ??= new ParametricModelGenerationOptions();
         StructuralModel model = CreateModelWithDefaults(options);
 
-        AddTwoChordNodes(
-            model,
-            span,
-            rise,
-            panels,
-            topYSelector: t =>
+        // Both chords meet at the same structural node at each support.
+        string CurvedNodeId(int index) => index == 0 || index == panels ? BottomNodeId(index) : TopNodeId(index);
+        for (int i = 0; i < panels; i++)
+        {
+            double t = (double)i / panels;
+            model.AddNode(new StructuralNode(BottomNodeId(i), span * t, 0.0, "Bottom chord node"));
+            if (i > 0)
             {
                 double ordinate = 4.0 * rise * t * (1.0 - t);
-                return inverted ? -ordinate : ordinate;
-            });
+                model.AddNode(new StructuralNode(TopNodeId(i), span * t, inverted ? -ordinate : ordinate, "Curved chord node"));
+            }
+        }
+        model.AddNode(new StructuralNode(BottomNodeId(panels), span, 0.0, "Bottom chord node"));
 
-        AddTwoChordTrussMembers(model, panels, options, includeVerticals: true, includeEndVerticals: false);
-
-        int memberIndex = model.Members.Count + 1;
+        int memberIndex = 1;
         for (int i = 0; i < panels; i++)
+        {
+            model.AddMember(CreateTrussMember(memberIndex++, BottomNodeId(i), BottomNodeId(i + 1), options, "Bottom chord"));
+            model.AddMember(CreateTrussMember(memberIndex++, CurvedNodeId(i), CurvedNodeId(i + 1), options, "Curved chord"));
+        }
+        for (int i = 1; i < panels; i++)
+        {
+            model.AddMember(CreateTrussMember(memberIndex++, BottomNodeId(i), TopNodeId(i), options, "Vertical"));
+        }
+
+        // End panels are already triangles; their diagonals would duplicate chord members.
+        for (int i = 1; i < panels - 1; i++)
         {
             bool rising = !alternatingDiagonals || i % 2 == 0;
             string start = rising ? BottomNodeId(i) : TopNodeId(i);
@@ -231,9 +243,9 @@ public static class ParametricTrussGenerator
 
     private static void EnsurePositive(double value, string parameterName)
     {
-        if (value <= 0.0)
+        if (value <= 0.0 || !double.IsFinite(value))
         {
-            throw new ArgumentOutOfRangeException(parameterName, value, "The value must be greater than zero.");
+            throw new ArgumentOutOfRangeException(parameterName, value, "The value must be positive and finite.");
         }
     }
 

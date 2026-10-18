@@ -50,9 +50,9 @@ public static class ParametricFrameGenerator
 
     private static void EnsurePositive(double value, string parameterName)
     {
-        if (value <= 0.0)
+        if (value <= 0.0 || !double.IsFinite(value))
         {
-            throw new ArgumentOutOfRangeException(parameterName, value, "The value must be greater than zero.");
+            throw new ArgumentOutOfRangeException(parameterName, value, "The value must be positive and finite.");
         }
     }
 }

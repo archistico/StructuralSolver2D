@@ -164,7 +164,12 @@ public sealed class StructuralSectionCatalog
         }
 
         ValidatePositiveFinite(section.Area, nameof(section.Area));
-        ValidatePositiveFinite(section.MomentOfInertia, nameof(section.MomentOfInertia));
+        // Axial-only sections may omit bending stiffness. Frame use is checked by the model validator.
+        if (section.MomentOfInertia < 0.0 || !double.IsFinite(section.MomentOfInertia))
+        {
+            throw new ArgumentOutOfRangeException(nameof(section.MomentOfInertia), section.MomentOfInertia,
+                "The section inertia must be non-negative and finite.");
+        }
 
         if (section.Height is not null)
         {

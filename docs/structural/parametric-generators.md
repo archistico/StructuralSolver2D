@@ -17,6 +17,8 @@ The generators currently create `StructuralModel` instances with:
 
 Most generators do not add design loads automatically. This keeps geometry generation separate from engineering assumptions. The Gerber beam generator is the only first-step exception because it is explicitly meant to demonstrate asymmetric loading.
 
+All dimensions must be positive and finite. Zero, negative values, NaN and infinity are rejected with `ArgumentOutOfRangeException`.
+
 ## Beam generators
 
 ```csharp
@@ -31,6 +33,8 @@ Available beam generator methods:
 - `GerberBeamWithAsymmetricLoads(...)`
 
 The Gerber beam represents internal hinges by applying moment releases to the adjacent frame members.
+Its suspended middle span rests between two outer cantilevers. The left end restrains `Ux`, `Uy` and `Rz`;
+the right end restrains `Uy` and `Rz`, allowing `Ux` to slide. These five restraints stabilize the two internal hinges without adding an axial redundancy.
 
 ## Frame generators
 
@@ -64,6 +68,10 @@ Available truss generator methods:
 - `DoubleDiagonalTruss(...)`
 
 All generated truss members use `MemberType.Truss2D` by default.
+
+The parabolic generators share the deck and curved-chord end nodes: the supports are `B0` and `B{panels}`,
+and `T1` through `T{panels - 1}` are internal curved-chord nodes. End panels are triangles, so they do not
+receive duplicate diagonal members. Existing callers referring to `T0` or `T{panels}` should use the corresponding `B` node.
 
 ## Options
 
