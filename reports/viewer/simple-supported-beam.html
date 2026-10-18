@@ -250,7 +250,7 @@ input[type=range] { width: 100px; } output { min-width: 42px; font-variant-numer
   let viewBox = { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
   let original;
   let dragging = false, pointerId = null, moved = false, last = { x: 0, y: 0 }, pointerStart, pressedElement;
-  let animationRunning = false, animationStart = null, frameId = null;
+  let animationRunning = false, animationTimestamp = null, animationPhase = 0, frameId = null;
   const number = value => new Intl.NumberFormat('en-GB', { maximumSignificantDigits: 6 }).format(value);
   const layer = selector => controls.find(control => control.dataset.layer === selector);
   const diagramControls = ['normal-force','shear-force','bending-moment'].map(kind => controls.find(control => control.dataset.layer.startsWith(`.diagram.${kind},`)));
@@ -275,10 +275,36 @@ input[type=range] { width: 100px; } output { min-width: 42px; font-variant-numer
     const points = [];
     svg.querySelectorAll('.member:not(.member-hit),.support-symbol,.reaction,.load-arrow,.load-moment,.distributed-load-shape,.diagram,.dimension').forEach(element => {
       if (!visible(element)) return;
+      if (animationRunning && element.matches('[data-deformed-polyline]')) return;
       const bounds = element.getBoundingClientRect();
       if (!bounds.width && !bounds.height) return;
       const a = screenToSvg(bounds.left,bounds.top), b = screenToSvg(bounds.right,bounds.bottom);
       if (a && b) points.push(a,b);
+    });
+    // Fit the whole cycle once, rather than moving the camera or clipping its negative peak.
+    if (animationRunning) svg.querySelectorAll('[data-deformed-polyline]').forEach(polyline => {
+      if (!visible(polyline)) return;
+      const base=parsePointList(polyline.dataset.basePoints),displacement=parsePointList(polyline.dataset.displacementPoints);
+      if (base.length!==displacement.length) return;
+      const amplitude=Number(scaleInput.value)/100;
+      base.forEach((point,index)=>{
+        for (const sign of [-1,1]) points.push({x:point[0]+sign*amplitude*displacement[index][0],y:point[1]+sign*amplitude*displacement[index][1]});
+      });
+    });
+    // The maximum callout follows the midpoint of its moving leader. Include its text
+    // at both extrema too, so fitting the curves does not leave the values outside the canvas.
+    svg.querySelectorAll('[data-maximum-displacement]').forEach(annotation => {
+      if (!visible(annotation)) return;
+      annotation.querySelectorAll('text.annotation-label').forEach((label,index) => {
+        if (!visible(label)) return;
+        const bounds=label.getBBox(),x=Number(label.getAttribute('x')),y=Number(label.getAttribute('y'));
+        const anchors=animationRunning ? [-1,1].map(sign=>({
+          x:Number(annotation.dataset.baseX)+Number(annotation.dataset.dx)*Number(scaleInput.value)/100*sign/2+6,
+          y:Number(annotation.dataset.baseY)+Number(annotation.dataset.dy)*Number(scaleInput.value)/100*sign/2-8+index*14
+        })) : [{x,y}];
+        anchors.forEach(anchor=>points.push({x:anchor.x+bounds.x-x,y:anchor.y+bounds.y-y},
+          {x:anchor.x+bounds.x-x+bounds.width,y:anchor.y+bounds.y-y+bounds.height}));
+      });
     });
     if (!points.length) return;
     const minX = Math.min(...points.map(point => point.x)), maxX = Math.max(...points.map(point => point.x));
@@ -303,6 +329,7 @@ input[type=range] { width: 100px; } output { min-width: 42px; font-variant-numer
       diagramControls.forEach((control,index) => { control.checked = value === ['n','v','m'][index]; });
     }
     applyLayers();
+    if (animationRunning && !layer('#deformed-shape').checked) stopAnimation();
     document.querySelector('[data-view-status]').textContent = mode.selectedOptions[0].textContent;
     if (fit) fitView();
   }
@@ -333,24 +360,32 @@ input[type=range] { width: 100px; } output { min-width: 42px; font-variant-numer
   function animationLoop(timestamp) {
     frameId = null;
     if (!animationRunning) return;
-    if (animationStart === null) animationStart = timestamp;
-    applyVisualScales(Number(scaleInput.value)/100 * Math.sin((timestamp-animationStart)/1000*Number(speedInput.value)*Math.PI*2));
+    // Integrate frame intervals: changing speed must not rephase the elapsed history.
+    if (animationTimestamp !== null)
+      animationPhase=(animationPhase+Math.max(0,timestamp-animationTimestamp)/1000*Number(speedInput.value))%1;
+    animationTimestamp=timestamp;
+    applyVisualScales(Number(scaleInput.value)/100 * Math.sin(animationPhase*Math.PI*2));
     frameId = requestAnimationFrame(animationLoop);
   }
   play.addEventListener('click',() => {
     if (animationRunning) return;
-    mode.value='displacements';applyMode();
-    animationRunning=true;animationStart=null;play.disabled=true;pause.disabled=false;
+    mode.value='displacements';applyMode(false);
+    animationRunning=true;animationTimestamp=null;animationPhase=0;play.disabled=true;pause.disabled=false;
+    fitView();
     frameId=requestAnimationFrame(animationLoop);
   });
-  pause.addEventListener('click',() => {
-    animationRunning=false;animationStart=null;
+  function stopAnimation() {
+    animationRunning=false;animationTimestamp=null;animationPhase=0;
     if (frameId !== null) cancelAnimationFrame(frameId);
     frameId=null;play.disabled=false;pause.disabled=true;applyVisualScales();
-  });
+  }
+  pause.addEventListener('click',stopAnimation);
   scaleInput.addEventListener('input',() => {
     document.querySelector('[data-scale-output=deformed]').textContent=scaleInput.value+'%';
-    if (!animationRunning) applyVisualScales();
+    if (animationRunning) {
+      applyVisualScales(Number(scaleInput.value)/100*Math.sin(animationPhase*Math.PI*2));
+      fitView();
+    } else applyVisualScales();
   });
   textInput.addEventListener('input',() => {
     svg.style.setProperty('--viewer-label-scale',String(Number(textInput.value)/100));

@@ -115,6 +115,10 @@ The viewer includes controls for result readability:
 
 The status line shows the current effective amplification: base visualization scale multiplied by the slider percentage and, during playback, by the animation phase. At base scale 100 and slider 200%, the feedback is `Amplification ×200`. The base scale remains under Model summary. Repeated Play actions start only one animation loop; Pause cancels its pending frame and restores the static slider amplitude.
 
+Each animated sample is its original, undeformed position plus its own displacement vector multiplied by the current amplification. Nonuniform sample stations retain their actual positions. At zero phase the undeformed geometry is recovered; the negative phase reverses only the displacement vector. Physical result values and units in labels and inspection details remain unchanged.
+
+Play and Fit during playback include both positive and negative deformation peaks and the moving maximum callout. Changing amplitude during playback refits this envelope; the camera stays fixed between frames. Changing speed preserves the accumulated phase. Switching to Model/N/V/M or hiding the deformed layer stops playback, cancels the pending frame and restores static geometry.
+
 These controls are intentionally implemented inside the standalone HTML viewer. The solver result remains unchanged.
 
 The maximum displacement callout moves with the corresponding deformed point, including negative animation phases. Its numerical displacement values remain the physical analysis results, independent of visual amplification.
@@ -166,6 +170,6 @@ Behavioral regression tests also execute the exported document in a real headles
 node scripts/run-reporting-browser-tests.mjs
 ```
 
-This separate test command requires .NET 8, Node.js, and an installed Chrome, Chromium, or Edge browser. Set `CHROME_PATH` if the browser is not in a detected location. No npm packages are required. It generates cantilever, house and bridge fixtures, runs each at 390, 768 and 1366 px window sizes, and writes results under `out/reporting-browser-tests/`, including `results.json`.
+This separate test command requires .NET 8, Node.js, and an installed Chrome, Chromium, or Edge browser. Set `CHROME_PATH` if the browser is not in a detected location. No npm packages are required. It generates cantilever, house, bridge and inclined cantilever fixtures, runs each at 390, 768 and 1366 px window sizes, and writes results under `out/reporting-browser-tests/`, including `results.json`. The inclined fixture has nonuniform sample stations.
 
-The 180 browser checks cover initial controls, uncluttered defaults, responsive layout, single-quantity modes, independent context layers, effective amplification and Fit, animation lifecycle, keyboard and pointer inspection, node hit targets under loads/supports, reset, cursor anchoring and maximum displacement annotation geometry at static and animated scales. Run the portable .NET suite separately with `dotnet test StructuralSolver2D.sln`.
+The 273 browser checks cover initial controls, uncluttered defaults, responsive layout, single-quantity modes, independent context layers, effective amplification and Fit, animation lifecycle, keyboard and pointer inspection, node hit targets under loads/supports, reset, cursor anchoring and maximum displacement annotation geometry at static and animated scales. Every animated sample is compared with physical analysis data, with independent closed-form displacement values for the two cantilevers. Tests also cover zero/positive/negative phases, amplitude changes, both peaks and callout bounds, speed continuity and stopping hidden playback. Run the portable .NET suite separately with `dotnet test StructuralSolver2D.sln`.

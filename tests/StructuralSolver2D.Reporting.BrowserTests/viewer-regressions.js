@@ -227,6 +227,85 @@
       assert(hit?.dataset.nodeId===node.dataset.nodeId,'Node hit target is covered: '+node.dataset.nodeId);
     }
   });
+  function animationFrames(action) {
+    const request=window.requestAnimationFrame,cancel=window.cancelAnimationFrame;
+    const callbacks=new Map();let id=0;
+    window.requestAnimationFrame=callback=>{callbacks.set(++id,callback);return id;};
+    window.cancelAnimationFrame=key=>callbacks.delete(key);
+    const step=timestamp=>{assert(callbacks.size===1,'Expected one animation frame');const [key,callback]=[...callbacks][0];callbacks.delete(key);callback(timestamp);};
+    try {action(step,callbacks);}
+    finally {
+      document.querySelector('[data-action=pause-animation]').click();
+      window.requestAnimationFrame=request;window.cancelAnimationFrame=cancel;
+      for(const [selector,value] of [['[data-scale=deformed]','100'],['[data-animation=speed]','1']]) {
+        const input=document.querySelector(selector);input.value=value;input.dispatchEvent(new Event('input'));
+      }
+      changeView('model');
+    }
+  }
+  const setAmplitude=value=>{const input=document.querySelector('[data-scale=deformed]');input.value=String(value);input.dispatchEvent(new Event('input'));};
+  const play=()=>document.querySelector('[data-action=play-animation]').click();
+  const curves=()=>[...svg.querySelectorAll('[data-deformed-polyline]')];
+  const points=element=>element.getAttribute('points').trim().split(/\s+/).map(pair=>pair.split(',').map(Number));
+  function checkPhysicalGeometry(factor) {
+    const expected=JSON.parse(document.getElementById('deformation-oracle').textContent);
+    const data=JSON.parse(document.getElementById('viewer-data').textContent);
+    for(const member of expected) {
+      const axis=[...svg.querySelectorAll('#undeformed-model .member')].find(line=>line.dataset.memberId===member.id);
+      const curve=curves().find(line=>line.dataset.memberId===member.id),actual=points(curve);
+      assert(actual.length===member.samples.length,'Sample count changed');
+      const x1=Number(axis.getAttribute('x1')),y1=Number(axis.getAttribute('y1'));
+      const scale=Math.hypot(Number(axis.getAttribute('x2'))-x1,Number(axis.getAttribute('y2'))-y1)/member.length;
+      member.samples.forEach((sample,index)=>{
+        close(actual[index][0],x1+scale*(sample.x-member.start.x+sample.ux*data.baseScale*factor),.01,'Physical X mismatch: '+member.id+' sample '+index);
+        close(actual[index][1],y1-scale*(sample.y-member.start.y+sample.uy*data.baseScale*factor),.01,'Physical Y mismatch: '+member.id+' sample '+index);
+      });
+    }
+  }
+  test('Every animated sample matches physical displacement at zero, positive and negative phases',()=>animationFrames(step=>{
+    const physicalText=[...svg.querySelectorAll('#deformed-shape text')].map(item=>item.textContent).join('\n');
+    for(const amplitude of [0,100,200]) {
+      setAmplitude(amplitude);play();
+      for(const [time,phase] of [[1000,0],[1250,1],[1500,0],[1750,-1],[2000,0]]) {step(time);checkPhysicalGeometry(phase*amplitude/100);}
+      assert([...svg.querySelectorAll('#deformed-shape text')].map(item=>item.textContent).join('\n')===physicalText,'Animation changes physical result labels');
+      document.querySelector('[data-action=pause-animation]').click();checkPhysicalGeometry(amplitude/100);
+    }
+  }));
+  test('Animation and Fit retain both deformation peaks after amplitude changes',()=>animationFrames(step=>{
+    setAmplitude(100);play();step(1000);
+    for(const [amplitude,times] of [[100,[1250,1750]],[500,[2250,2750]]]) {
+    setAmplitude(amplitude);
+    document.querySelector('[data-action=fit]').click();
+    const box=svg.getAttribute('viewBox');
+    for(const time of times) {
+      step(time);const rect=svg.viewBox.baseVal;
+      for(const curve of curves()) for(const [x,y] of points(curve))
+        assert(x>=rect.x-.01 && x<=rect.x+rect.width+.01 && y>=rect.y-.01 && y<=rect.y+rect.height+.01,'Animation peak clipped by viewBox');
+      const canvasRect=canvas.getBoundingClientRect();
+      for(const label of svg.querySelectorAll('[data-maximum-displacement] text.annotation-label')) {
+        if(!visible(label)) continue;
+        const bounds=label.getBoundingClientRect();
+        assert(bounds.left>=canvasRect.left-1 && bounds.right<=canvasRect.right+1 && bounds.top>=canvasRect.top-1 && bounds.bottom<=canvasRect.bottom+1,'Animated maximum callout clipped by canvas');
+      }
+      assert(svg.getAttribute('viewBox')===box,'Animation moves the camera each frame');
+    }
+    }
+  }));
+  test('Changing playback speed preserves the current deformation phase',()=>animationFrames(step=>{
+    setAmplitude(100);play();step(1000);step(1125);
+    const before=curves().map(curve=>curve.getAttribute('points'));
+    const speed=document.querySelector('[data-animation=speed]');speed.value='2';speed.dispatchEvent(new Event('input'));step(1125);
+    assert(curves().every((curve,index)=>curve.getAttribute('points')===before[index]),'Speed change jumps to another phase');
+    step(1187.5);checkPhysicalGeometry(1);
+  }));
+  test('Leaving the deformation view stops playback and restores static geometry',()=>animationFrames((step,callbacks)=>{
+    setAmplitude(100);play();step(1000);step(1125);changeView('m');
+    assert(callbacks.size===0,'Hidden deformation keeps scheduling frames');
+    assert(!document.querySelector('[data-action=play-animation]').disabled,'Play remains disabled after leaving deformation');
+    checkPhysicalGeometry(1);
+    play();step(2000);toggle('#deformed-shape',false);
+    assert(callbacks.size===0,'Hiding deformation leaves playback running');
+  }));
   const summary = { passed: results.filter(result => result.passed).length, failed: results.filter(result => !result.passed).length, results };
   const pre = document.createElement('pre');
   pre.id = 'browser-test-results';

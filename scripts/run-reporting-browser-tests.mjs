@@ -20,7 +20,7 @@ const browser = [process.env.CHROME_PATH,
 if (!browser) throw new Error('Chrome/Chromium not found. Set CHROME_PATH to the browser executable.');
 const summary = { passed: 0, failed: 0, results: [] };
 for (const [width,height] of [[390,844],[768,900],[1366,900]]) {
-  for (const fixture of ['viewer-tests.html','two-storey-house-balconies.html','truss-bridge-20m-deck-loads.html']) {
+  for (const fixture of ['viewer-tests.html','two-storey-house-balconies.html','truss-bridge-20m-deck-loads.html','inclined-nonuniform.html']) {
     const result = spawnSync(browser, ['--headless', '--disable-gpu', '--no-first-run', '--no-default-browser-check',
       '--disable-background-networking', '--disable-extensions', `--window-size=${width},${height}`, '--force-device-scale-factor=1',
       `--user-data-dir=${mkdtempSync(join(directory, 'profile-'))}`, '--dump-dom', pathToFileURL(join(directory,fixture)).href],

@@ -10,6 +10,7 @@ The format follows a simple milestone-based structure. StructuralSolver2D is sti
 
 ### Fixed
 
+- Deformation animation preserves nonuniform sample origins, fits both cycle peaks and the moving maximum callout, changes speed without phase jumps, and stops when the deformed layer is hidden. Added analytical cantilever and per-sample browser comparisons; coverage now includes 273 browser checks and three additional Reporting cases.
 - Second Reporting review: independent SVG context layers, one viewer animation loop, preserved caller options and exact fractional initial controls.
 - Viewer starts with model, supports and load arrows; result modes show one quantity at a time, with optional full layers, collapsed secondary controls, selection details, keyboard navigation, current amplification and Fit view. Narrow layouts no longer overflow horizontally.
 - CLI `report`/`markdown` produce a concise report; `report-full` retains model tables and sampled appendices. Critical values, locations, units, analysis context and signed result tables remain in the summary; the Markdown API keeps its full default.

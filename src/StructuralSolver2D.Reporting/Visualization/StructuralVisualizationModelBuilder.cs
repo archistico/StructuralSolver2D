@@ -248,8 +248,14 @@ public sealed class StructuralVisualizationModelBuilder
             StructuralNode startNode = nodesById[member.StartNodeId];
             StructuralNode endNode = nodesById[member.EndNodeId];
 
-            IReadOnlyList<VisualizationPoint> points = diagramsByMemberId.TryGetValue(member.Id, out MemberDisplacementDiagram? diagram)
-                ? CreateCurvedDeformedShape(startNode, endNode, diagram, deformationScale)
+            diagramsByMemberId.TryGetValue(member.Id, out MemberDisplacementDiagram? diagram);
+            IReadOnlyList<VisualizationPoint> basePoints = diagram is not null
+                ? diagram.Samples.Select(sample => new VisualizationPoint(
+                    Interpolate(startNode.X, endNode.X, sample.NormalizedPosition),
+                    Interpolate(startNode.Y, endNode.Y, sample.NormalizedPosition))).ToArray()
+                : new[] { new VisualizationPoint(startNode.X, startNode.Y), new VisualizationPoint(endNode.X, endNode.Y) };
+            IReadOnlyList<VisualizationPoint> points = diagram is not null
+                ? CreateCurvedDeformedShape(basePoints, diagram, deformationScale)
                 : CreateStraightDeformedShape(startNode, endNode, member, displacementsByNodeId, deformationScale);
 
             foreach (VisualizationPoint point in points)
@@ -257,28 +263,21 @@ public sealed class StructuralVisualizationModelBuilder
                 allPoints.Add(point);
             }
 
-            shapes.Add(new DeformedMemberShape(member.Id, points));
+            shapes.Add(new DeformedMemberShape(member.Id, points) { BasePoints = basePoints });
         }
 
         return shapes;
     }
 
     private static IReadOnlyList<VisualizationPoint> CreateCurvedDeformedShape(
-        StructuralNode startNode,
-        StructuralNode endNode,
+        IReadOnlyList<VisualizationPoint> basePoints,
         MemberDisplacementDiagram diagram,
         double deformationScale)
     {
         return diagram.Samples
-            .Select(sample =>
-            {
-                double x = Interpolate(startNode.X, endNode.X, sample.NormalizedPosition);
-                double y = Interpolate(startNode.Y, endNode.Y, sample.NormalizedPosition);
-
-                return new VisualizationPoint(
-                    x + (sample.GlobalUx * deformationScale),
-                    y + (sample.GlobalUy * deformationScale));
-            })
+            .Select((sample, index) => new VisualizationPoint(
+                basePoints[index].X + (sample.GlobalUx * deformationScale),
+                basePoints[index].Y + (sample.GlobalUy * deformationScale)))
             .ToList();
     }
 

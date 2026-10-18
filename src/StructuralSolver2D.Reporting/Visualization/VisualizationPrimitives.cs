@@ -53,7 +53,14 @@ public sealed record VisualizationMember(
 /// <param name="Points">Polyline points of the deformed member axis.</param>
 public sealed record DeformedMemberShape(
     string MemberId,
-    IReadOnlyList<VisualizationPoint> Points);
+    IReadOnlyList<VisualizationPoint> Points)
+{
+    /// <summary>
+    /// Undeformed position of each polyline sample, including nonuniform stations.
+    /// Empty preserves the legacy convention of uniformly spaced samples for custom shapes.
+    /// </summary>
+    public IReadOnlyList<VisualizationPoint> BasePoints { get; init; } = Array.Empty<VisualizationPoint>();
+}
 
 /// <summary>
 /// Identifies the result quantity represented by an internal-force diagram polyline.

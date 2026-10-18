@@ -160,6 +160,10 @@ Each `VisualizationAnimationFrame` contains:
 
 The factor follows a sinusoidal cycle, so the prepared frames can be used directly by a simple viewer animation loop.
 
+`DeformedMemberShape.BasePoints` stores the undeformed origin of each polyline sample, in model coordinates. The builder fills it from actual normalized station positions, which may be nonuniform. Prepared frames retain these origins. The SVG exporter uses them to embed displacement vectors for browser animation. Custom shapes constructed with the original two-argument constructor and empty `BasePoints` retain the legacy convention of uniformly spaced samples; supplying origins requires one per deformed point.
+
+The interactive HTML viewer interpolates these displacement vectors directly rather than consuming the prepared frame list. Its playback is a cyclic visualization of a static analysis result; frequency, inertia and damping are not computed by this mechanism.
+
 The actual timer, playback controls and canvas invalidation still belong to the UI layer, not to the reporting/data layer.
 
 ---

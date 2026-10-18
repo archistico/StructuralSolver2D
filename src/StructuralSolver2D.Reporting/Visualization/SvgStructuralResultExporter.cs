@@ -219,7 +219,8 @@ public sealed class SvgStructuralResultExporter
             string deformationData = string.Empty;
             if (membersById.TryGetValue(shape.MemberId, out VisualizationMember? member))
             {
-                deformationData = $" data-base-points=\"{BuildInterpolatedBasePoints(member, shape.Points.Count, mapper)}\" data-displacement-points=\"{BuildDisplacementPoints(member, shape.Points, mapper)}\"";
+                IReadOnlyList<VisualizationPoint> basePoints = GetBasePoints(member, shape);
+                deformationData = $" data-base-points=\"{BuildPoints(basePoints, mapper)}\" data-displacement-points=\"{BuildDisplacementPoints(basePoints, shape.Points, mapper)}\"";
             }
 
             builder.AppendLine($"    <polyline class=\"member deformed\" data-member-id=\"{EscapeXml(shape.MemberId)}\" data-deformed-polyline=\"true\"{deformationData} points=\"{BuildPoints(shape.Points, mapper)}\"/>");
@@ -641,33 +642,33 @@ public sealed class SvgStructuralResultExporter
         builder.AppendLine("  </g>");
     }
 
-    private static string BuildInterpolatedBasePoints(VisualizationMember member, int pointCount, CoordinateMapper mapper)
+    private static IReadOnlyList<VisualizationPoint> GetBasePoints(VisualizationMember member, DeformedMemberShape shape)
     {
+        int pointCount = shape.Points.Count;
+        if (shape.BasePoints.Count > 0)
+        {
+            if (shape.BasePoints.Count != pointCount)
+                throw new ArgumentException("Deformed shape base points must match the polyline sample count.", nameof(shape));
+            return shape.BasePoints;
+        }
         if (pointCount <= 0)
         {
-            return string.Empty;
+            return Array.Empty<VisualizationPoint>();
         }
 
-        StringBuilder builder = new();
+        var points = new List<VisualizationPoint>(pointCount);
         for (int index = 0; index < pointCount; index++)
         {
-            if (index > 0)
-            {
-                builder.Append(' ');
-            }
-
             double t = pointCount == 1 ? 0.0 : (double)index / (pointCount - 1);
             double x = member.Start.X + ((member.End.X - member.Start.X) * t);
             double y = member.Start.Y + ((member.End.Y - member.Start.Y) * t);
-            builder.Append(Format(mapper.MapX(x)));
-            builder.Append(',');
-            builder.Append(Format(mapper.MapY(y)));
+            points.Add(new VisualizationPoint(x, y));
         }
 
-        return builder.ToString();
+        return points;
     }
 
-    private static string BuildDisplacementPoints(VisualizationMember member, IReadOnlyList<VisualizationPoint> deformedPoints, CoordinateMapper mapper)
+    private static string BuildDisplacementPoints(IReadOnlyList<VisualizationPoint> basePoints, IReadOnlyList<VisualizationPoint> deformedPoints, CoordinateMapper mapper)
     {
         StringBuilder builder = new();
         for (int index = 0; index < deformedPoints.Count; index++)
@@ -677,12 +678,9 @@ public sealed class SvgStructuralResultExporter
                 builder.Append(' ');
             }
 
-            double t = deformedPoints.Count == 1 ? 0.0 : (double)index / (deformedPoints.Count - 1);
-            double baseX = member.Start.X + ((member.End.X - member.Start.X) * t);
-            double baseY = member.Start.Y + ((member.End.Y - member.Start.Y) * t);
             VisualizationPoint deformed = deformedPoints[index];
-            double dx = mapper.MapX(deformed.X) - mapper.MapX(baseX);
-            double dy = mapper.MapY(deformed.Y) - mapper.MapY(baseY);
+            double dx = mapper.MapX(deformed.X) - mapper.MapX(basePoints[index].X);
+            double dy = mapper.MapY(deformed.Y) - mapper.MapY(basePoints[index].Y);
             builder.Append(Format(dx));
             builder.Append(',');
             builder.Append(Format(dy));
