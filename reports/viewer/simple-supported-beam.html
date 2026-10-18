@@ -1,71 +1,77 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Simply supported beam with uniform load</title>
-  <style>
-    :root { color-scheme: light; }
-    body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #0f172a; color: #e5e7eb; }
-    .viewer-page { min-height: 100vh; padding: 20px; box-sizing: border-box; }
-    .viewer-header { max-width: 1500px; margin: 0 auto 12px auto; }
-    .viewer-header h1 { margin: 0 0 6px 0; font-size: 28px; }
-    .viewer-header p { margin: 0; color: #cbd5e1; }
-    .toolbar { max-width: 1500px; margin: 0 auto 12px auto; padding: 12px; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; background: #111827; border: 1px solid #334155; border-radius: 12px; }
-    .toolbar button { border: 1px solid #475569; background: #1f2937; color: #f8fafc; border-radius: 8px; padding: 7px 10px; cursor: pointer; }
-    .toolbar button:hover { background: #374151; }
-    .toolbar label { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; color: #e2e8f0; }
-    .control-group { display: inline-flex; align-items: center; gap: 7px; padding: 6px 8px; border: 1px solid #334155; border-radius: 10px; background: #0f172a; }
-    .control-group span { color: #cbd5e1; font-size: 12px; min-width: 34px; text-align: right; }
-    .toolbar input[type=range] { width: 96px; }
-    .hint { color: #94a3b8; font-size: 12px; }
-    .viewer-shell { max-width: 1500px; margin: 0 auto; border: 1px solid #334155; border-radius: 14px; background: #020617; overflow: hidden; box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35); }
-    .viewer-canvas { height: min(78vh, 920px); overflow: hidden; cursor: grab; touch-action: none; }
-    .viewer-canvas.dragging { cursor: grabbing; }
-    .viewer-canvas svg { width: 100%; height: 100%; display: block; background: #ffffff; }
-    .viewer-canvas svg .node-label, .viewer-canvas svg .support-label, .viewer-canvas svg .dimension-label, .viewer-canvas svg .annotation-label, .viewer-canvas svg .reaction-label, .viewer-canvas svg .legend-label, .viewer-canvas svg .load-label { font-size: calc(12px * var(--viewer-label-scale, 1)) !important; }
-    .viewer-canvas svg .caption { font-size: calc(12px * var(--viewer-label-scale, 1)) !important; }
-    .viewer-canvas svg .displacement-label { font-size: calc(11px * var(--viewer-label-scale, 1)) !important; }
-    .viewer-canvas svg .member-displacement-label { font-size: calc(10.5px * var(--viewer-label-scale, 1)) !important; }
-    .summary { max-width: 1500px; margin: 12px auto 0 auto; display: grid; grid-template-columns: repeat(6, minmax(110px, 1fr)); gap: 10px; }
-    .summary div { background: #111827; border: 1px solid #334155; border-radius: 10px; padding: 10px; }
-    .summary dt { color: #94a3b8; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
-    .summary dd { margin: 4px 0 0 0; font-weight: 700; color: #f8fafc; }
-    .hidden-layer { display: none !important; }
-  </style>
-</head>
-<body>
-  <main class="viewer-page">
-    <header class="viewer-header">
-      <h1>Simply supported beam with uniform load</h1>
-      <p>L = 5 m, q = 10 kN/m downward.</p>
-    </header>
-    <nav class="toolbar" aria-label="Viewer controls">
-      <button type="button" data-action="zoom-in">Zoom +</button>
-      <button type="button" data-action="zoom-out">Zoom -</button>
-      <button type="button" data-action="reset">Reset view</button>
-      <button type="button" data-action="play-animation">Play deformation</button>
-      <button type="button" data-action="pause-animation">Pause</button>
-      <label class="control-group">Deformed scale <input type="range" min="0" max="500" step="5" value="100" data-scale="deformed" /> <span data-scale-output="deformed">100%</span></label>
-      <label class="control-group">Text size <input type="range" min="50" max="160" step="5" value="100" data-text-scale="labels" /> <span data-text-scale-output="labels">100%</span></label>
-      <label class="control-group">Anim. speed <input type="range" min="0.25" max="4" step="0.25" value="1" data-animation="speed" /> <span data-animation-output="speed">1x</span></label>
-      <label><input type="checkbox" data-layer="#undeformed-model" checked /> Undeformed</label>
-      <label><input type="checkbox" data-layer="#deformed-shape" checked /> Deformed</label>
-      <label><input type="checkbox" data-layer="#loads" checked /> Loads</label>
-      <label><input type="checkbox" data-layer=".load-label" checked /> Load labels</label>
-      <label><input type="checkbox" data-layer=".diagram.normal-force,.diagram-fill.normal-force,.annotation-point.normal-force,.annotation-label.normal-force" checked /> N</label>
-      <label><input type="checkbox" data-layer=".diagram.shear-force,.diagram-fill.shear-force,.annotation-point.shear-force,.annotation-label.shear-force" checked /> V</label>
-      <label><input type="checkbox" data-layer=".diagram.bending-moment,.diagram-fill.bending-moment,.annotation-point.bending-moment,.annotation-label.bending-moment" checked /> M</label>
-      <label><input type="checkbox" data-layer="#diagrams" checked /> Diagrams group</label>
-      <label><input type="checkbox" data-layer=".support" checked /> Supports</label>
-      <label><input type="checkbox" data-layer=".reaction,.reaction-label" checked /> Reactions</label>
-      <label><input type="checkbox" data-layer=".dimension,.dimension-extension,.dimension-label" checked /> Dimensions</label>
-      <label><input type="checkbox" data-layer=".displacement-label,.displacement-label-anchor" /> Nodal displacement labels</label>
-      <label><input type="checkbox" data-layer=".member-displacement-label,.member-displacement-label-anchor" /> Member station labels</label>
-      <span class="hint">Wheel to zoom, drag to pan. Text size reduces or enlarges SVG labels; Deformed scale recomputes deformed coordinates from displacement data.</span>
-    </nav>
-    <section class="viewer-shell" aria-label="Interactive structural result viewer">
-      <div class="viewer-canvas" id="viewerCanvas">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Simply supported beam with uniform load</title><style>:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; font: 14px Arial, Helvetica, sans-serif; background: #0f172a; color: #e5e7eb; }
+.viewer-page { max-width: 1540px; margin: auto; padding: 16px; }
+h1 { margin: 0 0 8px; font-size: 23px; overflow-wrap: anywhere; }
+p { margin: 8px 0; overflow-wrap: anywhere; }
+summary { cursor: pointer; padding: 7px 0; color: #cbd5e1; }
+.toolbar { margin: 8px 0; padding: 10px 12px; background: #111827; border: 1px solid #334155; border-radius: 10px; }
+.primary-controls, .secondary-controls { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; min-width: 0; }
+.secondary-controls { padding: 8px 0; }
+button, select { font: inherit; border: 1px solid #64748b; background: #1f2937; color: #f8fafc; border-radius: 6px; padding: 7px 9px; cursor: pointer; max-width: 100%; }
+button:hover { background: #374151; } button:disabled { opacity: .5; cursor: default; }
+button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-visible, .viewer-canvas:focus-visible { outline: 3px solid #38bdf8; outline-offset: 2px; }
+label { display: inline-flex; align-items: center; gap: 5px; min-width: 0; }
+.control-group { flex-wrap: wrap; border: 1px solid #334155; padding: 7px; border-radius: 6px; }
+input[type=range] { width: 100px; } output { min-width: 42px; font-variant-numeric: tabular-nums; }
+.hint { color: #94a3b8; font-size: 12px; }
+.viewer-workspace { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.viewer-workspace:has(.inspector:not([hidden])) { grid-template-columns: minmax(0, 1fr) 270px; }
+.viewer-shell { min-width: 0; border: 1px solid #334155; border-radius: 10px; overflow: hidden; background: white; }
+.viewer-canvas { height: clamp(320px, calc(100dvh - 235px), 850px); overflow: hidden; cursor: grab; touch-action: none; }
+.viewer-canvas.dragging { cursor: grabbing; }
+.viewer-canvas svg { width: 100%; height: 100%; display: block; background: white; pointer-events: none; }
+.viewer-canvas svg > .title, .viewer-canvas svg > .caption, .viewer-canvas svg > .frame { display: none; }
+.viewer-canvas svg text { font-size: calc(12px * var(--viewer-label-scale, 1)) !important; }
+.viewer-canvas svg .member, .viewer-canvas svg .diagram { vector-effect: non-scaling-stroke; }
+.viewer-canvas svg .node { stroke: #0f172a; stroke-width: 2px; vector-effect: non-scaling-stroke; }
+.viewer-canvas svg .member-hit { stroke: transparent; stroke-width: 16px; vector-effect: non-scaling-stroke; fill: none; cursor: pointer; }
+.viewer-canvas svg .node-hit { stroke: transparent; stroke-width: 20px; vector-effect: non-scaling-stroke; fill: transparent; cursor: pointer; }
+.viewer-canvas svg [data-node-id], .viewer-canvas svg [data-member-id] { cursor: pointer; pointer-events: visiblePainted; }
+.viewer-canvas svg [data-selected=true], .viewer-canvas svg [data-member-id]:focus-visible, .viewer-canvas svg [data-node-id]:focus-visible { stroke: #f59e0b !important; stroke-width: 4px; outline: none; }
+.inspector { min-width: 0; padding: 12px; background: #111827; border: 1px solid #334155; border-radius: 10px; overflow-wrap: anywhere; }
+.inspector h2 { font-size: 17px; margin: 12px 0; }.inspector dt { color: #94a3b8; margin-top: 9px; }.inspector dd { margin: 3px 0; font-variant-numeric: tabular-nums; }
+.inspector table { border-collapse: collapse; width: 100%; font-size: 12px; }.inspector td, .inspector th { text-align: right; padding: 5px 3px; border-bottom: 1px solid #334155; }.inspector th:first-child, .inspector td:first-child { text-align: left; }
+.view-status { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 10px; }
+.summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(130px, 100%), 1fr)); gap: 12px; }.summary dt { color: #94a3b8; }.summary dd { margin: 4px 0; }
+.hidden-layer, [hidden] { display: none !important; }
+@media (max-width: 650px) {
+  .viewer-page { padding: 10px; } h1 { font-size: 20px; }.toolbar { padding: 7px; }.primary-controls { gap: 6px; } button, select { padding: 6px 7px; font-size: 13px; }
+  .viewer-workspace:has(.inspector:not([hidden])) { grid-template-columns: minmax(0, 1fr); }
+  .viewer-canvas { height: clamp(300px, calc(100dvh - 255px), 700px); }
+}
+</style></head><body>
+<main class="viewer-page"><header class="viewer-header">
+<h1>Simply supported beam with uniform load</h1>
+<details class="model-description"><summary>About this model</summary><p>L = 5 m, q = 10 kN/m downward.</p></details>
+</header>
+<nav class="toolbar" aria-label="Viewer controls"><div class="primary-controls">
+<label>View <select data-view aria-label="Result view"><option value="model">Model</option><option value="displacements">Displacements</option><option value="n">Normal force N</option><option value="v">Shear force V</option><option value="m">Bending moment M</option><option value="all">All layers</option><option value="custom" hidden>Custom layers</option></select></label>
+<button type="button" data-action="zoom-in" aria-label="Zoom in">Zoom +</button><button type="button" data-action="zoom-out" aria-label="Zoom out">Zoom −</button><button type="button" data-action="fit">Fit view</button><button type="button" data-action="reset">Reset view</button></div>
+<details class="viewer-details"><summary>Layers and display</summary><div class="secondary-controls">
+<label><input type="checkbox" data-layer="#undeformed-model" checked /> Undeformed</label>
+<label><input type="checkbox" data-layer="#deformed-shape" /> Deformed</label>
+<label><input type="checkbox" data-layer="#loads" checked /> Loads</label>
+<label><input type="checkbox" data-layer=".load-label" /> Load labels</label>
+<label><input type="checkbox" data-layer=".diagram.normal-force,.diagram-fill.normal-force,.annotation-point.normal-force,.annotation-label.normal-force" /> N</label>
+<label><input type="checkbox" data-layer=".diagram.shear-force,.diagram-fill.shear-force,.annotation-point.shear-force,.annotation-label.shear-force" /> V</label>
+<label><input type="checkbox" data-layer=".diagram.bending-moment,.diagram-fill.bending-moment,.annotation-point.bending-moment,.annotation-label.bending-moment" /> M</label>
+<label><input type="checkbox" data-layer="#supports" checked /> Supports</label>
+<label><input type="checkbox" data-layer="#reactions" /> Reactions</label>
+<label><input type="checkbox" data-layer="#dimensions" /> Dimensions</label>
+<label><input type="checkbox" data-layer=".node-label,.support-label" /> Node names</label>
+<label><input type="checkbox" data-layer="#diagrams .annotation-label,#diagrams .annotation-point" /> Diagram values</label>
+<label><input type="checkbox" data-layer=".displacement-label,.displacement-label-anchor" /> Nodal displacement labels</label>
+<label><input type="checkbox" data-layer=".member-displacement-label,.member-displacement-label-anchor" /> Member station labels</label>
+</div><div class="secondary-controls">
+<label class="control-group">Deformed scale <input type="range" min="0" max="500" step="any" value="100" data-scale="deformed" /><output data-scale-output="deformed"></output></label>
+<label class="control-group">Text size <input type="range" min="50" max="160" step="any" value="100" data-text-scale="labels" /><output data-text-scale-output="labels"></output></label>
+<label class="control-group">Anim. speed <input type="range" min="0.25" max="4" step="any" value="1" data-animation="speed" /><output data-animation-output="speed"></output></label>
+<button type="button" data-action="play-animation">Play deformation</button><button type="button" data-action="pause-animation" disabled>Pause</button><span class="hint">Visual playback of static results.</span></div></details></nav>
+<section class="viewer-workspace" aria-label="Interactive structural result viewer"><div class="viewer-shell">
+<div class="viewer-canvas" id="viewerCanvas" tabindex="0" aria-label="Diagram. Arrow keys pan; plus and minus zoom; Home fits the visible model.">
 <svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900" role="img" aria-labelledby="title desc">
   <title id="title">Simply supported beam with uniform load</title>
   <desc id="desc">Static structural result preview exported from StructuralSolver2D.</desc>
@@ -120,11 +126,19 @@
   <text class="title" x="32" y="26">Simply supported beam with uniform load</text>
   <text class="caption" x="32" y="44">Deformation scale: 100 | Nodes: 2 | Members: 1</text>
   <g id="undeformed-model">
-    <line class="member undeformed" x1="143.333" y1="403.511" x2="1256.667" y2="403.511"/>
+    <line class="member undeformed" data-member-id="M1" x1="143.333" y1="403.511" x2="1256.667" y2="403.511"/>
+    <circle class="node" data-node-id="A" cx="143.333" cy="403.511" r="3"/>
+    <text class="node-label" x="149.333" y="397.511">A</text>
+    <circle class="node" data-node-id="B" cx="1256.667" cy="403.511" r="3"/>
+    <text class="node-label" x="1262.667" y="397.511">B</text>
+  </g>
+  <g id="dimensions">
     <line class="dimension-extension" x1="143.333" y1="403.511" x2="143.333" y2="431.511"/>
     <line class="dimension-extension" x1="1256.667" y1="403.511" x2="1256.667" y2="431.511"/>
     <line class="dimension" x1="143.333" y1="421.511" x2="1256.667" y2="421.511" marker-start="url(#dimensionArrow)" marker-end="url(#dimensionArrow)"/>
     <text class="dimension-label" x="700" y="417.511">L = 5 m</text>
+  </g>
+  <g id="supports">
     <g class="support" data-support-id="SA" data-orientation-degrees="0">
       <g class="support-symbol" transform="rotate(-0 143.333 403.511)">
         <polygon class="support-fill" points="143.333,403.511 131.333,415.511 155.333,415.511"/>
@@ -141,10 +155,8 @@
       </g>
       <text class="support-label" x="1270.667" y="419.511">Simple support</text>
     </g>
-    <circle class="node" cx="143.333" cy="403.511" r="3"/>
-    <text class="node-label" x="149.333" y="397.511">A</text>
-    <circle class="node" cx="1256.667" cy="403.511" r="3"/>
-    <text class="node-label" x="1262.667" y="397.511">B</text>
+  </g>
+  <g id="reactions">
     <line class="reaction" x1="143.333" y1="403.511" x2="143.333" y2="292.178" marker-end="url(#reactionArrow)"/>
     <text class="reaction-label" x="149.333" y="341.845">Ry = 25 kN</text>
     <line class="reaction" x1="1256.667" y1="403.511" x2="1256.667" y2="292.178" marker-end="url(#reactionArrow)"/>
@@ -165,11 +177,11 @@
   </g>
   <g id="diagrams">
     <polygon class="diagram-fill normal-force" points="143.333,403.511 199,403.511 254.667,403.511 310.333,403.511 366,403.511 421.667,403.511 477.333,403.511 533,403.511 588.667,403.511 644.333,403.511 700,403.511 755.667,403.511 811.333,403.511 867,403.511 922.667,403.511 978.333,403.511 1034,403.511 1089.667,403.511 1145.333,403.511 1201,403.511 1256.667,403.511 1256.667,403.511 143.333,403.511"/>
-    <polyline class="diagram normal-force" points="143.333,403.511 199,403.511 254.667,403.511 310.333,403.511 366,403.511 421.667,403.511 477.333,403.511 533,403.511 588.667,403.511 644.333,403.511 700,403.511 755.667,403.511 811.333,403.511 867,403.511 922.667,403.511 978.333,403.511 1034,403.511 1089.667,403.511 1145.333,403.511 1201,403.511 1256.667,403.511"/>
+    <polyline class="diagram normal-force" data-member-id="M1" points="143.333,403.511 199,403.511 254.667,403.511 310.333,403.511 366,403.511 421.667,403.511 477.333,403.511 533,403.511 588.667,403.511 644.333,403.511 700,403.511 755.667,403.511 811.333,403.511 867,403.511 922.667,403.511 978.333,403.511 1034,403.511 1089.667,403.511 1145.333,403.511 1201,403.511 1256.667,403.511"/>
     <polygon class="diagram-fill shear-force" points="143.333,292.178 199,303.311 254.667,314.445 310.333,325.578 366,336.711 421.667,347.845 477.333,358.978 533,370.111 588.667,381.245 644.333,392.378 700,403.511 755.667,414.645 811.333,425.778 867,436.911 922.667,448.045 978.333,459.178 1034,470.311 1089.667,481.445 1145.333,492.578 1201,503.711 1256.667,514.845 1256.667,403.511 143.333,403.511"/>
-    <polyline class="diagram shear-force" points="143.333,292.178 199,303.311 254.667,314.445 310.333,325.578 366,336.711 421.667,347.845 477.333,358.978 533,370.111 588.667,381.245 644.333,392.378 700,403.511 755.667,414.645 811.333,425.778 867,436.911 922.667,448.045 978.333,459.178 1034,470.311 1089.667,481.445 1145.333,492.578 1201,503.711 1256.667,514.845"/>
+    <polyline class="diagram shear-force" data-member-id="M1" points="143.333,292.178 199,303.311 254.667,314.445 310.333,325.578 366,336.711 421.667,347.845 477.333,358.978 533,370.111 588.667,381.245 644.333,392.378 700,403.511 755.667,414.645 811.333,425.778 867,436.911 922.667,448.045 978.333,459.178 1034,470.311 1089.667,481.445 1145.333,492.578 1201,503.711 1256.667,514.845"/>
     <polygon class="diagram-fill bending-moment" points="143.333,403.511 199,377.07 254.667,353.411 310.333,332.536 366,314.445 421.667,299.136 477.333,286.611 533,276.87 588.667,269.911 644.333,265.736 700,264.345 755.667,265.736 811.333,269.911 867,276.87 922.667,286.611 978.333,299.136 1034,314.445 1089.667,332.536 1145.333,353.411 1201,377.07 1256.667,403.511 1256.667,403.511 143.333,403.511"/>
-    <polyline class="diagram bending-moment" points="143.333,403.511 199,377.07 254.667,353.411 310.333,332.536 366,314.445 421.667,299.136 477.333,286.611 533,276.87 588.667,269.911 644.333,265.736 700,264.345 755.667,265.736 811.333,269.911 867,276.87 922.667,286.611 978.333,299.136 1034,314.445 1089.667,332.536 1145.333,353.411 1201,377.07 1256.667,403.511"/>
+    <polyline class="diagram bending-moment" data-member-id="M1" points="143.333,403.511 199,377.07 254.667,353.411 310.333,332.536 366,314.445 421.667,299.136 477.333,286.611 533,276.87 588.667,269.911 644.333,265.736 700,264.345 755.667,265.736 811.333,269.911 867,276.87 922.667,286.611 978.333,299.136 1034,314.445 1089.667,332.536 1145.333,353.411 1201,377.07 1256.667,403.511"/>
     <circle class="annotation-point normal-force" cx="1256.667" cy="403.511" r="4"/>
     <text class="annotation-label normal-force" x="1264.667" y="397.511">Nmax = -0 kN</text>
     <circle class="annotation-point shear-force" cx="1256.667" cy="514.845" r="4"/>
@@ -178,8 +190,8 @@
     <text class="annotation-label bending-moment" x="708" y="258.345">Mmax = 31.25 kNm</text>
   </g>
   <g id="deformed-shape">
-    <polyline class="member deformed" data-deformed-polyline="true" data-base-points="143.333,403.511 199,403.511 254.667,403.511 310.333,403.511 366,403.511 421.667,403.511 477.333,403.511 533,403.511 588.667,403.511 644.333,403.511 700,403.511 755.667,403.511 811.333,403.511 867,403.511 922.667,403.511 978.333,403.511 1034,403.511 1089.667,403.511 1145.333,403.511 1201,403.511 1256.667,403.511" data-displacement-points="0,-0 0,65.58 0,124.256 0,176.029 0,220.899 0,258.867 0,289.931 0,314.091 0,331.349 0,341.704 0,345.155 0,341.704 0,331.349 0,314.091 0,289.931 0,258.867 0,220.899 0,176.029 0,124.256 0,65.58 0,0" points="143.333,403.511 199,469.091 254.667,527.767 310.333,579.541 366,624.411 421.667,662.378 477.333,693.442 533,717.603 588.667,734.86 644.333,745.215 700,748.667 755.667,745.215 811.333,734.86 867,717.603 922.667,693.442 978.333,662.378 1034,624.411 1089.667,579.541 1145.333,527.767 1201,469.091 1256.667,403.511"/>
-    <g class="displacement-label" data-deformation-label="true" data-dx="0" data-dy="-0" data-node-id="A">
+    <polyline class="member deformed" data-member-id="M1" data-deformed-polyline="true" data-base-points="143.333,403.511 199,403.511 254.667,403.511 310.333,403.511 366,403.511 421.667,403.511 477.333,403.511 533,403.511 588.667,403.511 644.333,403.511 700,403.511 755.667,403.511 811.333,403.511 867,403.511 922.667,403.511 978.333,403.511 1034,403.511 1089.667,403.511 1145.333,403.511 1201,403.511 1256.667,403.511" data-displacement-points="0,0 0,65.58 0,124.256 0,176.029 0,220.899 0,258.867 0,289.931 0,314.091 0,331.349 0,341.704 0,345.155 0,341.704 0,331.349 0,314.091 0,289.931 0,258.867 0,220.899 0,176.029 0,124.256 0,65.58 0,0" points="143.333,403.511 199,469.091 254.667,527.767 310.333,579.541 366,624.411 421.667,662.378 477.333,693.442 533,717.603 588.667,734.86 644.333,745.215 700,748.667 755.667,745.215 811.333,734.86 867,717.603 922.667,693.442 978.333,662.378 1034,624.411 1089.667,579.541 1145.333,527.767 1201,469.091 1256.667,403.511"/>
+    <g class="displacement-label" data-deformation-label="true" data-dx="0" data-dy="0" data-node-id="A">
       <circle class="displacement-label-anchor" cx="143.333" cy="403.511" r="3"/>
       <text class="displacement-label" x="151.333" y="415.511">A: u = 0 mm</text>
       <text class="displacement-label" x="151.333" y="428.511">Ux = 0 mm, Uy = 0 mm</text>
@@ -201,7 +213,7 @@
       <circle class="member-displacement-label-anchor" cx="700" cy="748.667" r="3"/>
       <text class="member-displacement-label" x="707" y="742.667">M1 L/2: u = 15.501 mm</text>
       <text class="member-displacement-label" x="707" y="755.667">Ux = 0 mm, Uy = -15.501 mm</text>
-      <text class="member-displacement-label" x="707" y="768.667">x = 2.5 m, Rz = -0 rad</text>
+      <text class="member-displacement-label" x="707" y="768.667">x = 2.5 m, Rz = 0 rad</text>
     </g>
     <g class="member-displacement-label" data-deformation-label="true" data-dx="0" data-dy="258.867" data-member-id="M1" data-station="3L/4">
       <circle class="member-displacement-label-anchor" cx="978.333" cy="662.378" r="3"/>
@@ -209,167 +221,222 @@
       <text class="member-displacement-label" x="985.333" y="669.378">Ux = 0 mm, Uy = -11.626 mm</text>
       <text class="member-displacement-label" x="985.333" y="682.378">x = 3.75 m, Rz = 0.006 rad</text>
     </g>
-    <line class="annotation-line" x1="143.333" y1="403.511" x2="143.333" y2="403.511" marker-end="url(#reactionArrow)"/>
-    <circle class="annotation-point" cx="143.333" cy="403.511" r="3.5" style="stroke:#dc2626"/>
-    <text class="annotation-label" x="149.333" y="395.511">umax = 0 mm @ A</text>
-    <text class="annotation-label" x="149.333" y="409.511">Ux = 0 mm, Uy = 0 mm</text>
-    <text class="annotation-label" x="149.333" y="423.511">Rz = -0.012 rad (-0.711°)</text>
-  </g>
-  <g id="legend">
-    <text class="legend-label" x="1170" y="36">Legend</text>
-    <line class="member undeformed" x1="1170" y1="54" x2="1198" y2="54"/>
-    <text class="legend-label" x="1206" y="58">Undeformed model</text>
-    <line class="member deformed" x1="1170" y1="72" x2="1198" y2="72"/>
-    <text class="legend-label" x="1206" y="76">Deformed shape</text>
-    <line class="diagram normal-force" x1="1170" y1="90" x2="1198" y2="90"/>
-    <text class="legend-label" x="1206" y="94">Normal force N</text>
-    <line class="diagram shear-force" x1="1170" y1="108" x2="1198" y2="108"/>
-    <text class="legend-label" x="1206" y="112">Shear force V</text>
-    <line class="diagram bending-moment" x1="1170" y1="126" x2="1198" y2="126"/>
-    <text class="legend-label" x="1206" y="130">Bending moment M</text>
   </g>
 </svg>
 
-      </div>
-    </section>
-    <dl class="summary">
-      <div>
-        <dt>Nodes</dt>
-        <dd>2</dd>
-      </div>
-      <div>
-        <dt>Members</dt>
-        <dd>1</dd>
-      </div>
-      <div>
-        <dt>Supports</dt>
-        <dd>2</dd>
-      </div>
-      <div>
-        <dt>Reactions</dt>
-        <dd>2</dd>
-      </div>
-      <div>
-        <dt>Applied loads</dt>
-        <dd>1</dd>
-      </div>
-      <div>
-        <dt>Diagrams</dt>
-        <dd>3</dd>
-      </div>
-      <div>
-        <dt>Deform. scale</dt>
-        <dd>100</dd>
-      </div>
-      <div>
-        <dt>Max disp.</dt>
-        <dd>0 mm</dd>
-      </div>
-    </dl>
-  </main>
-  <script>
-    (() => {
-      const canvas = document.getElementById('viewerCanvas');
-      const svg = canvas.querySelector('svg');
-      const original = svg.viewBox.baseVal;
-      let viewBox = { x: original.x, y: original.y, width: original.width, height: original.height };
-      let dragging = false;
-      let last = { x: 0, y: 0 };
-      let animationRunning = false;
-      let animationStart = 0;
-      function applyViewBox() { svg.setAttribute('viewBox', `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`); }
-      function zoom(factor, clientX, clientY) {
-        const rect = svg.getBoundingClientRect();
-        const px = clientX === undefined ? rect.left + rect.width / 2 : clientX;
-        const py = clientY === undefined ? rect.top + rect.height / 2 : clientY;
-        const mx = viewBox.x + ((px - rect.left) / rect.width) * viewBox.width;
-        const my = viewBox.y + ((py - rect.top) / rect.height) * viewBox.height;
-        viewBox.x = mx - ((mx - viewBox.x) * factor);
-        viewBox.y = my - ((my - viewBox.y) * factor);
-        viewBox.width *= factor;
-        viewBox.height *= factor;
-        applyViewBox();
-      }
-      function setOutput(selector, value, suffix) { const output = document.querySelector(selector); if (output) output.textContent = `${value}${suffix}`; }
-      function applyTextScale(value) { svg.style.setProperty('--viewer-label-scale', String(value)); }
-      function parsePointList(value) {
-        return (value || '').trim().split(/\s+/).filter(Boolean).map(pair => {
-          const parts = pair.split(',').map(Number);
-          return { x: parts[0], y: parts[1] };
-        });
-      }
-      function formatPointList(points) { return points.map(point => `${point.x.toFixed(3)},${point.y.toFixed(3)}`).join(' '); }
-      function getDeformationScaleValue() { const input = document.querySelector('[data-scale=deformed]'); return input ? Number(input.value) / 100 : 1; }
-      function applyDeformation(factor) {
-        svg.querySelectorAll('[data-deformed-polyline=true]').forEach(polyline => {
-          const base = parsePointList(polyline.dataset.basePoints);
-          const displacement = parsePointList(polyline.dataset.displacementPoints);
-          if (base.length === 0 || base.length !== displacement.length) return;
-          const points = base.map((point, index) => ({ x: point.x + displacement[index].x * factor, y: point.y + displacement[index].y * factor }));
-          polyline.setAttribute('points', formatPointList(points));
-        });
-        svg.querySelectorAll('[data-deformation-label=true]').forEach(label => {
-          const dx = Number(label.dataset.dx || '0');
-          const dy = Number(label.dataset.dy || '0');
-          label.setAttribute('transform', `translate(${(dx * (factor - 1)).toFixed(3)} ${(dy * (factor - 1)).toFixed(3)})`);
-        });
-      }
-      function applyVisualScales(animationFactor) {
-        const factor = animationFactor ?? getDeformationScaleValue();
-        applyDeformation(factor);
-      }
-      function animationSpeed() { const input = document.querySelector('[data-animation=speed]'); return input ? Number(input.value) : 1; }
-      function animationLoop(timestamp) {
-        if (!animationRunning) return;
-        if (!animationStart) animationStart = timestamp;
-        const elapsed = (timestamp - animationStart) / 1000;
-        const factor = getDeformationScaleValue() * Math.sin(elapsed * animationSpeed() * Math.PI * 2);
-        applyVisualScales(factor);
-        requestAnimationFrame(animationLoop);
-      }
-      canvas.addEventListener('wheel', event => { event.preventDefault(); zoom(event.deltaY < 0 ? 0.9 : 1.1, event.clientX, event.clientY); }, { passive: false });
-      canvas.addEventListener('pointerdown', event => { dragging = true; last = { x: event.clientX, y: event.clientY }; canvas.classList.add('dragging'); canvas.setPointerCapture(event.pointerId); });
-      canvas.addEventListener('pointermove', event => {
-        if (!dragging) return;
-        const rect = svg.getBoundingClientRect();
-        viewBox.x -= (event.clientX - last.x) / rect.width * viewBox.width;
-        viewBox.y -= (event.clientY - last.y) / rect.height * viewBox.height;
-        last = { x: event.clientX, y: event.clientY };
-        applyViewBox();
+</div></div><aside id="inspector" class="inspector" hidden aria-label="Selected element">
+<button type="button" data-action="close-inspector">Close details</button><div id="selection-details" aria-live="polite"></div></aside></section>
+<div class="view-status"><span data-view-status></span><span>Amplification <strong data-effective-scale>×100</strong></span>
+</div><p class="hint">Select a member or node for values. Wheel to zoom, drag to pan; keyboard: arrows, +/−, Home.</p>
+<details class="model-summary"><summary>Model summary</summary><dl class="summary">
+<div><dt>Nodes</dt><dd>2</dd></div>
+<div><dt>Members</dt><dd>1</dd></div>
+<div><dt>Supports</dt><dd>2</dd></div>
+<div><dt>Diagrams</dt><dd>3</dd></div>
+<div><dt>Base deformation scale</dt><dd>100</dd></div></dl></details></main>
+<script type="application/json" id="viewer-data">{"baseScale":100,"initialView":"model","nodes":{"A":{"id":"A","label":null,"x":0,"y":0,"ux":0,"uy":0,"rz":-0.01240079365079365},"B":{"id":"B","label":null,"x":5,"y":0,"ux":0,"uy":0,"rz":0.01240079365079365}},"members":{"M1":{"id":"M1","type":"Frame2D","start":"A","end":"B","length":5,"forces":{"NormalForce":0,"ShearForce":25,"BendingMoment":31.25},"stations":[{"label":"L/4","x":1.25,"ux":0,"uy":-0.011625744047619048,"rz":-0.006200396825396825},{"label":"L/2","x":2.5,"ux":0,"uy":-0.015500992063492062,"rz":0},{"label":"3L/4","x":3.75,"ux":0,"uy":-0.011625744047619048,"rz":0.006200396825396825}]}}}</script>
+<script>(() => {
+  const canvas = document.getElementById('viewerCanvas');
+  const svg = canvas.querySelector('svg');
+  const data = JSON.parse(document.getElementById('viewer-data').textContent);
+  const mode = document.querySelector('[data-view]');
+  const controls = [...document.querySelectorAll('[data-layer]')];
+  const scaleInput = document.querySelector('[data-scale=deformed]');
+  const textInput = document.querySelector('[data-text-scale=labels]');
+  const speedInput = document.querySelector('[data-animation=speed]');
+  const play = document.querySelector('[data-action=play-animation]');
+  const pause = document.querySelector('[data-action=pause-animation]');
+  const rect = svg.viewBox.baseVal;
+  let viewBox = { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
+  let original;
+  let dragging = false, pointerId = null, moved = false, last = { x: 0, y: 0 }, pointerStart, pressedElement;
+  let animationRunning = false, animationStart = null, frameId = null;
+  const number = value => new Intl.NumberFormat('en-GB', { maximumSignificantDigits: 6 }).format(value);
+  const layer = selector => controls.find(control => control.dataset.layer === selector);
+  const diagramControls = ['normal-force','shear-force','bending-moment'].map(kind => controls.find(control => control.dataset.layer.startsWith(`.diagram.${kind},`)));
+  svg.setAttribute('role', 'group');
+
+  function applyViewBox() { svg.setAttribute('viewBox', `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`); }
+  function screenToSvg(x, y) { const matrix = svg.getScreenCTM(); return matrix ? new DOMPoint(x, y).matrixTransform(matrix.inverse()) : null; }
+  function zoom(factor, x, y) {
+    const bounds = svg.getBoundingClientRect();
+    const anchor = screenToSvg(x ?? bounds.left + bounds.width / 2, y ?? bounds.top + bounds.height / 2);
+    if (!anchor || viewBox.width * factor < .01 || viewBox.width * factor > 1e9) return;
+    viewBox = { x: anchor.x - (anchor.x - viewBox.x) * factor, y: anchor.y - (anchor.y - viewBox.y) * factor,
+      width: viewBox.width * factor, height: viewBox.height * factor };
+    applyViewBox();
+  }
+  function visible(element) {
+    for (let parent = element; parent && parent !== canvas; parent = parent.parentElement)
+      if (getComputedStyle(parent).display === 'none') return false;
+    return true;
+  }
+  function fitView() {
+    const points = [];
+    svg.querySelectorAll('.member:not(.member-hit),.support-symbol,.reaction,.load-arrow,.load-moment,.distributed-load-shape,.diagram,.dimension').forEach(element => {
+      if (!visible(element)) return;
+      const bounds = element.getBoundingClientRect();
+      if (!bounds.width && !bounds.height) return;
+      const a = screenToSvg(bounds.left,bounds.top), b = screenToSvg(bounds.right,bounds.bottom);
+      if (a && b) points.push(a,b);
+    });
+    if (!points.length) return;
+    const minX = Math.min(...points.map(point => point.x)), maxX = Math.max(...points.map(point => point.x));
+    const minY = Math.min(...points.map(point => point.y)), maxY = Math.max(...points.map(point => point.y));
+    let width = Math.max(30,maxX-minX)*1.18, height = Math.max(30,maxY-minY)*1.18;
+    const aspect = canvas.clientWidth / Math.max(1,canvas.clientHeight);
+    if (width / height < aspect) width = height * aspect; else height = width / aspect;
+    viewBox = { x:(minX+maxX-width)/2, y:(minY+maxY-height)/2, width, height };
+    applyViewBox();
+  }
+  function applyLayers() {
+    const allowed = new Map();
+    controls.forEach(control => svg.querySelectorAll(control.dataset.layer).forEach(element =>
+      allowed.set(element,(allowed.get(element) ?? true) && control.checked)));
+    allowed.forEach((show,element) => element.classList.toggle('hidden-layer',!show));
+  }
+  function applyMode(fit = true) {
+    const value = mode.value;
+    if (value === 'all') controls.forEach(control => { control.checked = true; });
+    else if (value !== 'custom') {
+      layer('#deformed-shape').checked = value === 'displacements';
+      diagramControls.forEach((control,index) => { control.checked = value === ['n','v','m'][index]; });
+    }
+    applyLayers();
+    document.querySelector('[data-view-status]').textContent = mode.selectedOptions[0].textContent;
+    if (fit) fitView();
+  }
+  const parsePointList = value => (value || '').trim().split(/\s+/).filter(Boolean).map(pair => pair.split(',').map(Number));
+  function applyDeformation(factor) {
+    svg.querySelectorAll('[data-deformed-polyline=true]').forEach(polyline => {
+      const base = parsePointList(polyline.dataset.basePoints), displacement = parsePointList(polyline.dataset.displacementPoints);
+      if (!base.length || base.length !== displacement.length) return;
+      polyline.setAttribute('points',base.map((point,index) => `${(point[0]+displacement[index][0]*factor).toFixed(3)},${(point[1]+displacement[index][1]*factor).toFixed(3)}`).join(' '));
+    });
+    svg.querySelectorAll('[data-deformation-label=true]').forEach(label =>
+      label.setAttribute('transform',`translate(${(Number(label.dataset.dx || 0)*(factor-1)).toFixed(3)} ${(Number(label.dataset.dy || 0)*(factor-1)).toFixed(3)})`));
+    svg.querySelectorAll('[data-maximum-displacement=true]').forEach(annotation => {
+      const x1=Number(annotation.dataset.baseX),y1=Number(annotation.dataset.baseY);
+      const x2=x1+Number(annotation.dataset.dx)*factor,y2=y1+Number(annotation.dataset.dy)*factor;
+      const line=annotation.querySelector('.annotation-line'),point=annotation.querySelector('.annotation-point');
+      line.setAttribute('x2',x2.toFixed(3));line.setAttribute('y2',y2.toFixed(3));
+      point.setAttribute('cx',x2.toFixed(3));point.setAttribute('cy',y2.toFixed(3));
+      annotation.querySelectorAll('text.annotation-label').forEach((label,index) => {
+        label.setAttribute('x',((x1+x2)/2+6).toFixed(3));label.setAttribute('y',((y1+y2)/2-8+index*14).toFixed(3));
       });
-      canvas.addEventListener('pointerup', event => { dragging = false; canvas.classList.remove('dragging'); canvas.releasePointerCapture(event.pointerId); });
-      document.querySelector('[data-action=zoom-in]').addEventListener('click', () => zoom(0.85));
-      document.querySelector('[data-action=zoom-out]').addEventListener('click', () => zoom(1.15));
-      document.querySelector('[data-action=reset]').addEventListener('click', () => { viewBox = { x: original.x, y: original.y, width: original.width, height: original.height }; applyViewBox(); });
-      document.querySelector('[data-action=play-animation]').addEventListener('click', () => { animationRunning = true; animationStart = 0; requestAnimationFrame(animationLoop); });
-      document.querySelector('[data-action=pause-animation]').addEventListener('click', () => { animationRunning = false; applyVisualScales(); });
-      document.querySelectorAll('[data-scale]').forEach(input => {
-        function applyScaleInput() { setOutput(`[data-scale-output=${input.dataset.scale}]`, input.value, '%'); if (!animationRunning) applyVisualScales(); }
-        input.addEventListener('input', applyScaleInput);
-        applyScaleInput();
-      });
-      document.querySelectorAll('[data-animation]').forEach(input => {
-        function applyAnimationInput() { setOutput(`[data-animation-output=${input.dataset.animation}]`, input.value, 'x'); }
-        input.addEventListener('input', applyAnimationInput);
-        applyAnimationInput();
-      });
-      document.querySelectorAll('[data-text-scale]').forEach(input => {
-        function applyTextScaleInput() { const value = Number(input.value) / 100; setOutput(`[data-text-scale-output=${input.dataset.textScale}]`, input.value, '%'); applyTextScale(value); }
-        input.addEventListener('input', applyTextScaleInput);
-        applyTextScaleInput();
-      });
-      document.querySelectorAll('[data-layer]').forEach(control => {
-        function applyLayerVisibility() {
-          control.dataset.layer.split(',').forEach(selector => {
-            svg.querySelectorAll(selector.trim()).forEach(element => element.classList.toggle('hidden-layer', !control.checked));
-          });
-        }
-        control.addEventListener('change', applyLayerVisibility);
-        applyLayerVisibility();
-      });
-      applyVisualScales();
-      applyViewBox();
-    })();
-  </script>
-</body>
-</html>
+    });
+  }
+  function applyVisualScales(factor = Number(scaleInput.value)/100) {
+    applyDeformation(factor);
+    document.querySelector('[data-effective-scale]').textContent = '×'+number(data.baseScale*factor);
+  }
+  function animationLoop(timestamp) {
+    frameId = null;
+    if (!animationRunning) return;
+    if (animationStart === null) animationStart = timestamp;
+    applyVisualScales(Number(scaleInput.value)/100 * Math.sin((timestamp-animationStart)/1000*Number(speedInput.value)*Math.PI*2));
+    frameId = requestAnimationFrame(animationLoop);
+  }
+  play.addEventListener('click',() => {
+    if (animationRunning) return;
+    mode.value='displacements';applyMode();
+    animationRunning=true;animationStart=null;play.disabled=true;pause.disabled=false;
+    frameId=requestAnimationFrame(animationLoop);
+  });
+  pause.addEventListener('click',() => {
+    animationRunning=false;animationStart=null;
+    if (frameId !== null) cancelAnimationFrame(frameId);
+    frameId=null;play.disabled=false;pause.disabled=true;applyVisualScales();
+  });
+  scaleInput.addEventListener('input',() => {
+    document.querySelector('[data-scale-output=deformed]').textContent=scaleInput.value+'%';
+    if (!animationRunning) applyVisualScales();
+  });
+  textInput.addEventListener('input',() => {
+    svg.style.setProperty('--viewer-label-scale',String(Number(textInput.value)/100));
+    document.querySelector('[data-text-scale-output=labels]').textContent=textInput.value+'%';
+  });
+  speedInput.addEventListener('input',() => { document.querySelector('[data-animation-output=speed]').textContent=speedInput.value+'×'; });
+  mode.addEventListener('change',() => applyMode());
+  controls.forEach(control => control.addEventListener('change',() => {
+    if (diagramControls.includes(control) || control === layer('#deformed-shape')) mode.value='custom';
+    applyMode(false);
+  }));
+  canvas.addEventListener('wheel',event => { event.preventDefault();zoom(event.deltaY<0?.9:1.1,event.clientX,event.clientY); },{passive:false});
+  canvas.addEventListener('pointerdown',event => {
+    if (pointerId !== null || event.button !== 0) return;
+    dragging=true;pointerId=event.pointerId;moved=false;last={x:event.clientX,y:event.clientY};pointerStart={...last};
+    pressedElement=event.target.closest('[data-node-id],[data-member-id]');
+    canvas.classList.add('dragging');canvas.setPointerCapture(event.pointerId);
+  });
+  canvas.addEventListener('pointermove',event => {
+    if (!dragging || event.pointerId !== pointerId) return;
+    const previous=screenToSvg(last.x,last.y),current=screenToSvg(event.clientX,event.clientY);
+    if (!previous || !current) return;
+    if (Math.abs(event.clientX-pointerStart.x)+Math.abs(event.clientY-pointerStart.y)>4) moved=true;
+    viewBox.x-=current.x-previous.x;viewBox.y-=current.y-previous.y;last={x:event.clientX,y:event.clientY};applyViewBox();
+  });
+  function endDrag(event) {
+    if (event.pointerId !== pointerId) return;
+    dragging=false;pointerId=null;canvas.classList.remove('dragging');
+    if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+    if (event.type==='pointerup' && !moved && pressedElement) inspect(pressedElement);
+    pressedElement=null;
+  }
+  canvas.addEventListener('pointerup',endDrag);canvas.addEventListener('pointercancel',endDrag);
+  document.querySelector('[data-action=zoom-in]').addEventListener('click',() => zoom(.85));
+  document.querySelector('[data-action=zoom-out]').addEventListener('click',() => zoom(1.15));
+  document.querySelector('[data-action=fit]').addEventListener('click',fitView);
+  document.querySelector('[data-action=reset]').addEventListener('click',() => { viewBox={...original};applyViewBox(); });
+  canvas.addEventListener('keydown',event => {
+    const shifts={ArrowLeft:[-.05,0],ArrowRight:[.05,0],ArrowUp:[0,-.05],ArrowDown:[0,.05]};
+    if (shifts[event.key]) {event.preventDefault();viewBox.x+=shifts[event.key][0]*viewBox.width;viewBox.y+=shifts[event.key][1]*viewBox.height;applyViewBox();}
+    else if (event.key==='+' || event.key==='=') {event.preventDefault();zoom(.85);}
+    else if (event.key==='-') {event.preventDefault();zoom(1.15);}
+    else if (event.key==='Home') {event.preventDefault();fitView();}
+  });
+  const inspector=document.getElementById('inspector'),details=document.getElementById('selection-details');
+  function inspect(element) {
+    svg.querySelectorAll('[data-selected]').forEach(item => item.removeAttribute('data-selected'));
+    const node=element.dataset.nodeId ? data.nodes[element.dataset.nodeId] : null;
+    const member=node?null:data.members[element.dataset.memberId];
+    if (!node && !member) return;
+    element.dataset.selected='true';details.replaceChildren();
+    const heading=document.createElement('h2');heading.textContent=(node?'Node ':'Member ')+(node?.id || member.id);details.append(heading);
+    const list=document.createElement('dl');details.append(list);
+    const row=(name,value) => {const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=name;dd.textContent=value;list.append(dt,dd);};
+    if (node) {
+      if (node.label) row('Label',node.label);
+      row('Coordinates',`${number(node.x)}, ${number(node.y)} m`);row('Ux',number(node.ux*1000)+' mm');row('Uy',number(node.uy*1000)+' mm');row('Rz',number(node.rz)+' rad');
+    } else {
+      row('Type',member.type);row('Nodes',member.start+' → '+member.end);row('Length',number(member.length)+' m');
+      for (const [key,label,unit] of [['NormalForce','Max |N|','kN'],['ShearForce','Max |V|','kN'],['BendingMoment','Max |M|','kNm']])
+        if (Object.hasOwn(member.forces,key)) row(label,number(member.forces[key])+' '+unit);
+      if (member.stations.length) {
+        const table=document.createElement('table'),caption=document.createElement('caption');caption.textContent='Station displacements';table.append(caption);
+        const header=document.createElement('tr');for (const value of ['Station','Ux [mm]','Uy [mm]','Rz [rad]']) {const th=document.createElement('th');th.textContent=value;header.append(th);} table.append(header);
+        member.stations.forEach(station => {const tr=document.createElement('tr');for (const value of [station.label,number(station.ux*1000),number(station.uy*1000),number(station.rz)]) {const td=document.createElement('td');td.textContent=value;tr.append(td);}table.append(tr);});details.append(table);
+      }
+    }
+    inspector.hidden=false;
+  }
+  // Wide transparent hit areas keep thin member axes usable with touch and mouse.
+  svg.querySelectorAll('#undeformed-model .member[data-member-id]').forEach(line => {
+    const hit=line.cloneNode();hit.setAttribute('class','member-hit');line.parentElement.insertBefore(hit,line);
+  });
+  svg.querySelectorAll('#undeformed-model .node[data-node-id]').forEach(node => {
+    const hit=node.cloneNode();hit.setAttribute('class','node-hit');node.parentElement.insertBefore(hit,node);
+  });
+  svg.querySelectorAll('[data-member-id],[data-node-id]').forEach(element => {
+    if (element.classList.contains('node-hit')) return;
+    if (element.classList.contains('member') && element.classList.contains('undeformed')) return;
+    element.setAttribute('tabindex','0');element.setAttribute('role','button');
+    element.setAttribute('aria-label',(element.dataset.nodeId?'Inspect node ':'Inspect member ')+(element.dataset.nodeId || element.dataset.memberId));
+    element.addEventListener('click',() => {if (!moved) inspect(element);});
+    element.addEventListener('keydown',event => {if (event.key==='Enter' || event.key===' ') {event.preventDefault();inspect(element);}});
+  });
+  document.querySelector('[data-action=close-inspector]').addEventListener('click',() => {inspector.hidden=true;canvas.focus();});
+  [scaleInput,textInput,speedInput].forEach(input => input.dispatchEvent(new Event('input')));
+  mode.value=data.initialView;applyMode(false);applyVisualScales();fitView();original={...viewBox};
+})();
+</script></body></html>
