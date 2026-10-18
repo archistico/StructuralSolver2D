@@ -132,6 +132,11 @@ For a non-rotated support, the local support axes coincide with global X and glo
 When `OrientationDegrees` is different from zero, the translational constraint equations are rotated accordingly.
 This allows mechanically active inclined rollers and inclined translational supports without changing the JSON support schema.
 
+Dependent support equations at the same node are reduced to an independent orthonormal basis before solving.
+Adding a restraint already imposed by another support does not create a structural mechanism.
+Unused rotations at truss nodes or released member ends can be removed from the active system;
+free translations are not automatically restrained, even when they carry no load.
+
 ## Support reactions
 
 Support reactions are computed from the global residual vector:
@@ -150,6 +155,11 @@ This distinction is important for inclined supports. A roller restrained along a
 - an inclined roller may correctly report both `Fx` and `Fy` as non-zero.
 
 The public result currently exposes global components only. If local support reaction components become necessary for reporting, they should be added explicitly to the reaction DTO rather than reinterpreting the meaning of `Fx` and `Fy`.
+
+With several supports at the same node, the nodal residual is decomposed along their individual restrained directions.
+For independent directions, this determines each support reaction. For redundant restraints, the engine selects the
+minimum-norm vector of local constraint multipliers. This is a documented convention for an otherwise non-unique
+split: the sum is the nodal reaction, and the split does not model relative support stiffnesses.
 
 ## Loads
 
@@ -180,6 +190,10 @@ For internal forces, the convention must be documented separately and kept consi
 
 The current linear equation solver is a dense Gaussian-elimination solver with partial pivoting.
 It is intentionally simple and suitable for small/medium educational, validation and prototype models.
+
+Rows and columns are equilibrated before testing pivots with a relative numerical threshold.
+Non-finite inputs/solutions and excessive residuals of the equilibrated equations are rejected with
+`StructuralAnalysisException`. Singular and numerically singular systems are rejected even when the load vector is zero.
 
 The dense implementation stores the full matrix and has approximately cubic computational cost with respect to the number of unknowns. This means it is not intended for large production-scale finite element models. Future larger models should use a sparse matrix assembly and sparse linear solver.
 

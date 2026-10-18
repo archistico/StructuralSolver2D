@@ -10,6 +10,10 @@ The format follows a simple milestone-based structure. StructuralSolver2D is sti
 
 ### Fixed
 
+- Analysis equilibrates linear systems before relative pivot checks and verifies residuals and finite solutions, rejecting rotated and unloaded mechanisms consistently.
+- Released frame end rotations are recovered per member before displacement sampling, including factored point and distributed loads; deflection checks no longer use an artificial zero deformation.
+- Independent support directions at a shared node receive their own reactions. Redundant supports use independent equations and a documented minimum-norm reaction distribution.
+- Added regression coverage across all analyzers, load combinations, rotated members/supports, redundant constraints and stiffness scales.
 - Parabolic truss generators now share chord end nodes and avoid duplicate end-panel diagonals.
 - The Gerber generator uses stable cantilever end restraints around its suspended span.
 - Validation rejects conflicting load-case/combination identifiers and undefined member types, and reports null member-node references without throwing.

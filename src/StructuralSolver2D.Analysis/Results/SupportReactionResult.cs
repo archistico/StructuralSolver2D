@@ -16,6 +16,11 @@ namespace StructuralSolver2D.Analysis.Results;
 /// <para>
 /// <see cref="Mz"/> is the global support moment component. Internal moment units are kilonewton meter [kNm].
 /// </para>
+/// <para>
+/// When several supports impose dependent restraints on a node, the solver uses a minimum-norm
+/// distribution of local constraint multipliers. Individual reactions in that case are conventional;
+/// their sum is the nodal reaction. No support stiffness is implied by this distribution.
+/// </para>
 /// </remarks>
 public sealed record SupportReactionResult(
     string SupportId,

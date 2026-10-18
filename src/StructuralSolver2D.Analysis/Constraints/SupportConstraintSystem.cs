@@ -42,7 +42,9 @@ internal static class SupportConstraintSystem
                 constraints,
                 totalDofCount,
                 globalStiffness,
-                globalLoadVector);
+                globalLoadVector,
+                dofsPerNode,
+                includeRotationalDof);
         }
 
         if (constraints.Count == 0)
@@ -82,9 +84,9 @@ internal static class SupportConstraintSystem
     /// Builds support reaction result objects from the global residual vector.
     /// </summary>
     /// <remarks>
-    /// Reaction forces are reported as global components. When a translational support is rotated,
-    /// a restrained local axis may contribute to both global X and global Y. Components that are not
-    /// associated with any active restrained support direction are suppressed to zero.
+    /// Reaction forces are reported as global components along each support's restrained directions.
+    /// With redundant restraints, the local constraint multipliers use the minimum-norm distribution;
+    /// individual reactions are conventional, while their sum is the nodal reaction.
     /// </remarks>
     public static IReadOnlyList<SupportReactionResult> BuildSupportReactionResults(
         StructuralModel model,
@@ -97,35 +99,101 @@ internal static class SupportConstraintSystem
         ArgumentNullException.ThrowIfNull(nodeIndexById);
         ArgumentNullException.ThrowIfNull(globalResidual);
 
-        return model.Supports
-            .Select(support =>
-            {
-                int nodeBaseDof = nodeIndexById[support.NodeId] * dofsPerNode;
+        Dictionary<string, double[]> reactions = model.Supports.ToDictionary(
+            support => support.Id, _ => new double[dofsPerNode], StringComparer.OrdinalIgnoreCase);
 
-                return new SupportReactionResult(
-                    support.Id,
-                    support.NodeId,
-                    HasRestrainedGlobalXComponent(support) ? Clean(globalResidual[nodeBaseDof]) : 0.0,
-                    HasRestrainedGlobalYComponent(support) ? Clean(globalResidual[nodeBaseDof + 1]) : 0.0,
-                    includeRotationalDof && support.RestrainedRz ? Clean(globalResidual[nodeBaseDof + 2]) : 0.0);
-            })
+        foreach (var group in model.Supports.GroupBy(support => support.NodeId, StringComparer.OrdinalIgnoreCase))
+        {
+            var directions = group.SelectMany(support => GetSupportDirections(support, dofsPerNode, includeRotationalDof)
+                .Select(direction => (support.Id, Direction: direction))).ToList();
+            List<double[]> basis = BuildOrthonormalBasis(directions.Select(item => item.Direction));
+            if (basis.Count == 0) continue;
+
+            // Write r = C^T lambda in an independent orthonormal basis Q.
+            // Solve (Q^T C^T C Q) z = Q^T r and use lambda = C Q z.
+            // This also handles repeated constraint directions without duplicating r.
+            double[,] gram = new double[basis.Count, basis.Count];
+            double[] projectedResidual = new double[basis.Count];
+            int nodeBaseDof = nodeIndexById[group.Key] * dofsPerNode;
+            for (int row = 0; row < basis.Count; row++)
+            {
+                for (int dof = 0; dof < dofsPerNode; dof++)
+                    projectedResidual[row] += basis[row][dof] * globalResidual[nodeBaseDof + dof];
+                for (int column = 0; column < basis.Count; column++)
+                    gram[row, column] = directions.Sum(item => Dot(item.Direction, basis[row]) * Dot(item.Direction, basis[column]));
+            }
+            double[] coordinates = DenseLinearSystemSolver.Solve(gram, projectedResidual);
+            foreach (var item in directions)
+            {
+                double multiplier = 0;
+                for (int row = 0; row < basis.Count; row++)
+                    multiplier += Dot(item.Direction, basis[row]) * coordinates[row];
+                for (int dof = 0; dof < dofsPerNode; dof++)
+                    reactions[item.Id][dof] += multiplier * item.Direction[dof];
+            }
+        }
+
+        return model.Supports.Select(support => new SupportReactionResult(
+                support.Id, support.NodeId,
+                Clean(reactions[support.Id][0]), Clean(reactions[support.Id][1]),
+                includeRotationalDof ? Clean(reactions[support.Id][2]) : 0))
             .ToList();
     }
 
-    private static bool HasRestrainedGlobalXComponent(StructuralSupport support)
+    private static IEnumerable<double[]> GetSupportDirections(StructuralSupport support, int dofsPerNode, bool includeRotationalDof)
     {
         double angle = support.OrientationDegrees * Math.PI / 180.0;
-
-        return (support.RestrainedUx && Math.Abs(Math.Cos(angle)) > InactiveDofTolerance) ||
-               (support.RestrainedUy && Math.Abs(Math.Sin(angle)) > InactiveDofTolerance);
+        double cosine = Math.Cos(angle), sine = Math.Sin(angle);
+        if (Math.Abs(cosine) <= InactiveDofTolerance) cosine = 0;
+        if (Math.Abs(sine) <= InactiveDofTolerance) sine = 0;
+        if (support.RestrainedUx)
+        {
+            double[] row = new double[dofsPerNode];
+            row[0] = cosine;
+            row[1] = sine;
+            yield return row;
+        }
+        if (support.RestrainedUy)
+        {
+            double[] row = new double[dofsPerNode];
+            row[0] = -sine;
+            row[1] = cosine;
+            yield return row;
+        }
+        if (includeRotationalDof && support.RestrainedRz)
+        {
+            double[] row = new double[dofsPerNode];
+            row[2] = 1;
+            yield return row;
+        }
     }
 
-    private static bool HasRestrainedGlobalYComponent(StructuralSupport support)
+    private static List<double[]> BuildOrthonormalBasis(IEnumerable<double[]> directions)
     {
-        double angle = support.OrientationDegrees * Math.PI / 180.0;
+        List<double[]> basis = new();
+        foreach (double[] direction in directions)
+        {
+            double[] vector = (double[])direction.Clone();
+            // Reorthogonalize to avoid accepting round-off from dependent rows as a new direction.
+            for (int pass = 0; pass < 2; pass++)
+            foreach (double[] existing in basis)
+            {
+                double projection = Dot(vector, existing);
+                for (int dof = 0; dof < vector.Length; dof++) vector[dof] -= projection * existing[dof];
+            }
+            double norm = Math.Sqrt(Dot(vector, vector));
+            if (norm <= InactiveDofTolerance) continue;
+            for (int dof = 0; dof < vector.Length; dof++) vector[dof] /= norm;
+            basis.Add(vector);
+        }
+        return basis;
+    }
 
-        return (support.RestrainedUx && Math.Abs(Math.Sin(angle)) > InactiveDofTolerance) ||
-               (support.RestrainedUy && Math.Abs(Math.Cos(angle)) > InactiveDofTolerance);
+    private static double Dot(double[] left, double[] right)
+    {
+        double result = 0;
+        for (int index = 0; index < left.Length; index++) result += left[index] * right[index];
+        return result;
     }
 
     private static List<ConstraintEquation> BuildSupportConstraints(
@@ -137,37 +205,14 @@ internal static class SupportConstraintSystem
     {
         List<ConstraintEquation> constraints = new();
 
-        foreach (StructuralSupport support in model.Supports)
+        foreach (var group in model.Supports.GroupBy(support => support.NodeId, StringComparer.OrdinalIgnoreCase))
         {
-            int nodeBaseDof = nodeIndexById[support.NodeId] * dofsPerNode;
-            double angle = support.OrientationDegrees * Math.PI / 180.0;
-            double cosine = Math.Cos(angle);
-            double sine = Math.Sin(angle);
-
-            if (support.RestrainedUx)
+            int nodeBaseDof = nodeIndexById[group.Key] * dofsPerNode;
+            var directions = group.SelectMany(support => GetSupportDirections(support, dofsPerNode, includeRotationalDof));
+            foreach (double[] direction in BuildOrthonormalBasis(directions))
             {
-                constraints.Add(CreateConstraint(totalDofCount, new[]
-                {
-                    new KeyValuePair<int, double>(nodeBaseDof, cosine),
-                    new KeyValuePair<int, double>(nodeBaseDof + 1, sine),
-                }));
-            }
-
-            if (support.RestrainedUy)
-            {
-                constraints.Add(CreateConstraint(totalDofCount, new[]
-                {
-                    new KeyValuePair<int, double>(nodeBaseDof, -sine),
-                    new KeyValuePair<int, double>(nodeBaseDof + 1, cosine),
-                }));
-            }
-
-            if (includeRotationalDof && support.RestrainedRz)
-            {
-                constraints.Add(CreateConstraint(totalDofCount, new[]
-                {
-                    new KeyValuePair<int, double>(nodeBaseDof + 2, 1.0),
-                }));
+                constraints.Add(CreateConstraint(totalDofCount, direction.Select((value, dof) =>
+                    new KeyValuePair<int, double>(nodeBaseDof + dof, value))));
             }
         }
 
@@ -178,19 +223,24 @@ internal static class SupportConstraintSystem
         ICollection<ConstraintEquation> constraints,
         int totalDofCount,
         double[,] globalStiffness,
-        double[] globalLoadVector)
+        double[] globalLoadVector,
+        int dofsPerNode,
+        bool includeRotationalDof)
     {
         HashSet<int> constrainedDofs = BuildConstrainedDofSet(constraints);
 
         for (int dof = 0; dof < totalDofCount; dof++)
         {
+            // Only unused rotations (truss nodes or released ends) are auxiliary DOFs.
+            // A free translation with zero stiffness is a structural mechanism.
+            if (!includeRotationalDof || dof % dofsPerNode != 2) continue;
             if (constrainedDofs.Contains(dof))
             {
                 continue;
             }
 
             if (!HasStiffness(globalStiffness, dof, totalDofCount) &&
-                Math.Abs(globalLoadVector[dof]) <= InactiveDofTolerance)
+                globalLoadVector[dof] == 0)
             {
                 constraints.Add(CreateConstraint(totalDofCount, new[]
                 {
@@ -205,7 +255,7 @@ internal static class SupportConstraintSystem
     {
         for (int column = 0; column < totalDofCount; column++)
         {
-            if (Math.Abs(globalStiffness[dof, column]) > InactiveDofTolerance)
+            if (globalStiffness[dof, column] != 0)
             {
                 return true;
             }

@@ -8,7 +8,7 @@ namespace StructuralSolver2D.Analysis.Solvers;
 /// </summary>
 internal static class DenseLinearSystemSolver
 {
-    private const double PivotTolerance = 1e-12;
+    private const double RelativePivotTolerance = 1e-12;
 
     /// <summary>
     /// Solves the linear system A · x = b.
@@ -31,8 +31,38 @@ internal static class DenseLinearSystemSolver
             throw new ArgumentException("The right-hand side vector size does not match the matrix size.", nameof(rightHandSide));
         }
 
-        double[,] a = (double[,])matrix.Clone();
-        double[] b = (double[])rightHandSide.Clone();
+        // Equilibrate rows and columns before testing pivots. In a constrained system,
+        // stiffness entries and constraint coefficients have very different scales.
+        double[,] scaled = new double[rowCount, rowCount];
+        double[] scaledRightHandSide = new double[rowCount];
+        double[] columnScales = new double[rowCount];
+        for (int row = 0; row < rowCount; row++)
+        {
+            double rowScale = 0;
+            for (int column = 0; column < rowCount; column++)
+            {
+                if (!double.IsFinite(matrix[row, column]))
+                    throw new StructuralAnalysisException("The coefficient matrix contains non-finite values.");
+                rowScale = Math.Max(rowScale, Math.Abs(matrix[row, column]));
+            }
+            if (rowScale == 0) throw Singular(row);
+            if (!double.IsFinite(rightHandSide[row]))
+                throw new StructuralAnalysisException("The load vector contains non-finite values.");
+            scaledRightHandSide[row] = rightHandSide[row] / rowScale;
+            for (int column = 0; column < rowCount; column++)
+            {
+                scaled[row, column] = matrix[row, column] / rowScale;
+                columnScales[column] = Math.Max(columnScales[column], Math.Abs(scaled[row, column]));
+            }
+        }
+        for (int column = 0; column < rowCount; column++)
+        {
+            if (columnScales[column] == 0) throw Singular(column);
+            for (int row = 0; row < rowCount; row++) scaled[row, column] /= columnScales[column];
+        }
+
+        double[,] a = (double[,])scaled.Clone();
+        double[] b = (double[])scaledRightHandSide.Clone();
 
         for (int pivotIndex = 0; pivotIndex < rowCount; pivotIndex++)
         {
@@ -49,11 +79,9 @@ internal static class DenseLinearSystemSolver
                 }
             }
 
-            if (bestPivot < PivotTolerance || !double.IsFinite(bestPivot))
+            if (bestPivot <= RelativePivotTolerance || !double.IsFinite(bestPivot))
             {
-                throw new StructuralAnalysisException(
-                    $"The reduced stiffness matrix is singular at pivot {pivotIndex}. " +
-                    "The model is probably unstable, insufficiently constrained, or contains a mechanism.");
+                throw Singular(pivotIndex);
             }
 
             if (bestRow != pivotIndex)
@@ -95,8 +123,33 @@ internal static class DenseLinearSystemSolver
             x[row] = sum / a[row, row];
         }
 
+        double maxSolution = x.Length == 0 ? 0 : x.Max(value => Math.Abs(value));
+        for (int row = 0; row < rowCount; row++)
+        {
+            double product = 0, rowNorm = 0;
+            for (int column = 0; column < rowCount; column++)
+            {
+                product += scaled[row, column] * x[column];
+                rowNorm += Math.Abs(scaled[row, column]);
+            }
+            double residual = Math.Abs(product - scaledRightHandSide[row]);
+            double scale = rowNorm * maxSolution + Math.Abs(scaledRightHandSide[row]);
+            if (!double.IsFinite(product) || !double.IsFinite(x[row]) || !double.IsFinite(scale) ||
+                residual > 1e-9 * scale)
+                throw new StructuralAnalysisException("The linear system solution failed the residual check.");
+        }
+        for (int row = 0; row < rowCount; row++)
+        {
+            x[row] /= columnScales[row];
+            if (!double.IsFinite(x[row]))
+                throw new StructuralAnalysisException("The linear system produced a non-finite solution.");
+        }
         return x;
     }
+
+    private static StructuralAnalysisException Singular(int pivot) => new(
+        $"The constrained stiffness matrix is singular or numerically singular at pivot {pivot}. " +
+        "The model is probably unstable, insufficiently constrained, or contains a mechanism.");
 
     private static void SwapRows(double[,] matrix, int firstRow, int secondRow)
     {

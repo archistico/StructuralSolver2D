@@ -49,6 +49,17 @@ Nodal displacements are solved directly by the global system.
 
 Internal displacement samples are interpolated from nodal values.
 
+At a released member end, its rotation is recovered before interpolation from the original element equations:
+
+```text
+Kcc uc = fc - Kcr ur
+```
+
+Here `uc` contains released end rotations, `ur` contains retained element displacements, and `fc` uses the
+original equivalent member loads with the selected case/combination factors. Recovered rotations belong to
+each member, so they can differ from the global rotation of a shared node. The recovered values are used by
+the deformed shape and preliminary deflection checks; the global nodal results remain the solved global DOFs.
+
 Therefore:
 
 ```text

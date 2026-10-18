@@ -1,4 +1,5 @@
 using StructuralSolver2D.Analysis.Results;
+using StructuralSolver2D.Analysis.Solvers;
 using StructuralSolver2D.Core.Model;
 using StructuralSolver2D.Core.Model.Enums;
 
@@ -77,6 +78,7 @@ public sealed class Frame2DDisplacementSampler
 
         double[,] transformation = Frame2DElementMatrices.BuildTransformation(geometry.Cosine, geometry.Sine);
         double[] localElementDisplacements = Frame2DElementMatrices.TransformDisplacementToLocal(globalElementDisplacements, transformation);
+        RecoverReleasedRotations(model, member, analysisResult.LoadCaseId, geometry, localElementDisplacements);
 
         List<MemberDisplacementSample> samples = new(sampleCount);
 
@@ -132,6 +134,85 @@ public sealed class Frame2DDisplacementSampler
             .Select(memberEndForce => SampleMember(model, analysisResult, memberEndForce.MemberId, sampleCount))
             .ToList();
     }
+
+    private static void RecoverReleasedRotations(
+        StructuralModel model,
+        StructuralMember member,
+        string resultId,
+        MemberGeometry geometry,
+        double[] localDisplacements)
+    {
+        int[] released = new[] { member.ReleaseStartMoment ? 2 : -1, member.ReleaseEndMoment ? 5 : -1 }
+            .Where(index => index >= 0).ToArray();
+        if (released.Length == 0) return;
+
+        StructuralMaterial material = model.Materials.Single(item => string.Equals(item.Id, member.MaterialId, StringComparison.OrdinalIgnoreCase));
+        StructuralSection section = model.Sections.Single(item => string.Equals(item.Id, member.SectionId, StringComparison.OrdinalIgnoreCase));
+        double[,] stiffness = Frame2DElementMatrices.BuildLocalStiffness(
+            material.ElasticModulus, section.Area, section.MomentOfInertia, geometry.Length);
+        double[] load = BuildOriginalLocalLoad(model, member.Id, resultId, geometry);
+        double[,] rotationStiffness = new double[released.Length, released.Length];
+        double[] rotationLoad = new double[released.Length];
+
+        // Zero end moments imply Kcc * uc = fc - Kcr * ur before condensation.
+        // The recovered rotations belong to this member, not to the shared global node.
+        for (int row = 0; row < released.Length; row++)
+        {
+            rotationLoad[row] = load[released[row]];
+            for (int dof = 0; dof < 6; dof++)
+                if (!released.Contains(dof)) rotationLoad[row] -= stiffness[released[row], dof] * localDisplacements[dof];
+            for (int column = 0; column < released.Length; column++)
+                rotationStiffness[row, column] = stiffness[released[row], released[column]];
+        }
+        double[] rotations = DenseLinearSystemSolver.Solve(rotationStiffness, rotationLoad);
+        for (int row = 0; row < released.Length; row++) localDisplacements[released[row]] = rotations[row];
+    }
+
+    private static double[] BuildOriginalLocalLoad(StructuralModel model, string memberId, string resultId, MemberGeometry geometry)
+    {
+        StructuralLoadCombination? combination = model.LoadCombinations.FirstOrDefault(item =>
+            string.Equals(item.Id, resultId, StringComparison.OrdinalIgnoreCase));
+        Dictionary<string, double> factors = combination is null
+            ? new(StringComparer.OrdinalIgnoreCase) { [resultId] = 1 }
+            : combination.Terms.ToDictionary(term => term.LoadCaseId, term => term.Factor, StringComparer.OrdinalIgnoreCase);
+        double[] total = new double[6];
+        foreach (StructuralLoad load in model.Loads.Where(load =>
+            load.TargetType == StructuralLoadTargetType.Member &&
+            string.Equals(load.TargetId, memberId, StringComparison.OrdinalIgnoreCase) && factors.ContainsKey(load.LoadCaseId)))
+        {
+            (double x, double y) = ResolveLocalLoad(load.Direction, load.Value * factors[load.LoadCaseId], geometry);
+            double[] equivalent;
+            switch (load.Type)
+            {
+                case StructuralLoadType.UniformDistributedLoad:
+                    equivalent = Frame2DElementMatrices.BuildUniformLocalLoad(x, y, geometry.Length);
+                    break;
+                case StructuralLoadType.LinearDistributedLoad:
+                    (double endX, double endY) = ResolveLocalLoad(load.Direction,
+                        (load.EndValue ?? throw new StructuralAnalysisException($"Load '{load.Id}' has no end value.")) * factors[load.LoadCaseId], geometry);
+                    equivalent = Frame2DElementMatrices.BuildLinearLocalLoad(x, endX, y, endY, geometry.Length);
+                    break;
+                case StructuralLoadType.PointLoadOnMember:
+                    equivalent = Frame2DElementMatrices.BuildPointLocalLoad(x, y, geometry.Length,
+                        load.Position ?? throw new StructuralAnalysisException($"Load '{load.Id}' has no position."));
+                    break;
+                default:
+                    throw new StructuralAnalysisException($"Unsupported member load type '{load.Type}'.");
+            }
+            for (int dof = 0; dof < 6; dof++) total[dof] += equivalent[dof];
+        }
+        return total;
+    }
+
+    private static (double X, double Y) ResolveLocalLoad(StructuralLoadDirection direction, double value, MemberGeometry geometry) =>
+        direction switch
+        {
+            StructuralLoadDirection.GlobalX => (geometry.Cosine * value, -geometry.Sine * value),
+            StructuralLoadDirection.GlobalY => (geometry.Sine * value, geometry.Cosine * value),
+            StructuralLoadDirection.LocalX => (value, 0),
+            StructuralLoadDirection.LocalY => (0, value),
+            _ => throw new StructuralAnalysisException($"Unsupported member load direction '{direction}'.")
+        };
 
     private static (double LocalUx, double LocalUy, double LocalRz) InterpolateLocalDisplacement(
         double[] localElementDisplacements,
