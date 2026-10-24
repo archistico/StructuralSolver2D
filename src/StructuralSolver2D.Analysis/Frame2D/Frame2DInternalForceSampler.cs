@@ -50,6 +50,41 @@ public sealed class Frame2DInternalForceSampler
     }
 
     /// <summary>
+    /// M87-B: evaluates all concomitant signed N/V/M in one exact member station.
+    /// Uses the existing first-order piecewise-polynomial equations (not a graphic sample).
+    /// A member point-load jump requires an explicit one-sided limit; an ambiguous
+    /// "Continuous" request at such a jump is rejected. Units: m, kN, kNm.
+    /// </summary>
+    public MemberInternalForceSample EvaluateMemberSection(
+        StructuralModel model, StructuralAnalysisResult analysisResult, string memberId,
+        double distanceMetres, SectionLimitM78 side = SectionLimitM78.Continuous)
+    {
+        if (!Enum.IsDefined(side))
+            throw new ArgumentOutOfRangeException(nameof(side));
+        MemberForceProfile profile = PrepareMember(model, analysisResult, memberId);
+        if (!double.IsFinite(distanceMetres) || distanceMetres < 0 || distanceMetres > profile.Length)
+            throw new ArgumentOutOfRangeException(nameof(distanceMetres));
+
+        // Snap only within floating-point representation error, not a user-facing
+        // engineering tolerance: never silently move a station by a finite distance.
+        double coordinate = distanceMetres;
+        foreach (double jump in profile.Discontinuities)
+        {
+            if (Math.Abs(jump - coordinate) <= 16 * 2.2204460492503131e-16 * Math.Max(1, profile.Length))
+            {
+                coordinate = jump;
+                break;
+            }
+        }
+        bool isJump = profile.Discontinuities.Contains(coordinate);
+        if (isJump && side == SectionLimitM78.Continuous)
+            throw new ArgumentException("Point load at section: choose BeforePointLoad or AfterPointLoad.", nameof(side));
+        if (!isJump && side != SectionLimitM78.Continuous)
+            throw new ArgumentException("One-sided section requested where no concentrated member load exists.", nameof(side));
+        return profile.Evaluate(coordinate, after: side != SectionLimitM78.BeforePointLoad);
+    }
+
+    /// <summary>
     /// Prepares the same exact piecewise-polynomial section force equations used by the
     /// standard diagram sampler. Point-load jumps are evaluated on their chosen side.
     /// </summary>

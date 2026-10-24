@@ -1,3 +1,5 @@
+> **Aggiornamento del 24/10/2026:** il gate di M86 RC1 è stato eseguito e superato su Windows: compilazione 0 errori/avvisi, 1.334/1.334 test, prove CLI e report Markdown/CSV/XLSX/PDF. L'annotazione storica più sotto "gate ancora aperto" descrive il momento in cui fu preparato RC1.
+
 # M86 RC1 — Prima release tecnica preview del motore FEM elastico 2D
 
 **Data preparazione:** 24 ottobre 2026. **Versione di assembly invariata:** `0.1.0` (vedere `VERSION` e `Directory.Build.props`). **Identificatore dell'archivio:** M86-RC1; non è un rilascio stabile certificato né un tag Git creato automaticamente.

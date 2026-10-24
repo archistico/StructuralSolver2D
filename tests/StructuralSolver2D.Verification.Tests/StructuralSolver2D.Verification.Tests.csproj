@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+    <Using Include="Xunit" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\StructuralSolver2D.Verification\StructuralSolver2D.Verification.csproj" />
+    <ProjectReference Include="..\..\src\StructuralSolver2D.Verification.Integration\StructuralSolver2D.Verification.Integration.csproj" />
+    <ProjectReference Include="..\..\src\StructuralSolver2D.Verification.Steel\StructuralSolver2D.Verification.Steel.csproj" />
+    <Content Include="..\..\catalogs\m88\steel-oppo-ipe-hea-heb-inp.json" Link="steel-oppo-ipe-hea-heb-inp.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\catalogs\m88\characteristic-strength-classes.json" Link="characteristic-strength-classes.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

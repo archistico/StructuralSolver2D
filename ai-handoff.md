@@ -1,3 +1,11 @@
+# Ultimo checkpoint 2026-10-24 — M90-A
+
+Base M89-B con test confermati dall'utente. Aggiunto classificatore EC3 Table 5.2 per IPE/HEA/HEB, solo compressione pura / flessione forte pura. Validazione contro esempi Bernuzzi cap. 4 ed OPPO. Da compilare/testare su Windows con `scripts/run-m90a-tests.ps1`. Roadmap dettagliata `docs/structural/M90A_CLASSIFICAZIONE_SEZIONI_EC3.md`. PDF di Bernuzzi esterno al repository e non redistribuito. Nessuna modifica al motore FEM, nessuna dichiarazione di conformità strutturale.
+
+## M88-B2 (24 ottobre 2026): catalogo OPPO IPE/HEA/HEB/INP
+
+La baseline M88-B è confermata dall'utente come test superati. M88-B2 aggiunge `CommercialRolledSteelCatalogM88B2` e 40 profili tabellati indicativi dalle 4 pagine OPPO selezionate dall'utente. Il progetto e i dati preesistenti sono immutati; il nuovo gate Windows attende conferma. Non sono introdotte formule normative, e le designazioni UNI delle pagine OPPO sono riferimenti storici. Prossimo M88-C materiali e resistenze caratteristiche, poi verifiche. Leggere `docs/structural/m88b2-oppo-rolled-steel-catalog.md`.
+
 # Handoff operativo 24/10/2026 — M85-A (TEST WINDOWS PENDENTI)
 
 **Ultimo gate confermato:** M83-A completo superato dall'utente. Il CSV numerico del benchmark M83 non è stato allegato; non prendere ancora decisioni sul solver sparso/banded M83-B. La precedente intestazione M83-A «in attesa» sotto è storia superata.
@@ -990,3 +998,7 @@ Added internal `Verification/ConstrainedStiffnessInspector.cs`, `PlaneStructureA
 M51 remains **IN PROGRESS**: the .NET SDK is not installed in the authoring environment, so all new and previous M51 .NET tests must be run on a machine with .NET 8. Run `scripts/run-m51-tests.ps1`, then review benchmark/report/browser results before planning M52.
 
 Detailed validation handoff: `docs/structural/m51-verification-status.md`.
+
+### M88-C — checkpoint 2026-10-24
+
+Aggiunto catalogo proprietà caratteristiche materiali in `StructuralSolver2D.Catalogs` con JSON, validazione e test. Eseguire `scripts/verify-m88c-manifest.ps1`, `scripts/run-m88c-tests.ps1`. Non considerare M88-C validato fino a esecuzione di .NET 8 su Windows. Prossimo: M89 resistenze sezioni acciaio con norma/edizione/annesso espliciti. Motore FEM non modificato.

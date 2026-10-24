@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Description>Scoped, fail-closed Eurocode 3 steel cross-section checks; not a complete member compliance engine.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\StructuralSolver2D.Verification\StructuralSolver2D.Verification.csproj" />
+    <ProjectReference Include="..\StructuralSolver2D.Catalogs\StructuralSolver2D.Catalogs.csproj" />
+  </ItemGroup>
+</Project>

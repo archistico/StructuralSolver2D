@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 1,
+  "title": "M88-A starter catalog: elastic FEM ONLY; all sections illustrative",
+  "materials": [
+    {
+      "id": "S235",
+      "name": "Steel S235",
+      "family": "Steel",
+      "elasticModulusKnPerM2": 210000000,
+      "unitWeightKnPerM3": 78.5,
+      "dataStatus": "AnalysisPreset"
+    },
+    {
+      "id": "S275",
+      "name": "Steel S275",
+      "family": "Steel",
+      "elasticModulusKnPerM2": 210000000,
+      "unitWeightKnPerM3": 78.5,
+      "dataStatus": "AnalysisPreset"
+    },
+    {
+      "id": "S355",
+      "name": "Steel S355",
+      "family": "Steel",
+      "elasticModulusKnPerM2": 210000000,
+      "unitWeightKnPerM3": 78.5,
+      "dataStatus": "AnalysisPreset"
+    },
+    {
+      "id": "C24",
+      "name": "Timber C24",
+      "family": "Timber",
+      "elasticModulusKnPerM2": 11000000,
+      "unitWeightKnPerM3": 4.2,
+      "dataStatus": "AnalysisPreset"
+    },
+    {
+      "id": "GL24H",
+      "name": "Glulam GL24h",
+      "family": "Timber",
+      "elasticModulusKnPerM2": 11500000,
+      "unitWeightKnPerM3": 4.3,
+      "dataStatus": "AnalysisPreset"
+    }
+  ],
+  "sections": [
+    {
+      "family": "Steel",
+      "geometry": {
+        "id": "STEEL-I-100-IDEAL",
+        "name": "Idealized I shape 100x55 mm (NOT certified IPE)",
+        "shape": "DoublySymmetricI",
+        "widthMm": 55,
+        "heightMm": 100,
+        "webThicknessMm": 4.1,
+        "flangeThicknessMm": 5.7,
+        "dataStatus": "Illustrative"
+      }
+    },
+    {
+      "family": "Steel",
+      "geometry": {
+        "id": "STEEL-I-120-IDEAL",
+        "name": "Idealized I shape 120x64 mm (NOT certified IPE)",
+        "shape": "DoublySymmetricI",
+        "widthMm": 64,
+        "heightMm": 120,
+        "webThicknessMm": 4.4,
+        "flangeThicknessMm": 6.3,
+        "dataStatus": "Illustrative"
+      }
+    },
+    {
+      "family": "Steel",
+      "geometry": {
+        "id": "STEEL-I-160-IDEAL",
+        "name": "Idealized I shape 160x82 mm (NOT certified IPE)",
+        "shape": "DoublySymmetricI",
+        "widthMm": 82,
+        "heightMm": 160,
+        "webThicknessMm": 5.0,
+        "flangeThicknessMm": 7.4,
+        "dataStatus": "Illustrative"
+      }
+    },
+    {
+      "family": "Steel",
+      "geometry": {
+        "id": "STEEL-I-200-IDEAL",
+        "name": "Idealized I shape 200x100 mm (NOT certified IPE)",
+        "shape": "DoublySymmetricI",
+        "widthMm": 100,
+        "heightMm": 200,
+        "webThicknessMm": 5.6,
+        "flangeThicknessMm": 8.5,
+        "dataStatus": "Illustrative"
+      }
+    },
+    {
+      "family": "Steel",
+      "geometry": {
+        "id": "STEEL-RHS-100X50X4-IDEAL",
+        "name": "Idealized RHS 100x50x4 mm (sharp corners)",
+        "shape": "RectangularHollow",
+        "widthMm": 50,
+        "heightMm": 100,
+        "wallThicknessMm": 4,
+        "dataStatus": "Illustrative"
+      }
+    },
+    {
+      "family": "Steel",
+      "geometry": {
+        "id": "STEEL-RHS-120X80X5-IDEAL",
+        "name": "Idealized RHS 120x80x5 mm (sharp corners)",
+        "shape": "RectangularHollow",
+        "widthMm": 80,
+        "heightMm": 120,
+        "wallThicknessMm": 5,
+        "dataStatus": "Illustrative"
+      }
+    },
+    {
+      "family": "Steel",
+      "geometry": {
+        "id": "STEEL-RHS-160X80X5-IDEAL",
+        "name": "Idealized RHS 160x80x5 mm (sharp corners)",
+        "shape": "RectangularHollow",
+        "widthMm": 80,
+        "heightMm": 160,
+        "wallThicknessMm": 5,
+        "dataStatus": "Illustrative"
+      }
+    },
+    {
+      "family": "Steel",
+      "geometry": {
+        "id": "STEEL-CHS-60X4-IDEAL",
+        "name": "Idealized CHS OD 60x4 mm",
+        "shape": "CircularHollow",
+        "outerDiameterMm": 60,
+        "innerDiameterMm": 52,
+        "dataStatus": "Illustrative"
+      }
+    },
+    {
+      "family": "Steel",
+      "geometry": {
+        "id": "STEEL-CHS-89X5-IDEAL",
+        "name": "Idealized CHS OD 89x5 mm",
+        "shape": "CircularHollow",
+        "outerDiameterMm": 89,
+        "innerDiameterMm": 79,
+        "dataStatus": "Illustrative"
+      }
+    },
+    {
+      "family": "Timber",
+      "geometry": {
+        "id": "WOOD-60X120",
+        "name": "Nominal sawn rectangular 60x120 mm",
+        "shape": "TimberRectangular",
+        "widthMm": 60,
+        "heightMm": 120,
+        "dataStatus": "Illustrative"
+      }
+    },
+    {
+      "family": "Timber",
+      "geometry": {
+        "id": "WOOD-80X160",
+        "name": "Nominal sawn rectangular 80x160 mm",
+        "shape": "TimberRectangular",
+        "widthMm": 80,
+        "heightMm": 160,
+        "dataStatus": "Illustrative"
+      }
+    },
+    {
+      "family": "Timber",
+      "geometry": {
+        "id": "WOOD-100X200",
+        "name": "Nominal sawn rectangular 100x200 mm",
+        "shape": "TimberRectangular",
+        "widthMm": 100,
+        "heightMm": 200,
+        "dataStatus": "Illustrative"
+      }
+    },
+    {
+      "family": "Timber",
+      "geometry": {
+        "id": "WOOD-120X240",
+        "name": "Nominal sawn rectangular 120x240 mm",
+        "shape": "TimberRectangular",
+        "widthMm": 120,
+        "heightMm": 240,
+        "dataStatus": "Illustrative"
+      }
+    },
+    {
+      "family": "Timber",
+      "geometry": {
+        "id": "GLULAM-120X300",
+        "name": "Nominal glulam rectangular 120x300 mm",
+        "shape": "TimberRectangular",
+        "widthMm": 120,
+        "heightMm": 300,
+        "dataStatus": "Illustrative"
+      }
+    },
+    {
+      "family": "Timber",
+      "geometry": {
+        "id": "GLULAM-160X360",
+        "name": "Nominal glulam rectangular 160x360 mm",
+        "shape": "TimberRectangular",
+        "widthMm": 160,
+        "heightMm": 360,
+        "dataStatus": "Illustrative"
+      }
+    }
+  ]
+}

@@ -1,15 +1,32 @@
+> **M89-B (24/10/2026) — resistenza assiale lorda e taglio puro (test Windows da eseguire).** M89-A confermato dai test dell’utente. Tre regole parziali EC3: trazione **solo snervamento lordo**, compressione sezione classi 1–3 e taglio puro con area resistente dichiarata. **Non verificano rottura netta, instabilità o interazioni.** [Limiti e casi numerici](docs/M89B_ACCIAIO_SFORZO_NORMALE_TAGLIO.md). Gate: `scripts/run-m89b-tests.ps1` e `scripts/verify-m89b-manifest.ps1`.
+
+> **M89-A (24/10/2026) — prima regola EC3 isolata (test Windows superati secondo l’utente).** M88-C confermato dai test dell'utente. Introdotta una verifica circoscritta per **flessione elastica di sezioni classe 3**, EN 1993-1-1:2005+A1:2014 §6.2.5(2), con gamma_M0 esplicito, cataloghi OPPO/M88-C, rifiuto di N/V concomitanti non nulli e tracciabilità. **Non certifica la conformità della struttura o dell'asta**; attenzione a normativa/Annesso Nazionale applicabili. [Dettagli](docs/M89A_VERIFICA_ACCIAIO_FLESSIONE_ELASTICA.md). Eseguire `scripts/run-m89a-tests.ps1` e `scripts/verify-m89a-manifest.ps1`.
+
+> **M88-B2 — cataloghi OPPO (24/10/2026).** M88-A e M88-B confermati dai test dell'utente. Aggiunto catalogo indicativo di 40 profili IPE/HEA/HEB/INP da tabelle [OPPO](docs/structural/m88b2-oppo-rolled-steel-catalog.md), senza cambiare i solver FEM. **M88-B2 attende il gate Windows.** Avvio: `scripts/run-m88b2-tests.ps1`; verifica hash: `scripts/verify-m88b2-manifest.ps1`. Le proprietà non sono certificazioni o verifiche normative.
+
+> **M87-C (24/10/2026):** M87-B ha superato il gate Windows (26 Verification test, 1.334 regressioni, build 0 errori/avvisi). M87-C genera sezioni *candidate* per singoli estremi N/V/M, fine asta e salti di taglio, con optional griglia e sezioni esplicite. **Non ricerca il massimo di interazioni normative e non produce conformità strutturale.** Test M87-C ancora da eseguire. [Note tecniche](docs/structural/m87c-critical-stations.md) · `scripts/run-m87c-tests.ps1`.
+
+> **M87-B (24/10/2026):** M87-A ha superato il gate Windows (19 test delle verifiche, 1.334 regressioni; build 0 errori/avvisi). M87-B aggiunge un adapter isolato che estrae N/V/M *concomitanti* a una sezione precisa, con riferimento a caso/combinazione e lato di eventuale discontinuità. **Nessuna formula normativa introdotta, test M87-B ancora da eseguire.** `scripts/run-m87b-tests.ps1` · [Dettagli](docs/structural/m87b-fem-verification-bridge.md).
+
+> **M87-B (24/10/2026):** M87-A ha superato il gate Windows (19 test delle verifiche, 1.334 regressioni; build 0 errori/avvisi). M87-B aggiunge un adapter isolato che estrae N/V/M *concomitanti* a una sezione precisa, con riferimento a caso/combinazione e lato di eventuale discontinuità. **Nessuna formula normativa introdotta, test M87-B ancora da eseguire.** `scripts/run-m87b-tests.ps1` · [Dettagli](docs/structural/m87b-fem-verification-bridge.md).
+
+> **M87-A (24/10/2026):** M86 RC1 collaudato su Windows (1.334 test, 0 warning/errori, smoke CLI e report). Nuovo progetto separato `StructuralSolver2D.Verification`: contratti normativi ed esiti fail-closed **senza formule EC3/EC5/NTC**. Gate M87-A da eseguire: `.\scripts\run-m87-tests.ps1`. [Dettagli e limiti](docs/structural/m87-verification-architecture.md).
+
 # StructuralSolver2D
+
+> **M90-A — classificazione EC3 I/H (24/10/2026).** M89-B confermato dai test dell’utente. Nuovo classificatore della sezione per **compressione uniforme pura** e **flessione pura secondo l’asse forte**, basato su EC3:2005+A1:2014 §5.5 Tabella 5.2. Test indipendenti dal volume Bernuzzi, capitolo 4, e cataloghi OPPO. Nessuna verifica automatica di classe 4, pressoflessione, stabilità, EN 2022 o NTC. **Gate Windows M90-A ancora da eseguire**: `scripts/run-m90a-tests.ps1`; [documentazione](docs/structural/M90A_CLASSIFICAZIONE_SEZIONI_EC3.md).
+
 
 [![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
 [![Language](https://img.shields.io/badge/Linguaggio-C%23-239120?style=for-the-badge&logo=csharp&logoColor=white)](https://learn.microsoft.com/dotnet/csharp/)
 [![Modello](https://img.shields.io/badge/Strutture-2D-0078D6?style=for-the-badge)](docs/structural/model.md)
-[![Test](https://img.shields.io/badge/Test-M85--C%20superato-159957?style=for-the-badge)](docs/structural/roadmap.md)
-[![Sviluppo](https://img.shields.io/badge/M86--RC1-Gate%20Windows%20aperto-FFB000?style=for-the-badge)](docs/M85B_VALIDAZIONE_INTEGRATA.md)
+[![Test](https://img.shields.io/badge/Test-M86%20RC1%20superato-159957?style=for-the-badge)](docs/structural/roadmap.md)
+[![Sviluppo](https://img.shields.io/badge/M90--A-Gate%20Windows%20aperto-FFB000?style=for-the-badge)](docs/structural/m87b-fem-verification-bridge.md)
 [![Versione](https://img.shields.io/badge/Versione-0.1.0-6C757D?style=for-the-badge)](VERSION)
 [![Materiali](https://img.shields.io/badge/Materiali-Acciaio%20%7C%20Legno-7F52FF?style=for-the-badge)](docs/structural/vision-and-roadmap-2d.md)
 [![Licenza](https://img.shields.io/badge/Licenza-GPLv3-008080?style=for-the-badge)](LICENSE)
 
-> **Obiettivo aggiornato — 23 ottobre 2026.** Software **open source per analisi FEM di strutture piane ad aste in acciaio e legno**, per studenti, docenti e professionisti (uso didattico e preliminare). Sviluppo nell'ordine **motore FEM verificato → verifiche NTC/Eurocodici SLU/SLE → editor leggero C#/Avalonia**. Esclusi 3D, c.a., BIM, muratura, pareti, piastre e X-LAM. OpenCad2D non è più prerequisito. **M85-C ha superato i test Windows**: build 0 errori/avvisi, 8 nuovi test e 1.334 di regressione (log 24/10/2026). **M86 RC1 è una release preview dei soli sorgenti, in attesa del proprio gate Windows**. I numeri M83-A forniti dall'utente sono ora disponibili nel repository. Solver sparso M83-B e plasticità M84 restano opzionali/differibili. M82 è un secondo ordine *globalmente linearizzato* a perimetro limitato, non un solver iterativo generale. **Nessuna verifica normativa ancora implementata.** La [roadmap di prodotto](docs/structural/vision-and-roadmap-2d.md) prevale sulla numerazione storica dei milestone.
+> **Obiettivo aggiornato — 23 ottobre 2026.** Software **open source per analisi FEM di strutture piane ad aste in acciaio e legno**, per studenti, docenti e professionisti (uso didattico e preliminare). Sviluppo nell'ordine **motore FEM verificato → verifiche NTC/Eurocodici SLU/SLE → editor leggero C#/Avalonia**. Esclusi 3D, c.a., BIM, muratura, pareti, piastre e X-LAM. OpenCad2D non è più prerequisito. **M85-C ha superato i test Windows**: build 0 errori/avvisi, 8 nuovi test e 1.334 di regressione (log 24/10/2026). **M86 RC1 ha superato il proprio gate Windows** (1.334 regressioni, smoke CLI e report); **M87-A** ha superato il gate Windows; **M87-B** introduce il trasferimento delle sollecitazioni a sezione esplicita e attende il proprio gate Windows. I numeri M83-A forniti dall'utente sono ora disponibili nel repository. Solver sparso M83-B e plasticità M84 restano opzionali/differibili. M82 è un secondo ordine *globalmente linearizzato* a perimetro limitato, non un solver iterativo generale. **M89-A introduce una sola regola EC3 per flessione elastica classe 3 (perimetro molto ristretto), non una verifica normativa completa.** La [roadmap di prodotto](docs/structural/vision-and-roadmap-2d.md) prevale sulla numerazione storica dei milestone.
 
 **StructuralSolver2D è un motore di calcolo strutturale bidimensionale, open source e scritto in C# su .NET 8.** Nasce per analizzare strutture costituite da travi e aste reticolari, ma soprattutto per costruire, passo dopo passo, un risolutore di cui sia possibile capire e verificare ogni risultato.
 
@@ -19,7 +36,7 @@ Il software funziona **autonomamente** attraverso file JSON, comandi CLI o API .
 
 ## M86 RC1 — Release tecnica preview (24/10/2026)
 
-**Baseline certificata dal log dell’utente:** M85-C, build Release 0 warning/0 error, 8 casi mirati e 1.334 regressioni superate. **Novità M86 RC1:** documento del perimetro e dei limiti, manifest SHA-256 e runner `scripts/run-m86-release-gate.ps1` per la build, i test e i smoke test CLI/CSV/XLSX/PDF. I sorgenti `src/` sono identici a M85-C; versione assembly 0.1.0 invariata. **M86 RC1 non è stata ancora testata su Windows.** [Istruzioni e perimetro](docs/structural/m86-release-preview.md) · [Registro di accettazione](docs/structural/m86-acceptance-results.md).
+**Baseline certificata dal log dell’utente:** M85-C, build Release 0 warning/0 error, 8 casi mirati e 1.334 regressioni superate. **Novità M86 RC1:** documento del perimetro e dei limiti, manifest SHA-256 e runner `scripts/run-m86-release-gate.ps1` per la build, i test e i smoke test CLI/CSV/XLSX/PDF. I sorgenti `src/` sono identici a M85-C; versione assembly 0.1.0 invariata. **M86 RC1 ha superato il gate su Windows.** [Istruzioni e perimetro](docs/structural/m86-release-preview.md) · [Registro di accettazione](docs/structural/m86-acceptance-results.md).
 
 ## M85-C — Riferimenti statici, robustezza e accettazione Core (24/10/2026)
 
@@ -255,3 +272,15 @@ Il progetto è distribuito sotto [GNU General Public License v3.0](LICENSE). Cod
 Lo sviluppo più recente è **M73 — misurazione riproducibile delle prestazioni e della stabilità numerica**, implementato in C# e validato nei test Windows. M71 e M72 sono stati validati sul PC dell’utente, ma la plasticità Frame2D rimane un prototipo di elemento, non un solver globale di telai. Dopo M73, la nuova sequenza è descritta nella [visione e roadmap 2D](docs/structural/vision-and-roadmap-2d.md): prima calcolo, poi verifiche, infine editor C#/Avalonia; l’assemblaggio non lineare globale Frame2D resta una capacità distinta, da pianificare e verificare. Vedi lo [studio M71](docs/structural/m71-frame2d-plasticity-feasibility.md) e la [nota tecnica M72](docs/structural/m72-first-concentrated-plastic-frame-element.md).
 
 Gli script di test ora inviano l'output di `dotnet` attraverso una console testuale progressiva e conservano un log temporaneo, evitando le barre che riscrivono le righe. Restano da verificare sul Windows dell'utente: [dettagli sulla console](docs/structural/m71-console-streaming.md). Per la verifica più recente: `.\scripts\run-m72-tests.ps1` (comprende i test M71). Come sempre, **la prima operazione elimina `bin` e `obj`** dei progetti.
+
+### M88-A: cataloghi di partenza per analisi elastica 2D
+
+Il progetto `StructuralSolver2D.Catalogs` consente di caricare `catalogs/m88/analysis-starter.json` con geometrie **idealizzate** (acciaio/legno) e preset E/peso di volume; riusa il generatore di sezioni M80 e rifiuta combinazioni tra famiglie incompatibili. **Non contiene resistenze o coefficienti normativi**. Vedi `docs/structural/m88a-analysis-catalog.md`. Esegui `scripts/run-m88a-tests.ps1`.
+
+## Catalogo commerciale M88-B (preview)
+
+Profili IPE con proprietà elastiche **tabellate** (non ricostruite a spigoli vivi), documentate e dichiarate non certificate. Si veda `docs/structural/m88b-commercial-ipe-catalog.md`. Eseguire `scripts/run-m88b-tests.ps1` da PowerShell per il gate completo. Le verifiche normative EC3/NTC non sono ancora implementate.
+
+### M88-C — caratteristiche dei materiali (non valori di progetto)
+
+S235/S275/S355: snervamento tabellare dipendente dallo spessore. C16/C24/C30 e GL24h/GL28h: valori caratteristici, elasticità e densità con norme di prodotto e fonti. Non vengono applicati coefficienti o rilasciate verifiche di sicurezza. [Dettagli M88-C](docs/structural/m88c-characteristic-materials.md). Eseguire `scripts/run-m88c-tests.ps1`.

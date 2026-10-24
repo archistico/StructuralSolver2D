@@ -1,0 +1,182 @@
+{
+  "schemaVersion": 1,
+  "title": "M88-C - Characteristic reference strength classes (NOT design values)",
+  "steel": [
+    {
+      "id": "S235",
+      "referenceStandard": "EN 10025-2:2019",
+      "sourceUrl": "https://www.steelforlifebluebook.co.uk/explanatory-notes/ec3-ukna/introduction-resistance-tables",
+      "dataStatus": "ReferenceNotCertified",
+      "yieldByNominalThickness": [
+        {
+          "lowerExclusiveMm": 0,
+          "upperInclusiveMm": 16,
+          "yieldStrengthMpa": 235
+        },
+        {
+          "lowerExclusiveMm": 16,
+          "upperInclusiveMm": 40,
+          "yieldStrengthMpa": 225
+        },
+        {
+          "lowerExclusiveMm": 40,
+          "upperInclusiveMm": 63,
+          "yieldStrengthMpa": 215
+        },
+        {
+          "lowerExclusiveMm": 63,
+          "upperInclusiveMm": 80,
+          "yieldStrengthMpa": 215
+        }
+      ]
+    },
+    {
+      "id": "S275",
+      "referenceStandard": "EN 10025-2:2019",
+      "sourceUrl": "https://www.steelforlifebluebook.co.uk/explanatory-notes/ec3-ukna/introduction-resistance-tables",
+      "dataStatus": "ReferenceNotCertified",
+      "yieldByNominalThickness": [
+        {
+          "lowerExclusiveMm": 0,
+          "upperInclusiveMm": 16,
+          "yieldStrengthMpa": 275
+        },
+        {
+          "lowerExclusiveMm": 16,
+          "upperInclusiveMm": 40,
+          "yieldStrengthMpa": 265
+        },
+        {
+          "lowerExclusiveMm": 40,
+          "upperInclusiveMm": 63,
+          "yieldStrengthMpa": 255
+        },
+        {
+          "lowerExclusiveMm": 63,
+          "upperInclusiveMm": 80,
+          "yieldStrengthMpa": 245
+        }
+      ]
+    },
+    {
+      "id": "S355",
+      "referenceStandard": "EN 10025-2:2019",
+      "sourceUrl": "https://www.steelforlifebluebook.co.uk/explanatory-notes/ec3-ukna/introduction-resistance-tables",
+      "dataStatus": "ReferenceNotCertified",
+      "yieldByNominalThickness": [
+        {
+          "lowerExclusiveMm": 0,
+          "upperInclusiveMm": 16,
+          "yieldStrengthMpa": 355
+        },
+        {
+          "lowerExclusiveMm": 16,
+          "upperInclusiveMm": 40,
+          "yieldStrengthMpa": 345
+        },
+        {
+          "lowerExclusiveMm": 40,
+          "upperInclusiveMm": 63,
+          "yieldStrengthMpa": 335
+        },
+        {
+          "lowerExclusiveMm": 63,
+          "upperInclusiveMm": 80,
+          "yieldStrengthMpa": 325
+        }
+      ]
+    }
+  ],
+  "timber": [
+    {
+      "id": "C16",
+      "kind": "SolidSoftwood",
+      "bendingStrengthMpa": 16,
+      "tensionParallelMpa": 8.5,
+      "tensionPerpendicularMpa": 0.4,
+      "compressionParallelMpa": 17,
+      "compressionPerpendicularMpa": 2.2,
+      "shearStrengthMpa": 3.2,
+      "elasticModulusParallelMeanMpa": 8000,
+      "elasticModulusParallel05Mpa": 5400,
+      "shearModulusMeanMpa": 500,
+      "densityCharacteristicKgM3": 310,
+      "densityMeanKgM3": 370,
+      "referenceStandard": "EN 338:2016",
+      "sourceUrl": "https://risponde.promolegno.com/domanda/data/ho-visto-che-e-in-vigore-la-nuova-uni-en-3382016-ci-sono-cambiamenti-rispetto-alla-vecchia-versio/index.html",
+      "dataStatus": "ReferenceNotCertified"
+    },
+    {
+      "id": "C24",
+      "kind": "SolidSoftwood",
+      "bendingStrengthMpa": 24,
+      "tensionParallelMpa": 14.5,
+      "tensionPerpendicularMpa": 0.4,
+      "compressionParallelMpa": 21,
+      "compressionPerpendicularMpa": 2.5,
+      "shearStrengthMpa": 4,
+      "elasticModulusParallelMeanMpa": 11000,
+      "elasticModulusParallel05Mpa": 7400,
+      "shearModulusMeanMpa": 690,
+      "densityCharacteristicKgM3": 350,
+      "densityMeanKgM3": 420,
+      "referenceStandard": "EN 338:2016",
+      "sourceUrl": "https://risponde.promolegno.com/domanda/data/ho-visto-che-e-in-vigore-la-nuova-uni-en-3382016-ci-sono-cambiamenti-rispetto-alla-vecchia-versio/index.html",
+      "dataStatus": "ReferenceNotCertified"
+    },
+    {
+      "id": "C30",
+      "kind": "SolidSoftwood",
+      "bendingStrengthMpa": 30,
+      "tensionParallelMpa": 19,
+      "tensionPerpendicularMpa": 0.4,
+      "compressionParallelMpa": 24,
+      "compressionPerpendicularMpa": 2.7,
+      "shearStrengthMpa": 4,
+      "elasticModulusParallelMeanMpa": 12000,
+      "elasticModulusParallel05Mpa": 8000,
+      "shearModulusMeanMpa": 750,
+      "densityCharacteristicKgM3": 380,
+      "densityMeanKgM3": 460,
+      "referenceStandard": "EN 338:2016",
+      "sourceUrl": "https://risponde.promolegno.com/domanda/data/ho-visto-che-e-in-vigore-la-nuova-uni-en-3382016-ci-sono-cambiamenti-rispetto-alla-vecchia-versio/index.html",
+      "dataStatus": "ReferenceNotCertified"
+    },
+    {
+      "id": "GL24h",
+      "kind": "HomogeneousGlulam",
+      "bendingStrengthMpa": 24,
+      "tensionParallelMpa": 19.2,
+      "tensionPerpendicularMpa": 0.5,
+      "compressionParallelMpa": 24,
+      "compressionPerpendicularMpa": 2.5,
+      "shearStrengthMpa": 3.5,
+      "elasticModulusParallelMeanMpa": 11500,
+      "elasticModulusParallel05Mpa": 9600,
+      "shearModulusMeanMpa": 650,
+      "densityCharacteristicKgM3": 385,
+      "densityMeanKgM3": 420,
+      "referenceStandard": "EN 14080:2013",
+      "sourceUrl": "https://cni-online.it/Attach/DV12776.pdf",
+      "dataStatus": "ReferenceNotCertified"
+    },
+    {
+      "id": "GL28h",
+      "kind": "HomogeneousGlulam",
+      "bendingStrengthMpa": 28,
+      "tensionParallelMpa": 22.3,
+      "tensionPerpendicularMpa": 0.5,
+      "compressionParallelMpa": 28,
+      "compressionPerpendicularMpa": 2.5,
+      "shearStrengthMpa": 3.5,
+      "elasticModulusParallelMeanMpa": 12600,
+      "elasticModulusParallel05Mpa": 10500,
+      "shearModulusMeanMpa": 650,
+      "densityCharacteristicKgM3": 425,
+      "densityMeanKgM3": 460,
+      "referenceStandard": "EN 14080:2013",
+      "sourceUrl": "https://cni-online.it/Attach/DV12776.pdf",
+      "dataStatus": "ReferenceNotCertified"
+    }
+  ]
+}

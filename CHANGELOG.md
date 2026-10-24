@@ -1,3 +1,68 @@
+## M90-A — 2026-10-24 (test Windows da eseguire)
+
+- M89-B: test superati secondo l'utente.
+- Primo classificatore EC3 §5.5 Tabella 5.2 per IPE/HEA/HEB, compressione e flessione pure; classe di ala/anima con epsilon e c/t tracciabili.
+- Regressioni aggiunte da Bernuzzi, Applicazioni A4.1 e A4.2 e campioni Tabelle 4.4–4.6; confronti con dati OPPO.
+- Niente applicazione ad INP, pressoflessione, classi 4 efficaci, stabilità o altri standard/edizioni.
+- Nessuna modifica ai solver FEM o alle regole M89 già validate.
+- [Note di classificazione](docs/structural/M90A_CLASSIFICAZIONE_SEZIONI_EC3.md).
+
+## M89-B — 2026-10-24 (test Windows da eseguire)
+
+- Aggiunte tre regole EC3 distinte per snervamento lordo a trazione, compressione sezione classi 1–3 e taglio puro con Av esplicita.
+- Calcolo tracciabile da cataloghi OPPO / EN 10025-2, annesso dichiarato e gamma_M0; nessun default.
+- Evidenze esterne obbligatorie dove necessarie; fallimenti espliciti fuori perimetro e nessuna conformità globale.
+- Test xUnit nuovi, smoke FEM→Verification, manifest e runner Windows; nessuna modifica a FEM, cataloghi e M89-A.
+
+
+## M88-C — 2026-10-24 (pre-release, da collaudare)
+
+- Catalogo versionato delle proprietà caratteristiche dei materiali, distinto dai preset elastici e dalla normativa di progetto.
+- Snervamento acciai S235/S275/S355 per fasce di spessore fino a 80 mm; legno C16/C24/C30, GL24h/GL28h.
+- Provenienza obbligatoria, unità e validazione fail-closed, nuovi test catalogo, script `run-m88c-tests.ps1`.
+- Nessuna modifica al motore FEM e nessuna verifica normativa implementata.
+
+## M88-B2 — 2026-10-24 — OPPO commercial steel tables (test Windows pending)
+
+- catalogo additivo M88-B2 con 40 profili IPE, HEA, HEB, INP, valori geometrici tabellati indicativi;
+- fonte OPPO esplicita per ogni voce (URL, riferimento storico UNI, data e stato indicativo);
+- 4 serie separate e assi forti/deboli conservati; nessuna verifica EC3/NTC;
+- test xUnit per dati tabellati, conversioni, incompatibilità, JSON, regressione M88-B;
+- nessuna modifica agli algoritmi FEM o ai sorgenti preesistenti;
+- runner Release e manifest SHA-256.
+
+
+## M88-A — 2026-10-24 — elastic analysis starter catalogs (pending Windows gate)
+- Additive Catalogs library over existing M80 section geometry; sample JSON, material family checks and tests. No normative strength, approval or FEM solver changes.
+
+### 2026-10-24 — M87-C — Candidate station screening (Windows tests pending)
+
+- Nuovo `FemCandidateStationSelectorM87C`: un solo solve per combinazione, estremi singoli da M78, estremità, entrambi i lati dei salti, opzionali sezioni manuali e griglia; nessuna fusione di componenti non concomitanti.
+- Rifattorizzazione **interna** del bridge M87-B per riutilizzare il medesimo risultato FEM su più sezioni; firma pubblica invariata.
+- Otto nuovi scenari di test, runner Release, manifest SHA-256, note sulla non completezza delle verifiche d'interazione.
+
+### 2026-10-24 — M87-B — FEM-to-verification station bridge (gate Windows pending)
+
+- Nuovo progetto `StructuralSolver2D.Verification.Integration`: trasferimento per analisi statica elastica di primo ordine Frame2D di N/V/M alla stessa sezione, con caso o combinazione espliciti.
+- `Frame2DInternalForceSampler.EvaluateMemberSection`: API pubblica per polinomi già esistenti con discontinuità e scelta del lato; senza modifiche alle equazioni FEM.
+- `DesignEffectSnapshot` aggiunge provenance opzionale: membro, tipo target, lato della sezione. Validazione fail-closed su valori contraddittori.
+- Nuovi test xUnit, gate Windows, manifest e nota tecnica. Nessuna verifica EC3/EC5/NTC.
+
+### 2026-10-24 — M87-B — FEM-to-verification station bridge (gate Windows pending)
+
+- Nuovo progetto `StructuralSolver2D.Verification.Integration`: trasferimento per analisi statica elastica di primo ordine Frame2D di N/V/M alla stessa sezione, con caso o combinazione espliciti.
+- `Frame2DInternalForceSampler.EvaluateMemberSection`: API pubblica per polinomi già esistenti con discontinuità e scelta del lato; senza modifiche alle equazioni FEM.
+- `DesignEffectSnapshot` aggiunge provenance opzionale: membro, tipo target, lato della sezione. Validazione fail-closed su valori contraddittori.
+- Nuovi test xUnit, gate Windows, manifest e nota tecnica. Nessuna verifica EC3/EC5/NTC.
+
+## M87-A — Contratti del motore verifiche (24 ottobre 2026; gate Windows aperto)
+
+- Confermato superamento di M86 RC1 su Windows: 1.334 test, 0 warning/errori, smoke CLI e report.
+- Creato `StructuralSolver2D.Verification` indipendente da Core e Analysis: edizione/annesso nazionale espliciti, coefficienti tracciati, contesto asta/ritegni, effetti FEM in una sezione.
+- Creati stati `Passed`, `Failed`, `MissingData`, `NotApplicable`, `Unsupported`, `InvalidInput`, `CalculationError` e rapporto aggregato fail-closed.
+- Aggiunta suite xUnit sintetica dedicata e `scripts/run-m87-tests.ps1`.
+- Nessun algoritmo FEM modificato; **nessuna verifica NTC/Eurocodici realizzata**.
+
 ## 24/10/2026 — M86 RC1: source preview e gate di rilascio (test Windows da eseguire)
 
 - M85-C confermato su Windows: build 0 errori/avvisi, 8 nuovi test, regressione completa 1.334 test superati.
