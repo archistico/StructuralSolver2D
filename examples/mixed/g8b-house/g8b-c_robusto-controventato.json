@@ -1,0 +1,1017 @@
+{
+  "title": "G8B House C_ROBUSTO with crossed X-braces",
+  "description": "Didactic G8B comparative model C_ROBUSTO; steel two-storey frame with 5+2+5m bays, 4m tributary width, timber roof, explicit member self-weight; X-braces in left bay on both storeys, linear Truss2D both tension AND compression.",
+  "loadCombinationId": "ULS_GRAVITY",
+  "nodes": [
+    {
+      "id": "A0",
+      "x": 0.0,
+      "y": 0.0,
+      "label": "A0"
+    },
+    {
+      "id": "B0",
+      "x": 5.0,
+      "y": 0.0,
+      "label": "B0"
+    },
+    {
+      "id": "C0",
+      "x": 7.0,
+      "y": 0.0,
+      "label": "C0"
+    },
+    {
+      "id": "D0",
+      "x": 12.0,
+      "y": 0.0,
+      "label": "D0"
+    },
+    {
+      "id": "BAL_L1",
+      "x": -1.2,
+      "y": 3.0,
+      "label": "Balcony left"
+    },
+    {
+      "id": "A1",
+      "x": 0.0,
+      "y": 3.0,
+      "label": "A1"
+    },
+    {
+      "id": "B1",
+      "x": 5.0,
+      "y": 3.0,
+      "label": "B1"
+    },
+    {
+      "id": "C1",
+      "x": 7.0,
+      "y": 3.0,
+      "label": "C1"
+    },
+    {
+      "id": "D1",
+      "x": 12.0,
+      "y": 3.0,
+      "label": "D1"
+    },
+    {
+      "id": "BAL_R1",
+      "x": 13.2,
+      "y": 3.0,
+      "label": "Balcony right"
+    },
+    {
+      "id": "A2",
+      "x": 0.0,
+      "y": 6.0,
+      "label": "A2"
+    },
+    {
+      "id": "B2",
+      "x": 5.0,
+      "y": 6.0,
+      "label": "B2"
+    },
+    {
+      "id": "C2",
+      "x": 7.0,
+      "y": 6.0,
+      "label": "C2"
+    },
+    {
+      "id": "D2",
+      "x": 12.0,
+      "y": 6.0,
+      "label": "D2"
+    },
+    {
+      "id": "RIDGE",
+      "x": 6.0,
+      "y": 8.0,
+      "label": "Ridge"
+    }
+  ],
+  "materials": [
+    {
+      "id": "STEEL_S275",
+      "name": "Structural steel S275",
+      "elasticModulus": 210000000.0,
+      "unitWeight": 78.5
+    },
+    {
+      "id": "TIMBER_GL24H",
+      "name": "Glulam GL24h",
+      "elasticModulus": 11500000.0,
+      "unitWeight": 4.5
+    }
+  ],
+  "sections": [
+    {
+      "id": "COL_HEB220",
+      "name": "HEB 240 (catalogo M88 indicativo)",
+      "area": 0.0106,
+      "momentOfInertia": 0.0001126,
+      "height": 0.24,
+      "width": 0.24
+    },
+    {
+      "id": "BEAM_IPE330",
+      "name": "IPE 360 (valori nominali da confermare)",
+      "area": 0.00727,
+      "momentOfInertia": 0.0001627,
+      "height": 0.36,
+      "width": 0.17
+    },
+    {
+      "id": "BEAM_IPE220",
+      "name": "IPE 240 (catalogo M88 indicativo)",
+      "area": 0.003912,
+      "momentOfInertia": 3.892e-05,
+      "height": 0.24,
+      "width": 0.12
+    },
+    {
+      "id": "RAFTER_GL24H_160x360",
+      "name": "GL24h 180x400 (geometria rettangolare)",
+      "area": 0.072,
+      "momentOfInertia": 0.00096,
+      "height": 0.4,
+      "width": 0.18
+    },
+    {
+      "id": "BRACE_RECT_BAR",
+      "name": "Diagonale assiale A=1500 mm2 - indicativa, non tirante unilaterale",
+      "area": 0.0015,
+      "momentOfInertia": 0.0
+    }
+  ],
+  "members": [
+    {
+      "id": "COL_A_1",
+      "startNodeId": "A0",
+      "endNodeId": "A1",
+      "materialId": "STEEL_S275",
+      "sectionId": "COL_HEB220",
+      "type": "Frame2D",
+      "label": "Column A storey 1"
+    },
+    {
+      "id": "COL_B_1",
+      "startNodeId": "B0",
+      "endNodeId": "B1",
+      "materialId": "STEEL_S275",
+      "sectionId": "COL_HEB220",
+      "type": "Frame2D",
+      "label": "Column B storey 1"
+    },
+    {
+      "id": "COL_C_1",
+      "startNodeId": "C0",
+      "endNodeId": "C1",
+      "materialId": "STEEL_S275",
+      "sectionId": "COL_HEB220",
+      "type": "Frame2D",
+      "label": "Column C storey 1"
+    },
+    {
+      "id": "COL_D_1",
+      "startNodeId": "D0",
+      "endNodeId": "D1",
+      "materialId": "STEEL_S275",
+      "sectionId": "COL_HEB220",
+      "type": "Frame2D",
+      "label": "Column D storey 1"
+    },
+    {
+      "id": "COL_A_2",
+      "startNodeId": "A1",
+      "endNodeId": "A2",
+      "materialId": "STEEL_S275",
+      "sectionId": "COL_HEB220",
+      "type": "Frame2D",
+      "label": "Column A storey 2"
+    },
+    {
+      "id": "COL_B_2",
+      "startNodeId": "B1",
+      "endNodeId": "B2",
+      "materialId": "STEEL_S275",
+      "sectionId": "COL_HEB220",
+      "type": "Frame2D",
+      "label": "Column B storey 2"
+    },
+    {
+      "id": "COL_C_2",
+      "startNodeId": "C1",
+      "endNodeId": "C2",
+      "materialId": "STEEL_S275",
+      "sectionId": "COL_HEB220",
+      "type": "Frame2D",
+      "label": "Column C storey 2"
+    },
+    {
+      "id": "COL_D_2",
+      "startNodeId": "D1",
+      "endNodeId": "D2",
+      "materialId": "STEEL_S275",
+      "sectionId": "COL_HEB220",
+      "type": "Frame2D",
+      "label": "Column D storey 2"
+    },
+    {
+      "id": "F1_AB",
+      "startNodeId": "A1",
+      "endNodeId": "B1",
+      "materialId": "STEEL_S275",
+      "sectionId": "BEAM_IPE330",
+      "type": "Frame2D",
+      "label": "First floor beam AB"
+    },
+    {
+      "id": "F1_BC",
+      "startNodeId": "B1",
+      "endNodeId": "C1",
+      "materialId": "STEEL_S275",
+      "sectionId": "BEAM_IPE220",
+      "type": "Frame2D",
+      "label": "First floor corridor beam BC"
+    },
+    {
+      "id": "F1_CD",
+      "startNodeId": "C1",
+      "endNodeId": "D1",
+      "materialId": "STEEL_S275",
+      "sectionId": "BEAM_IPE330",
+      "type": "Frame2D",
+      "label": "First floor beam CD"
+    },
+    {
+      "id": "BAL_L",
+      "startNodeId": "BAL_L1",
+      "endNodeId": "A1",
+      "materialId": "STEEL_S275",
+      "sectionId": "BEAM_IPE220",
+      "type": "Frame2D",
+      "label": "First floor left balcony"
+    },
+    {
+      "id": "BAL_R",
+      "startNodeId": "D1",
+      "endNodeId": "BAL_R1",
+      "materialId": "STEEL_S275",
+      "sectionId": "BEAM_IPE220",
+      "type": "Frame2D",
+      "label": "First floor right balcony"
+    },
+    {
+      "id": "F2_AB",
+      "startNodeId": "A2",
+      "endNodeId": "B2",
+      "materialId": "STEEL_S275",
+      "sectionId": "BEAM_IPE330",
+      "type": "Frame2D",
+      "label": "Second floor beam AB"
+    },
+    {
+      "id": "F2_BC",
+      "startNodeId": "B2",
+      "endNodeId": "C2",
+      "materialId": "STEEL_S275",
+      "sectionId": "BEAM_IPE220",
+      "type": "Frame2D",
+      "label": "Second floor corridor beam BC"
+    },
+    {
+      "id": "F2_CD",
+      "startNodeId": "C2",
+      "endNodeId": "D2",
+      "materialId": "STEEL_S275",
+      "sectionId": "BEAM_IPE330",
+      "type": "Frame2D",
+      "label": "Second floor beam CD"
+    },
+    {
+      "id": "RAFTER_L",
+      "startNodeId": "A2",
+      "endNodeId": "RIDGE",
+      "materialId": "TIMBER_GL24H",
+      "sectionId": "RAFTER_GL24H_160x360",
+      "type": "Frame2D",
+      "label": "Left timber rafter"
+    },
+    {
+      "id": "RAFTER_R",
+      "startNodeId": "RIDGE",
+      "endNodeId": "D2",
+      "materialId": "TIMBER_GL24H",
+      "sectionId": "RAFTER_GL24H_160x360",
+      "type": "Frame2D",
+      "label": "Right timber rafter"
+    },
+    {
+      "id": "BR_A0_B1",
+      "startNodeId": "A0",
+      "endNodeId": "B1",
+      "materialId": "STEEL_S275",
+      "sectionId": "BRACE_RECT_BAR",
+      "type": "Truss2D",
+      "label": "X-brace linear bilateral; carries compression and tension"
+    },
+    {
+      "id": "BR_B0_A1",
+      "startNodeId": "B0",
+      "endNodeId": "A1",
+      "materialId": "STEEL_S275",
+      "sectionId": "BRACE_RECT_BAR",
+      "type": "Truss2D",
+      "label": "X-brace linear bilateral; carries compression and tension"
+    },
+    {
+      "id": "BR_A1_B2",
+      "startNodeId": "A1",
+      "endNodeId": "B2",
+      "materialId": "STEEL_S275",
+      "sectionId": "BRACE_RECT_BAR",
+      "type": "Truss2D",
+      "label": "X-brace linear bilateral; carries compression and tension"
+    },
+    {
+      "id": "BR_B1_A2",
+      "startNodeId": "B1",
+      "endNodeId": "A2",
+      "materialId": "STEEL_S275",
+      "sectionId": "BRACE_RECT_BAR",
+      "type": "Truss2D",
+      "label": "X-brace linear bilateral; carries compression and tension"
+    }
+  ],
+  "supports": [
+    {
+      "id": "SUP_A0",
+      "nodeId": "A0",
+      "type": "Fixed",
+      "restrainedUx": true,
+      "restrainedUy": true,
+      "restrainedRz": true
+    },
+    {
+      "id": "SUP_B0",
+      "nodeId": "B0",
+      "type": "Fixed",
+      "restrainedUx": true,
+      "restrainedUy": true,
+      "restrainedRz": true
+    },
+    {
+      "id": "SUP_C0",
+      "nodeId": "C0",
+      "type": "Fixed",
+      "restrainedUx": true,
+      "restrainedUy": true,
+      "restrainedRz": true
+    },
+    {
+      "id": "SUP_D0",
+      "nodeId": "D0",
+      "type": "Fixed",
+      "restrainedUx": true,
+      "restrainedUy": true,
+      "restrainedRz": true
+    }
+  ],
+  "loadCases": [
+    {
+      "id": "G_SELF",
+      "name": "Explicit whole-frame self-weight from material unitWeight and section area"
+    },
+    {
+      "id": "G_FLOOR",
+      "name": "Permanent loads on internal floors"
+    },
+    {
+      "id": "Q_ROOM",
+      "name": "Variable residential room loads"
+    },
+    {
+      "id": "Q_CORR",
+      "name": "Variable corridor loads"
+    },
+    {
+      "id": "G_BALC",
+      "name": "Permanent balcony loads"
+    },
+    {
+      "id": "Q_BALC",
+      "name": "Variable balcony loads"
+    },
+    {
+      "id": "G_ROOF",
+      "name": "Permanent roof loads"
+    },
+    {
+      "id": "SNOW",
+      "name": "Snow roof load"
+    },
+    {
+      "id": "WIND_POS",
+      "name": "Wind from left to right"
+    },
+    {
+      "id": "WIND_NEG",
+      "name": "Wind from right to left"
+    },
+    {
+      "id": "WIND_UP",
+      "name": "Roof wind uplift"
+    }
+  ],
+  "loads": [
+    {
+      "id": "SW_ALL",
+      "loadCaseId": "G_SELF",
+      "type": "SelfWeight",
+      "targetType": "Model",
+      "targetId": "",
+      "direction": "GlobalY",
+      "value": 1.0,
+      "label": "Explicit self-weight, all elements"
+    },
+    {
+      "id": "G_F1_AB",
+      "loadCaseId": "G_FLOOR",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "F1_AB",
+      "direction": "GlobalY",
+      "value": -22.0,
+      "label": "Gk first floor left room = 5.5 x 4.0"
+    },
+    {
+      "id": "G_F1_BC",
+      "loadCaseId": "G_FLOOR",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "F1_BC",
+      "direction": "GlobalY",
+      "value": -22.0,
+      "label": "Gk first floor corridor = 5.5 x 4.0"
+    },
+    {
+      "id": "G_F1_CD",
+      "loadCaseId": "G_FLOOR",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "F1_CD",
+      "direction": "GlobalY",
+      "value": -22.0,
+      "label": "Gk first floor right room = 5.5 x 4.0"
+    },
+    {
+      "id": "G_F2_AB",
+      "loadCaseId": "G_FLOOR",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "F2_AB",
+      "direction": "GlobalY",
+      "value": -22.0,
+      "label": "Gk second floor left room = 5.5 x 4.0"
+    },
+    {
+      "id": "G_F2_BC",
+      "loadCaseId": "G_FLOOR",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "F2_BC",
+      "direction": "GlobalY",
+      "value": -22.0,
+      "label": "Gk second floor corridor = 5.5 x 4.0"
+    },
+    {
+      "id": "G_F2_CD",
+      "loadCaseId": "G_FLOOR",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "F2_CD",
+      "direction": "GlobalY",
+      "value": -22.0,
+      "label": "Gk second floor right room = 5.5 x 4.0"
+    },
+    {
+      "id": "Q_ROOM_F1_AB",
+      "loadCaseId": "Q_ROOM",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "F1_AB",
+      "direction": "GlobalY",
+      "value": -8.0,
+      "label": "Qk room = 2.0 x 4.0"
+    },
+    {
+      "id": "Q_ROOM_F1_CD",
+      "loadCaseId": "Q_ROOM",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "F1_CD",
+      "direction": "GlobalY",
+      "value": -8.0,
+      "label": "Qk room = 2.0 x 4.0"
+    },
+    {
+      "id": "Q_ROOM_F2_AB",
+      "loadCaseId": "Q_ROOM",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "F2_AB",
+      "direction": "GlobalY",
+      "value": -8.0,
+      "label": "Qk room = 2.0 x 4.0"
+    },
+    {
+      "id": "Q_ROOM_F2_CD",
+      "loadCaseId": "Q_ROOM",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "F2_CD",
+      "direction": "GlobalY",
+      "value": -8.0,
+      "label": "Qk room = 2.0 x 4.0"
+    },
+    {
+      "id": "Q_CORR_F1_BC",
+      "loadCaseId": "Q_CORR",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "F1_BC",
+      "direction": "GlobalY",
+      "value": -12.0,
+      "label": "Qk corridor = 3.0 x 4.0"
+    },
+    {
+      "id": "Q_CORR_F2_BC",
+      "loadCaseId": "Q_CORR",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "F2_BC",
+      "direction": "GlobalY",
+      "value": -12.0,
+      "label": "Qk corridor = 3.0 x 4.0"
+    },
+    {
+      "id": "G_BAL_L",
+      "loadCaseId": "G_BALC",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "BAL_L",
+      "direction": "GlobalY",
+      "value": -24.0,
+      "label": "Gk balcony = 6.0 x 4.0"
+    },
+    {
+      "id": "G_BAL_R",
+      "loadCaseId": "G_BALC",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "BAL_R",
+      "direction": "GlobalY",
+      "value": -24.0,
+      "label": "Gk balcony = 6.0 x 4.0"
+    },
+    {
+      "id": "Q_BAL_L",
+      "loadCaseId": "Q_BALC",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "BAL_L",
+      "direction": "GlobalY",
+      "value": -16.0,
+      "label": "Qk balcony = 4.0 x 4.0"
+    },
+    {
+      "id": "Q_BAL_R",
+      "loadCaseId": "Q_BALC",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "BAL_R",
+      "direction": "GlobalY",
+      "value": -16.0,
+      "label": "Qk balcony = 4.0 x 4.0"
+    },
+    {
+      "id": "G_ROOF_L",
+      "loadCaseId": "G_ROOF",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "RAFTER_L",
+      "direction": "GlobalY",
+      "value": -5.7,
+      "label": "Gk roof = 1.5 x 4.0 x cos(theta)"
+    },
+    {
+      "id": "G_ROOF_R",
+      "loadCaseId": "G_ROOF",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "RAFTER_R",
+      "direction": "GlobalY",
+      "value": -5.7,
+      "label": "Gk roof = 1.5 x 4.0 x cos(theta)"
+    },
+    {
+      "id": "SNOW_L",
+      "loadCaseId": "SNOW",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "RAFTER_L",
+      "direction": "GlobalY",
+      "value": -5.7,
+      "label": "Snow = 1.5 x 4.0 x cos(theta)"
+    },
+    {
+      "id": "SNOW_R",
+      "loadCaseId": "SNOW",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "RAFTER_R",
+      "direction": "GlobalY",
+      "value": -5.7,
+      "label": "Snow = 1.5 x 4.0 x cos(theta)"
+    },
+    {
+      "id": "W1_A1",
+      "loadCaseId": "WIND_POS",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "A1",
+      "direction": "GlobalX",
+      "value": 4.0,
+      "label": "Wind + floor 1"
+    },
+    {
+      "id": "W1_B1",
+      "loadCaseId": "WIND_POS",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "B1",
+      "direction": "GlobalX",
+      "value": 4.0,
+      "label": "Wind + floor 1"
+    },
+    {
+      "id": "W1_C1",
+      "loadCaseId": "WIND_POS",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "C1",
+      "direction": "GlobalX",
+      "value": 4.0,
+      "label": "Wind + floor 1"
+    },
+    {
+      "id": "W1_D1",
+      "loadCaseId": "WIND_POS",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "D1",
+      "direction": "GlobalX",
+      "value": 4.0,
+      "label": "Wind + floor 1"
+    },
+    {
+      "id": "W2_A2",
+      "loadCaseId": "WIND_POS",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "A2",
+      "direction": "GlobalX",
+      "value": 5.0,
+      "label": "Wind + floor 2"
+    },
+    {
+      "id": "W2_B2",
+      "loadCaseId": "WIND_POS",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "B2",
+      "direction": "GlobalX",
+      "value": 5.0,
+      "label": "Wind + floor 2"
+    },
+    {
+      "id": "W2_C2",
+      "loadCaseId": "WIND_POS",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "C2",
+      "direction": "GlobalX",
+      "value": 5.0,
+      "label": "Wind + floor 2"
+    },
+    {
+      "id": "W2_D2",
+      "loadCaseId": "WIND_POS",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "D2",
+      "direction": "GlobalX",
+      "value": 5.0,
+      "label": "Wind + floor 2"
+    },
+    {
+      "id": "W3_RIDGE",
+      "loadCaseId": "WIND_POS",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "RIDGE",
+      "direction": "GlobalX",
+      "value": 8.0,
+      "label": "Wind + roof"
+    },
+    {
+      "id": "WN1_A1",
+      "loadCaseId": "WIND_NEG",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "A1",
+      "direction": "GlobalX",
+      "value": -4.0,
+      "label": "Wind - floor 1"
+    },
+    {
+      "id": "WN1_B1",
+      "loadCaseId": "WIND_NEG",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "B1",
+      "direction": "GlobalX",
+      "value": -4.0,
+      "label": "Wind - floor 1"
+    },
+    {
+      "id": "WN1_C1",
+      "loadCaseId": "WIND_NEG",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "C1",
+      "direction": "GlobalX",
+      "value": -4.0,
+      "label": "Wind - floor 1"
+    },
+    {
+      "id": "WN1_D1",
+      "loadCaseId": "WIND_NEG",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "D1",
+      "direction": "GlobalX",
+      "value": -4.0,
+      "label": "Wind - floor 1"
+    },
+    {
+      "id": "WN2_A2",
+      "loadCaseId": "WIND_NEG",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "A2",
+      "direction": "GlobalX",
+      "value": -5.0,
+      "label": "Wind - floor 2"
+    },
+    {
+      "id": "WN2_B2",
+      "loadCaseId": "WIND_NEG",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "B2",
+      "direction": "GlobalX",
+      "value": -5.0,
+      "label": "Wind - floor 2"
+    },
+    {
+      "id": "WN2_C2",
+      "loadCaseId": "WIND_NEG",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "C2",
+      "direction": "GlobalX",
+      "value": -5.0,
+      "label": "Wind - floor 2"
+    },
+    {
+      "id": "WN2_D2",
+      "loadCaseId": "WIND_NEG",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "D2",
+      "direction": "GlobalX",
+      "value": -5.0,
+      "label": "Wind - floor 2"
+    },
+    {
+      "id": "WN3_RIDGE",
+      "loadCaseId": "WIND_NEG",
+      "type": "NodalForce",
+      "targetType": "Node",
+      "targetId": "RIDGE",
+      "direction": "GlobalX",
+      "value": -8.0,
+      "label": "Wind - roof"
+    },
+    {
+      "id": "WU_L",
+      "loadCaseId": "WIND_UP",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "RAFTER_L",
+      "direction": "GlobalY",
+      "value": 2.5,
+      "label": "Roof uplift"
+    },
+    {
+      "id": "WU_R",
+      "loadCaseId": "WIND_UP",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "RAFTER_R",
+      "direction": "GlobalY",
+      "value": 2.5,
+      "label": "Roof uplift"
+    }
+  ],
+  "loadCombinations": [
+    {
+      "id": "ULS_GRAVITY",
+      "name": "ULS gravity and snow",
+      "description": "Manual comparison only; not a verified complete NTC 2018 combination. Illustrative manual combination: 1.35G + 1.50Q + 1.50S. No automatic normative generation is implied.",
+      "terms": [
+        {
+          "loadCaseId": "G_SELF",
+          "factor": 1.35
+        },
+        {
+          "loadCaseId": "G_FLOOR",
+          "factor": 1.35
+        },
+        {
+          "loadCaseId": "Q_ROOM",
+          "factor": 1.5
+        },
+        {
+          "loadCaseId": "Q_CORR",
+          "factor": 1.5
+        },
+        {
+          "loadCaseId": "G_BALC",
+          "factor": 1.35
+        },
+        {
+          "loadCaseId": "Q_BALC",
+          "factor": 1.5
+        },
+        {
+          "loadCaseId": "G_ROOF",
+          "factor": 1.35
+        },
+        {
+          "loadCaseId": "SNOW",
+          "factor": 1.5
+        }
+      ]
+    },
+    {
+      "id": "ULS_WIND_POS",
+      "name": "ULS wind +X",
+      "description": "Manual comparison only; not a verified complete NTC 2018 combination. Illustrative manual combination: 1.0G + 0.7Q + 0.5S + 1.5W.",
+      "terms": [
+        {
+          "loadCaseId": "G_SELF",
+          "factor": 1.0
+        },
+        {
+          "loadCaseId": "G_FLOOR",
+          "factor": 1.0
+        },
+        {
+          "loadCaseId": "Q_ROOM",
+          "factor": 0.7
+        },
+        {
+          "loadCaseId": "Q_CORR",
+          "factor": 0.7
+        },
+        {
+          "loadCaseId": "G_BALC",
+          "factor": 1.0
+        },
+        {
+          "loadCaseId": "Q_BALC",
+          "factor": 0.7
+        },
+        {
+          "loadCaseId": "G_ROOF",
+          "factor": 1.0
+        },
+        {
+          "loadCaseId": "SNOW",
+          "factor": 0.5
+        },
+        {
+          "loadCaseId": "WIND_POS",
+          "factor": 1.5
+        },
+        {
+          "loadCaseId": "WIND_UP",
+          "factor": 1.5
+        }
+      ]
+    },
+    {
+      "id": "ULS_WIND_NEG",
+      "name": "ULS wind -X",
+      "description": "Manual comparison only; not a verified complete NTC 2018 combination. Illustrative manual combination: 1.0G + 0.7Q + 0.5S + 1.5W.",
+      "terms": [
+        {
+          "loadCaseId": "G_SELF",
+          "factor": 1.0
+        },
+        {
+          "loadCaseId": "G_FLOOR",
+          "factor": 1.0
+        },
+        {
+          "loadCaseId": "Q_ROOM",
+          "factor": 0.7
+        },
+        {
+          "loadCaseId": "Q_CORR",
+          "factor": 0.7
+        },
+        {
+          "loadCaseId": "G_BALC",
+          "factor": 1.0
+        },
+        {
+          "loadCaseId": "Q_BALC",
+          "factor": 0.7
+        },
+        {
+          "loadCaseId": "G_ROOF",
+          "factor": 1.0
+        },
+        {
+          "loadCaseId": "SNOW",
+          "factor": 0.5
+        },
+        {
+          "loadCaseId": "WIND_NEG",
+          "factor": 1.5
+        },
+        {
+          "loadCaseId": "WIND_UP",
+          "factor": 1.5
+        }
+      ]
+    },
+    {
+      "id": "SLS_RARE",
+      "name": "SLS rare combination",
+      "description": "Manual comparison only; not a verified complete NTC 2018 combination. Illustrative serviceability combination for general deflection checks.",
+      "terms": [
+        {
+          "loadCaseId": "G_SELF",
+          "factor": 1.0
+        },
+        {
+          "loadCaseId": "G_FLOOR",
+          "factor": 1.0
+        },
+        {
+          "loadCaseId": "Q_ROOM",
+          "factor": 1.0
+        },
+        {
+          "loadCaseId": "Q_CORR",
+          "factor": 1.0
+        },
+        {
+          "loadCaseId": "G_BALC",
+          "factor": 1.0
+        },
+        {
+          "loadCaseId": "Q_BALC",
+          "factor": 1.0
+        },
+        {
+          "loadCaseId": "G_ROOF",
+          "factor": 1.0
+        },
+        {
+          "loadCaseId": "SNOW",
+          "factor": 1.0
+        }
+      ]
+    }
+  ]
+}

@@ -57,6 +57,7 @@ dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\mixed\mixed-
 dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\mixed\three-storey-mixed-loads.json
 dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\mixed\truss-bridge-20m-deck-loads.json
 dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\mixed\two-storey-house-balconies.json
+dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\mixed\two-storey-steel-house-timber-roof.json
 ```
 
 ---
@@ -117,3 +118,18 @@ The same input can be exported to CSV, XLSX, PDF, SVG, HTML or interactive viewe
 `dynamics/m52-cantilever-with-additional-mass.json` includes versioned optional
 mass metadata. It remains a **static** model for current CLI commands: the
 `dynamics` section is not a request to run a modal or seismic analysis.
+
+
+See also `docs/structural/examples/two-storey-steel-house-timber-roof.md` for the full load assumptions and suggested design workflow.
+
+## G8B — Four comparable steel/timber two-storey frames
+
+The folder `examples/mixed/g8b-house/` contains one unbraced and three X-braced house models. The X-braces are **bilateral elastic Truss2D members**, not tension-only cables. Explicit self-weight is included in each model. A reproducible independent first-order elastic calculation and section comparison CSV are provided.
+
+See `docs/structural/examples/G8B_VERIFICA_CASSETTA_E_CONFRONTO.md`, then run:
+
+```powershell
+.\scripts\run-g8b-house-demo.ps1
+```
+
+This demo is **not** a complete NTC 2018 member design and has not yet passed a G8B Windows gate.

@@ -2,6 +2,41 @@
 
 Registro **sintetico e cronologico**. Ogni stato «gate superato» è basato sulle conferme dei test Windows dell'utente, non su una certificazione della conformità normativa dell'opera. I dettagli delle milestone si trovano in `docs/structural/` e nell'[archivio](docs/archive/README.md).
 
+## 25 ottobre 2026 — P0-HANDOFF: preparazione nuova chat e avvio P0-A (solo documentazione)
+
+- Confermato nuovamente dall'utente **`G7 GATE PASSED`** dopo la sequenza G8B FIX2; la conferma riguarda la suite G7, **non** l'esecuzione documentata dei 16 report e del confronto numerico G8B.
+- Riscritto `HANDOFF_NUOVA_CHAT.md` con versione, architettura, gate, G8A/G8B, incidenti FIX1/FIX2, regole normative, limitazioni e istruzioni di ripresa.
+- Aggiunto `docs/structural/P0_A_PIANO_OPERATIVO.md`: audit del codice e della copertura di FEM/EC3/EC5/NTC, matrice dei gap e criteri per P0-B…E.
+- Aggiunto `docs/NUOVA_CHAT_MESSAGGIO.txt` da incollare nella conversazione successiva; aggiornata la roadmap con **P0-A come prossima attività**, senza aggiunte al motore.
+- Nessuna modifica a sorgenti, test, benchmark, esempi, cataloghi, script o `VERSION`; rigenerato il manifest SHA-256. **Non è un nuovo gate .NET.**
+
+## 25 ottobre 2026 — G8B FIX2: migrazione sicura dei JSON obsoleti (gate Windows da ripetere)
+
+- Il secondo log Windows ha mostrato gli stessi **due fallimenti CLI**: FIX1 era corretto, ma l'estrazione sopra la cartella G8B precedente non aveva eliminato i vecchi file in `examples/`.
+- Aggiunto `scripts/repair-g8b-legacy-examples.ps1`, eseguito **prima della compilazione** da `scripts/run-g7-tests.ps1`: riconosce per struttura JSON soltanto i due file di riferimento obsoleti, li sposta in `.g8b-legacy-backup/` senza sovrascrivere backup e non tocca alcun modello valido. Lo script e' idempotente.
+- Nessuna modifica a motore FEM, test C#, benchmark numerici, sezioni, carichi o combinazioni; `README.md`, guida G8B, handoff e manifest aggiornati. Il gate G8B resta **in attesa del nuovo test Windows**.
+
+## 25 ottobre 2026 — G8B FIX1: file numerici separati dai modelli (gate Windows da eseguire)
+
+- Corretto il difetto emerso dai **2 test CLI** del log Windows: due JSON di benchmark analitici in `examples/mixed/g8b-house/` venivano enumerati erroneamente come modelli con nodi/aste.
+- Spostati i due JSON e il CSV in `benchmarks/independent/g8b-house/`; aggiornato il generatore Python perché scriva nella nuova destinazione e non ripresenti il problema.
+- Aggiornata la documentazione della casetta e l'handoff. **Nessuna modifica** a sorgenti .NET, test C#, quattro modelli di input, coefficienti o benchmark precedentemente validati.
+- Log originale: build Release 0 errori/0 avvisi, suite FEM e verifiche superate; CLI 241/243 con 2 fallimenti dovuti esclusivamente ai file non-modello. **FIX1 da ricollaudare su Windows**.
+
+## 24 ottobre 2026 — G8B: quattro modelli casetta e confronto elastico (gate Windows da eseguire)
+
+- Tre varianti controventate con sezioni A leggera, B riferimento e C robusta; quarta variante B priva di X, per isolare l'effetto della controventatura. Geometrie, carichi d'uso e neve/vento identici; peso proprio esplicito diverso con A e sezioni.
+- Controventi X `Truss2D` **bilaterali** nel campo 0–5 m; non simulano tiranti a sola trazione, nodi/connessioni o instabilità a compressione.
+- Dati CSV/JSON dei pesi propri e delle risultanti; seconda analisi elastica Euler–Bernoulli in Python/NumPy riproducibile, dichiarata **indipendente ed esplorativa**, non gate software.
+- Runner `scripts/run-g8b-house-demo.ps1` per 16 report e 2 viewer; guida `docs/structural/examples/G8B_VERIFICA_CASSETTA_E_CONFRONTO.md`; `HANDOFF_NUOVA_CHAT.md` aggiornato. Nessuna modifica a `src/`, test G7, cataloghi o benchmark preesistenti.
+
+## 24 ottobre 2026 — G8A: esempio casetta acciaio-legno (modello dimostrativo)
+
+- Aggiunto l'esempio `examples/mixed/two-storey-steel-house-timber-roof.json`: telaio a 2 piani con colonne a interassi `5 + 2 + 5 m`, interpiano `3 m`, balconi a sbalzo `1,2 m` al primo piano e copertura inclinata in legno.
+- Inclusi carichi permanenti, variabili, neve, vento laterale e sollevamento di copertura, con combinazioni manuali `ULS_GRAVITY`, `ULS_WIND_POS`, `ULS_WIND_NEG`, `SLS_RARE`.
+- Aggiunta guida `docs/structural/examples/two-storey-steel-house-timber-roof.md` con ipotesi di carico, sezioni preliminari e workflow di dimensionamento.
+- Aggiornato `examples/README.md` e il manifest SHA-256. **Nessuna modifica** al motore FEM o ai moduli normativi; collazione utile per mostrare il flusso di lavoro su una struttura realistica.
+
 ## 24 ottobre 2026 — G7-DOC1: riordino documentale (solo documentazione)
 
 - Riscritto `README.md` come presentazione e guida d'uso, eliminando avvisi scaduti, duplicazioni e note di rilascio accumulate.

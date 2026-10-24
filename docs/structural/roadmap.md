@@ -1,6 +1,6 @@
 # StructuralSolver2D — Roadmap operativa dopo G7
 
-**Aggiornata il 24/10/2026.** Fonte corrente di priorità: questo file; i vecchi checkpoint M51–M85 sono conservati in [`docs/archive/roadmap_PRE_G7.md`](../archive/roadmap_PRE_G7.md) e **non** rappresentano lo stato presente. Per la missione di prodotto leggere [visione 2D](vision-and-roadmap-2d.md).
+**Aggiornata il 25/10/2026 (checkpoint P0-HANDOFF).** Fonte corrente di priorità: questo file; i vecchi checkpoint M51–M85 sono conservati in [`docs/archive/roadmap_PRE_G7.md`](../archive/roadmap_PRE_G7.md) e **non** rappresentano lo stato presente. Per la missione di prodotto leggere [visione 2D](vision-and-roadmap-2d.md).
 
 ## Obiettivo e ordine di sviluppo
 
@@ -21,15 +21,21 @@ Un software **FEM strutturale 2D open source**, semplice e modulare, per travi, 
 | G7 | **Superato** | Benchmark B13/B14 e pipeline reale selettore→regola→audit; non conformità globale |
 | G7-DOC1 | Riordino documentale; non richiede nuovi test numerici | README/roadmap/changelog/handoff, manifest rigenerato |
 
+## Decisione attuale e punto di ripresa
+
+L'utente ha confermato **`G7 GATE PASSED`** anche dopo gli aggiornamenti dimostrativi G8B FIX2 e ha scelto di procedere con **P0**, iniziando obbligatoriamente da **P0-A (audit tecnico completo)**. L'audit **non è ancora stato eseguito**: la prossima chat deve partire dai sorgenti e dai test correnti, come descritto in [`P0_A_PIANO_OPERATIVO.md`](P0_A_PIANO_OPERATIVO.md), costruire la matrice di copertura e formulare un backlog testabile prima di modificare le formule.
+
+La casetta G8B e le quattro alternative sono esempi di prova **non dimensionati e non normativamente conformi per definizione**: riferimento `docs/structural/examples/G8B_VERIFICA_CASSETTA_E_CONFRONTO.md`. L'utente ha confermato la suite G7, **non** l'esecuzione documentata del confronto indipendente dei 16 report G8B. Il più recente archivio completo di ripresa è `StructuralSolver2D_P0_HANDOFF_2026-10-25_FULL.zip` (solo aggiornamento documentale rispetto a G8B FIX2).
+
 ## Priorità dopo G7 (non implementate dal solo riordino)
 
 ### P0 — Chiusura dei rischi di affidabilità e perimetro
 
-1. **Audit formale dei gap:** matrice unica tra fenomeni fisici rilevanti, moduli FEM, regole EC3/EC5/NTC implementate e scenari non supportati. Non confondere «not applicable» e «not implemented».
-2. **Azioni e combinazioni:** specifica e test indipendenti per generazione/validazione delle combinazioni SLU/SLE NTC (incluse azioni favorevoli/sfavorevoli, azione principale/accompagnatrici, coefficienti nulli e negativi); G1 non è un generatore completo.
-3. **Completezza di stazioni e membrature:** verificare criterio di selezione delle sezioni critiche e concomitanza N/V/M; non attribuire a un inviluppo isolato un'interazione normativa.
-4. **Validazione delle condizioni esterne:** appoggi, collegamenti, ritegni e instabilità fuori piano restano *dati o verifiche esterni*, non inferenze automatiche dal FEM piano.
-5. **Acciaio:** riesame dei gap EC3/NTC, sezioni nette, fori, interazioni fuori campo e stabilità, con casi indipendenti ricavati dal Ballio–Mazzolani (non fonte normativa sostitutiva).
+1. **P0-A, PROSSIMO: audit formale dei gap:** matrice unica tra fenomeni fisici rilevanti, moduli FEM, regole EC3/EC5/NTC implementate e scenari non supportati. Non confondere «not applicable» e «not implemented».
+2. **P0-B, successivo: azioni e combinazioni:** specifica e test indipendenti per generazione/validazione delle combinazioni SLU/SLE NTC (incluse azioni favorevoli/sfavorevoli, azione principale/accompagnatrici, coefficienti nulli e negativi); G1 non è un generatore completo.
+3. **P0-C, successivo: completezza di stazioni e membrature:** verificare criterio di selezione delle sezioni critiche e concomitanza N/V/M; non attribuire a un inviluppo isolato un'interazione normativa.
+4. **P0-E, successivo: validazione delle condizioni esterne:** appoggi, collegamenti, ritegni e instabilità fuori piano restano *dati o verifiche esterni*, non inferenze automatiche dal FEM piano.
+5. **P0-D, successivo: acciaio e copertura normativa:** riesame dei gap EC3/NTC, sezioni nette, fori, interazioni fuori campo e stabilità, con casi indipendenti ricavati dal Ballio–Mazzolani (non fonte normativa sostitutiva).
 
 ### P1 — Accuratezza del modello e benchmark aggiuntivi
 

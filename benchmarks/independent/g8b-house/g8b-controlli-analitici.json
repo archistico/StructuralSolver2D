@@ -1,0 +1,259 @@
+{
+  "schemaVersion": 1,
+  "status": "analytic input totals only; not FEM solver results",
+  "units": {
+    "forces": "kN",
+    "length": "m",
+    "sections": "m2 and m4"
+  },
+  "models": [
+    {
+      "id": "A_LEGGERO",
+      "memberCount": 22,
+      "selfWeightKN": 29.884146,
+      "caseTotals": {
+        "G_SELF": {
+          "Fx_kN": 0.0,
+          "Fy_kN": -29.884146247631925,
+          "Mz_kNm": 0.0
+        },
+        "G_FLOOR": {
+          "Fx_kN": 0.0,
+          "Fy_kN": -528.0,
+          "Mz_kNm": 0.0
+        },
+        "Q_ROOM": {
+          "Fx_kN": 0.0,
+          "Fy_kN": -160.0,
+          "Mz_kNm": 0.0
+        },
+        "Q_CORR": {
+          "Fx_kN": 0.0,
+          "Fy_kN": -48.0,
+          "Mz_kNm": 0.0
+        },
+        "G_BALC": {
+          "Fx_kN": 0.0,
+          "Fy_kN": -57.59999999999998,
+          "Mz_kNm": 0.0
+        },
+        "Q_BALC": {
+          "Fx_kN": 0.0,
+          "Fy_kN": -38.39999999999999,
+          "Mz_kNm": 0.0
+        },
+        "G_ROOF": {
+          "Fx_kN": 0.0,
+          "Fy_kN": -72.09993065183906,
+          "Mz_kNm": 0.0
+        },
+        "SNOW": {
+          "Fx_kN": 0.0,
+          "Fy_kN": -72.09993065183906,
+          "Mz_kNm": 0.0
+        },
+        "WIND_POS": {
+          "Fx_kN": 44.0,
+          "Fy_kN": 0.0,
+          "Mz_kNm": 0.0
+        },
+        "WIND_NEG": {
+          "Fx_kN": -44.0,
+          "Fy_kN": 0.0,
+          "Mz_kNm": 0.0
+        },
+        "WIND_UP": {
+          "Fx_kN": 0.0,
+          "Fy_kN": 31.622776601683796,
+          "Mz_kNm": 0.0
+        }
+      }
+    },
+    {
+      "id": "B_RIFERIMENTO",
+      "memberCount": 22,
+      "selfWeightKN": 34.681673,
+      "caseTotals": {
+        "G_SELF": {
+          "Fx_kN": 0.0,
+          "Fy_kN": -34.681672620534705,
+          "Mz_kNm": 0.0
+        },
+        "G_FLOOR": {
+          "Fx_kN": 0.0,
+          "Fy_kN": -528.0,
+          "Mz_kNm": 0.0
+        },
+        "Q_ROOM": {
+          "Fx_kN": 0.0,
+          "Fy_kN": -160.0,
+          "Mz_kNm": 0.0
+        },
+        "Q_CORR": {
+          "Fx_kN": 0.0,
+          "Fy_kN": -48.0,
+          "Mz_kNm": 0.0
+        },
+        "G_BALC": {
+          "Fx_kN": 0.0,
+          "Fy_kN": -57.59999999999998,
+          "Mz_kNm": 0.0
+        },
+        "Q_BALC": {
+          "Fx_kN": 0.0,
+          "Fy_kN": -38.39999999999999,
+          "Mz_kNm": 0.0
+        },
+        "G_ROOF": {
+          "Fx_kN": 0.0,
+          "Fy_kN": -72.09993065183906,
+          "Mz_kNm": 0.0
+        },
+        "SNOW": {
+          "Fx_kN": 0.0,
+          "Fy_kN": -72.09993065183906,
+          "Mz_kNm": 0.0
+        },
+        "WIND_POS": {
+          "Fx_kN": 44.0,
+          "Fy_kN": 0.0,
+          "Mz_kNm": 0.0
+        },
+        "WIND_NEG": {
+          "Fx_kN": -44.0,
+          "Fy_kN": 0.0,
+          "Mz_kNm": 0.0
+        },
+        "WIND_UP": {
+          "Fx_kN": 0.0,
+          "Fy_kN": 31.622776601683796,
+          "Mz_kNm": 0.0
+        }
+      }
+    },
+    {
+      "id": "C_ROBUSTO",
+      "memberCount": 22,
+      "selfWeightKN": 40.194379,
+      "caseTotals": {
+        "G_SELF": {
+          "Fx_kN": 0.0,
+          "Fy_kN": -40.194378990050346,
+          "Mz_kNm": 0.0
+        },
+        "G_FLOOR": {
+          "Fx_kN": 0.0,
+          "Fy_kN": -528.0,
+          "Mz_kNm": 0.0
+        },
+        "Q_ROOM": {
+          "Fx_kN": 0.0,
+          "Fy_kN": -160.0,
+          "Mz_kNm": 0.0
+        },
+        "Q_CORR": {
+          "Fx_kN": 0.0,
+          "Fy_kN": -48.0,
+          "Mz_kNm": 0.0
+        },
+        "G_BALC": {
+          "Fx_kN": 0.0,
+          "Fy_kN": -57.59999999999998,
+          "Mz_kNm": 0.0
+        },
+        "Q_BALC": {
+          "Fx_kN": 0.0,
+          "Fy_kN": -38.39999999999999,
+          "Mz_kNm": 0.0
+        },
+        "G_ROOF": {
+          "Fx_kN": 0.0,
+          "Fy_kN": -72.09993065183906,
+          "Mz_kNm": 0.0
+        },
+        "SNOW": {
+          "Fx_kN": 0.0,
+          "Fy_kN": -72.09993065183906,
+          "Mz_kNm": 0.0
+        },
+        "WIND_POS": {
+          "Fx_kN": 44.0,
+          "Fy_kN": 0.0,
+          "Mz_kNm": 0.0
+        },
+        "WIND_NEG": {
+          "Fx_kN": -44.0,
+          "Fy_kN": 0.0,
+          "Mz_kNm": 0.0
+        },
+        "WIND_UP": {
+          "Fx_kN": 0.0,
+          "Fy_kN": 31.622776601683796,
+          "Mz_kNm": 0.0
+        }
+      }
+    },
+    {
+      "id": "B_SENZA",
+      "memberCount": 18,
+      "selfWeightKN": 31.935294,
+      "caseTotals": {
+        "G_SELF": {
+          "Fx_kN": 0.0,
+          "Fy_kN": -31.935294278062575,
+          "Mz_kNm": 0.0
+        },
+        "G_FLOOR": {
+          "Fx_kN": 0.0,
+          "Fy_kN": -528.0,
+          "Mz_kNm": 0.0
+        },
+        "Q_ROOM": {
+          "Fx_kN": 0.0,
+          "Fy_kN": -160.0,
+          "Mz_kNm": 0.0
+        },
+        "Q_CORR": {
+          "Fx_kN": 0.0,
+          "Fy_kN": -48.0,
+          "Mz_kNm": 0.0
+        },
+        "G_BALC": {
+          "Fx_kN": 0.0,
+          "Fy_kN": -57.59999999999998,
+          "Mz_kNm": 0.0
+        },
+        "Q_BALC": {
+          "Fx_kN": 0.0,
+          "Fy_kN": -38.39999999999999,
+          "Mz_kNm": 0.0
+        },
+        "G_ROOF": {
+          "Fx_kN": 0.0,
+          "Fy_kN": -72.09993065183906,
+          "Mz_kNm": 0.0
+        },
+        "SNOW": {
+          "Fx_kN": 0.0,
+          "Fy_kN": -72.09993065183906,
+          "Mz_kNm": 0.0
+        },
+        "WIND_POS": {
+          "Fx_kN": 44.0,
+          "Fy_kN": 0.0,
+          "Mz_kNm": 0.0
+        },
+        "WIND_NEG": {
+          "Fx_kN": -44.0,
+          "Fy_kN": 0.0,
+          "Mz_kNm": 0.0
+        },
+        "WIND_UP": {
+          "Fx_kN": 0.0,
+          "Fy_kN": 31.622776601683796,
+          "Mz_kNm": 0.0
+        }
+      }
+    }
+  ]
+}

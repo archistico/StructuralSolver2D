@@ -36,7 +36,7 @@ Per esportare un viewer HTML:
 dotnet run --project src/StructuralSolver2D.Cli -- export-viewer examples/beams/simple-supported-beam.json reports/beam.html
 ```
 
-Gli [esempi](examples/README.md) servono all'apprendimento; i [benchmark](benchmarks/README.md) contengono casi di riferimento per le regressioni. Non confondere esempi illustrativi e verifiche normative complete.
+Gli [esempi](examples/README.md) servono all'apprendimento; i [benchmark](benchmarks/README.md) contengono casi di riferimento per le regressioni. È incluso anche un esempio di **casetta a due piani acciaio-legno** in `examples/mixed/two-storey-steel-house-timber-roof.json`, sviluppato in **quattro varianti G8B** con/senza controventi e differenti sezioni (`examples/mixed/g8b-house/`). La guida G8B è in `docs/structural/examples/G8B_VERIFICA_CASSETTA_E_CONFRONTO.md`; lo script Windows `scripts/run-g8b-house-demo.ps1` genera report e viewer. Il confronto G8B non è ancora stato collaudato sul PC. Non confondere esempi illustrativi e verifiche normative complete.
 
 ## Collaudo della versione corrente
 
@@ -47,7 +47,7 @@ Eseguire da **un'estrazione pulita** dello ZIP completo:
 .\scripts\run-g7-tests.ps1
 ```
 
-Il primo script confronta i file con `RELEASE_SHA256SUMS.txt`; il secondo pulisce le build di progetto, compila in Release e avvia benchmark e regressioni. Il **gate G7 è stato dichiarato superato dall'utente**; una nuova modifica richiederà un nuovo collaudo. Lo script mantiene il nome G7 perché valida la baseline software, anche dopo il riordino documentale.
+Il primo script confronta i file con `RELEASE_SHA256SUMS.txt`; il secondo migra fuori da `examples/` eventuali due vecchi JSON G8B di **dati di riferimento** lasciati da estrazioni sovrapposte (backup in `.g8b-legacy-backup/`), pulisce le build di progetto, compila in Release e avvia benchmark e regressioni. Il **gate G7 è stato dichiarato superato dall'utente**; una nuova modifica richiederà un nuovo collaudo. Lo script mantiene il nome G7 perché valida la baseline software, anche dopo il riordino documentale.
 
 ## Architettura
 

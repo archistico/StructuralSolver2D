@@ -6,6 +6,7 @@ $root = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 Push-Location $root
 try {
     & (Join-Path $PSScriptRoot 'repair-m82-legacy-source.ps1')
+    & (Join-Path $PSScriptRoot 'repair-g8b-legacy-examples.ps1')
     & (Join-Path $PSScriptRoot 'clean-project-build.ps1')
     . (Join-Path $PSScriptRoot 'stable-dotnet-console.ps1')
 
