@@ -1,0 +1,84 @@
+{
+  "milestone": "M56",
+  "referenceType": "independent analytic continuum equations (not C# modal solver outputs)",
+  "units": {
+    "E": "kN/m^2",
+    "A": "m^2",
+    "I": "m^4",
+    "gamma": "kN/m^3",
+    "length": "m",
+    "lineMass": "kN*s^2/m^2",
+    "frequency": "Hz"
+  },
+  "inputs": {
+    "youngModulus": 210000000.0,
+    "area": 0.02,
+    "inertia": 0.0001,
+    "unitWeight": 77.0,
+    "gravity": 9.80665,
+    "length": 4.0,
+    "lineMass": 0.15703629679860096
+  },
+  "references": {
+    "pinned": "f_n = n^2*pi^2/(2*pi*L^2)*sqrt(EI/mu)",
+    "cantilever": "f_n = beta_n^2/(2*pi*L^2)*sqrt(EI/mu); cos(beta_n)*cosh(beta_n)=-1",
+    "axial-fixed-fixed": "f_n = n*pi/(2*pi*L)*sqrt(EA/mu)",
+    "shear-two-story": "lambda_(1,2)=(3∓sqrt(5))*k/(2*m)"
+  },
+  "cantileverRoots": [
+    1.875104068711961,
+    4.694091132974175,
+    7.854757438237613
+  ],
+  "shearTwoStory": {
+    "stiffness": [
+      [
+        11200.0,
+        -5600.0
+      ],
+      [
+        -5600.0,
+        5600.0
+      ]
+    ],
+    "mass": [
+      [
+        3.25,
+        0.0
+      ],
+      [
+        0.0,
+        3.25
+      ]
+    ],
+    "eigenvaluesRadiansSquaredPerSecondSquared": [
+      658.1568193847966,
+      4511.0739498459725
+    ]
+  },
+  "frequenciesHz": {
+    "pinned": [
+      35.901245794165746,
+      143.60498317666298,
+      323.11121214749176
+    ],
+    "cantilever": [
+      12.789704960872697,
+      80.15171282095761,
+      224.4271167780231
+    ],
+    "axial-fixed-fixed": [
+      646.4495471770821,
+      1292.8990943541642,
+      1939.3486415312461
+    ]
+  },
+  "meshElementCounts": [
+    1,
+    2,
+    4,
+    8,
+    16
+  ],
+  "note": "The FEM values in the convergence report are separately calculated estimates; do not mark C# tests passed until .NET suite runs."
+}

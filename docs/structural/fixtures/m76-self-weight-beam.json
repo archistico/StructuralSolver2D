@@ -1,0 +1,92 @@
+{
+  "title": "M76 - Peso proprio automatico: trave semplicemente appoggiata",
+  "description": "Due elementi Frame2D (L=5m), UnitWeight=78.5 kN/m3, area=0.003 m2; carico distribuito implicito q=-0.2355 kN/m. Reazioni pari a 0.58875 kN ciascuna.",
+  "loadCaseId": "G",
+  "nodes": [
+    {
+      "id": "A",
+      "x": 0.0,
+      "y": 0.0
+    },
+    {
+      "id": "C",
+      "x": 2.5,
+      "y": 0.0
+    },
+    {
+      "id": "B",
+      "x": 5.0,
+      "y": 0.0
+    }
+  ],
+  "materials": [
+    {
+      "id": "MAT",
+      "name": "Benchmark elastic material",
+      "elasticModulus": 210000000.0,
+      "unitWeight": 78.5
+    }
+  ],
+  "sections": [
+    {
+      "id": "SEC",
+      "name": "Benchmark frame section",
+      "area": 0.003,
+      "momentOfInertia": 2e-05
+    }
+  ],
+  "members": [
+    {
+      "id": "M1",
+      "startNodeId": "A",
+      "endNodeId": "C",
+      "materialId": "MAT",
+      "sectionId": "SEC",
+      "type": "Frame2D"
+    },
+    {
+      "id": "M2",
+      "startNodeId": "C",
+      "endNodeId": "B",
+      "materialId": "MAT",
+      "sectionId": "SEC",
+      "type": "Frame2D"
+    }
+  ],
+  "supports": [
+    {
+      "id": "SA",
+      "nodeId": "A",
+      "restrainedUx": true,
+      "restrainedUy": true,
+      "restrainedRz": false,
+      "type": "Hinge"
+    },
+    {
+      "id": "SB",
+      "nodeId": "B",
+      "restrainedUx": false,
+      "restrainedUy": true,
+      "restrainedRz": false,
+      "type": "SimpleSupport"
+    }
+  ],
+  "loadCases": [
+    {
+      "id": "G",
+      "name": "Peso proprio automatico"
+    }
+  ],
+  "loads": [
+    {
+      "id": "SW",
+      "loadCaseId": "G",
+      "type": "SelfWeight",
+      "targetType": "Model",
+      "targetId": "",
+      "direction": "GlobalY",
+      "value": 1.0,
+      "label": "Peso proprio aste"
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+using StructuralSolver2D.Core.Model.Loads;
 using StructuralSolver2D.Analysis.Results;
 using StructuralSolver2D.Analysis.Constraints;
 using StructuralSolver2D.Analysis.Solvers;
@@ -84,11 +85,16 @@ public sealed class Truss2DAnalyzer
         string resultId,
         IReadOnlyDictionary<string, double> loadCaseFactors)
     {
+        model = SelfWeightStaticLoadExpander.Expand(model);
+
         Dictionary<string, int> nodeIndexById = BuildNodeIndex(model);
         int totalDofCount = model.Nodes.Count * DofsPerNode;
         double[,] globalStiffness = new double[totalDofCount, totalDofCount];
         double[] globalLoadVector = new double[totalDofCount];
 
+        if (model.Loads.Any(l => l.Type == StructuralLoadType.SupportSettlement &&
+            l.Direction == StructuralLoadDirection.MomentZ))
+            throw new StructuralAnalysisException("M77_TRUSS_ROTATION: rotational settlements are unsupported for Truss2D.");
         AssembleGlobalStiffness(model, nodeIndexById, globalStiffness);
         AssembleLoads(model, loadCaseFactors, nodeIndexById, globalLoadVector);
 
@@ -100,14 +106,15 @@ public sealed class Truss2DAnalyzer
             globalStiffness,
             globalLoadVector,
             includeRotationalDof: false,
-            addInactiveDofConstraints: false);
+            addInactiveDofConstraints: false,
+            loadCaseFactors: loadCaseFactors);
 
         double[] globalResidual = Subtract(Multiply(globalStiffness, globalDisplacements), globalLoadVector);
 
         return new StructuralAnalysisResult(
             resultId,
             BuildNodalDisplacementResults(model, nodeIndexById, globalDisplacements),
-            SupportConstraintSystem.BuildSupportReactionResults(model, nodeIndexById, DofsPerNode, globalResidual, includeRotationalDof: false),
+            SupportConstraintSystem.BuildSupportReactionResults(model, nodeIndexById, DofsPerNode, globalResidual, includeRotationalDof: false, globalDisplacements: globalDisplacements),
             BuildMemberEndForceResults(model, nodeIndexById, globalDisplacements));
     }
 
@@ -142,6 +149,8 @@ public sealed class Truss2DAnalyzer
         var unsupportedLoads = model.Loads
             .Where(load =>
                 load.Type != StructuralLoadType.NodalForce &&
+                load.Type != StructuralLoadType.SelfWeight &&
+                load.Type != StructuralLoadType.SupportSettlement &&
                 model.LoadCases.Any(loadCase => string.Equals(loadCase.Id, load.LoadCaseId, StringComparison.OrdinalIgnoreCase)))
             .Select(load => $"{load.Id} ({load.Type})")
             .Take(10)
@@ -150,7 +159,7 @@ public sealed class Truss2DAnalyzer
         if (unsupportedLoads.Count > 0)
         {
             throw new StructuralAnalysisException(
-                "The Truss2D analyzer currently supports only nodal force loads. " +
+                "The Truss2D analyzer supports nodal forces, support settlements, and explicit self-weight only. " +
                 $"Unsupported loads: {string.Join(", ", unsupportedLoads)}.");
         }
     }
@@ -197,6 +206,8 @@ public sealed class Truss2DAnalyzer
     {
         foreach (StructuralLoad load in model.Loads.Where(load => loadCaseFactors.ContainsKey(load.LoadCaseId)))
         {
+            // A settlement is enforced through C*u=g, not added to the load vector.
+            if (load.Type == StructuralLoadType.SupportSettlement) continue;
             if (load.Type != StructuralLoadType.NodalForce)
             {
                 throw new StructuralAnalysisException($"Load '{load.Id}' has type '{load.Type}', which is not supported by the Truss2D analyzer. Only nodal force loads are supported.");

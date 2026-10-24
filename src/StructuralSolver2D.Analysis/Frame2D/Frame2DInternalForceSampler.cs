@@ -1,3 +1,4 @@
+using StructuralSolver2D.Core.Model.Loads;
 using StructuralSolver2D.Analysis.Results;
 using StructuralSolver2D.Core.Model;
 using StructuralSolver2D.Core.Model.Enums;
@@ -37,64 +38,99 @@ public sealed class Frame2DInternalForceSampler
             throw new ArgumentOutOfRangeException(nameof(sampleCount), sampleCount, "At least two samples are required.");
         }
 
-        Dictionary<string, StructuralMember> members = model.Members.ToDictionary(member => member.Id, StringComparer.OrdinalIgnoreCase);
-        Dictionary<string, StructuralNode> nodes = model.Nodes.ToDictionary(node => node.Id, StringComparer.OrdinalIgnoreCase);
-
-        if (!members.TryGetValue(memberId, out StructuralMember? member))
-        {
-            throw new StructuralAnalysisException($"Member '{memberId}' was not found in the structural model.");
-        }
-
-        MemberEndForceResult endForces = analysisResult.MemberEndForces.FirstOrDefault(
-            result => string.Equals(result.MemberId, memberId, StringComparison.OrdinalIgnoreCase))
-            ?? throw new StructuralAnalysisException($"Member end forces for member '{memberId}' were not found in the analysis result.");
-
-        StructuralNode startNode = nodes[member.StartNodeId];
-        StructuralNode endNode = nodes[member.EndNodeId];
-        MemberGeometry geometry = MemberGeometry.FromNodes(startNode, endNode);
-        IReadOnlyDictionary<string, double> loadCaseFactors = BuildLoadCaseFactors(model, analysisResult.LoadCaseId);
-        (double localXLoad, double localYLoad) = SumUniformLoadsInLocalCoordinates(model, loadCaseFactors, memberId, geometry);
-        IReadOnlyList<LinearlyVaryingLocalLoad> linearLoads = GetLinearDistributedLoadsInLocalCoordinates(model, loadCaseFactors, memberId, geometry);
-        IReadOnlyList<ConcentratedLocalLoad> pointLoads = GetPointLoadsInLocalCoordinates(model, loadCaseFactors, memberId, geometry);
-
+        MemberForceProfile profile = PrepareMember(model, analysisResult, memberId);
         List<MemberInternalForceSample> samples = new(sampleCount);
-
         for (int index = 0; index < sampleCount; index++)
         {
-            double position = (double)index / (sampleCount - 1);
-            double x = position * geometry.Length;
-
-            double normalForce = -endForces.StartAxial - (localXLoad * x);
-            double shearForce = endForces.StartShear + (localYLoad * x);
-            double bendingMoment = -endForces.StartMoment + (endForces.StartShear * x) + (localYLoad * x * x / 2.0);
-
-            foreach (LinearlyVaryingLocalLoad linearLoad in linearLoads)
-            {
-                double axialSlope = (linearLoad.EndLocalXValue - linearLoad.StartLocalXValue) / geometry.Length;
-                double transverseSlope = (linearLoad.EndLocalYValue - linearLoad.StartLocalYValue) / geometry.Length;
-
-                normalForce -= (linearLoad.StartLocalXValue * x) + (axialSlope * x * x / 2.0);
-                shearForce += (linearLoad.StartLocalYValue * x) + (transverseSlope * x * x / 2.0);
-                bendingMoment += (linearLoad.StartLocalYValue * x * x / 2.0) + (transverseSlope * x * x * x / 6.0);
-            }
-
-            foreach (ConcentratedLocalLoad pointLoad in pointLoads.Where(pointLoad => pointLoad.DistanceFromStart <= x))
-            {
-                normalForce -= pointLoad.LocalXValue;
-                shearForce += pointLoad.LocalYValue;
-                bendingMoment += pointLoad.LocalYValue * (x - pointLoad.DistanceFromStart);
-            }
-
-            samples.Add(new MemberInternalForceSample(
-                memberId,
-                position,
-                x,
-                normalForce,
-                shearForce,
-                bendingMoment));
+            double x = profile.Length * index / (sampleCount - 1);
+            samples.Add(profile.Evaluate(x));
         }
 
-        return new MemberInternalForceDiagram(memberId, geometry.Length, samples);
+        return new MemberInternalForceDiagram(memberId, profile.Length, samples);
+    }
+
+    /// <summary>
+    /// Prepares the same exact piecewise-polynomial section force equations used by the
+    /// standard diagram sampler. Point-load jumps are evaluated on their chosen side.
+    /// </summary>
+    internal static MemberForceProfile PrepareMember(
+        StructuralModel model, StructuralAnalysisResult result, string memberId)
+    {
+        ArgumentNullException.ThrowIfNull(model);
+        ArgumentNullException.ThrowIfNull(result);
+        if (string.IsNullOrWhiteSpace(memberId))
+            throw new ArgumentException("Member id cannot be empty.", nameof(memberId));
+
+        model = SelfWeightStaticLoadExpander.Expand(model);
+        StructuralMember member = model.Members.FirstOrDefault(m =>
+            string.Equals(m.Id, memberId, StringComparison.OrdinalIgnoreCase))
+            ?? throw new StructuralAnalysisException($"Member '{memberId}' was not found in the structural model.");
+        MemberEndForceResult endForces = result.MemberEndForces.FirstOrDefault(e =>
+            string.Equals(e.MemberId, memberId, StringComparison.OrdinalIgnoreCase))
+            ?? throw new StructuralAnalysisException($"Member end forces for member '{memberId}' were not found in the analysis result.");
+        StructuralNode startNode = model.Nodes.First(n => string.Equals(n.Id, member.StartNodeId, StringComparison.OrdinalIgnoreCase));
+        StructuralNode endNode = model.Nodes.First(n => string.Equals(n.Id, member.EndNodeId, StringComparison.OrdinalIgnoreCase));
+        MemberGeometry geometry = MemberGeometry.FromNodes(startNode, endNode);
+        IReadOnlyDictionary<string, double> factors = BuildLoadCaseFactors(model, result.LoadCaseId);
+        (double qx, double qy) = SumUniformLoadsInLocalCoordinates(model, factors, memberId, geometry);
+        return new MemberForceProfile(memberId, geometry.Length, endForces, qx, qy,
+            GetLinearDistributedLoadsInLocalCoordinates(model, factors, memberId, geometry),
+            GetPointLoadsInLocalCoordinates(model, factors, memberId, geometry));
+    }
+
+    internal sealed class MemberForceProfile
+    {
+        private readonly string memberId;
+        private readonly MemberEndForceResult endForces;
+        private readonly double qx;
+        private readonly double qy;
+        private readonly IReadOnlyList<LinearlyVaryingLocalLoad> linearLoads;
+        private readonly IReadOnlyList<ConcentratedLocalLoad> pointLoads;
+
+        internal MemberForceProfile(string memberId, double length, MemberEndForceResult endForces,
+            double qx, double qy, IReadOnlyList<LinearlyVaryingLocalLoad> linearLoads,
+            IReadOnlyList<ConcentratedLocalLoad> pointLoads)
+        {
+            this.memberId = memberId;
+            Length = length;
+            this.endForces = endForces;
+            this.qx = qx;
+            this.qy = qy;
+            this.linearLoads = linearLoads;
+            this.pointLoads = pointLoads;
+        }
+
+        public double Length { get; }
+        public IReadOnlyList<double> Discontinuities => pointLoads.Select(p => p.DistanceFromStart).Distinct().OrderBy(x => x).ToList();
+
+        /// <summary>after=true takes the right-hand limit at a concentrated force.</summary>
+        public MemberInternalForceSample Evaluate(double x, bool after = true)
+        {
+            if (!double.IsFinite(x) || x < 0 || x > Length)
+                throw new ArgumentOutOfRangeException(nameof(x), x, "Section position must lie within the member.");
+
+            double normal = -endForces.StartAxial - qx * x;
+            double shear = endForces.StartShear + qy * x;
+            double moment = -endForces.StartMoment + endForces.StartShear * x + qy * x * x / 2.0;
+            foreach (LinearlyVaryingLocalLoad load in linearLoads)
+            {
+                double slopeX = (load.EndLocalXValue - load.StartLocalXValue) / Length;
+                double slopeY = (load.EndLocalYValue - load.StartLocalYValue) / Length;
+                normal -= load.StartLocalXValue * x + slopeX * x * x / 2.0;
+                shear += load.StartLocalYValue * x + slopeY * x * x / 2.0;
+                moment += load.StartLocalYValue * x * x / 2.0 + slopeY * x * x * x / 6.0;
+            }
+            foreach (ConcentratedLocalLoad load in pointLoads)
+            {
+                if (load.DistanceFromStart < x || (after && load.DistanceFromStart == x))
+                {
+                    normal -= load.LocalXValue;
+                    shear += load.LocalYValue;
+                    moment += load.LocalYValue * (x - load.DistanceFromStart);
+                }
+            }
+            return new MemberInternalForceSample(memberId, x / Length, x, normal, shear, moment);
+        }
     }
 
     /// <summary>
@@ -229,9 +265,9 @@ public sealed class Frame2DInternalForceSampler
             _ => throw new StructuralAnalysisException($"Unsupported {loadKind} load direction '{direction}'.")
         };
 
-    private sealed record ConcentratedLocalLoad(double DistanceFromStart, double LocalXValue, double LocalYValue);
+    internal sealed record ConcentratedLocalLoad(double DistanceFromStart, double LocalXValue, double LocalYValue);
 
-    private sealed record LinearlyVaryingLocalLoad(
+    internal sealed record LinearlyVaryingLocalLoad(
         double StartLocalXValue,
         double EndLocalXValue,
         double StartLocalYValue,

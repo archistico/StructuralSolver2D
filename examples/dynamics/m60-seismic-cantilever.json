@@ -1,0 +1,195 @@
+{
+  "title": "M60 educational uniform-ground-motion cantilever",
+  "description": "Constrained frame with tip force pulse; Newmark time-domain solution with explicit damping and sampling.",
+  "nodes": [
+    {
+      "id": "N0",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "N1",
+      "x": 0.5,
+      "y": 0
+    },
+    {
+      "id": "N2",
+      "x": 1,
+      "y": 0
+    },
+    {
+      "id": "N3",
+      "x": 1.5,
+      "y": 0
+    },
+    {
+      "id": "N4",
+      "x": 2,
+      "y": 0
+    },
+    {
+      "id": "N5",
+      "x": 2.5,
+      "y": 0
+    },
+    {
+      "id": "N6",
+      "x": 3,
+      "y": 0
+    },
+    {
+      "id": "N7",
+      "x": 3.5,
+      "y": 0
+    },
+    {
+      "id": "N8",
+      "x": 4,
+      "y": 0
+    }
+  ],
+  "materials": [
+    {
+      "id": "MAT",
+      "name": "Reference steel",
+      "elasticModulus": 210000000,
+      "unitWeight": 77
+    }
+  ],
+  "sections": [
+    {
+      "id": "SEC",
+      "name": "Reference section",
+      "area": 0.01,
+      "momentOfInertia": 0.0001
+    }
+  ],
+  "members": [
+    {
+      "id": "E0",
+      "startNodeId": "N0",
+      "endNodeId": "N1",
+      "materialId": "MAT",
+      "sectionId": "SEC",
+      "type": "Frame2D"
+    },
+    {
+      "id": "E1",
+      "startNodeId": "N1",
+      "endNodeId": "N2",
+      "materialId": "MAT",
+      "sectionId": "SEC",
+      "type": "Frame2D"
+    },
+    {
+      "id": "E2",
+      "startNodeId": "N2",
+      "endNodeId": "N3",
+      "materialId": "MAT",
+      "sectionId": "SEC",
+      "type": "Frame2D"
+    },
+    {
+      "id": "E3",
+      "startNodeId": "N3",
+      "endNodeId": "N4",
+      "materialId": "MAT",
+      "sectionId": "SEC",
+      "type": "Frame2D"
+    },
+    {
+      "id": "E4",
+      "startNodeId": "N4",
+      "endNodeId": "N5",
+      "materialId": "MAT",
+      "sectionId": "SEC",
+      "type": "Frame2D"
+    },
+    {
+      "id": "E5",
+      "startNodeId": "N5",
+      "endNodeId": "N6",
+      "materialId": "MAT",
+      "sectionId": "SEC",
+      "type": "Frame2D"
+    },
+    {
+      "id": "E6",
+      "startNodeId": "N6",
+      "endNodeId": "N7",
+      "materialId": "MAT",
+      "sectionId": "SEC",
+      "type": "Frame2D"
+    },
+    {
+      "id": "E7",
+      "startNodeId": "N7",
+      "endNodeId": "N8",
+      "materialId": "MAT",
+      "sectionId": "SEC",
+      "type": "Frame2D"
+    }
+  ],
+  "supports": [
+    {
+      "id": "S0",
+      "nodeId": "N0",
+      "restrainedUx": true,
+      "restrainedUy": true,
+      "restrainedRz": true
+    }
+  ],
+  "dynamics": {
+    "schemaVersion": 1,
+    "nodalMasses": []
+  },
+  "seismic": {
+    "direction": "GlobalY",
+    "timeHistory": {
+      "timeStepSeconds": 0.002,
+      "stepCount": 150,
+      "damping": {
+        "uniformModalRatio": 0.05
+      },
+      "groundAcceleration": [
+        {
+          "timeSeconds": 0,
+          "accelerationMetersPerSecondSquared": 0
+        },
+        {
+          "timeSeconds": 0.012,
+          "accelerationMetersPerSecondSquared": 1.5
+        },
+        {
+          "timeSeconds": 0.032,
+          "accelerationMetersPerSecondSquared": 0
+        },
+        {
+          "timeSeconds": 0.3,
+          "accelerationMetersPerSecondSquared": 0
+        }
+      ]
+    },
+    "spectrum": {
+      "modeCount": 6,
+      "points": [
+        {
+          "periodSeconds": 0,
+          "pseudoAccelerationMetersPerSecondSquared": 2.0
+        },
+        {
+          "periodSeconds": 0.1,
+          "pseudoAccelerationMetersPerSecondSquared": 2.0
+        },
+        {
+          "periodSeconds": 1,
+          "pseudoAccelerationMetersPerSecondSquared": 2.0
+        },
+        {
+          "periodSeconds": 10,
+          "pseudoAccelerationMetersPerSecondSquared": 2.0
+        }
+      ]
+    }
+  }
+}

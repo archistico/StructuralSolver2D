@@ -1,0 +1,62 @@
+{
+  "title": "M56 pinned: 1 elements",
+  "description": "Educational analytical modal fixture; static JSON commands do not compute modes. Dynamic tests create equivalent StructuralModel objects internally.",
+  "nodes": [
+    {
+      "id": "N0",
+      "x": 0.0,
+      "y": 0.0
+    },
+    {
+      "id": "N1",
+      "x": 4.0,
+      "y": 0.0
+    }
+  ],
+  "materials": [
+    {
+      "id": "MAT",
+      "name": "M56 benchmark material",
+      "elasticModulus": 210000000.0,
+      "unitWeight": 77.0
+    }
+  ],
+  "sections": [
+    {
+      "id": "SEC",
+      "name": "M56 benchmark section",
+      "area": 0.02,
+      "momentOfInertia": 0.0001
+    }
+  ],
+  "members": [
+    {
+      "id": "E0",
+      "startNodeId": "N0",
+      "endNodeId": "N1",
+      "materialId": "MAT",
+      "sectionId": "SEC",
+      "type": "Frame2D"
+    }
+  ],
+  "supports": [
+    {
+      "id": "A",
+      "nodeId": "N0",
+      "restrainedUx": true,
+      "restrainedUy": true,
+      "restrainedRz": false
+    },
+    {
+      "id": "B",
+      "nodeId": "N1",
+      "restrainedUx": false,
+      "restrainedUy": true,
+      "restrainedRz": false
+    }
+  ],
+  "dynamics": {
+    "schemaVersion": 1,
+    "nodalMasses": []
+  }
+}

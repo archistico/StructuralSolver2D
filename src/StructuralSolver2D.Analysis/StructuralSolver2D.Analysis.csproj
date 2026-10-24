@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\StructuralSolver2D.Core\StructuralSolver2D.Core.csproj" />
@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="StructuralSolver2D.Analysis.Tests" />
+    <InternalsVisibleTo Include="StructuralSolver2D.PerformanceM73" />
   </ItemGroup>
 
   <PropertyGroup>

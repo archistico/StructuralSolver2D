@@ -247,9 +247,43 @@ public sealed class CliCommandRegressionTests
         Assert.Contains("Usage:", result.Stdout);
     }
 
-    public static IEnumerable<object[]> Examples() => Directory.GetFiles(CliTestWorkspace.ExamplePath(""), "*.json", SearchOption.AllDirectories)
-        .Where(path => Path.GetFileName(Path.GetDirectoryName(path)) != "sections")
+    // M57-FIX2: Static and modal-only fixtures are different supported JSON contracts.
+    // Do not pass a modal-only model to legacy static commands in this regression.
+    // Classify by model content, not by a hard-coded filename, so future examples
+    // cannot accidentally break the static sample enumeration.
+    private static IEnumerable<string> ExampleFiles() =>
+        Directory.EnumerateFiles(CliTestWorkspace.ExamplePath(""), "*.json", SearchOption.AllDirectories)
+            .Where(path => !string.Equals(Path.GetFileName(Path.GetDirectoryName(path)), "sections", StringComparison.OrdinalIgnoreCase));
+
+    private static bool IsModalOnlyExample(string path)
+    {
+        JsonObject model = JsonNode.Parse(File.ReadAllText(path))!.AsObject();
+        return model["dynamics"] is JsonObject &&
+            (model["loadCases"] is null || model["loadCases"] is JsonArray { Count: 0 });
+    }
+
+    public static IEnumerable<object[]> Examples() => ExampleFiles()
+        .Where(path => !IsModalOnlyExample(path))
         .Select(path => new object[] { Path.GetRelativePath(CliTestWorkspace.ExamplePath(""), path) });
+
+    public static IEnumerable<object[]> ModalOnlyExamples() => ExampleFiles()
+        .Where(IsModalOnlyExample)
+        .Select(path => new object[] { Path.GetRelativePath(CliTestWorkspace.ExamplePath(""), path) });
+
+    [Fact]
+    public void DistributedExamples_ArePartitionedWithoutDroppingAnySupportedFixture()
+    {
+        string[] all = ExampleFiles().Select(path => Path.GetFullPath(path)).ToArray();
+        string[] statics = Examples().Select(row => Path.GetFullPath(CliTestWorkspace.ExamplePath((string)row[0]))).ToArray();
+        string[] modals = ModalOnlyExamples().Select(row => Path.GetFullPath(CliTestWorkspace.ExamplePath((string)row[0]))).ToArray();
+
+        Assert.NotEmpty(statics);
+        Assert.NotEmpty(modals);
+        Assert.Equal(all.Length, statics.Length + modals.Length);
+        Assert.Empty(statics.Intersect(modals, StringComparer.OrdinalIgnoreCase));
+        Assert.All(all, path => Assert.True(statics.Contains(path, StringComparer.OrdinalIgnoreCase) ||
+            modals.Contains(path, StringComparer.OrdinalIgnoreCase), $"Fixture not tested: {path}"));
+    }
 
     [Theory]
     [MemberData(nameof(Examples))]
@@ -264,6 +298,43 @@ public sealed class CliCommandRegressionTests
         string destination = workspace.PathFor("viewer.html");
         (await workspace.Run("export-viewer", source, destination)).AssertSuccess();
         Assert.Contains("<svg", File.ReadAllText(destination));
+    }
+
+    [Theory]
+    [MemberData(nameof(ModalOnlyExamples))]
+    public async Task ModalOnlyExamples_ShouldUseModalCommandsAndRejectStatic(string relative)
+    {
+        using var workspace = new CliTestWorkspace();
+        string source = CliTestWorkspace.ExamplePath(relative);
+
+        // Legacy static commands must preserve their existing input contract.
+        var staticAnalysis = await workspace.Run("analyze", source);
+        Assert.NotEqual(0, staticAnalysis.ExitCode);
+        Assert.Contains("at least one load case", staticAnalysis.Stderr, StringComparison.OrdinalIgnoreCase);
+        string staticViewer = workspace.PathFor("static-viewer.html");
+        var staticExport = await workspace.Run("export-viewer", source, staticViewer);
+        Assert.NotEqual(0, staticExport.ExitCode);
+        Assert.False(File.Exists(staticViewer));
+
+        // The same model must be usable via all four explicit modal commands.
+        var summary = await workspace.Run("modal", source, "3");
+        summary.AssertSuccess();
+        Assert.Contains("Hz", summary.Stdout);
+
+        string report = workspace.PathFor("modal-report.md");
+        (await workspace.Run("modal-report", source, report, "3")).AssertSuccess();
+        Assert.Contains("Mass: phi^T M phi = 1", File.ReadAllText(report));
+
+        string csv = workspace.PathFor("modal-csv");
+        (await workspace.Run("modal-csv", source, csv, "3")).AssertSuccess();
+        Assert.True(new FileInfo(Path.Combine(csv, "modal-frequencies.csv")).Length > 0);
+        Assert.True(new FileInfo(Path.Combine(csv, "modal-shapes.csv")).Length > 0);
+
+        string viewer = workspace.PathFor("modal-viewer.html");
+        (await workspace.Run("modal-viewer", source, viewer, "3")).AssertSuccess();
+        string html = File.ReadAllText(viewer);
+        Assert.Contains("<svg", html, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("modal-mode", html);
     }
 
     [Theory]

@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "title": "M80 — DEMONSTRATION GEOMETRIES ONLY (NOT COMMERCIAL PROFILES)",
+  "profiles": [
+    {
+      "id": "WOOD_RECT_DEMO_80X240",
+      "name": "Timber rectangular 80 x 240 mm — demo",
+      "shape": "TimberRectangular",
+      "widthMm": 80,
+      "heightMm": 240,
+      "dataStatus": "Illustrative"
+    },
+    {
+      "id": "RHS_DEMO_120X80X4",
+      "name": "Sharp-corner rectangular hollow demo 80 wide x 120 high x 4 mm",
+      "shape": "RectangularHollow",
+      "widthMm": 80,
+      "heightMm": 120,
+      "wallThicknessMm": 4,
+      "dataStatus": "Illustrative"
+    },
+    {
+      "id": "I_DEMO_200X100",
+      "name": "Sharp-corner symmetric I-section — demonstration, NOT IPE",
+      "shape": "DoublySymmetricI",
+      "widthMm": 100,
+      "heightMm": 200,
+      "webThicknessMm": 6,
+      "flangeThicknessMm": 10,
+      "dataStatus": "Illustrative"
+    },
+    {
+      "id": "CHS_DEMO_114X6",
+      "name": "Circular hollow demonstration (114/102 mm)",
+      "shape": "CircularHollow",
+      "outerDiameterMm": 114,
+      "innerDiameterMm": 102,
+      "dataStatus": "Illustrative"
+    }
+  ]
+}

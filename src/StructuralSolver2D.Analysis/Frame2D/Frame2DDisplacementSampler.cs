@@ -1,3 +1,4 @@
+using StructuralSolver2D.Core.Model.Loads;
 using StructuralSolver2D.Analysis.Results;
 using StructuralSolver2D.Analysis.Solvers;
 using StructuralSolver2D.Core.Model;
@@ -43,6 +44,7 @@ public sealed class Frame2DDisplacementSampler
             throw new ArgumentOutOfRangeException(nameof(sampleCount), sampleCount, "At least two samples are required.");
         }
 
+        model = SelfWeightStaticLoadExpander.Expand(model);
         Dictionary<string, StructuralMember> members = model.Members.ToDictionary(member => member.Id, StringComparer.OrdinalIgnoreCase);
         Dictionary<string, StructuralNode> nodes = model.Nodes.ToDictionary(node => node.Id, StringComparer.OrdinalIgnoreCase);
         Dictionary<string, NodalDisplacementResult> displacements = analysisResult.Displacements.ToDictionary(

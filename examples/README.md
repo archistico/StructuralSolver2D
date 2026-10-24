@@ -110,3 +110,10 @@ dotnet run --project src\StructuralSolver2D.Cli -- report examples\beams\simple-
 ```
 
 The same input can be exported to CSV, XLSX, PDF, SVG, HTML or interactive viewer formats through the corresponding CLI commands.
+
+
+### Dynamics preparation (M52; no modal solver yet)
+
+`dynamics/m52-cantilever-with-additional-mass.json` includes versioned optional
+mass metadata. It remains a **static** model for current CLI commands: the
+`dynamics` section is not a request to run a modal or seismic analysis.

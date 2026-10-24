@@ -1,6 +1,7 @@
 using StructuralSolver2D.Analysis.Results;
 using StructuralSolver2D.Analysis.Solvers;
 using StructuralSolver2D.Core.Model;
+using StructuralSolver2D.Core.Model.Enums;
 
 namespace StructuralSolver2D.Analysis.Constraints;
 
@@ -12,7 +13,7 @@ internal static class SupportConstraintSystem
     private const double InactiveDofTolerance = 1e-12;
 
     /// <summary>
-    /// Solves a globally assembled linear system with support constraints expressed as homogeneous equations.
+    /// Solves a linear system with oriented support constraints C*u=g and optional elastic support stiffness.
     /// </summary>
     public static double[] SolveConstrainedSystem(
         StructuralModel model,
@@ -22,19 +23,19 @@ internal static class SupportConstraintSystem
         double[,] globalStiffness,
         double[] globalLoadVector,
         bool includeRotationalDof,
-        bool addInactiveDofConstraints)
+        bool addInactiveDofConstraints,
+        IReadOnlyDictionary<string, double>? loadCaseFactors = null)
     {
         ArgumentNullException.ThrowIfNull(model);
         ArgumentNullException.ThrowIfNull(nodeIndexById);
         ArgumentNullException.ThrowIfNull(globalStiffness);
         ArgumentNullException.ThrowIfNull(globalLoadVector);
 
+        // The stiffness argument is owned by the caller and modified exactly once per analysis.
+        AddSupportSpringStiffness(model, nodeIndexById, dofsPerNode, globalStiffness, includeRotationalDof);
+
         List<ConstraintEquation> constraints = BuildSupportConstraints(
-            model,
-            nodeIndexById,
-            dofsPerNode,
-            totalDofCount,
-            includeRotationalDof);
+            model, nodeIndexById, dofsPerNode, totalDofCount, includeRotationalDof, loadCaseFactors);
 
         if (addInactiveDofConstraints)
         {
@@ -64,6 +65,7 @@ internal static class SupportConstraintSystem
             int constraintRow = totalDofCount + constraintIndex;
             ConstraintEquation constraint = constraints[constraintIndex];
 
+            augmentedRightHandSide[constraintRow] = constraint.RightHandSide;
             foreach (KeyValuePair<int, double> coefficient in constraint.Coefficients)
             {
                 int dof = coefficient.Key;
@@ -81,6 +83,34 @@ internal static class SupportConstraintSystem
     }
 
     /// <summary>
+    /// Returns the same homogeneous support/inactive-rotation equations used by the solver,
+    /// solely for independent verification. Rows are expressed in the full global DOF space.
+    /// </summary>
+    internal static IReadOnlyList<double[]> GetHomogeneousConstraintRows(
+        StructuralModel model,
+        IReadOnlyDictionary<string, int> nodeIndexById,
+        int dofsPerNode,
+        int totalDofCount,
+        double[,] stiffness,
+        double[] loads,
+        bool includeRotationalDof,
+        bool addInactiveDofConstraints)
+    {
+        List<ConstraintEquation> equations = BuildSupportConstraints(
+            model, nodeIndexById, dofsPerNode, totalDofCount, includeRotationalDof);
+        if (addInactiveDofConstraints)
+            AddInactiveDofConstraints(equations, totalDofCount, stiffness, loads,
+                dofsPerNode, includeRotationalDof);
+        return equations.Select(equation =>
+        {
+            double[] row = new double[totalDofCount];
+            foreach (KeyValuePair<int, double> coefficient in equation.Coefficients)
+                row[coefficient.Key] = coefficient.Value;
+            return row;
+        }).ToList();
+    }
+
+    /// <summary>
     /// Builds support reaction result objects from the global residual vector.
     /// </summary>
     /// <remarks>
@@ -93,7 +123,8 @@ internal static class SupportConstraintSystem
         IReadOnlyDictionary<string, int> nodeIndexById,
         int dofsPerNode,
         double[] globalResidual,
-        bool includeRotationalDof)
+        bool includeRotationalDof,
+        double[]? globalDisplacements = null)
     {
         ArgumentNullException.ThrowIfNull(model);
         ArgumentNullException.ThrowIfNull(nodeIndexById);
@@ -133,6 +164,22 @@ internal static class SupportConstraintSystem
             }
         }
 
+        if (globalDisplacements is not null)
+        {
+            foreach (StructuralSupport support in model.Supports)
+            {
+                int offset = nodeIndexById[support.NodeId] * dofsPerNode;
+                foreach (var spring in GetSprings(support, dofsPerNode, includeRotationalDof))
+                {
+                    double deformation = 0;
+                    for (int axis = 0; axis < dofsPerNode; axis++)
+                        deformation += spring.Direction[axis] * globalDisplacements[offset + axis];
+                    for (int axis = 0; axis < dofsPerNode; axis++)
+                        reactions[support.Id][axis] -= spring.Stiffness * deformation * spring.Direction[axis];
+                }
+            }
+        }
+
         return model.Supports.Select(support => new SupportReactionResult(
                 support.Id, support.NodeId,
                 Clean(reactions[support.Id][0]), Clean(reactions[support.Id][1]),
@@ -168,6 +215,51 @@ internal static class SupportConstraintSystem
         }
     }
 
+    private static IEnumerable<(double[] Direction, double Stiffness)> GetSprings(
+        StructuralSupport support, int dofsPerNode, bool includeRotationalDof)
+    {
+        if (!includeRotationalDof && support.StiffnessRz > 0)
+            throw new StructuralAnalysisException($"M77_TRUSS_ROTATION: support '{support.Id}' has a rotational spring in a Truss2D-only solver.");
+        double angle = support.OrientationDegrees * Math.PI / 180.0;
+        double c = Math.Cos(angle), s = Math.Sin(angle);
+        if (support.StiffnessUx > 0)
+        {
+            var direction = new double[dofsPerNode]; direction[0] = c; direction[1] = s;
+            yield return (direction, support.StiffnessUx);
+        }
+        if (support.StiffnessUy > 0)
+        {
+            var direction = new double[dofsPerNode]; direction[0] = -s; direction[1] = c;
+            yield return (direction, support.StiffnessUy);
+        }
+        if (includeRotationalDof && support.StiffnessRz > 0)
+        {
+            var direction = new double[dofsPerNode]; direction[2] = 1;
+            yield return (direction, support.StiffnessRz);
+        }
+    }
+
+    private static void AddSupportSpringStiffness(
+        StructuralModel model, IReadOnlyDictionary<string, int> nodeIndexById,
+        int dofsPerNode, double[,] globalStiffness, bool includeRotationalDof)
+    {
+        foreach (StructuralSupport support in model.Supports)
+        {
+            int start = nodeIndexById[support.NodeId] * dofsPerNode;
+            foreach (var spring in GetSprings(support, dofsPerNode, includeRotationalDof))
+                for (int i = 0; i < dofsPerNode; i++)
+                    for (int j = 0; j < dofsPerNode; j++)
+                        globalStiffness[start + i, start + j] +=
+                            spring.Stiffness * spring.Direction[i] * spring.Direction[j];
+        }
+    }
+
+    /// <summary>Applies only spring stiffness to a matrix for opt-in stability diagnostics.</summary>
+    internal static void AddSupportSpringsForVerification(
+        StructuralModel model, IReadOnlyDictionary<string, int> nodeIndexById,
+        int dofsPerNode, double[,] stiffness, bool includeRotationalDof) =>
+        AddSupportSpringStiffness(model, nodeIndexById, dofsPerNode, stiffness, includeRotationalDof);
+
     private static List<double[]> BuildOrthonormalBasis(IEnumerable<double[]> directions)
     {
         List<double[]> basis = new();
@@ -201,21 +293,67 @@ internal static class SupportConstraintSystem
         IReadOnlyDictionary<string, int> nodeIndexById,
         int dofsPerNode,
         int totalDofCount,
-        bool includeRotationalDof)
+        bool includeRotationalDof,
+        IReadOnlyDictionary<string, double>? loadCaseFactors = null)
     {
         List<ConstraintEquation> constraints = new();
-
-        foreach (var group in model.Supports.GroupBy(support => support.NodeId, StringComparer.OrdinalIgnoreCase))
+        foreach (var group in model.Supports.GroupBy(s => s.NodeId, StringComparer.OrdinalIgnoreCase))
         {
-            int nodeBaseDof = nodeIndexById[group.Key] * dofsPerNode;
-            var directions = group.SelectMany(support => GetSupportDirections(support, dofsPerNode, includeRotationalDof));
-            foreach (double[] direction in BuildOrthonormalBasis(directions))
+            int start = nodeIndexById[group.Key] * dofsPerNode;
+            List<(double[] Direction, double Value)> independent = new();
+            foreach (StructuralSupport support in group)
             {
-                constraints.Add(CreateConstraint(totalDofCount, direction.Select((value, dof) =>
-                    new KeyValuePair<int, double>(nodeBaseDof + dof, value))));
-            }
-        }
+                double angle = support.OrientationDegrees * Math.PI / 180.0;
+                double c = Math.Cos(angle), si = Math.Sin(angle);
+                var localDirections = new[]
+                {
+                    new double[] { c, si, 0 }, new double[] { -si, c, 0 }, new double[] { 0, 0, 1 },
+                };
+                foreach (var (restrained, axis, dir) in new[]
+                {
+                    (support.RestrainedUx, 0, StructuralLoadDirection.LocalX),
+                    (support.RestrainedUy, 1, StructuralLoadDirection.LocalY),
+                    (includeRotationalDof && support.RestrainedRz, 2, StructuralLoadDirection.MomentZ),
+                })
+                {
+                    if (!restrained) continue;
+                    var vector = new double[dofsPerNode];
+                    Array.Copy(localDirections[axis], vector, dofsPerNode);
+                    double target = 0;
+                    if (loadCaseFactors is not null)
+                        foreach (StructuralLoad settlement in model.Loads.Where(l =>
+                            l.Type == StructuralLoadType.SupportSettlement &&
+                            string.Equals(l.TargetId, support.Id, StringComparison.OrdinalIgnoreCase)))
+                            if (settlement.Direction == dir && loadCaseFactors.TryGetValue(settlement.LoadCaseId, out double factor))
+                                target += settlement.Value * factor;
+                    if (!double.IsFinite(target))
+                        throw new StructuralAnalysisException("M77_SETTLEMENT_OVERFLOW: factored settlement is not finite.");
 
+                    // Orthonormalize displacement constraints INCLUDING the right-hand sides.
+                    // A duplicate row with contradictory settlement is an inconsistent model.
+                    for (int pass = 0; pass < 2; pass++)
+                        foreach (var prior in independent)
+                        {
+                            double projection = Dot(vector, prior.Direction);
+                            for (int k = 0; k < vector.Length; k++)
+                                vector[k] -= projection * prior.Direction[k];
+                            target -= projection * prior.Value;
+                        }
+                    double length = Math.Sqrt(Dot(vector, vector));
+                    if (length <= InactiveDofTolerance)
+                    {
+                        if (Math.Abs(target) > 1e-9)
+                            throw new StructuralAnalysisException($"M77_INCOMPATIBLE_SETTLEMENT: conflicting restraints at node '{group.Key}'.");
+                        continue;
+                    }
+                    for (int k = 0; k < vector.Length; k++) vector[k] /= length;
+                    independent.Add((vector, target / length));
+                }
+            }
+            foreach (var item in independent)
+                constraints.Add(CreateConstraint(totalDofCount,
+                    item.Direction.Select((v, dof) => new KeyValuePair<int, double>(start + dof, v)), item.Value));
+        }
         return constraints;
     }
 
@@ -284,7 +422,8 @@ internal static class SupportConstraintSystem
 
     private static ConstraintEquation CreateConstraint(
         int totalDofCount,
-        IEnumerable<KeyValuePair<int, double>> coefficients)
+        IEnumerable<KeyValuePair<int, double>> coefficients,
+        double rightHandSide = 0.0)
     {
         Dictionary<int, double> row = new();
 
@@ -303,7 +442,7 @@ internal static class SupportConstraintSystem
             row[coefficient.Key] = coefficient.Value;
         }
 
-        return new ConstraintEquation(row);
+        return new ConstraintEquation(row, rightHandSide);
     }
 
     private static void CopyStiffness(double[,] source, double[,] target, int totalDofCount)
@@ -320,5 +459,5 @@ internal static class SupportConstraintSystem
     private static double Clean(double value) =>
         Math.Abs(value) <= 1e-9 ? 0.0 : value;
 
-    private sealed record ConstraintEquation(IReadOnlyDictionary<int, double> Coefficients);
+    private sealed record ConstraintEquation(IReadOnlyDictionary<int, double> Coefficients, double RightHandSide);
 }

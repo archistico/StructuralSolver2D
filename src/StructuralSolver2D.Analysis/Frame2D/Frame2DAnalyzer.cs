@@ -1,3 +1,4 @@
+using StructuralSolver2D.Core.Model.Loads;
 using StructuralSolver2D.Analysis.Results;
 using StructuralSolver2D.Analysis.Constraints;
 using StructuralSolver2D.Analysis.Solvers;
@@ -82,6 +83,8 @@ public sealed class Frame2DAnalyzer
         string resultId,
         IReadOnlyDictionary<string, double> loadCaseFactors)
     {
+        model = SelfWeightStaticLoadExpander.Expand(model);
+
         ValidateFrameOnlyModel(model);
 
         Dictionary<string, int> nodeIndexById = BuildNodeIndex(model);
@@ -101,14 +104,15 @@ public sealed class Frame2DAnalyzer
             globalStiffness,
             globalLoadVector,
             includeRotationalDof: true,
-            addInactiveDofConstraints: true);
+            addInactiveDofConstraints: true,
+            loadCaseFactors: loadCaseFactors);
 
         double[] globalResidual = Subtract(Multiply(globalStiffness, globalDisplacements), globalLoadVector);
 
         return new StructuralAnalysisResult(
             resultId,
             BuildNodalDisplacementResults(model, nodeIndexById, globalDisplacements),
-            SupportConstraintSystem.BuildSupportReactionResults(model, nodeIndexById, DofsPerNode, globalResidual, includeRotationalDof: true),
+            SupportConstraintSystem.BuildSupportReactionResults(model, nodeIndexById, DofsPerNode, globalResidual, includeRotationalDof: true, globalDisplacements: globalDisplacements),
             BuildMemberEndForceResults(model, nodeIndexById, globalDisplacements, memberEquivalentLocalLoads));
     }
 
@@ -217,6 +221,10 @@ public sealed class Frame2DAnalyzer
 
                 case StructuralLoadType.PointLoadOnMember:
                     AddPointLoadOnMember(load, loadFactor, members, nodes, materials, sections, nodeIndexById, globalLoadVector, memberEquivalentLocalLoads);
+                    break;
+
+                case StructuralLoadType.SupportSettlement:
+                    // Prescribed kinematic action: contribution is in the support constraint RHS.
                     break;
 
                 case StructuralLoadType.SelfWeight:

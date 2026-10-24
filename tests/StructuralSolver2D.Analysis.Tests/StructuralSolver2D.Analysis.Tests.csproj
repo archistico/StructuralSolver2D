@@ -22,6 +22,7 @@
     <ProjectReference Include="..\..\src\StructuralSolver2D.Core\StructuralSolver2D.Core.csproj" />
     <ProjectReference Include="..\..\src\StructuralSolver2D.Analysis\StructuralSolver2D.Analysis.csproj" />
     <ProjectReference Include="..\..\src\StructuralSolver2D.Cli\StructuralSolver2D.Cli.csproj" />
+    <ProjectReference Include="..\..\tools\StructuralSolver2D.PerformanceM73\StructuralSolver2D.PerformanceM73.csproj" />
   </ItemGroup>
 
 </Project>

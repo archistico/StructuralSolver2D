@@ -1,4 +1,5 @@
 using StructuralSolver2D.Core.Model;
+using StructuralSolver2D.Core.Dynamics;
 
 namespace StructuralSolver2D.Cli.Input;
 
@@ -17,4 +18,7 @@ public sealed record StructuralModelJsonFile(
 {
     /// <summary>Whether the default id came from the JSON loadCombinationId property.</summary>
     public bool DefaultTargetIsCombination { get; init; }
+
+    /// <summary>Optional versioned dynamic metadata. Ignored by all existing static CLI commands.</summary>
+    public StructuralDynamicsDefinition? Dynamics { get; init; }
 }

@@ -1,509 +1,257 @@
 # StructuralSolver2D
 
-StructuralSolver2D is a free and open-source .NET 8 / C# engine for first-order linear elastic analysis of planar 2D structures made of one-dimensional members.
+[![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
+[![Language](https://img.shields.io/badge/Linguaggio-C%23-239120?style=for-the-badge&logo=csharp&logoColor=white)](https://learn.microsoft.com/dotnet/csharp/)
+[![Modello](https://img.shields.io/badge/Strutture-2D-0078D6?style=for-the-badge)](docs/structural/model.md)
+[![Test](https://img.shields.io/badge/Test-M85--C%20superato-159957?style=for-the-badge)](docs/structural/roadmap.md)
+[![Sviluppo](https://img.shields.io/badge/M86--RC1-Gate%20Windows%20aperto-FFB000?style=for-the-badge)](docs/M85B_VALIDAZIONE_INTEGRATA.md)
+[![Versione](https://img.shields.io/badge/Versione-0.1.0-6C757D?style=for-the-badge)](VERSION)
+[![Materiali](https://img.shields.io/badge/Materiali-Acciaio%20%7C%20Legno-7F52FF?style=for-the-badge)](docs/structural/vision-and-roadmap-2d.md)
+[![Licenza](https://img.shields.io/badge/Licenza-GPLv3-008080?style=for-the-badge)](LICENSE)
 
-It is designed as a calculation engine and educational codebase. It can read structural models from JSON, solve load cases or manual load combinations, and export numerical reports and graphical result previews.
+> **Obiettivo aggiornato — 23 ottobre 2026.** Software **open source per analisi FEM di strutture piane ad aste in acciaio e legno**, per studenti, docenti e professionisti (uso didattico e preliminare). Sviluppo nell'ordine **motore FEM verificato → verifiche NTC/Eurocodici SLU/SLE → editor leggero C#/Avalonia**. Esclusi 3D, c.a., BIM, muratura, pareti, piastre e X-LAM. OpenCad2D non è più prerequisito. **M85-C ha superato i test Windows**: build 0 errori/avvisi, 8 nuovi test e 1.334 di regressione (log 24/10/2026). **M86 RC1 è una release preview dei soli sorgenti, in attesa del proprio gate Windows**. I numeri M83-A forniti dall'utente sono ora disponibili nel repository. Solver sparso M83-B e plasticità M84 restano opzionali/differibili. M82 è un secondo ordine *globalmente linearizzato* a perimetro limitato, non un solver iterativo generale. **Nessuna verifica normativa ancora implementata.** La [roadmap di prodotto](docs/structural/vision-and-roadmap-2d.md) prevale sulla numerazione storica dei milestone.
 
-The project is independent from OpenCad2D. OpenCad2D may become a graphical client in the future, but the solver can already be used from the command line or from a .NET application.
+**StructuralSolver2D è un motore di calcolo strutturale bidimensionale, open source e scritto in C# su .NET 8.** Nasce per analizzare strutture costituite da travi e aste reticolari, ma soprattutto per costruire, passo dopo passo, un risolutore di cui sia possibile capire e verificare ogni risultato.
 
----
+Il progetto vuole colmare la distanza fra un esempio didattico di analisi matriciale e un'applicazione numerica realmente utilizzabile. Per noi non basta ottenere uno spostamento o un diagramma del momento: occorre conoscere le ipotesi che lo hanno prodotto, controllare l'equilibrio, confrontare soluzioni analitiche e riconoscere quando un modello supera i limiti del metodo adottato. Per questo ogni estensione viene accompagnata da benchmark e test automatici.
 
-## What it can do
+Il software funziona **autonomamente** attraverso file JSON, comandi CLI o API .NET. In futuro avrà un **editor desktop leggero in C#/Avalonia** come modulo separato; un eventuale adapter OpenCad2D resterà facoltativo.
 
-StructuralSolver2D currently supports:
+## M86 RC1 — Release tecnica preview (24/10/2026)
 
-- 2D structural models with nodes, members, materials, sections, supports, load cases and loads;
-- `Frame2D` members with axial, shear and bending behavior;
-- `Truss2D` members with axial-only behavior;
-- mixed `Frame2D` + `Truss2D` plane structures;
-- nodal degrees of freedom `Ux`, `Uy`, `Rz`;
-- hinged, fixed, roller/simple and custom support restraints;
-- mechanically active inclined supports through `OrientationDegrees`;
-- nodal forces and nodal moments;
-- member point loads on `Frame2D` members;
-- uniform, triangular and trapezoidal distributed loads on `Frame2D` members;
-- manual load combinations, for example `1.35 G1 + 1.50 Q1`;
-- nodal displacements;
-- support reactions;
-- local member end forces;
-- sampled internal-force diagrams `N(x)`, `V(x)`, `M(x)`;
-- sampled `Frame2D` displacement diagrams;
-- result extrema and compact analysis summaries;
-- preliminary serviceability deflection checks;
-- Markdown, CSV, XLSX and PDF exports;
-- static SVG/HTML graphical previews;
-- interactive HTML viewer export;
-- validation examples and benchmark cases for regression testing.
+**Baseline certificata dal log dell’utente:** M85-C, build Release 0 warning/0 error, 8 casi mirati e 1.334 regressioni superate. **Novità M86 RC1:** documento del perimetro e dei limiti, manifest SHA-256 e runner `scripts/run-m86-release-gate.ps1` per la build, i test e i smoke test CLI/CSV/XLSX/PDF. I sorgenti `src/` sono identici a M85-C; versione assembly 0.1.0 invariata. **M86 RC1 non è stata ancora testata su Windows.** [Istruzioni e perimetro](docs/structural/m86-release-preview.md) · [Registro di accettazione](docs/structural/m86-acceptance-results.md).
 
----
+## M85-C — Riferimenti statici, robustezza e accettazione Core (24/10/2026)
 
-## What it does not do yet
+**Baseline:** M85-B FIX1 confermato su Windows: build Release **0 avvisi e 0 errori**, 5 casi integrati e 1.326 test di regressione passati, 8 benchmark M83 completati a 20 ripetizioni. **Nuova suite M85-C da eseguire su Windows.** Aggiunti otto casi xUnit: reticolare triangolare analitica con EA disomogeneo e lavoro virtuale, trave continua a due campate con riferimento al teorema dei tre momenti e un esempio numerico pubblicato esternamente, scaling della rigidezza, indipendenza dall'ordine di inserimento e invarianza per traslazione delle coordinate. Non è stato modificato alcun file `src/`. Runner: `scripts/run-m85c-tests.ps1`. [Matrice tecnica](docs/structural/m85c-final-static-validation.md) · [Criteri di release M86](docs/structural/m86-release-acceptance-checklist.md).
 
-StructuralSolver2D is not a certified structural design product.
+## M85-B — Coerenza API/CLI/report (24/10/2026)
 
-It does not currently support:
+**M85-A e precedenti: test Windows superati secondo l’utente. M85-B: build, 5 test end-to-end e 1.326 test di regressione superati; benchmark opzionale corretto a 20 ripetizioni, da rieseguire.** Confronta soluzioni analitiche statiche (mensola e trave biappoggiata), API C#, CLI, tutti i CSV, Markdown e celle numeriche XLSX; verifica la generazione PDF come file valido. Non modifica il motore FEM. Avvio: `scripts/run-m85b-tests.ps1`. Campionamento prestazioni opzionale: `-WithBenchmark`. [Matrice integrata e limiti](docs/M85B_VALIDAZIONE_INTEGRATA.md).
 
-- 3D frame or truss analysis;
-- plates, shells, solids or general 2D/3D mesh FEM;
-- nonlinear material behavior;
-- geometric nonlinearity or second-order effects;
-- modal, dynamic or seismic analysis;
-- automatic wind, snow or seismic load generation;
-- automatic self-weight generation in the analyzer;
-- code-compliant design checks according to NTC, Eurocodes or other standards;
-- steel, timber or reinforced concrete member design;
-- connection design;
-- buckling, fire, fatigue or robustness checks;
-- automatic conversion from CAD drawing entities to structural models.
+### Storico M85-A
 
-Results should always be checked independently before any professional or safety-critical use.
+## M85-A — Verifiche indipendenti (24/10/2026)
 
----
+**M85-A: test Windows superati, confermati dall’utente.** Un controllo di validazione statico usa formule chiuse per una mensola inclinata e due barre assiali, reciprocità di Maxwell–Betti, sovrapposizione con coefficienti negativi e rotazione del telaio di 90°. Nessun `src/` modificato. Eseguire `scripts/run-m85-tests.ps1`. [Matrice e limiti](docs/structural/m85a-independent-validation.md). I dati M83 originali sono stati ricevuti e inclusi nella versione M85-B; la decisione sul solver sparso resta rinviata.
 
-## Internal units
+### Storico M83
 
-All input values are expected in coherent internal units.
+## M83-A — Benchmark di scalabilità Frame2D (24/10/2026)
 
-| Quantity | Unit |
-|---|---:|
-| Length | m |
-| Force | kN |
-| Moment | kNm |
-| Elastic modulus | kN/m² |
-| Area | m² |
-| Second moment of area | m⁴ |
-| Distributed load | kN/m |
+**M82 e M83-A test Windows superati, confermati dall’utente il 24/10/2026.** Prima di introdurre un risolutore sparso, misuriamo su telai reali il solver elastico Frame2D e il solver linearizzato M82, con benchmark analitici, reazioni di equilibrio, CSV/JSON, test C#/xUnit e regressione. Il codice dei solver FEM esistenti non cambia. Per il gate: `scripts/run-m83-tests.ps1`. [Nota M83-A](docs/structural/m83a-frame2d-scalability-decision.md).
 
-Important sign convention for vertical gravity loads: with the usual model orientation where global `Y` is upward, a downward load is usually entered as a **negative** `GlobalY` value.
+### Storico del secondo ordine
 
-Example:
+## M82 — Secondo ordine globale linearizzato (24/10/2026)
 
-```json
-{
-  "direction": "GlobalY",
-  "value": -10.0
-}
-```
+**M75–M82 con test Windows superati (conferma dell’utente; M82 dopo FIX CS0246).** Da M81 deriva un nuovo calcolo opt-in globale Frame2D con `Kt = Ke + Kg(N¹)` assemblata da sforzi assiali di primo ordine, reazioni, spostamenti e ricerca per bisezione della perdita di definitezza positiva. Non è un solver geometrico non lineare iterativo, né una verifica normativa. Accetta soltanto telai senza release, vincoli rigidi assiali, azioni nodali singolo caso; carichi di asta, peso proprio, molle e cedimenti sono esclusi **solo da M82**, non dal normale solver. [Nota M82](docs/structural/m82-global-linearized-second-order.md) · `scripts/run-m82-tests.ps1`.
 
----
+### Storico delle tappe precedenti
 
-## Requirements
+## M81 — Elemento Frame2D con rigidezza geometrica (24/10/2026)
 
-- .NET SDK 8.0 or later
-- Windows, Linux or macOS supported by .NET 8
-- PowerShell, Terminal, Bash or any equivalent command line shell
+**M75–M80 validati**: dopo M80-FIX3, l'utente ha confermato il superamento della regressione completa Windows .NET 8. **M81 implementato, test Windows ancora pendenti**: la rigidezza geometrica consistente per un Frame2D prismatico usa la forza assiale di riferimento con segno (trazione positiva, compressione negativa) e fornisce una tangente linearizzata materiale + iniziale. Il componente è isolato e introduce soltanto un dimostratore di mensola precompressa; **non è ancora disponibile un solver globale P–Δ** e non costituisce una verifica normativa. Test esclusivamente C#/xUnit con riferimento indipendente da quadratura Hermite, biforcazione di mensola e colonna; `scripts/run-m81-tests.ps1` pulisce `bin/obj` per prima cosa, compila in Release e avvia la regressione dei quattro progetti. [Nota tecnica M81](docs/structural/m81-frame2d-initial-stress.md).
 
-Check your installed SDK:
+## Archivio di avanzamento (stato al momento dei singoli milestone)
 
-```powershell
-dotnet --version
-```
+## M80-FIX3 — Parità del taglio minimo nel benchmark M78 (24/10/2026)
 
----
+Il log Windows di M80-FIX2 conferma una **build Release senza avvisi né errori**, 17/17 benchmark geometrici M80 e 25/25 regressioni di cataloghi e unità. Il gate mirato M78/M79 ha superato **13 test su 14**, con un unico fallimento in `InteriorPointLoad_OneSidedShearAndExactMomentPeakArePreserved`: il test attendeva `x=2 m` per `Vmin=-3 kN`, ma il medesimo minimo vale lungo l'intero tratto `[2,8] m` e il finder restituisce deterministici `x=8 m / Continuous` (la fine asta è candidata prima del limite al carico). Il test è stato corretto e rafforzato con verifiche esplicite del salto `+9 → -3 kN` e della continuità del momento in `x=2 m`. Nessun sorgente FEM/API modificato. **M75–M80 restano da validare con il runner completo**. [Nota FIX3](docs/structural/m80-fix3-minimum-shear-tie.md).
 
-## Build and test
+## M80-FIX2 — Correzione di due test M78/M79 (Windows: 539/541 Analysis superati)
 
-From the repository root:
+Il controllo per progetto introdotto da FIX1 ha individuato **due fallimenti su 541 test `Analysis.Tests`**. M78 presentava una parità fisica: con una sola forza concentrata il taglio massimo è costante su un intero tratto e, per convenzione deterministica, l'estremo restituito è quello iniziale `Continuous`, non necessariamente `BeforePointLoad`. Il test è stato adeguato alla regola effettiva e affiancato a un caso **con salto e massimo univoco su ciascun lato**. M79 costruiva la combinazione invertita con un fattore nullo `Q=0`, già proibito dal validatore del modello; il termine è stato omesso lasciando `G=-1`. Le formule, i solver, il validatore e le API pubbliche **non sono stati cambiati**. Il runner controlla M78/M79 prima della regressione completa e utilizza il logger testuale compatto, con log su file. **M75–M80 restano in attesa del gate completo Windows**; i 539/541 casi non equivalgono a validazione globale. [Nota diagnostica](docs/structural/m80-fix2-m78-m79-tests.md).
+
+## M80-FIX1 — Esito dei test Windows e diagnostica dei runner
+
+La regressione completa comprende **quattro assembly di test indipendenti**: Core, Analysis, Reporting e CLI. Un riepilogo «231 test superati» in `Cli.Tests` non certifica gli altri tre: se il codice di uscita complessivo è diverso da zero, la regressione **non è ancora confermata**. Per rendere individuabile l’eventuale errore, `scripts/run-m80-tests.ps1` esegue i quattro progetti in sequenza e mostra `PASSED`/`FAILED` per ciascuno e il percorso del log comune. Non sono state cambiate le analisi FEM o le prove C#. **M75–M80 attendono ancora la validazione cumulativa su Windows.**
+
+## M80 — Geometria sezionale per acciaio e legno (test pendenti)
+
+Abbiamo ampliato le proprietà delle sezioni senza complicare il motore FEM: a area e inerzia di flessione nel piano si affiancano un secondo momento d’inerzia fuori piano, due moduli elastici resistenti e due raggi d’inerzia. Sono grandezze geometriche necessarie alle future verifiche di sezioni e stabilità, **non** capacità resistenti normative. Sono disponibili rettangolo (anche con denominazione legno), cerchio pieno e cavo, tubolare rettangolare idealizzato e doppio T simmetrico idealizzato. Tutte le dimensioni dei calcoli diretti sono in metri.
+
+Un nuovo catalogo JSON opzionale accetta dimensioni in **millimetri** e conserva stato/provenienza dei dati. I profili di esempio sono chiaramente dimostrativi, non IPE/HE commerciali; il catalogo storico `StructuralSection` e il solver restano invariati. [Nota tecnica M80](docs/structural/m80-section-geometric-properties.md) · [esempio geometrie](examples/sections/m80-parametric-example.json).
+
+**Ultimo gate Windows confermato: M73.** M75–M80 sono implementati ma non ancora verificati sul tuo Windows. Il runner cumulativo sarà `scripts/run-m80-tests.ps1`. M81 affronterà il secondo ordine geometrico nel piano, senza anticipare verifiche NTC/Eurocodici né la GUI Avalonia.
+
+## M79 — Inviluppi globali N/V/M e combinazioni governanti (test pendenti)
+
+M79 riutilizza gli estremi **analitici** M78 di ogni risultato statico e li confronta tra **casi e combinazioni manuali esplicitamente selezionati**. Per ciascuna asta Frame2D restituisce minimo, massimo e massimo assoluto di N/V/M con ascissa, segno, lato del salto, identificatore e tipo dello scenario governante. Sono disponibili API .NET e esportazione CSV/Markdown opt-in, senza modifiche ai solver FEM e senza generazione automatica SLU/SLE. Non sono curve di inviluppo punto per punto né verifiche normative. [Nota tecnica M79](docs/structural/m79-exact-static-force-envelopes.md).
+
+**M73 è l'ultimo gate Windows confermato; M75–M79 restano da compilare e verificare** con `scripts/run-m79-tests.ps1` (pulizia iniziale, test C# mirati e regressione completa). M80 affronterà le proprietà geometriche delle sezioni.
+
+## M78 — Estremi analitici delle sollecitazioni (test pendenti)
+
+Il precedente visualizzatore dei diagrammi N/V/M usa valori campionati, adatti al disegno ma non necessariamente sufficienti a trovare il massimo momento. **M78 introduce un secondo percorso di post-processing, basato su formule per tratti e sul calcolo delle ascisse critiche**, indipendente dal numero di campioni grafici. Tiene separati i limiti prima e dopo i carichi concentrati e riporta anche il caso o la combinazione cui appartiene ciascun estremo. L'accesso è disponibile via API C# opt-in; il normale riepilogo campionato resta invariato. Il confronto fra diversi scenari è ora disponibile separatamente nel servizio M79. [Nota tecnica M78](docs/structural/m78-exact-frame-force-extrema.md).
+
+**M73 è l'ultimo milestone validato su Windows. M75–M79 attendono un gate cumulativo di compilazione e regressione** tramite `scripts/run-m79-tests.ps1`.
+
+## M77 — Appoggi elastici e cedimenti imposti (test pendenti)
+
+M77 estende la **statica lineare** alle molle nodali traslazionali e rotazionali, comprese le direzioni di appoggio inclinate. Le molle si assegnano ai supporti come rigidezze `StiffnessUx` e `StiffnessUy` (kN/m) e `StiffnessRz` (kNm/rad). Le reazioni elastiche sono recuperate esplicitamente; una molla non equivale a un vincolo rigido.
+
+È inoltre possibile definire un **cedimento imposto per caso di carico** tramite `SupportSettlement`, destinato a una direzione effettivamente bloccata (`LocalX`, `LocalY` o `MomentZ`). I coefficienti delle combinazioni valgono anche per i cedimenti. Il solver distingue lo spostamento prescritto da una forza applicata, verifica la compatibilità di vincoli ridondanti e preserva i dati nel JSON standard. Il nuovo [documento M77](docs/structural/m77-elastic-supports-and-settlements.md) illustra equazioni, unità, limiti e benchmark analitici C#.
+
+Il supporto è limitato alle analisi **statiche elastiche di primo ordine**; gli altri solutori non sono stati estesi e richiederanno un gate distinto. Non esistono ancora verifiche NTC/Eurocodici. **M75, M76 e M77 attendono il test di compilazione e regressione su Windows.**
+
+## M76 — Peso proprio esplicito nelle analisi statiche (test pendenti)
+
+Abbiamo implementato il **peso proprio degli elementi Frame2D e Truss2D**, anche quando convivono nello stesso modello. Indicando una singola azione `SelfWeight` nel caso di carico e il peso specifico dei materiali, il programma calcola il peso di ogni asta dalla sua **area × lunghezza × peso specifico**, applicandolo globalmente verso il basso. Per le travi viene mantenuta la natura distribuita del carico, per le reticolari si usano le equivalenti forze nodali: in questo modo restano coerenti reazioni, diagrammi, combinazioni e visualizzazioni.
+
+Il calcolo non aggiunge peso proprio implicitamente: è una scelta esplicita dell'utente. Una sola azione per caso evita duplicazioni accidentali; fattori di combinazione restano liberi. Sono disponibili benchmark indipendenti **solo C#/xUnit**, un nuovo esempio JSON e uno script PowerShell con pulizia iniziale `bin/obj`. Il [documento M76](docs/structural/m76-automatic-self-weight.md) descrive convenzioni, limiti e confronti analitici.
+
+**Stato:** M75 e M76 sono entrambi in attesa dei test Windows. M73 resta l'ultimo milestone numerico confermato dall'utente. **Il supporto M76 è limitato alla statica lineare**; peso proprio in transitorio e non linearità non sono stati introdotti.
+
+## M75 — Primo avanzamento dopo la nuova roadmap
+
+Abbiamo avviato il completamento del motore FEM con il **contratto di ingresso e salvataggio dei modelli**. M75 aggiunge la serializzazione JSON canonica del modello 2D, un preflight con diagnostica leggibile e un test che confronta il modello prima e dopo il salvataggio. Gli esempi e la CLI precedenti restano compatibili: questi servizi sono *opt-in*, quindi nessun solver lineare, dinamico o non lineare viene modificato.
+
+Il modello standard ora è pronto per essere conservato e riaperto da futuri strumenti, ma **non conserva blocchi di configurazione specifici di analisi non rappresentati dal contratto standard**. Il [documento M75](docs/structural/m75-json-model-contract.md) spiega API, limiti, unità e convenzioni dei segni.
+
+**Stato M75: implementato, in attesa di test .NET 8 sul tuo Windows.** M73 rimane l'ultimo gate numerico validato. Il percorso è ora proseguito con M76 (peso proprio) e M77 (appoggi e cedimenti), senza anticipare verifiche normative o interfaccia Avalonia.
+
+## Cosa possiamo fare oggi
+
+L'analisi **statica lineare** permette di modellare aste `Truss2D`, travi `Frame2D` e strutture miste, con materiali, sezioni, carichi nodali e distribuiti, vincoli anche inclinati e combinazioni di carico definite dall'utente. Calcoliamo spostamenti, reazioni e forze agli estremi degli elementi; per le travi sono disponibili i diagrammi di sforzo normale, taglio e momento. I risultati possono essere esportati in Markdown, CSV, XLSX, PDF e in rappresentazioni grafiche SVG/HTML, compreso un viewer interattivo.
+
+Abbiamo poi esteso lo stesso modello alla **dinamica lineare**. L'analisi modale ricava frequenze naturali e forme di vibrazione, la risposta armonica studia ampiezze e sfasamenti a diverse frequenze e l'analisi transitoria segue il moto nel tempo usando Newmark. Sono disponibili anche verifiche del bilancio energetico e della convergenza temporale. L'analisi sismica esplorativa consente di applicare accelerazioni uniformi del terreno e spettri di risposta forniti dall'utente, ma non esegue verifiche normative.
+
+La ricerca più recente riguarda il **comportamento elasto-plastico**. Abbiamo prima verificato un oscillatore non lineare a un grado di libertà (M62), poi una singola asta reticolare plastica (M63) e infine l'equilibrio incrementale di reticolari composte da più aste (M64). **M65 aggiunge in via sperimentale la dinamica non lineare Truss2D**, con massa consistente, Newmark–Newton e aggiornamento controllato degli stati plastici. Questa parte rimane interna al progetto: **i test C# di M65 e M66 sono stati superati**, ma non costituiscono una validazione d’impiego professionale. M66 ha esteso e validato i benchmark indipendenti. M67, già validato nei test C#, aggiunge in forma opzionale il recupero delle reazioni vincolari nel tempo e delle azioni elastiche di estremità degli elementi, sempre distinguendole dai diagrammi sezionali dinamici completi.
+
+M68 introduce l’**accesso pubblico opt-in** a queste analisi non lineari: nuove richieste e risposte .NET, file JSON isolati, CLI e CSV/Markdown per storia plastica, reazioni e forza assiale. **M69**, superato nei test Windows dopo il FIX1, aggiunge un viewer HTML autonomo per esplorare deformazioni plastiche, forze assiali e storie di carico, mantenendo espliciti gli arresti non convergenti. Il collaudo grafico manuale degli HTML reali rimane distinto dai test automatici.
+
+**M70 estende l’analisi sismica spettrale** già esistente: oltre alla combinazione SRSS, ora possiamo richiedere la **CQC** quando i modi di vibrare hanno frequenze ravvicinate. Il modello usa uno smorzamento modale uniforme inserito esplicitamente dall’utente e conserva i segni dei contributi modali prima della combinazione. Non modifica la risposta sismica temporale né calcola una verifica antisismica secondo normativa. La nuova funzionalità è [documentata nel dettaglio](docs/structural/m70-cqc-modal-combination.md) e **validata dai test .NET 8 confermati dall’utente**.
+
+**Correzione M70-FIX1 validata:** il benchmark CQC a due campate ora vincola la traslazione trasversale del nodo intermedio, evitando un meccanismo nella fixture. Gli script PowerShell utilizzano `--tl:off` per disabilitare il logger interattivo di MSBuild. Da M71 i runner caricano anche un gestore comune dell’output .NET, che filtra le sequenze di ridisegno e salva un log testuale. [Dettagli della correzione](docs/structural/m70-fix1-cqc-benchmark-console.md).
+
+**M72-FIX2 — pulizia dei warning xUnit:** corrette sei asserzioni nei test dei milestone M65–M68, utilizzando gli overload `Assert.Contains` e `Assert.Single` consigliati dagli analyzer. Nessuna modifica al motore di calcolo o ai test numerici sostanziali. **La compilazione e la regressione M71/M72 sono state superate su Windows**, secondo la conferma dell’utente. [Nota tecnica](docs/structural/m72-fix2-xunit-assertion-warnings.md).
+
+**Nota storica M72-FIX1 (ora risolta):** la prima esecuzione M72 si è interrotta prima di compilare per un conflitto fra `-v:minimal` e la funzione PowerShell `dotnet`. I runner M71/M72 sono stati corretti e il wrapper ora tenta la decodifica UTF-8 temporanea per i caratteri accentati. **Entrambi hanno successivamente superato i test M72-FIX2**. [Dettagli tecnici](docs/structural/m72-fix1-powershell-arguments.md).
+
+**M71 e M72 — flessione non lineare sperimentale.** M71 ha definito il modello teorico delle cerniere rotazionali concentrate, con benchmark C# successivamente superati. M72 aggiunge un **primo elemento Frame2D interno**, costituito da una trave elastica con una o due cerniere plastiche di estremità: equilibrio locale, tangente condensata, scarico e dissipazione, con nuovi benchmark C#. È un prototipo **validato nei test .NET 8 confermati dall’utente**, separato dal solver Frame2D lineare: non è disponibile nelle API pubbliche o nella CLI e non consente ancora l'analisi globale incrementale di telai elasto-plastici. [Dettagli e limiti M72](docs/structural/m72-first-concentrated-plastic-frame-element.md).
+
+**M73 introduce una baseline prestazionale riproducibile in C#**: misura la crescita dei costi su matrici dense, reticolari statiche e dinamiche, ed elementi Frame2D a cerniere plastiche. I dati sono esportati in CSV/JSON con tempi, allocazioni, gradi di libertà e verifiche numeriche. Non abbiamo ancora ottimizzato o sostituito il backend denso: [limiti e metodo dei benchmark M73](docs/structural/m73-performance-baseline.md). **M73 ha superato la suite di test Windows confermata dall’utente.**
+
+Per ogni tipologia di analisi, il software distingue esplicitamente ciò che è implementato da ciò che è stato verificato, e ciò che rimane sperimentale.
+
+## Dove vogliamo arrivare
+
+L'obiettivo non è accumulare funzioni senza controllo, ma far crescere una piattaforma modulare e affidabile per lo studio delle strutture 2D. Il percorso attuale è definito nella [roadmap di prodotto M74–M107](docs/structural/vision-and-roadmap-2d.md). La [roadmap M63–M75](docs/structural/roadmap-forward-m63-m75.md) rimane come archivio storico, non come piano futuro operativo.
+
+| Tappa | Direzione di sviluppo | Stato al 23 ottobre 2026 |
+|---|---|---|
+| **M51–M66** | Fondamenti, dinamica lineare, non linearità Truss2D e benchmark | Test C# confermati |
+| **M67** | Reazioni transitorie e azioni elastiche di estremità; aggregazione plastica interna | Test C# confermati |
+| **M68** | API, JSON, CLI e report non lineari Truss2D | Test C# confermati |
+| **M69** | Viewer HTML per analisi non lineari | Test C# M69-FIX1 superati; QA grafica manuale separata |
+| **M70** | Combinazione CQC, diagnostica e reporting spettrale | Test .NET superati (FIX1) |
+| **M71** | Studio delle cerniere plastiche flessionali | Test C# superati |
+| **M72** | Elemento Frame2D con cerniere agli estremi (interno) | Test C# superati (FIX2); assemblaggio globale differito |
+| **M73** | Profiling numerico C#, baseline CSV/JSON e accuratezza | Test C# superati |
+| **M74–M107** | Consolidamento calcolo → verifiche normative → applicazione Avalonia | Nuova roadmap |
+
+Il **gate M66** di validazione indipendente è stato superato nei test confermati dall’utente. M67, M68 e M69-FIX1 hanno superato i test C#; la CQC M70-FIX1 ha superato i test Windows; M71 e M72 hanno superato i test C# sul Windows dell’utente; M73 introduce un benchmark quantitativo validato nella suite sul PC dell’utente. Il collaudo visivo dei viewer rimane un’attività separata. Vogliamo inoltre completare gli inviluppi delle forze interne e delle reazioni nel tempo, rendere i risultati più facili da esplorare nei viewer e collegare il motore a un ambiente CAD senza legarne la matematica alla sua interfaccia.
+
+**Non abbiamo ancora** una soluzione completa per telai elasto-plastici, effetti geometrici del secondo ordine, instabilità, rottura degli elementi, strutture 3D o verifiche di progetto secondo NTC/Eurocodici. Sono esclusioni tecniche precise, non funzionalità implicitamente presenti.
+
+## Come provarlo
+
+Serve il **.NET SDK 8**. È un progetto .NET e non richiede Python per compilare o eseguire i test C# attuali. Il codice è multipiattaforma laddove supportato da .NET; gli script di automazione forniti sono in PowerShell.
+
+Dalla cartella principale del repository:
 
 ```powershell
 dotnet restore StructuralSolver2D.sln
-dotnet build StructuralSolver2D.sln
-dotnet test StructuralSolver2D.sln
+dotnet build StructuralSolver2D.sln -c Release
+dotnet test StructuralSolver2D.sln -c Release
 ```
 
-The shorter form also works from the repository root:
+Per analizzare una trave semplicemente appoggiata in uno degli esempi inclusi:
 
 ```powershell
-dotnet build
-dotnet test
+dotnet run --project src/StructuralSolver2D.Cli -- analyze examples/beams/simple-supported-beam.json
 ```
 
----
-
-## Command line usage
-
-Show the CLI help:
+Per generare un **viewer HTML** consultabile nel browser:
 
 ```powershell
-dotnet run --project src\StructuralSolver2D.Cli -- help
+dotnet run --project src/StructuralSolver2D.Cli -- export-viewer examples/beams/simple-supported-beam.json reports/beam.html
 ```
 
-Run a built-in example:
+Per esplorare le vibrazioni naturali di una mensola:
 
 ```powershell
-dotnet run --project src\StructuralSolver2D.Cli -- example simple-supported-beam
+dotnet run --project src/StructuralSolver2D.Cli -- modal examples/dynamics/m57-modal-cantilever.json
 ```
 
-Analyze a JSON model:
+Per recuperare reazioni dinamiche e azioni elastiche agli estremi delle aste su una storia di carico:
 
 ```powershell
-dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\beams\simple-supported-beam.json
+dotnet run --project src/StructuralSolver2D.Cli -- time-forces-report examples/dynamics/m59-time-cantilever.json reports/forze-m67.md
 ```
 
-Analyze a specific load case or load combination:
+Le reazioni includono massa e smorzamento; le azioni di estremità sono la sola parte elastica nodale e non equivalgono a diagrammi completi delle sollecitazioni interne durante il moto.
+
+E per vedere l'analisi temporale di una mensola caricata da un impulso di durata finita:
 
 ```powershell
-dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\combinations\load-combination.json ULS1
+dotnet run --project src/StructuralSolver2D.Cli -- time-viewer examples/dynamics/m59-time-cantilever.json reports/time.html
 ```
 
-Generate a concise Markdown report (critical values, signed result tables and analysis context):
+Per esplorare la storia di un'asta elasto-plastica nei nuovi viewer offline:
 
 ```powershell
-dotnet run --project src\StructuralSolver2D.Cli -- report examples\beams\simple-supported-beam.json reports\simple-supported-beam.md
+dotnet run --project src/StructuralSolver2D.Cli -- nonlinear-static-viewer docs/structural/fixtures/m68-nonlinear-static.json reports/nonlinear-static.html
+dotnet run --project src/StructuralSolver2D.Cli -- nonlinear-time-viewer docs/structural/fixtures/m68-nonlinear-time.json reports/nonlinear-time.html
 ```
 
-Use `report-full` with the same arguments to include model tables, characteristic points and sampled appendices. The `markdown` alias uses the concise profile.
+Le deformate sono amplificate soltanto nella rappresentazione: gli spostamenti, le forze e la plasticità provengono dal solver. Le analisi interrotte vengono contrassegnate come parziali.
 
-Export CSV tables:
+La cartella [`examples`](examples/README.md) contiene modelli già pronti, compresi casi per la validazione numerica. Non tutti gli esempi dinamici includono casi di carico statici: i relativi comandi sono volutamente separati.
+
+### Test e pulizia delle build
+
+Per ogni milestone è presente uno script `scripts/run-mXX-tests.ps1`. **Ogni script di test esegue prima** [`scripts/clean-project-build.ps1`](scripts/clean-project-build.ps1), che rimuove esclusivamente le cartelle `bin` e `obj` appartenenti ai progetti .NET, quindi ricompila e avvia i test mirati e l'intera regressione. In questo modo si evita di testare per errore DLL compilate da una versione precedente.
+
+Per il milestone M69 (già testato):
 
 ```powershell
-dotnet run --project src\StructuralSolver2D.Cli -- export-csv examples\beams\simple-supported-beam.json reports\csv\simple-supported-beam
+.\scripts\run-m69-tests.ps1
 ```
 
-Export an XLSX workbook:
+È possibile verificare quali cartelle verrebbero eliminate, senza modificarle:
 
 ```powershell
-dotnet run --project src\StructuralSolver2D.Cli -- export-xlsx examples\beams\simple-supported-beam.json reports\xlsx\simple-supported-beam.xlsx
+.\scripts\clean-project-build.ps1 -WhatIf
 ```
 
-Export a PDF report:
+I benchmark introdotti a partire da M64 usano **C# e xUnit**, senza interpreti o verifiche Python opzionali da installare. Per ottenere la baseline delle prestazioni M73 e i relativi CSV/JSON:
 
 ```powershell
-dotnet run --project src\StructuralSolver2D.Cli -- export-pdf examples\beams\simple-supported-beam.json reports\pdf\simple-supported-beam.pdf
+.\scripts\run-m73-tests.ps1
 ```
 
-Export a static SVG preview:
+Questa esecuzione comprende la pulizia iniziale, la compilazione integrale, i test numerici e la misurazione in Release. I tempi non sono soglie di promozione: vanno confrontati sulla stessa macchina.
 
-```powershell
-dotnet run --project src\StructuralSolver2D.Cli -- export-svg examples\beams\simple-supported-beam.json reports\graphics\simple-supported-beam.svg
-```
+## Unità, significato e responsabilità dei risultati
 
-Export a static HTML preview:
+Il sistema usa unità coerenti **kN–m–s**: lunghezze in metri, forze in kN, momenti in kN·m, moduli elastici in kN/m² e masse coerenti con la dinamica. Ad esempio, se l'asse globale Y è rivolto verso l'alto, un carico verticale verso il basso è generalmente rappresentato da un valore `GlobalY` **negativo**. Nella dinamica, massa e peso non devono essere confusi.
 
-```powershell
-dotnet run --project src\StructuralSolver2D.Cli -- export-html examples\beams\simple-supported-beam.json reports\graphics\simple-supported-beam.html
-```
+Le deformate modali nei viewer sono normalizzate o amplificate per rappresentazione; non rappresentano spostamenti fisici sotto un particolare carico. Al contrario, le ampiezze della risposta armonica e gli spostamenti temporali sono risultati nelle unità fisiche previste dai rispettivi modelli.
 
-Export an interactive HTML viewer:
+Il software è destinato a **ricerca, apprendimento e prototipazione**. Nessun risultato costituisce di per sé un'attestazione di sicurezza strutturale. Per applicazioni professionali o decisioni che coinvolgono la sicurezza delle persone sono necessarie verifiche indipendenti, giudizio ingegneristico e controlli secondo la normativa applicabile.
 
-```powershell
-dotnet run --project src\StructuralSolver2D.Cli -- export-viewer examples\beams\simple-supported-beam.json reports\viewer\simple-supported-beam.html
-```
+## Architettura e documentazione
 
-The viewer opens with model, supports and load arrows. Choose Displacements, N, V or M to inspect one result quantity, then select a node or member for values. Secondary layers and animation are under `Layers and display`; `All layers` restores the complete scene. Mouse/touch selection, keyboard pan/zoom and `Fit view` are available. See [viewer controls](docs/structural/interactive-viewer.md).
+La soluzione separa i contratti dei modelli (`Core`), gli algoritmi numerici (`Analysis`), le esportazioni (`Reporting`) e i comandi (`Cli`). Questa indipendenza permette di sviluppare nuovi metodi senza compromettere il comportamento dell'analisi statica già verificata.
 
----
+Per approfondire, sono disponibili il [modello strutturale](docs/structural/model.md), la [guida al JSON](docs/structural/json-input.md), l'[API pubblica](docs/structural/public-api.md), il [Validation Manual](docs/structural/validation-manual.md), la [teoria del metodo matriciale](docs/theory/matrix-method.md) e la [roadmap](docs/structural/roadmap.md). Le decisioni sui limiti di M65 sono in [M65 — dinamica non lineare](docs/structural/m65-nonlinear-truss-dynamics.md).
 
-## Getting started with a JSON model
+## Licenza
 
-CLI commands reject missing or extra arguments. Report/export destinations must differ from the source model path; CSV checks every generated filename before writing any table. Existing reports at other paths can be replaced.
+Il progetto è distribuito sotto [GNU General Public License v3.0](LICENSE). Codice e documentazione sono disponibili per essere studiati e migliorati nel rispetto della licenza.
 
-All analysis, report and export commands use the same public analysis workflow. Console summaries show non-negative maximum magnitudes; detailed result tables retain signed values and the summary retains the location of each extreme.
+Lo sviluppo più recente è **M73 — misurazione riproducibile delle prestazioni e della stabilità numerica**, implementato in C# e validato nei test Windows. M71 e M72 sono stati validati sul PC dell’utente, ma la plasticità Frame2D rimane un prototipo di elemento, non un solver globale di telai. Dopo M73, la nuova sequenza è descritta nella [visione e roadmap 2D](docs/structural/vision-and-roadmap-2d.md): prima calcolo, poi verifiche, infine editor C#/Avalonia; l’assemblaggio non lineare globale Frame2D resta una capacità distinta, da pianificare e verificare. Vedi lo [studio M71](docs/structural/m71-frame2d-plasticity-feasibility.md) e la [nota tecnica M72](docs/structural/m72-first-concentrated-plastic-frame-element.md).
 
-Exit codes are `0` for success, `1` for command/input errors, `2` for analysis or analysis-target errors, and `3` for other failures. Input error messages identify missing required fields and null collection entries. Run CLI regression tests with `dotnet test tests/StructuralSolver2D.Cli.Tests` or include them through `dotnet test StructuralSolver2D.sln`.
-
-A JSON input file describes the structural model and the loads to analyze. The simplest workflow is:
-
-1. define the nodes;
-2. define materials and sections;
-3. define members between nodes;
-4. define supports;
-5. define one or more load cases;
-6. define the loads;
-7. run the CLI against the JSON file.
-
-Minimal simply supported beam example:
-
-```json
-{
-  "title": "Simply supported beam with uniform load",
-  "description": "L = 5 m, q = 10 kN/m downward.",
-  "loadCaseId": "LC1",
-  "nodes": [
-    { "id": "A", "x": 0.0, "y": 0.0 },
-    { "id": "B", "x": 5.0, "y": 0.0 }
-  ],
-  "materials": [
-    {
-      "id": "MAT",
-      "name": "Generic elastic material",
-      "elasticModulus": 210000000.0
-    }
-  ],
-  "sections": [
-    {
-      "id": "SEC",
-      "name": "Generic section",
-      "area": 0.003,
-      "momentOfInertia": 0.00002
-    }
-  ],
-  "members": [
-    {
-      "id": "M1",
-      "startNodeId": "A",
-      "endNodeId": "B",
-      "materialId": "MAT",
-      "sectionId": "SEC",
-      "type": "Frame2D"
-    }
-  ],
-  "supports": [
-    {
-      "id": "SA",
-      "nodeId": "A",
-      "restrainedUx": true,
-      "restrainedUy": true,
-      "restrainedRz": false,
-      "type": "Hinge"
-    },
-    {
-      "id": "SB",
-      "nodeId": "B",
-      "restrainedUx": false,
-      "restrainedUy": true,
-      "restrainedRz": false,
-      "type": "SimpleSupport"
-    }
-  ],
-  "loadCases": [
-    { "id": "LC1", "name": "Default load case" }
-  ],
-  "loads": [
-    {
-      "id": "Q1",
-      "loadCaseId": "LC1",
-      "type": "UniformDistributedLoad",
-      "targetType": "Member",
-      "targetId": "M1",
-      "direction": "GlobalY",
-      "value": -10.0
-    }
-  ]
-}
-```
-
-Save it as, for example:
-
-```text
-my-beam.json
-```
-
-Then run:
-
-```powershell
-dotnet run --project src\StructuralSolver2D.Cli -- analyze my-beam.json
-```
-
-To generate a report:
-
-```powershell
-dotnet run --project src\StructuralSolver2D.Cli -- report my-beam.json reports\my-beam.md
-```
-
-For the complete JSON guide, see:
-
-```text
-docs/structural/json-input.md
-```
-
----
-
-## Load combinations
-
-Load combinations are manual. The solver does not generate Eurocode, NTC or other code combinations automatically.
-
-Example idea:
-
-```text
-ULS1 = 1.35 G1 + 1.50 Q1
-```
-
-Run an existing example:
-
-```powershell
-dotnet run --project src\StructuralSolver2D.Cli -- analyze examples\combinations\load-combination.json ULS1
-```
-
-The same identifier can be used for reports and exports:
-
-```powershell
-dotnet run --project src\StructuralSolver2D.Cli -- report examples\combinations\load-combination.json reports\load-combination.md ULS1
-```
-
-Graphical exports and the interactive viewer also respect manual combinations. When you export a combination, the load layer shows only the load cases included in that combination, with arrows and labels based on the factored values.
-
----
-
-## Examples
-
-User-facing examples are organized by category:
-
-```text
-examples/
-  beams/
-  trusses/
-  mixed/
-  combinations/
-  loads/
-  sections/
-  validation/
-```
-
-Useful starting points:
-
-| File | Purpose |
-|---|---|
-| `examples/beams/simple-supported-beam.json` | Basic beam with uniform load |
-| `examples/beams/cantilever-point-load.json` | Cantilever with point load |
-| `examples/beams/triangular-distributed-load.json` | Variable distributed load |
-| `examples/beams/released-beam.json` | Beam with moment releases |
-| `examples/trusses/simple-truss.json` | Basic axial truss |
-| `examples/mixed/mixed-frame-truss.json` | Mixed frame and truss model |
-| `examples/mixed/truss-bridge-20m-deck-loads.json` | 20 m truss bridge with deck loads |
-| `examples/mixed/two-storey-house-balconies.json` | Two-storey frame with balconies |
-| `examples/combinations/load-combination.json` | Manual load combinations |
-| `examples/loads/inclined-nodal-force.json` | Inclined force represented by global components |
-| `examples/validation/small-bridge-truss.json` | More realistic validation model |
-
-See also:
-
-```text
-examples/README.md
-```
-
----
-
-## Reports and graphical output
-
-The reporting project can export:
-
-- Markdown reports for readable technical summaries;
-- CSV tables for spreadsheet checks;
-- XLSX workbooks;
-- PDF reports;
-- SVG previews;
-- HTML previews;
-- interactive HTML viewers.
-
-The graphical exports are intended for review, documentation and future viewer integration. They do not replace independent engineering validation.
-
----
-
-## Reactions and inclined supports
-
-Support reactions are reported as global components:
-
-```text
-Fx  global horizontal reaction [kN]
-Fy  global vertical reaction [kN]
-Mz  global moment reaction [kNm]
-```
-
-For inclined supports, the restraint is applied in the rotated local support system, but the reported reaction is still expressed in global coordinates. Therefore, an inclined roller can correctly produce both `Fx` and `Fy`.
-
----
-
-## Solver limitations
-
-The current numerical backend uses a dense linear system solver. This is adequate for small and medium educational, prototyping and validation models, but it is not a production-scale sparse finite-element solver.
-
-For large structural models, a sparse solver will be needed in the future.
-
----
-
-## Repository structure
-
-```text
-StructuralSolver2D/
-  src/
-    StructuralSolver2D.Core/       model, units, validation, catalogs
-    StructuralSolver2D.Analysis/   solvers, post-processing, public API
-    StructuralSolver2D.Cli/        command-line interface
-    StructuralSolver2D.Reporting/  reports and graphical exports
-
-  tests/                           automated tests
-  examples/                        user-facing JSON examples
-  benchmarks/                      regression and validation cases
-  docs/                            technical and theoretical documentation
-  reports/                         generated report/output samples
-```
-
----
-
-## Documentation
-
-Main documents:
-
-| Document | Purpose |
-|---|---|
-| `docs/structural/json-input.md` | Full JSON input guide |
-| `docs/structural/model.md` | Structural model concepts |
-| `docs/structural/analysis.md` | Analysis behavior and assumptions |
-| `docs/structural/public-api.md` | High-level .NET API usage |
-| `docs/structural/validation-manual.md` | Numerical validation manual and benchmark workflow |
-| `docs/structural/benchmark-strategy.md` | Benchmark quality levels and validation strategy |
-| `docs/structural/reporting.md` | Report generation |
-| `docs/structural/interactive-viewer.md` | Interactive viewer export |
-| `docs/theory/matrix-method.md` | Matrix method background |
-| `docs/theory/frame2d-element.md` | Frame2D element theory |
-| `docs/theory/truss2d-element.md` | Truss2D element theory |
-
----
-
-## Using StructuralSolver2D from .NET
-
-The public entry point is `StructuralSolver2DService` in `StructuralSolver2D.Analysis.PublicApi`.
-
-Typical application-level workflow:
-
-1. create or load a `StructuralModel`;
-2. validate the model;
-3. call the service with an analysis request/options object;
-4. consume the bundled result: analysis output, diagrams, summaries and optional checks.
-
-See:
-
-```text
-docs/structural/public-api.md
-```
-
----
-
-## Development notes
-
-Before adding a new user-facing solver feature:
-
-- add validation rules first;
-- add at least one analytical or benchmark test;
-- document the expected input convention;
-- update one JSON example when useful;
-- keep `Core` independent from solvers, UI and reporting.
-
-The project favors small, testable increments and explicit engineering assumptions.
-
----
-
-## Safety note
-
-StructuralSolver2D is experimental software for structural analysis research, education and prototyping.
-
-Do not use it as the only basis for real structural design, construction decisions or safety-critical work. Results must be independently checked by a qualified professional.
-
----
-
-## License
-
-StructuralSolver2D is released under the GNU General Public License v3.0.
-
-See:
-
-```text
-LICENSE
-```
-
----
-
-## Credits
-
-Created with love by Emilie Rollandin.
+Gli script di test ora inviano l'output di `dotnet` attraverso una console testuale progressiva e conservano un log temporaneo, evitando le barre che riscrivono le righe. Restano da verificare sul Windows dell'utente: [dettagli sulla console](docs/structural/m71-console-streaming.md). Per la verifica più recente: `.\scripts\run-m72-tests.ps1` (comprende i test M71). Come sempre, **la prima operazione elimina `bin` e `obj`** dei progetti.

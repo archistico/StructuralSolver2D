@@ -1,0 +1,31 @@
+{
+  "title": "M52 - Static cantilever carrying optional dynamics metadata",
+  "description": "Static commands still work. No modal calculation is implemented at M52.",
+  "loadCaseId": "LC1",
+  "nodes": [
+    { "id": "A", "x": 0, "y": 0 },
+    { "id": "B", "x": 4, "y": 0 }
+  ],
+  "materials": [
+    { "id": "CONCRETE", "name": "Example concrete", "elasticModulus": 30000000, "unitWeight": 25 }
+  ],
+  "sections": [
+    { "id": "SEC", "name": "Example section", "area": 0.12, "momentOfInertia": 0.0012 }
+  ],
+  "members": [
+    { "id": "M1", "startNodeId": "A", "endNodeId": "B", "materialId": "CONCRETE", "sectionId": "SEC", "type": "Frame2D" }
+  ],
+  "supports": [
+    { "id": "S1", "nodeId": "A", "restrainedUx": true, "restrainedUy": true, "restrainedRz": true }
+  ],
+  "loadCases": [ { "id": "LC1", "name": "Static test" } ],
+  "loads": [
+    { "id": "P", "loadCaseId": "LC1", "type": "NodalForce", "targetType": "Node", "targetId": "B", "direction": "GlobalY", "value": -10 }
+  ],
+  "dynamics": {
+    "schemaVersion": 1,
+    "nodalMasses": [
+      { "id": "EQUIPMENT", "nodeId": "B", "translationalMass": 0.5, "rotationalInertia": 0.02 }
+    ]
+  }
+}

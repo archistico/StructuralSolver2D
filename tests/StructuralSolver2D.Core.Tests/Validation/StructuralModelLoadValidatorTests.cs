@@ -23,7 +23,7 @@ public sealed class StructuralModelLoadValidatorTests
     }
 
     [Fact]
-    public void Validate_ShouldRejectSelfWeightLoadsBecauseAnalysisEngineDoesNotSupportThemYet()
+    public void Validate_ShouldRejectSelfWeightWhenMemberMaterialLacksUnitWeight()
     {
         StructuralLoad load = new(
             "SW1",
@@ -32,7 +32,7 @@ public sealed class StructuralModelLoadValidatorTests
             StructuralLoadTargetType.Model,
             string.Empty,
             StructuralLoadDirection.GlobalY,
-            -1.0);
+            1.0);
 
         StructuralModel model = CreateValidSimpleSupportedBeamModel()
             .AddLoadCase(new StructuralLoadCase("LC1", "Permanent loads"))
@@ -41,7 +41,7 @@ public sealed class StructuralModelLoadValidatorTests
         StructuralModelValidationResult result = new StructuralModelValidator().Validate(model);
 
         Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, issue => issue.Code == "LOAD_SELF_WEIGHT_NOT_SUPPORTED");
+        Assert.Contains(result.Errors, issue => issue.Code == "LOAD_SELF_WEIGHT_MISSING_UNIT_WEIGHT");
     }
 
     [Fact]

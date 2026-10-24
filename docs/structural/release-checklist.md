@@ -100,3 +100,11 @@ This snapshot consolidates the first public API facade, benchmark-backed analysi
 
 This is not a certified structural design tool. Results must be independently verified before any real engineering use.
 ```
+
+
+## Preflight test automatici (M61)
+
+- Ogni nuovo `scripts/run-m*-tests.ps1` deve iniziare con `$ErrorActionPreference = 'Stop'` e, come prima operazione, eseguire `& (Join-Path $PSScriptRoot 'clean-project-build.ps1')`.
+- Dopo la pulizia, eseguire build Release e test (senza affidarsi a `--no-build` prima della build).
+- Non estendere la pulizia oltre `bin`/`obj` immediati dei progetti MSBuild senza una nuova approvazione.
+- Usare `scripts/run-m61-tests.ps1` per la verifica del preflight (inclusi `-WhatIf`, idempotenza e preservazione delle cartelle non progetto).

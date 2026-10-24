@@ -1,0 +1,28 @@
+{
+  "title": "M68 - Reticolare elasto-plastica: storia temporale",
+  "nonlinearTruss2D": {
+    "mode": "time",
+    "model": {
+      "nodes": [
+        {"id":"A","x":0,"y":0},
+        {"id":"B","x":1,"y":0}
+      ],
+      "members": [
+        {"id":"AB","startNodeId":"A","endNodeId":"B","area":1,
+         "elasticModulus":1000,"yieldStress":5,"hardeningModulus":100,
+         "massPerLength":1}
+      ],
+      "supports": [
+        {"nodeId":"A","normalX":1,"normalY":0},
+        {"nodeId":"A","normalX":0,"normalY":1},
+        {"nodeId":"B","normalX":0,"normalY":1}
+      ],
+      "loads": [{"nodeId":"B","fx":2,"fy":0}]
+    },
+    "loadFactors": [0,1,2,1,0,-1,0,0],
+    "timeStep": 0.01,
+    "massDamping": 0.01,
+    "initialStiffnessDamping": 0,
+    "maxIterations": 30
+  }
+}

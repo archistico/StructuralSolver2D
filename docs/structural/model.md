@@ -337,3 +337,14 @@ The analysis layer interprets this angle as the local support-axis rotation for 
 For example, a simple support with `RestrainedUy = true` and `OrientationDegrees = 30` restrains the local support direction rotated by 30 degrees. The SVG/HTML exporters use the same angle to rotate the classical support symbol.
 
 Named helpers for explicit biella/pendolo and pattino/manicotto support types can be added later on top of this oriented-constraint mechanism.
+
+
+## Optional dynamics metadata (M52)
+
+Dynamic metadata lives in a **separate** `StructuralDynamicsDefinition` type,
+not in `StructuralModel`; current static calculations do not consume it.
+A versioned CLI JSON file may include a `dynamics` section carrying optional
+`nodalMasses`. The distributed member masses are derived from existing material
+`UnitWeight` and section `Area` only when a future modal request is validated.
+See `docs/structural/units.md` for the exact dimensions and the additive policy.
+There is no modal solver in M52.

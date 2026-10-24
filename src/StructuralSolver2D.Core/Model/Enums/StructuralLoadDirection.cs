@@ -16,12 +16,12 @@ public enum StructuralLoadDirection
     GlobalY = 1,
 
     /// <summary>
-    /// Local member X direction.
+    /// Local X direction of a member load or of the targeted support for a settlement.
     /// </summary>
     LocalX = 2,
 
     /// <summary>
-    /// Local member Y direction.
+    /// Local Y direction of a member load or of the targeted support for a settlement.
     /// </summary>
     LocalY = 3,
 

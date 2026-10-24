@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using StructuralSolver2D.Core.Model;
+using StructuralSolver2D.Core.Dynamics;
 using StructuralSolver2D.Core.Model.Enums;
 
 namespace StructuralSolver2D.Cli.Input;
@@ -18,7 +19,7 @@ public static class StructuralModelJsonReader
     /// </summary>
     /// <param name="filePath">Path to the JSON file.</param>
     /// <returns>The loaded model and its CLI metadata.</returns>
-    public static StructuralModelJsonFile Read(string filePath)
+    public static StructuralModelJsonFile Read(string filePath, bool allowModalWithoutLoadCase = false)
     {
         if (string.IsNullOrWhiteSpace(filePath))
         {
@@ -93,7 +94,8 @@ public static class StructuralModelJsonReader
                 support.RestrainedRz,
                 support.Type ?? SupportType.Custom,
                 support.Label,
-                support.OrientationDegrees));
+                support.OrientationDegrees,
+                support.StiffnessUx, support.StiffnessUy, support.StiffnessRz));
         }
 
         foreach (JsonLoadCase loadCase in Items(file.LoadCases, "loadCases"))
@@ -137,7 +139,7 @@ public static class StructuralModelJsonReader
             ? file.LoadCombinationId!
             : !string.IsNullOrWhiteSpace(file.LoadCaseId)
                 ? file.LoadCaseId!
-                : model.LoadCases.FirstOrDefault()?.Id ?? throw new InvalidOperationException("The JSON model must define at least one load case.");
+                : model.LoadCases.FirstOrDefault()?.Id ?? (allowModalWithoutLoadCase ? "" : throw new InvalidOperationException("The JSON model must define at least one load case."));
 
         return new StructuralModelJsonFile(
             file.Title ?? Path.GetFileNameWithoutExtension(filePath),
@@ -145,8 +147,31 @@ public static class StructuralModelJsonReader
             loadCaseId,
             model)
         {
-            DefaultTargetIsCombination = !string.IsNullOrWhiteSpace(file.LoadCombinationId)
+            DefaultTargetIsCombination = !string.IsNullOrWhiteSpace(file.LoadCombinationId),
+            Dynamics = file.Dynamics is null ? null : new StructuralDynamicsDefinition(
+                file.Dynamics.SchemaVersion ?? 1,
+                Items(file.Dynamics.NodalMasses, "dynamics.nodalMasses")
+                    .Select(mass => new StructuralNodalMass(
+                        Required(mass.Id, "dynamics.nodalMasses[].id"),
+                        Required(mass.NodeId, "dynamics.nodalMasses[].nodeId"),
+                        Required(mass.TranslationalMass, "dynamics.nodalMasses[].translationalMass"),
+                        mass.RotationalInertia))
+                    .ToArray())
         };
+    }
+
+    /// <summary>
+    /// Opt-in strict preflight: parses the historical JSON shape, then checks the
+    /// model, selected case/combination, and (when present) dynamic metadata.
+    /// Existing Read behavior remains unchanged for legacy callers.
+    /// </summary>
+    public static StructuralModelJsonFile ReadValidated(string filePath, bool allowModalWithoutLoadCase = false)
+    {
+        StructuralModelJsonFile file = Read(filePath, allowModalWithoutLoadCase);
+        var validation = new StructuralModelJsonContractValidator().Validate(file, allowModalWithoutLoadCase);
+        if (!validation.IsValid)
+            throw new StructuralModelJsonValidationException(validation);
+        return file;
     }
 
     private static JsonSerializerOptions CreateSerializerOptions()
@@ -212,6 +237,29 @@ public static class StructuralModelJsonReader
         public List<JsonLoad?>? Loads { get; set; }
 
         public List<JsonLoadCombination?>? LoadCombinations { get; set; }
+
+        public JsonDynamics? Dynamics { get; set; }
+    }
+
+    // Strict schema within the opt-in dynamic block: unsupported fields must not be silently ignored.
+    [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+    private sealed class JsonDynamics
+    {
+        public int? SchemaVersion { get; set; }
+
+        public List<JsonNodalMass?>? NodalMasses { get; set; }
+    }
+
+    [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+    private sealed class JsonNodalMass
+    {
+        public string? Id { get; set; }
+
+        public string? NodeId { get; set; }
+
+        public double? TranslationalMass { get; set; }
+
+        public double? RotationalInertia { get; set; }
     }
 
     private sealed class JsonNode
@@ -289,6 +337,10 @@ public static class StructuralModelJsonReader
         public string? Label { get; set; }
 
         public double OrientationDegrees { get; set; }
+
+        public double StiffnessUx { get; set; }
+        public double StiffnessUy { get; set; }
+        public double StiffnessRz { get; set; }
     }
 
     private sealed class JsonLoadCase

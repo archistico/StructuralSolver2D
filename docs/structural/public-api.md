@@ -78,3 +78,24 @@ This facade wraps the current first-order linear elastic plane-structure workflo
 It does not introduce normative design verification. Deflection checks remain preliminary sampled checks of the form `maximum deflection <= L / denominator`.
 
 Low-level classes such as `PlaneStructureAnalyzer`, `Frame2DInternalForceSampler`, `Frame2DDisplacementSampler`, `Frame2DResultSummarizer`, `MarkdownStructuralReportGenerator` and `CsvStructuralResultExporter` remain available for advanced workflows.
+
+## M57 — Opt-in modal analysis (experimental until Windows acceptance)
+
+Modal analysis is separate from the static case/combination analysis above:
+
+```csharp
+using StructuralSolver2D.Analysis.PublicApi;
+using StructuralSolver2D.Core.Dynamics;
+
+var modes = new StructuralSolver2DService().AnalyzeModes(
+    new StructuralModalAnalysisRequest(model, new StructuralDynamicsDefinition(), 3));
+foreach (var mode in modes.Modes)
+    Console.WriteLine($"Mode {mode.ModeNumber}: {mode.FrequencyHertz:G8} Hz");
+```
+
+The result contains mode number, frequency [Hz], period [s], angular frequency [rad/s],
+normalized nodal components, residual/Rayleigh quality indicators, orthogonality
+errors and warnings. Component amplitudes are not physical displacements.
+The modal service calls the separately validated M53–M56 mass/reduction/eigenvalue pipeline
+and refuses unsupported models. See `modal-analysis.md` for the CLI, viewer, status
+and scientific limitations. Existing static public signatures have not changed.

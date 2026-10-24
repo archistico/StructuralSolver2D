@@ -13,7 +13,10 @@ namespace StructuralSolver2D.Core.Model;
 /// <param name="RestrainedRz">True if in-plane rotation Rz is restrained.</param>
 /// <param name="Type">Common support type, if applicable.</param>
 /// <param name="Label">Optional user-facing label.</param>
-/// <param name="OrientationDegrees">Graphical support orientation in degrees, measured counterclockwise in model coordinates.</param>
+/// <param name="OrientationDegrees">Support-local axes orientation in degrees, counterclockwise from global X.</param>
+/// <param name="StiffnessUx">Elastic support stiffness in local X [kN/m]; zero means no spring.</param>
+/// <param name="StiffnessUy">Elastic support stiffness in local Y [kN/m]; zero means no spring.</param>
+/// <param name="StiffnessRz">Elastic rotational support stiffness [kNm/rad], for Frame2D only.</param>
 public sealed record StructuralSupport(
     string Id,
     string NodeId,
@@ -22,7 +25,10 @@ public sealed record StructuralSupport(
     bool RestrainedRz,
     SupportType Type = SupportType.Custom,
     string? Label = null,
-    double OrientationDegrees = 0.0)
+    double OrientationDegrees = 0.0,
+    double StiffnessUx = 0.0,
+    double StiffnessUy = 0.0,
+    double StiffnessRz = 0.0)
 {
     /// <summary>
     /// Creates a pinned support: Ux and Uy restrained, Rz free.

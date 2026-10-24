@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\StructuralSolver2D.Core\StructuralSolver2D.Core.csproj" />
@@ -12,8 +12,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Nonlinear/Assets/nonlinear-viewer.js" LogicalName="StructuralSolver2D.Reporting.nonlinear-viewer.js" />
+    <EmbeddedResource Include="Nonlinear/Assets/nonlinear-viewer.css" LogicalName="StructuralSolver2D.Reporting.nonlinear-viewer.css" />
     <EmbeddedResource Include="Visualization/Assets/viewer.js" LogicalName="StructuralSolver2D.Reporting.viewer.js" />
     <EmbeddedResource Include="Visualization/Assets/viewer.css" LogicalName="StructuralSolver2D.Reporting.viewer.css" />
+    <EmbeddedResource Include="Visualization/Assets/modal-viewer.js" LogicalName="StructuralSolver2D.Reporting.modal-viewer.js" />
+    <EmbeddedResource Include="Visualization/Assets/modal-viewer.css" LogicalName="StructuralSolver2D.Reporting.modal-viewer.css" />
   </ItemGroup>
 
 </Project>

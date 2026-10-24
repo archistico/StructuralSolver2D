@@ -286,10 +286,21 @@ public sealed class StructuralModelValidator
                 AddError(issues, "SUPPORT_INVALID_ORIENTATION", $"Support '{support.Id}' has invalid orientation angle.", support.Id);
             }
 
-            if (!support.RestrainedUx && !support.RestrainedUy && !support.RestrainedRz)
+            foreach (var (axis, stiffness, restrained) in new[]
             {
-                AddWarning(issues, "SUPPORT_WITHOUT_RESTRAINTS", $"Support '{support.Id}' does not restrain any degree of freedom.", support.Id);
+                ("Ux", support.StiffnessUx, support.RestrainedUx),
+                ("Uy", support.StiffnessUy, support.RestrainedUy),
+                ("Rz", support.StiffnessRz, support.RestrainedRz),
+            })
+            {
+                if (!double.IsFinite(stiffness) || stiffness < 0)
+                    AddError(issues, "SUPPORT_INVALID_SPRING", $"Support '{support.Id}' spring {axis} must be finite and nonnegative.", support.Id);
+                if (stiffness > 0 && restrained)
+                    AddError(issues, "SUPPORT_SPRING_AND_RESTRAINT", $"Support '{support.Id}' cannot restrain and spring-support the same local {axis} direction.", support.Id);
             }
+            if (!support.RestrainedUx && !support.RestrainedUy && !support.RestrainedRz &&
+                support.StiffnessUx == 0 && support.StiffnessUy == 0 && support.StiffnessRz == 0)
+                AddWarning(issues, "SUPPORT_WITHOUT_RESTRAINTS", $"Support '{support.Id}' has no restraints or springs.", support.Id);
         }
     }
 
@@ -310,6 +321,14 @@ public sealed class StructuralModelValidator
         HashSet<string> nodeIds = model.Nodes.Select(node => node.Id).ToHashSet(StringComparer.OrdinalIgnoreCase);
         HashSet<string> memberIds = model.Members.Select(member => member.Id).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
+        var selfWeightCases = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        // Tolerate malformed duplicate/empty IDs here so ValidateIdentifiers can report them
+        // as diagnostics instead of ToDictionary throwing before validation completes.
+        var supports = model.Supports
+            .Where(s => !string.IsNullOrWhiteSpace(s.Id))
+            .GroupBy(s => s.Id, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+        var settlementKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (StructuralLoad load in model.Loads)
         {
             if (!loadCaseIds.Contains(load.LoadCaseId))
@@ -381,16 +400,49 @@ public sealed class StructuralModelValidator
                     ValidateEndValue(load, issues);
                     break;
 
+                case StructuralLoadType.SupportSettlement:
+                    if (load.TargetType != StructuralLoadTargetType.Support || !supports.TryGetValue(load.TargetId, out var settlementSupport))
+                    {
+                        AddError(issues, "LOAD_SETTLEMENT_SUPPORT_NOT_FOUND", $"Settlement '{load.Id}' references a missing support.", load.Id);
+                        break;
+                    }
+                    bool validAxis = load.Direction switch
+                    {
+                        StructuralLoadDirection.LocalX => settlementSupport.RestrainedUx,
+                        StructuralLoadDirection.LocalY => settlementSupport.RestrainedUy,
+                        StructuralLoadDirection.MomentZ => settlementSupport.RestrainedRz,
+                        _ => false,
+                    };
+                    if (!validAxis)
+                        AddError(issues, "LOAD_SETTLEMENT_UNRESTRAINED", $"Settlement '{load.Id}' must target a restrained local direction of support '{settlementSupport.Id}'.", load.Id);
+                    if (!settlementKeys.Add($"{load.LoadCaseId}/{load.TargetId}/{load.Direction}"))
+                        AddError(issues, "LOAD_SETTLEMENT_DUPLICATE", $"Duplicate settlement of support '{load.TargetId}' in case '{load.LoadCaseId}' along {load.Direction}.", load.Id);
+                    ValidateNoPosition(load, issues);
+                    ValidateNoEndValue(load, issues);
+                    break;
+
                 case StructuralLoadType.SelfWeight:
-                    AddError(
-                        issues,
-                        "LOAD_SELF_WEIGHT_NOT_SUPPORTED",
-                        $"Self-weight load '{load.Id}' is not yet supported by the current analysis engine.",
-                        load.Id);
-                    ValidateNonZeroValue(load, issues);
+                    if (!double.IsFinite(load.Value) || load.Value <= 0)
+                        AddError(issues, "LOAD_SELF_WEIGHT_INVALID_SCALE", $"Self-weight '{load.Id}' requires a positive finite scale.", load.Id);
+                    if (!selfWeightCases.Add(load.LoadCaseId))
+                        AddError(issues, "LOAD_SELF_WEIGHT_DUPLICATE_CASE", $"Load case '{load.LoadCaseId}' contains multiple self-weight actions.", load.Id);
                     ValidateSelfWeightLoad(load, issues);
                     ValidateNoPosition(load, issues);
                     ValidateNoEndValue(load, issues);
+                    foreach (StructuralMember member in model.Members)
+                    {
+                        StructuralMaterial? material = model.Materials.FirstOrDefault(item =>
+                            string.Equals(item.Id, member.MaterialId, StringComparison.OrdinalIgnoreCase));
+                        if (material is not null && (!material.UnitWeight.HasValue ||
+                            !double.IsFinite(material.UnitWeight.Value) || material.UnitWeight <= 0))
+                            AddError(issues, "LOAD_SELF_WEIGHT_MISSING_UNIT_WEIGHT",
+                                $"Member '{member.Id}' requires a positive UnitWeight [kN/m³] in material '{material.Id}'.", member.Id);
+                        StructuralSection? section = model.Sections.FirstOrDefault(item =>
+                            string.Equals(item.Id, member.SectionId, StringComparison.OrdinalIgnoreCase));
+                        if (material?.UnitWeight is double gamma && section is not null &&
+                            !double.IsFinite(gamma * section.Area * load.Value))
+                            AddError(issues, "LOAD_SELF_WEIGHT_OVERFLOW", $"Self-weight on member '{member.Id}' is not finite.", member.Id);
+                    }
                     break;
             }
         }
@@ -532,7 +584,7 @@ public sealed class StructuralModelValidator
             AddError(issues, "LOAD_TARGET_ID_NOT_ALLOWED", $"Self-weight load '{load.Id}' must not reference a specific target id.", load.Id);
         }
 
-        ValidateDirection(load, issues, StructuralLoadDirection.GlobalY, StructuralLoadDirection.LocalY);
+        ValidateDirection(load, issues, StructuralLoadDirection.GlobalY);
     }
 
     private static void ValidateForceDirection(StructuralLoad load, List<StructuralModelValidationIssue> issues) =>

@@ -1,0 +1,21 @@
+{
+  "title": "M77: axial bar, elastic support, prescribed settlement",
+  "description": "Elastic support 2000 kN/m and prescribed horizontal displacement at node A.",
+  "loadCaseId": "S",
+  "nodes": [
+    { "id": "A", "x": 0.0, "y": 0.0 },
+    { "id": "B", "x": 2.0, "y": 0.0 }
+  ],
+  "materials": [ { "id": "MAT", "name": "test material", "elasticModulus": 200000.0 } ],
+  "sections": [ { "id": "SEC", "name": "area", "area": 0.01, "momentOfInertia": 0.000001 } ],
+  "members": [ { "id": "BAR", "startNodeId": "A", "endNodeId": "B", "materialId": "MAT", "sectionId": "SEC", "type": "Truss2D" } ],
+  "supports": [
+    { "id": "SA", "nodeId": "A", "restrainedUx": true, "restrainedUy": true, "restrainedRz": false },
+    { "id": "SB_Y", "nodeId": "B", "restrainedUx": false, "restrainedUy": true, "restrainedRz": false },
+    { "id": "SB_SPRING", "nodeId": "B", "restrainedUx": false, "restrainedUy": false, "restrainedRz": false, "stiffnessUx": 2000.0 }
+  ],
+  "loadCases": [ { "id": "S", "name": "settlement" } ],
+  "loads": [
+    { "id": "SET_A", "loadCaseId": "S", "type": "SupportSettlement", "targetType": "Support", "targetId": "SA", "direction": "LocalX", "value": 0.012 }
+  ]
+}

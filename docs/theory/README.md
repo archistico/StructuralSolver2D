@@ -23,3 +23,7 @@ These notes intentionally describe the current solver scope:
 - `Frame2D`, `Truss2D` and mixed plane models;
 - static loads;
 - no nonlinear, modal, seismic or design-code checks.
+
+- [M51 — Static energy and FEM invariants](static-energy-verification.md): checks, limitations and non-public regression suite.
+- [M52 — Dynamic mass units and future element-mass requirements](dynamic-2d-elements.md):
+  dimensional conversions, additive nodal inertia, restrictions and M53 preparation.

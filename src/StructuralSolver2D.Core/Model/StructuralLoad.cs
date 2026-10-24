@@ -7,7 +7,8 @@ namespace StructuralSolver2D.Core.Model;
 /// Internal units depend on <see cref="Type"/>:
 /// nodal force and point member load use kilonewton [kN],
 /// nodal moment uses kilonewton meter [kNm],
-/// uniform and linearly varying distributed loads use kilonewton per meter [kN/m].
+/// uniform and linearly varying distributed loads use kilonewton per meter [kN/m];
+/// support settlements are in meters [m] or radians [rad].
 /// </summary>
 /// <param name="Id">Unique load identifier.</param>
 /// <param name="LoadCaseId">Identifier of the load case that owns this load.</param>
@@ -65,6 +66,23 @@ public sealed record StructuralLoad(
         double value,
         string? label = null) =>
         new(id, loadCaseId, StructuralLoadType.UniformDistributedLoad, StructuralLoadTargetType.Member, memberId, direction, value, null, label);
+
+    /// <summary>
+    /// Creates an explicitly requested model self-weight action for linear static analysis.
+    /// A positive dimensionless scale (normally 1.0) generates DOWNWARD global-Y loading,
+    /// using material UnitWeight [kN/m³] and section area [m²].
+    /// Negative load-combination factors may reverse the action; scale itself must be positive.
+    /// </summary>
+    public static StructuralLoad SelfWeightLoad(
+        string id, string loadCaseId, double scale = 1.0, string? label = null) =>
+        new(id, loadCaseId, StructuralLoadType.SelfWeight, StructuralLoadTargetType.Model,
+            string.Empty, StructuralLoadDirection.GlobalY, scale, null, label);
+
+    /// <summary>Prescribes a support settlement in support-local axes, factored per load case.</summary>
+    public static StructuralLoad SupportSettlementLoad(
+        string id, string loadCaseId, string supportId, StructuralLoadDirection direction, double value, string? label = null) =>
+        new(id, loadCaseId, StructuralLoadType.SupportSettlement, StructuralLoadTargetType.Support,
+            supportId, direction, value, null, label);
 
     /// <summary>
     /// Creates a concentrated member load at a normalized position from 0.0 to 1.0.

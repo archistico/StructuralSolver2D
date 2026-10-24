@@ -1,0 +1,99 @@
+{
+  "Runtime": ".NET 8.0.29",
+  "OperatingSystem": "Microsoft Windows 10.0.19045",
+  "Architecture": "X64",
+  "ProcessorCount": 32,
+  "Quick": false,
+  "Repetitions": 3,
+  "CapturedUtc": "2026-10-24T11:54:04.9338958+00:00",
+  "Cases": [
+    {
+      "Scenario": "Frame2D-first-order",
+      "MemberCount": 8,
+      "PhysicalDofs": 27,
+      "FreeDofs": 24,
+      "MaxNumericalError": 3.623767952376511E-13,
+      "TipUx": 0.010158730158727793,
+      "CriticalMultiplier": null,
+      "MedianMilliseconds": 0.2132,
+      "MedianAllocatedBytes": 90056
+    },
+    {
+      "Scenario": "Frame2D-first-order",
+      "MemberCount": 16,
+      "PhysicalDofs": 51,
+      "FreeDofs": 48,
+      "MaxNumericalError": 9.947598300641403E-13,
+      "TipUx": 0.010158730158750259,
+      "CriticalMultiplier": null,
+      "MedianMilliseconds": 2.9676,
+      "MedianAllocatedBytes": 191280
+    },
+    {
+      "Scenario": "Frame2D-first-order",
+      "MemberCount": 32,
+      "PhysicalDofs": 99,
+      "FreeDofs": 96,
+      "MaxNumericalError": 2.361844053666573E-11,
+      "TipUx": 0.010158730158543726,
+      "CriticalMultiplier": null,
+      "MedianMilliseconds": 0.6812,
+      "MedianAllocatedBytes": 510488
+    },
+    {
+      "Scenario": "Frame2D-first-order",
+      "MemberCount": 64,
+      "PhysicalDofs": 195,
+      "FreeDofs": 192,
+      "MaxNumericalError": 1.9622348190750927E-10,
+      "TipUx": 0.01015873015641149,
+      "CriticalMultiplier": null,
+      "MedianMilliseconds": 1.6439,
+      "MedianAllocatedBytes": 1592256
+    },
+    {
+      "Scenario": "Frame2D-M82-linearized",
+      "MemberCount": 2,
+      "PhysicalDofs": 9,
+      "FreeDofs": 6,
+      "MaxNumericalError": 1.7763568394002505E-15,
+      "TipUx": 0.011988827098647238,
+      "CriticalMultiplier": 6.480244985535856,
+      "MedianMilliseconds": 0.2414,
+      "MedianAllocatedBytes": 81112
+    },
+    {
+      "Scenario": "Frame2D-M82-linearized",
+      "MemberCount": 4,
+      "PhysicalDofs": 15,
+      "FreeDofs": 12,
+      "MaxNumericalError": 3.552713678800501E-15,
+      "TipUx": 0.011988985049518763,
+      "CriticalMultiplier": 6.477140111705042,
+      "MedianMilliseconds": 0.4325,
+      "MedianAllocatedBytes": 175072
+    },
+    {
+      "Scenario": "Frame2D-M82-linearized",
+      "MemberCount": 8,
+      "PhysicalDofs": 27,
+      "FreeDofs": 24,
+      "MaxNumericalError": 3.126388037344441E-13,
+      "TipUx": 0.011988995353291215,
+      "CriticalMultiplier": 6.476941231883986,
+      "MedianMilliseconds": 0.8944,
+      "MedianAllocatedBytes": 504800
+    },
+    {
+      "Scenario": "Frame2D-M82-linearized",
+      "MemberCount": 16,
+      "PhysicalDofs": 51,
+      "FreeDofs": 48,
+      "MaxNumericalError": 7.347011887759436E-12,
+      "TipUx": 0.011988996004045854,
+      "CriticalMultiplier": 6.476928723110177,
+      "MedianMilliseconds": 4.2924,
+      "MedianAllocatedBytes": 1724168
+    }
+  ]
+}

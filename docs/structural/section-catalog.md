@@ -112,3 +112,13 @@ This milestone intentionally does not yet add:
 - automatic section selection.
 
 Those features can be layered on top of the persisted catalog format.
+
+## Estensione opzionale M80: geometria parametrica e proprietà di verifica
+
+M80 aggiunge `SectionGeometryFactoryM80`, `SectionGeometricPropertiesM80` e
+`SectionProfileCatalogM80`. Sono **aggiuntivi**: il JSON storico con `sections`
+e `schemaVersion: 1` rimane invariato. Il nuovo formato con `profiles` e dimensioni
+in millimetri è descritto in [M80 — proprietà geometriche](m80-section-geometric-properties.md).
+Le figure RHS e I sono idealizzate, senza raccordi; nessun valore commerciale o
+normativo è attribuito a queste forme. Esempio:
+`examples/sections/m80-parametric-example.json`.

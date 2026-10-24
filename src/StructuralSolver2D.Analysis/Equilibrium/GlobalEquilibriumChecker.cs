@@ -1,3 +1,4 @@
+using StructuralSolver2D.Core.Model.Loads;
 using StructuralSolver2D.Analysis;
 using StructuralSolver2D.Analysis.Results;
 using StructuralSolver2D.Core.Model;
@@ -29,6 +30,7 @@ public sealed class GlobalEquilibriumChecker
         ArgumentNullException.ThrowIfNull(model);
         ArgumentNullException.ThrowIfNull(result);
 
+        model = SelfWeightStaticLoadExpander.Expand(model);
         IReadOnlyDictionary<string, double> loadCaseFactors = BuildLoadCaseFactors(model, result.LoadCaseId);
         Dictionary<string, StructuralNode> nodes = model.Nodes.ToDictionary(node => node.Id, StringComparer.OrdinalIgnoreCase);
         Dictionary<string, StructuralMember> members = model.Members.ToDictionary(member => member.Id, StringComparer.OrdinalIgnoreCase);
@@ -126,6 +128,11 @@ public sealed class GlobalEquilibriumChecker
 
             case StructuralLoadType.LinearDistributedLoad:
                 AddLinearDistributedLoad(nodes, members, load, factor, referenceX, referenceY, accumulator);
+                break;
+
+            case StructuralLoadType.SupportSettlement:
+                // A settlement is a prescribed displacement, not an externally applied force.
+                // Its effects appear in the recovered support reactions.
                 break;
 
             case StructuralLoadType.SelfWeight:

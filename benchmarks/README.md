@@ -210,3 +210,10 @@ Benchmarks are not the same as examples.
 A benchmark should include expected values and should be suitable for automated testing.
 
 An example should be readable and easy to modify, even if it does not include formal expected-result metadata.
+
+## M56 dynamic modal references
+
+See [`modal/README.md`](modal/README.md) for analytically derived frequencies,
+consistent-mass mesh convergence, nodal shape MAC, 14 geometry cases and a shear
+matrix reference. These fixtures are **internal benchmark sources**, not a public
+modal JSON or CLI execution feature (planned for M57).

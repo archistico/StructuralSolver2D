@@ -38,7 +38,10 @@ public enum StructuralLoadType
 
     /// <summary>
     /// Self-weight load derived from member section area and material unit weight.
-    /// This is planned for a later analysis milestone.
+    /// Explicitly supported by first-order linear static solvers since M76.
     /// </summary>
-    SelfWeight = 5
+    SelfWeight = 5,
+
+    /// <summary>Prescribed support displacement (local x/y [m] or Rz [rad]); first-order static only.</summary>
+    SupportSettlement = 6
 }

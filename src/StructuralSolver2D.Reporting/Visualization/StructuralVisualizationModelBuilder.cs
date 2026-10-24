@@ -1,3 +1,4 @@
+using StructuralSolver2D.Core.Model.Loads;
 using StructuralSolver2D.Analysis.PublicApi;
 using StructuralSolver2D.Analysis.Results;
 using StructuralSolver2D.Core.Model;
@@ -47,6 +48,7 @@ public sealed class StructuralVisualizationModelBuilder
         options ??= new VisualizationOptions();
         ValidateOptions(options);
 
+        model = SelfWeightStaticLoadExpander.Expand(model);
         Dictionary<string, StructuralNode> nodesById = model.Nodes.ToDictionary(node => node.Id, StringComparer.OrdinalIgnoreCase);
         Dictionary<string, NodalDisplacementResult> displacementsByNodeId = result.Displacements.ToDictionary(item => item.NodeId, StringComparer.OrdinalIgnoreCase);
 

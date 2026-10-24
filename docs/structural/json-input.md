@@ -1,3 +1,5 @@
+> **M75 (23/10/2026):** il contratto standard è ora serializzabile con `StructuralModelJsonWriter.Serialize/Write` e pre-validabile con `StructuralModelJsonReader.ReadValidated` oppure `StructuralModelJsonContractValidator`. Il reader storico `Read` resta compatibile. Vedere [nota M75](m75-json-model-contract.md) per copertura del round-trip, unità e limiti (i blocchi radice di analisi specialistiche non vengono preservati).
+
 # JSON input format
 
 StructuralSolver2D can read structural models from JSON files through the CLI. The JSON format intentionally mirrors the internal model so that examples remain readable and easy to debug.

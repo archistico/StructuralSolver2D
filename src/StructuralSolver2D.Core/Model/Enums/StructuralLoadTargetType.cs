@@ -18,5 +18,8 @@ public enum StructuralLoadTargetType
     /// <summary>
     /// Load applied to the whole model, for example self-weight.
     /// </summary>
-    Model = 2
+    Model = 2,
+
+    /// <summary>Support ID, used for case-specific prescribed settlements.</summary>
+    Support = 3
 }

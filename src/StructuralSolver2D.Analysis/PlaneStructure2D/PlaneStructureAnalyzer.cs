@@ -1,3 +1,5 @@
+using StructuralSolver2D.Core.Model.Loads;
+using StructuralSolver2D.Analysis.Verification;
 using StructuralSolver2D.Analysis.Frame2D;
 using StructuralSolver2D.Analysis.Results;
 using StructuralSolver2D.Analysis.Constraints;
@@ -71,11 +73,97 @@ public sealed class PlaneStructureAnalyzer
         return AnalyzeFactoredLoadCases(model, combinationId, factors);
     }
 
+    /// <summary>
+    /// Opt-in verification endpoint for regression tests; not part of the public analysis API.
+    /// Executes the real mixed-element assembly and solve, including equivalent member loads.
+    /// </summary>
+    internal (StructuralAnalysisResult Analysis, StaticVerificationResult Verification) AnalyzeWithStaticVerification(
+        StructuralModel model, string loadCaseId)
+    {
+        ArgumentNullException.ThrowIfNull(model);
+        if (string.IsNullOrWhiteSpace(loadCaseId))
+            throw new ArgumentException("Load case id cannot be empty.", nameof(loadCaseId));
+        if (model.Loads.Any(l => l.Type == StructuralLoadType.SupportSettlement &&
+            string.Equals(l.LoadCaseId, loadCaseId, StringComparison.OrdinalIgnoreCase)))
+            throw new StructuralAnalysisException("M77_NONHOMOGENEOUS_AUDIT: M51 homogeneous static verification cannot audit imposed settlements.");
+        ValidateModel(model);
+        if (!model.LoadCases.Any(item => string.Equals(item.Id, loadCaseId, StringComparison.OrdinalIgnoreCase)))
+            throw new StructuralAnalysisException($"Load case '{loadCaseId}' was not found in the structural model.");
+
+        StaticVerificationResult? verification = null;
+        StructuralAnalysisResult analysis = AnalyzeFactoredLoadCases(
+            model, loadCaseId,
+            new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase) { [loadCaseId] = 1.0 },
+            (k, f, u, index) => verification = StaticSystemVerifier.Verify(k, f, u,
+                SupportConstraintSystem.GetHomogeneousConstraintRows(model, index,
+                    DofsPerNode, f.Length, k, f,
+                    includeRotationalDof: true, addInactiveDofConstraints: true)));
+        return (analysis, verification!);
+    }
+
+    /// <summary>Opt-in audit of a manual load combination using the exact solved factored load vector.</summary>
+    internal (StructuralAnalysisResult Analysis, StaticVerificationResult Verification) AnalyzeCombinationWithStaticVerification(
+        StructuralModel model, string combinationId)
+    {
+        ArgumentNullException.ThrowIfNull(model);
+        if (string.IsNullOrWhiteSpace(combinationId))
+            throw new ArgumentException("Combination id cannot be empty.", nameof(combinationId));
+        ValidateModel(model);
+        StructuralLoadCombination combination = model.LoadCombinations.FirstOrDefault(
+            item => string.Equals(item.Id, combinationId, StringComparison.OrdinalIgnoreCase))
+            ?? throw new StructuralAnalysisException($"Load combination '{combinationId}' was not found in the structural model.");
+        Dictionary<string, double> factors = combination.Terms.ToDictionary(
+            item => item.LoadCaseId, item => item.Factor, StringComparer.OrdinalIgnoreCase);
+        if (model.Loads.Any(l => l.Type == StructuralLoadType.SupportSettlement && factors.ContainsKey(l.LoadCaseId)))
+            throw new StructuralAnalysisException("M77_NONHOMOGENEOUS_AUDIT: M51 homogeneous static verification cannot audit imposed settlements.");
+        StaticVerificationResult? verification = null;
+        StructuralAnalysisResult analysis = AnalyzeFactoredLoadCases(model, combinationId, factors,
+            (k, f, u, index) => verification = StaticSystemVerifier.Verify(k, f, u,
+                SupportConstraintSystem.GetHomogeneousConstraintRows(model, index,
+                    DofsPerNode, f.Length, k, f,
+                    includeRotationalDof: true, addInactiveDofConstraints: true)));
+        return (analysis, verification!);
+    }
+
+    /// <summary>
+    /// M51 opt-in pre-solve stability inspection. Uses the production element assembly and
+    /// support directions, but does not solve or change the public behavior on singular models.
+    /// The result is only a numerical diagnostic, not a safety certification.
+    /// </summary>
+    internal StiffnessInspectionResult InspectStaticStability(StructuralModel model, string loadCaseId)
+    {
+        ArgumentNullException.ThrowIfNull(model);
+        if (string.IsNullOrWhiteSpace(loadCaseId))
+            throw new ArgumentException("Load case id cannot be empty.", nameof(loadCaseId));
+        ValidateModel(model);
+        if (!model.LoadCases.Any(item => string.Equals(item.Id, loadCaseId, StringComparison.OrdinalIgnoreCase)))
+            throw new StructuralAnalysisException($"Load case '{loadCaseId}' was not found in the structural model.");
+
+        Dictionary<string, int> index = BuildNodeIndex(model);
+        int totalDofs = model.Nodes.Count * DofsPerNode;
+        var stiffness = new double[totalDofs, totalDofs];
+        var loads = new double[totalDofs];
+        AssembleGlobalStiffness(model, index, stiffness);
+        SupportConstraintSystem.AddSupportSpringsForVerification(model, index, DofsPerNode, stiffness, includeRotationalDof: true);
+        AssembleLoads(model, new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase)
+            { [loadCaseId] = 1.0 }, index, loads,
+            new Dictionary<string, double[]>(StringComparer.OrdinalIgnoreCase));
+        IReadOnlyList<double[]> rows = SupportConstraintSystem.GetHomogeneousConstraintRows(
+            model, index, DofsPerNode, totalDofs, stiffness, loads,
+            includeRotationalDof: true, addInactiveDofConstraints: true);
+        string[] labels = model.Nodes.SelectMany(node => new[]
+            { $"{node.Id}.Ux", $"{node.Id}.Uy", $"{node.Id}.Rz" }).ToArray();
+        return ConstrainedStiffnessInspector.Inspect(stiffness, rows, labels);
+    }
+
     private static StructuralAnalysisResult AnalyzeFactoredLoadCases(
         StructuralModel model,
         string resultId,
-        IReadOnlyDictionary<string, double> loadCaseFactors)
+        IReadOnlyDictionary<string, double> loadCaseFactors,
+        Action<double[,], double[], double[], IReadOnlyDictionary<string, int>>? verify = null)
     {
+        model = SelfWeightStaticLoadExpander.Expand(model);
+
         Dictionary<string, int> nodeIndexById = BuildNodeIndex(model);
         int totalDofCount = model.Nodes.Count * DofsPerNode;
         double[,] globalStiffness = new double[totalDofCount, totalDofCount];
@@ -93,14 +181,17 @@ public sealed class PlaneStructureAnalyzer
             globalStiffness,
             globalLoadVector,
             includeRotationalDof: true,
-            addInactiveDofConstraints: true);
+            addInactiveDofConstraints: true,
+            loadCaseFactors: loadCaseFactors);
+
+        verify?.Invoke(globalStiffness, globalLoadVector, globalDisplacements, nodeIndexById);
 
         double[] globalResidual = Subtract(Multiply(globalStiffness, globalDisplacements), globalLoadVector);
 
         return new StructuralAnalysisResult(
             resultId,
             BuildNodalDisplacementResults(model, nodeIndexById, globalDisplacements),
-            SupportConstraintSystem.BuildSupportReactionResults(model, nodeIndexById, DofsPerNode, globalResidual, includeRotationalDof: true),
+            SupportConstraintSystem.BuildSupportReactionResults(model, nodeIndexById, DofsPerNode, globalResidual, includeRotationalDof: true, globalDisplacements: globalDisplacements),
             BuildMemberEndForceResults(model, nodeIndexById, globalDisplacements, memberEquivalentLocalLoads));
     }
 
@@ -225,6 +316,10 @@ public sealed class PlaneStructureAnalyzer
                         AddPointLoadOnMember(load, loadFactor, members, nodes, materials, sections, nodeIndexById, globalLoadVector, memberEquivalentLocalLoads);
                     }
 
+                    break;
+
+                case StructuralLoadType.SupportSettlement:
+                    // Prescribed kinematic action: contribution is in the support constraint RHS.
                     break;
 
                 case StructuralLoadType.SelfWeight:
