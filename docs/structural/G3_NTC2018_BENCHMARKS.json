@@ -1,0 +1,120 @@
+{
+  "id": "G3-NTC2018-RECT-AXIAL-BENDING-SHEAR",
+  "authoritative_normative_source": "DM 17 gennaio 2018, §4.4.8.1.6-1.9; Circolare 7/2019 C4.4.8.1.9",
+  "warning": "LOCAL section ratios only, NOT complete member compliance or a new N-V-M interaction equation",
+  "units": {
+    "b": "mm",
+    "h": "mm",
+    "N": "kN",
+    "V": "kN",
+    "Mz": "kNm",
+    "f": "MPa"
+  },
+  "assumptions": {
+    "grade": "C24",
+    "width_mm": 100,
+    "depth_mm": 200,
+    "service_class": 1,
+    "load_duration": "medium",
+    "gamma_M": 1.5,
+    "kmod": 0.8,
+    "kcr": 0.5,
+    "km": 0.7,
+    "kh": 1.0,
+    "out_of_plane_moment": "0, independently confirmed",
+    "intact_rectangle": true
+  },
+  "cases": [
+    {
+      "effect": "TensionBending",
+      "N_kN": 20,
+      "V_kN": 0,
+      "Mz_kNm": 3,
+      "sigma_axial_MPa": 1.0,
+      "sigma_bending_MPa": 4.5,
+      "tau_shear_MPa": 0.0,
+      "inequality_a": 0.48087284482758613,
+      "inequality_b": 0.37540409482758613,
+      "shear_utilization": 0.0,
+      "governing_utilization": 0.48087284482758613
+    },
+    {
+      "effect": "CompressionBending",
+      "N_kN": -20,
+      "V_kN": 0,
+      "Mz_kNm": 3,
+      "sigma_axial_MPa": 1.0,
+      "sigma_bending_MPa": 4.5,
+      "tau_shear_MPa": 0.0,
+      "inequality_a": 0.35953443877551017,
+      "inequality_b": 0.25406568877551017,
+      "shear_utilization": 0.0,
+      "governing_utilization": 0.35953443877551017
+    },
+    {
+      "effect": "BendingAndShear",
+      "N_kN": 0,
+      "V_kN": 10,
+      "Mz_kNm": 3,
+      "sigma_axial_MPa": 0.0,
+      "sigma_bending_MPa": 4.5,
+      "tau_shear_MPa": 1.5,
+      "inequality_a": 0.35156249999999994,
+      "inequality_b": 0.24609374999999994,
+      "shear_utilization": 0.703125,
+      "governing_utilization": 0.703125
+    },
+    {
+      "effect": "TensionBending",
+      "N_kN": 20,
+      "V_kN": 10,
+      "Mz_kNm": 3,
+      "sigma_axial_MPa": 1.0,
+      "sigma_bending_MPa": 4.5,
+      "tau_shear_MPa": 1.5,
+      "inequality_a": 0.48087284482758613,
+      "inequality_b": 0.37540409482758613,
+      "shear_utilization": 0.703125,
+      "governing_utilization": 0.703125
+    },
+    {
+      "effect": "CompressionBending",
+      "N_kN": -20,
+      "V_kN": 10,
+      "Mz_kNm": 3,
+      "sigma_axial_MPa": 1.0,
+      "sigma_bending_MPa": 4.5,
+      "tau_shear_MPa": 1.5,
+      "inequality_a": 0.35953443877551017,
+      "inequality_b": 0.25406568877551017,
+      "shear_utilization": 0.703125,
+      "governing_utilization": 0.703125
+    },
+    {
+      "effect": "TensionBending",
+      "N_kN": 20,
+      "V_kN": 20,
+      "Mz_kNm": 3,
+      "sigma_axial_MPa": 1.0,
+      "sigma_bending_MPa": 4.5,
+      "tau_shear_MPa": 3.0,
+      "inequality_a": 0.48087284482758613,
+      "inequality_b": 0.37540409482758613,
+      "shear_utilization": 1.40625,
+      "governing_utilization": 1.40625
+    },
+    {
+      "effect": "BendingAndShear",
+      "N_kN": 0,
+      "V_kN": 10,
+      "Mz_kNm": 12,
+      "sigma_axial_MPa": 0.0,
+      "sigma_bending_MPa": 18.0,
+      "tau_shear_MPa": 1.5,
+      "inequality_a": 1.4062499999999998,
+      "inequality_b": 0.9843749999999998,
+      "shear_utilization": 0.703125,
+      "governing_utilization": 1.4062499999999998
+    }
+  ]
+}

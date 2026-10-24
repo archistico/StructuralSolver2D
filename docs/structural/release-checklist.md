@@ -37,7 +37,7 @@ Before tagging a release, check that these files are aligned:
 README.md
 CHANGELOG.md
 VERSION
-ai-handoff.md
+HANDOFF_NUOVA_CHAT.md
 docs/structural/roadmap.md
 docs/structural/public-api.md
 docs/structural/reporting.md

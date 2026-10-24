@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "G7.v1",
+  "status": "proposed; .NET G7 tests not yet run",
+  "unitConventions": "kN, kNm, m, mm, MPa",
+  "authority": {
+    "NTC": "NTC 2018 4.4.6 4.4.8, Circolare C4.4.8.1.9",
+    "Book": "Ballio Mazzolani Bernuzzi Landolfo, Hoepli 2020, fig 1.12 (patterns only; loads chosen independently)"
+  },
+  "benchmarks": [
+    {
+      "id": "B13",
+      "evidence": "manually solved equilibrium; G7 synthetic loads",
+      "L_AB_m": 6,
+      "L_BC_m": 2,
+      "q_AB_kNm": 0,
+      "q_BC_kNm": -5,
+      "R_A_kN": -1.6666666666666667,
+      "R_B_kN": 11.666666666666666,
+      "M_B_kNm": -10,
+      "warning": "A must resist uplift; no unilateral contact model"
+    },
+    {
+      "id": "B14",
+      "evidence": "manually solved equilibrium; G7 synthetic loads",
+      "L_AB_m": 6,
+      "L_BC_m": 2,
+      "q_AB_kNm": -5,
+      "q_BC_kNm": -5,
+      "R_A_kN": 13.333333333333334,
+      "R_B_kN": 26.666666666666668,
+      "M_B_kNm": -10
+    },
+    {
+      "id": "G7-T-NM",
+      "evidence": "closed form NTC 2018 4.4.6(a,b), same station N=+20 kN, V=+10 kN, M=3 kNm",
+      "b_mm": 100,
+      "h_mm": 200,
+      "N_kN": 20,
+      "V_kN": 10,
+      "M_kNm": 3,
+      "kmod": 0.8,
+      "gammaM": 1.5,
+      "f_t0_k_MPa": 14.5,
+      "f_m_k_MPa": 24,
+      "f_v_k_MPa": 4,
+      "kcr": 0.5,
+      "sigma_t_MPa": 1,
+      "sigma_m_MPa": 4.5,
+      "sigma_v_MPa": 1.5,
+      "ratio_NM_a": 0.48087284482758613,
+      "ratio_NM_b": 0.37540409482758613,
+      "ratio_V": 0.703125,
+      "ratio_governing": 0.703125
+    },
+    {
+      "id": "G7-T-BENDING-FAIL",
+      "evidence": "pure C24 b100 h200, M20kNm, fm,d=12.8 MPa, W=666666.6667 mm3",
+      "M_kNm": 20,
+      "sigma_m_MPa": 30,
+      "fm_d_MPa": 12.8,
+      "utilization": 2.34375
+    }
+  ]
+}

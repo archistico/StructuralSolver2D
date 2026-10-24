@@ -217,3 +217,10 @@ See [`modal/README.md`](modal/README.md) for analytically derived frequencies,
 consistent-mass mesh convergence, nodal shape MAC, 14 geometry cases and a shear
 matrix reference. These fixtures are **internal benchmark sources**, not a public
 modal JSON or CLI execution feature (planned for M57).
+
+## G7 — added closed-form overhang benchmarks
+
+| B13 | Overhang BC only, uplift at bilateral hinge A | Exact vertical reactions, sign and support moment |
+| B14 | Main span and overhang UDL | Exact vertical reactions and combination pattern |
+
+B13/B14 are **synthetic free-body equilibrium examples** inspired by Ballio–Mazzolani fig. 1.12; the book does not supply their chosen loads. They are NOT unilateral-contact or NTC-design benchmarks. See `docs/G7_MANUALE_VALIDAZIONE_INDIPENDENTE.md`.

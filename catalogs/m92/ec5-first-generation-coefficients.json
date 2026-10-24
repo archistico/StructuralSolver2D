@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "edition": "2004+A1:2008+A2:2014",
+  "basis": "EN 1995-1-1 first-generation recommended values, not a national annex",
+  "kmodSource": "EN 1995-1-1:2004/A1:2008, section 3.1.3, amended Table 3.1",
+  "gammaSource": "EN 1995-1-1:2004+A1:2008, section 2.4.1, Table 2.3, fundamental combinations",
+  "sourceUrl": "https://www.iteh.us/catalog/standards/cen/ba742a43-887a-4891-ac7c-604e2144afd4/en-1995-1-1-2004-a1-2008",
+  "kmodRows": [
+    { "kind": "SolidSoftwood", "serviceClass": 1, "permanent": 0.60, "longTerm": 0.70, "mediumTerm": 0.80, "shortTerm": 0.90, "instantaneous": 1.10 },
+    { "kind": "SolidSoftwood", "serviceClass": 2, "permanent": 0.60, "longTerm": 0.70, "mediumTerm": 0.80, "shortTerm": 0.90, "instantaneous": 1.10 },
+    { "kind": "SolidSoftwood", "serviceClass": 3, "permanent": 0.50, "longTerm": 0.55, "mediumTerm": 0.65, "shortTerm": 0.70, "instantaneous": 0.90 },
+    { "kind": "HomogeneousGlulam", "serviceClass": 1, "permanent": 0.60, "longTerm": 0.70, "mediumTerm": 0.80, "shortTerm": 0.90, "instantaneous": 1.10 },
+    { "kind": "HomogeneousGlulam", "serviceClass": 2, "permanent": 0.60, "longTerm": 0.70, "mediumTerm": 0.80, "shortTerm": 0.90, "instantaneous": 1.10 },
+    { "kind": "HomogeneousGlulam", "serviceClass": 3, "permanent": 0.50, "longTerm": 0.55, "mediumTerm": 0.65, "shortTerm": 0.70, "instantaneous": 0.90 }
+  ],
+  "recommendedGammaRows": [
+    { "kind": "SolidSoftwood", "gammaM": 1.30 },
+    { "kind": "HomogeneousGlulam", "gammaM": 1.25 }
+  ]
+}

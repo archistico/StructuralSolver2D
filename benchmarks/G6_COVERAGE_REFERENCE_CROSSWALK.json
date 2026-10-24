@@ -1,0 +1,454 @@
+{
+  "schemaVersion": "G6.v1",
+  "description": "Traceability crosswalk only. NOT executable xUnit data or engineering certification. NTC and manual distinct.",
+  "baseline": "G5 GATE PASSED (user Windows), G6 requires Windows test",
+  "book": "Ballio, Mazzolani, Bernuzzi, Landolfo, Strutture di acciaio (Hoepli, second edition 2020)",
+  "sources": [
+    "StructuralSolver2D_G5_L2_CANDIDATI_BENCHMARK_E_DATI_2026-10-24.json",
+    "StructuralSolver2D_G5_L3_BENCHMARK_E_DATI_2026-10-24.json",
+    "StructuralSolver2D_M92N6_APPLICABILITY_CASES_NTC2018_2026-10-24.json"
+  ],
+  "bookCandidates": [
+    {
+      "id": "BAL2-01",
+      "reading": "G5-L2",
+      "title": "Combinazioni con sforzi di segno opposto",
+      "bookPrintedPages": "5-6",
+      "sourceType": "effects-book-direct",
+      "priority": "P0",
+      "futureUse": "G6",
+      "status": "REFERENCE_CANDIDATE_NOT_EXECUTED",
+      "normativeScope": "Steel EC3 or general FEM; NOT validated by NTC timber G6"
+    },
+    {
+      "id": "BAL2-02",
+      "reading": "G5-L2",
+      "title": "Carichi a zone sulla trave con sbalzo",
+      "bookPrintedPages": "16-17",
+      "sourceType": "figure-incomplete",
+      "priority": "P0",
+      "futureUse": "G7-FEM",
+      "status": "REFERENCE_CANDIDATE_NOT_EXECUTED",
+      "normativeScope": "Steel EC3 or general FEM; NOT validated by NTC timber G6"
+    },
+    {
+      "id": "BAL2-03",
+      "reading": "G5-L2",
+      "title": "Combinazioni e fattori delle azioni",
+      "bookPrintedPages": "19-21",
+      "sourceType": "source-check-ntc",
+      "priority": "P0",
+      "futureUse": "G6",
+      "status": "REFERENCE_CANDIDATE_NOT_EXECUTED",
+      "normativeScope": "Steel EC3 or general FEM; NOT validated by NTC timber G6"
+    },
+    {
+      "id": "BAL2-04",
+      "reading": "G5-L2",
+      "title": "Linear elastic versus plastic collapse",
+      "bookPrintedPages": "93-96",
+      "sourceType": "applicability-only",
+      "priority": "P1",
+      "futureUse": "G6",
+      "status": "REFERENCE_CANDIDATE_NOT_EXECUTED",
+      "normativeScope": "Steel EC3 or general FEM; NOT validated by NTC timber G6"
+    },
+    {
+      "id": "BAL2-05",
+      "reading": "G5-L2",
+      "title": "Trave isostatica q uniforme",
+      "bookPrintedPages": "418",
+      "sourceType": "derived-from-equation",
+      "priority": "P0",
+      "futureUse": "G7-FEM",
+      "status": "REFERENCE_CANDIDATE_NOT_EXECUTED",
+      "normativeScope": "Steel EC3 or general FEM; NOT validated by NTC timber G6"
+    },
+    {
+      "id": "BAL2-06",
+      "reading": "G5-L2",
+      "title": "Frecce taglio EB vs Timoshenko",
+      "bookPrintedPages": "419",
+      "sourceType": "derived-from-equation",
+      "priority": "P0",
+      "futureUse": "G6-then-future-FEM",
+      "status": "REFERENCE_CANDIDATE_NOT_EXECUTED",
+      "normativeScope": "Steel EC3 or general FEM; NOT validated by NTC timber G6"
+    },
+    {
+      "id": "BAL2-07",
+      "reading": "G5-L2",
+      "title": "Scorrimento giunti reticolare",
+      "bookPrintedPages": "425",
+      "sourceType": "book-table",
+      "priority": "P0",
+      "futureUse": "G6",
+      "status": "REFERENCE_CANDIDATE_NOT_EXECUTED",
+      "normativeScope": "Steel EC3 or general FEM; NOT validated by NTC timber G6"
+    },
+    {
+      "id": "BAL2-08",
+      "reading": "G5-L2",
+      "title": "Frequenza naturale indicativa da freccia",
+      "bookPrintedPages": "428",
+      "sourceType": "approximate-formula",
+      "priority": "P2",
+      "futureUse": "G6",
+      "status": "REFERENCE_CANDIDATE_NOT_EXECUTED",
+      "normativeScope": "Steel EC3 or general FEM; NOT validated by NTC timber G6"
+    },
+    {
+      "id": "BAL2-09",
+      "reading": "G5-L2",
+      "title": "Possibile refuso book versus NTC buckling φ",
+      "bookPrintedPages": "522",
+      "sourceType": "normative-discrepancy",
+      "priority": "P0",
+      "futureUse": "G7",
+      "status": "REFERENCE_CANDIDATE_NOT_EXECUTED",
+      "normativeScope": "Steel EC3 or general FEM; NOT validated by NTC timber G6"
+    },
+    {
+      "id": "BAL2-10",
+      "reading": "G5-L2",
+      "title": "Tensione area lorda versus netta",
+      "bookPrintedPages": "429",
+      "sourceType": "derived-from-equation",
+      "priority": "P0",
+      "futureUse": "G6-then-future-rule",
+      "status": "REFERENCE_CANDIDATE_NOT_EXECUTED",
+      "normativeScope": "Steel EC3 or general FEM; NOT validated by NTC timber G6"
+    },
+    {
+      "id": "BAL2-11",
+      "reading": "G5-L2",
+      "title": "Interazione taglio flessione limite 50%",
+      "bookPrintedPages": "470-474",
+      "sourceType": "applicability-boundary",
+      "priority": "P0",
+      "futureUse": "G6",
+      "status": "REFERENCE_CANDIDATE_NOT_EXECUTED",
+      "normativeScope": "Steel EC3 or general FEM; NOT validated by NTC timber G6"
+    },
+    {
+      "id": "BAL2-12",
+      "reading": "G5-L2",
+      "title": "Fori torsione ingobbamento",
+      "bookPrintedPages": "436-476",
+      "sourceType": "applicability-only",
+      "priority": "P1",
+      "futureUse": "G6",
+      "status": "REFERENCE_CANDIDATE_NOT_EXECUTED",
+      "normativeScope": "Steel EC3 or general FEM; NOT validated by NTC timber G6"
+    },
+    {
+      "id": "BAL2-13",
+      "reading": "G5-L2",
+      "title": "Classificazione IPE HEA HEB",
+      "bookPrintedPages": "690-691",
+      "sourceType": "book-sample-classes",
+      "priority": "P0",
+      "futureUse": "G7",
+      "status": "REFERENCE_CANDIDATE_NOT_EXECUTED",
+      "normativeScope": "Steel EC3 or general FEM; NOT validated by NTC timber G6"
+    },
+    {
+      "id": "BAL2-14",
+      "reading": "G5-L2",
+      "title": "Euler due assi lunghezze diverse",
+      "bookPrintedPages": "516",
+      "sourceType": "book-geometry-derived-values",
+      "priority": "P0",
+      "futureUse": "G7",
+      "status": "REFERENCE_CANDIDATE_NOT_EXECUTED",
+      "normativeScope": "Steel EC3 or general FEM; NOT validated by NTC timber G6"
+    },
+    {
+      "id": "BAL2-15",
+      "reading": "G5-L2",
+      "title": "Forza N(x) variabile su colonna",
+      "bookPrintedPages": "517",
+      "sourceType": "book-rounded-values",
+      "priority": "P1",
+      "futureUse": "G6",
+      "status": "REFERENCE_CANDIDATE_NOT_EXECUTED",
+      "normativeScope": "Steel EC3 or general FEM; NOT validated by NTC timber G6"
+    },
+    {
+      "id": "BAL2-16",
+      "reading": "G5-L2",
+      "title": "Curve buckling χ e α",
+      "bookPrintedPages": "521-524",
+      "sourceType": "official-ntc-derived-values",
+      "priority": "P0",
+      "futureUse": "G7",
+      "status": "REFERENCE_CANDIDATE_NOT_EXECUTED",
+      "normativeScope": "Steel EC3 or general FEM; NOT validated by NTC timber G6"
+    },
+    {
+      "id": "BAL2-17",
+      "reading": "G5-L2",
+      "title": "Schemi ideali coefficienti β",
+      "bookPrintedPages": "577",
+      "sourceType": "book-approximate",
+      "priority": "P0",
+      "futureUse": "G6",
+      "status": "REFERENCE_CANDIDATE_NOT_EXECUTED",
+      "normativeScope": "Steel EC3 or general FEM; NOT validated by NTC timber G6"
+    },
+    {
+      "id": "BAL2-18",
+      "reading": "G5-L2",
+      "title": "Telaio a nodi fissi β",
+      "bookPrintedPages": "608",
+      "sourceType": "book-approximate",
+      "priority": "P1",
+      "futureUse": "post-G7",
+      "status": "REFERENCE_CANDIDATE_NOT_EXECUTED",
+      "normativeScope": "Steel EC3 or general FEM; NOT validated by NTC timber G6"
+    },
+    {
+      "id": "BAL2-19",
+      "reading": "G5-L2",
+      "title": "Telaio a nodi spostabili β",
+      "bookPrintedPages": "612-613",
+      "sourceType": "book-approximate",
+      "priority": "P1",
+      "futureUse": "post-G7",
+      "status": "REFERENCE_CANDIDATE_NOT_EXECUTED",
+      "normativeScope": "Steel EC3 or general FEM; NOT validated by NTC timber G6"
+    },
+    {
+      "id": "BAL2-20",
+      "reading": "G5-L2",
+      "title": "Quota carico e Mcr svergolamento",
+      "bookPrintedPages": "539-547",
+      "sourceType": "applicability-only",
+      "priority": "P0",
+      "futureUse": "G6",
+      "status": "REFERENCE_CANDIDATE_NOT_EXECUTED",
+      "normativeScope": "Steel EC3 or general FEM; NOT validated by NTC timber G6"
+    },
+    {
+      "id": "BAL2-21",
+      "reading": "G5-L2",
+      "title": "Momento torsionale e costante di ingobbamento IPE",
+      "bookPrintedPages": "448",
+      "sourceType": "book-sample-torsional-properties",
+      "priority": "P1",
+      "futureUse": "G7-M91C",
+      "status": "REFERENCE_CANDIDATE_NOT_EXECUTED",
+      "normativeScope": "Steel EC3 or general FEM; NOT validated by NTC timber G6"
+    },
+    {
+      "id": "BAL3-01",
+      "reading": "G5-L3",
+      "bookPrintedPages": [
+        16,
+        17
+      ],
+      "sourceType": "synthetic geometry inspired by book; derived from equilibrium",
+      "status": "REFERENCE_CANDIDATE_NOT_EXECUTED",
+      "normativeScope": "Steel EC3 or general FEM; NOT validated by NTC timber G6"
+    },
+    {
+      "id": "BAL3-02",
+      "reading": "G5-L3",
+      "bookPrintedPages": [
+        84,
+        85
+      ],
+      "sourceType": "synthetic input; direct statics M=N*e",
+      "status": "REFERENCE_CANDIDATE_NOT_EXECUTED",
+      "normativeScope": "Steel EC3 or general FEM; NOT validated by NTC timber G6"
+    },
+    {
+      "id": "BAL3-03",
+      "reading": "G5-L3",
+      "bookPrintedPages": [
+        85,
+        86,
+        101
+      ],
+      "sourceType": "synthetic oversimplified ideal bracing",
+      "status": "REFERENCE_CANDIDATE_NOT_EXECUTED",
+      "normativeScope": "Steel EC3 or general FEM; NOT validated by NTC timber G6"
+    },
+    {
+      "id": "BAL3-04",
+      "reading": "G5-L3",
+      "bookPrintedPages": [
+        415,
+        416
+      ],
+      "sourceType": "synthetic input, book guide not binding",
+      "status": "REFERENCE_CANDIDATE_NOT_EXECUTED",
+      "normativeScope": "Steel EC3 or general FEM; NOT validated by NTC timber G6"
+    },
+    {
+      "id": "BAL3-05",
+      "reading": "G5-L3",
+      "bookPrintedPages": [
+        416,
+        417
+      ],
+      "sourceType": "synthetic input, advisory drift",
+      "status": "REFERENCE_CANDIDATE_NOT_EXECUTED",
+      "normativeScope": "Steel EC3 or general FEM; NOT validated by NTC timber G6"
+    },
+    {
+      "id": "BAL3-06",
+      "reading": "G5-L3",
+      "bookPrintedPages": [
+        103
+      ],
+      "sourceType": "synthetic input; screening criteria require normative field check",
+      "status": "REFERENCE_CANDIDATE_NOT_EXECUTED",
+      "normativeScope": "Steel EC3 or general FEM; NOT validated by NTC timber G6"
+    },
+    {
+      "id": "BAL3-07",
+      "reading": "G5-L3",
+      "bookPrintedPages": [
+        430
+      ],
+      "sourceType": "synthetic plate, staggered paths; excludes connection special cases",
+      "status": "REFERENCE_CANDIDATE_NOT_EXECUTED",
+      "normativeScope": "Steel EC3 or general FEM; NOT validated by NTC timber G6"
+    },
+    {
+      "id": "BAL3-08",
+      "reading": "G5-L3",
+      "bookPrintedPages": [
+        435
+      ],
+      "sourceType": "rounded book table",
+      "status": "REFERENCE_CANDIDATE_NOT_EXECUTED",
+      "normativeScope": "Steel EC3 or general FEM; NOT validated by NTC timber G6"
+    },
+    {
+      "id": "BAL3-09",
+      "reading": "G5-L3",
+      "bookPrintedPages": [
+        545
+      ],
+      "sourceType": "US coefficient - not NTC/EC3",
+      "status": "REFERENCE_CANDIDATE_NOT_EXECUTED",
+      "normativeScope": "Steel EC3 or general FEM; NOT validated by NTC timber G6"
+    },
+    {
+      "id": "BAL3-10",
+      "reading": "G5-L3",
+      "bookPrintedPages": [
+        578,
+        579,
+        580
+      ],
+      "sourceType": "book-rounded-beta",
+      "status": "REFERENCE_CANDIDATE_NOT_EXECUTED",
+      "normativeScope": "Steel EC3 or general FEM; NOT validated by NTC timber G6"
+    },
+    {
+      "id": "BAL3-11",
+      "reading": "G5-L3",
+      "bookPrintedPages": [
+        581
+      ],
+      "sourceType": "synthetic derived within book limited scheme",
+      "status": "REFERENCE_CANDIDATE_NOT_EXECUTED",
+      "normativeScope": "Steel EC3 or general FEM; NOT validated by NTC timber G6"
+    },
+    {
+      "id": "BAL3-12",
+      "reading": "G5-L3",
+      "sourceType": "applicability-only",
+      "status": "NON_NUMERICAL_APPLICABILITY_WARNING",
+      "normativeScope": "General model limitation; no golden calculation"
+    },
+    {
+      "id": "BAL3-13",
+      "reading": "G5-L3",
+      "sourceType": "applicability-only",
+      "status": "NON_NUMERICAL_APPLICABILITY_WARNING",
+      "normativeScope": "General model limitation; no golden calculation"
+    },
+    {
+      "id": "BAL3-14",
+      "reading": "G5-L3",
+      "sourceType": "applicability-only",
+      "status": "NON_NUMERICAL_APPLICABILITY_WARNING",
+      "normativeScope": "General model limitation; no golden calculation"
+    }
+  ],
+  "ntcReferenceCases": [
+    {
+      "id": "N01",
+      "source": "M92-N5 / M92-N6",
+      "expectedAuditOutcome": null,
+      "goldenSource": "M92-N5; separate numerical evidence, NOT G6 executable test",
+      "status": "REFERENCE_SCENARIO_NOT_RERUN"
+    },
+    {
+      "id": "N02",
+      "source": "M92-N5 / M92-N6",
+      "expectedAuditOutcome": null,
+      "goldenSource": "M92-N5; separate numerical evidence, NOT G6 executable test",
+      "status": "REFERENCE_SCENARIO_NOT_RERUN"
+    },
+    {
+      "id": "N03",
+      "source": "M92-N5 / M92-N6",
+      "expectedAuditOutcome": null,
+      "goldenSource": "M92-N5; separate numerical evidence, NOT G6 executable test",
+      "status": "REFERENCE_SCENARIO_NOT_RERUN"
+    },
+    {
+      "id": "N04",
+      "source": "M92-N5 / M92-N6",
+      "expectedAuditOutcome": null,
+      "goldenSource": "M92-N5; separate numerical evidence, NOT G6 executable test",
+      "status": "REFERENCE_SCENARIO_NOT_RERUN"
+    },
+    {
+      "id": "N05",
+      "source": "M92-N5 / M92-N6",
+      "expectedAuditOutcome": null,
+      "goldenSource": "M92-N5; separate numerical evidence, NOT G6 executable test",
+      "status": "REFERENCE_SCENARIO_NOT_RERUN"
+    },
+    {
+      "id": "N06",
+      "source": "M92-N5 / M92-N6",
+      "expectedAuditOutcome": null,
+      "goldenSource": "M92-N5; separate numerical evidence, NOT G6 executable test",
+      "status": "REFERENCE_SCENARIO_NOT_RERUN"
+    },
+    {
+      "id": "N07",
+      "source": "M92-N5 / M92-N6",
+      "expectedAuditOutcome": null,
+      "goldenSource": "M92-N5; separate numerical evidence, NOT G6 executable test",
+      "status": "REFERENCE_SCENARIO_NOT_RERUN"
+    },
+    {
+      "id": "N08",
+      "source": "M92-N5 / M92-N6",
+      "expectedAuditOutcome": null,
+      "goldenSource": "M92-N5; separate numerical evidence, NOT G6 executable test",
+      "status": "REFERENCE_SCENARIO_NOT_RERUN"
+    },
+    {
+      "id": "N09",
+      "source": "M92-N5 / M92-N6",
+      "expectedAuditOutcome": null,
+      "goldenSource": "M92-N5; separate numerical evidence, NOT G6 executable test",
+      "status": "REFERENCE_SCENARIO_NOT_RERUN"
+    }
+  ],
+  "counts": {
+    "bookCandidatesL2": 21,
+    "bookCandidatesL3": 14,
+    "ntcReferenceCases": 9
+  },
+  "g6OnlyImplements": "NTC 2018 timber audit over already-produced G2–G5 DesignCheckReport outputs. EC3 M91D steel audit remains separately available. No book example is automatically executed or validated by G6."
+}

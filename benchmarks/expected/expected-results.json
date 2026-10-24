@@ -600,8 +600,59 @@
           "non-zero support reactions"
         ]
       },
-      "reference": "Independent direct-stiffness regression calculation for a one-bay fixed-base portal frame under a 24 kN top horizontal load. Global equilibrium gives \u03a3Rx=-24 kN and \u03a3Ry=0.",
+      "reference": "Independent direct-stiffness regression calculation for a one-bay fixed-base portal frame under a 24 kN top horizontal load. Global equilibrium gives ΣRx=-24 kN and ΣRy=0.",
       "purpose": "Validates frame sway, coupling between columns and beam, base shear distribution and finite displaced-shape response."
+    },
+    {
+      "id": "B13",
+      "name": "Overhang only — negative vertical reaction at A",
+      "modelPath": "benchmarks/beams/b13-overhang.json",
+      "analysisId": "LC1",
+      "tolerance": 1e-06,
+      "expected": {
+        "supportReactions": [
+          {
+            "nodeId": "A",
+            "fx": 0,
+            "fy": -1.6666666666666667,
+            "mz": 0
+          },
+          {
+            "nodeId": "B",
+            "fx": 0,
+            "fy": 11.666666666666666,
+            "mz": 0
+          }
+        ],
+        "maxAbsMoment": 10.0
+      },
+      "reference": "G7 independent statics (not fitted to solver): sum(Fy)=0; sum(M_A)=0 => R_B=(5*2*7 + (5*6*3 if loaded AB else 0))/6; R_A=5*2 + (5*6 if loaded AB else 0)-R_B; negative R_A requires physical hold-down.",
+      "purpose": "Tests sign-preserving overhang reactions and full loads; no contact/uplift solver claim."
+    },
+    {
+      "id": "B14",
+      "name": "Main span and overhang — mixed-sign bending",
+      "modelPath": "benchmarks/beams/b14-overhang.json",
+      "analysisId": "LC1",
+      "tolerance": 1e-06,
+      "expected": {
+        "supportReactions": [
+          {
+            "nodeId": "A",
+            "fx": 0,
+            "fy": 13.333333333333334,
+            "mz": 0
+          },
+          {
+            "nodeId": "B",
+            "fx": 0,
+            "fy": 26.666666666666668,
+            "mz": 0
+          }
+        ]
+      },
+      "reference": "G7 independent statics (not fitted to solver): sum(Fy)=0; sum(M_A)=0 => R_B=(5*2*7 + (5*6*3 if loaded AB else 0))/6; R_A=5*2 + (5*6 if loaded AB else 0)-R_B; negative R_A requires physical hold-down.",
+      "purpose": "Tests sign-preserving overhang reactions and full loads; no contact/uplift solver claim."
     }
   ]
 }

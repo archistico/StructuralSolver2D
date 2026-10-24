@@ -1,0 +1,99 @@
+{
+  "title": "B14 - Main span and overhang — mixed-sign bending",
+  "description": "G7 independent equilibrium: AB=6 m, BC=2 m; q=-5 kN/m on BC, optionally also AB. SUPPORT A IS A BILATERAL HINGE able to carry tension; uplift contact is NOT modeled. Linear static Euler-Bernoulli.",
+  "loadCaseId": "LC1",
+  "nodes": [
+    {
+      "id": "A",
+      "x": 0.0,
+      "y": 0.0
+    },
+    {
+      "id": "B",
+      "x": 6.0,
+      "y": 0.0
+    },
+    {
+      "id": "C",
+      "x": 8.0,
+      "y": 0.0
+    }
+  ],
+  "materials": [
+    {
+      "id": "M",
+      "name": "Elastic steel benchmark",
+      "elasticModulus": 210000000.0
+    }
+  ],
+  "sections": [
+    {
+      "id": "S",
+      "name": "Prismatic benchmark",
+      "area": 0.003,
+      "momentOfInertia": 2e-05
+    }
+  ],
+  "members": [
+    {
+      "id": "AB",
+      "startNodeId": "A",
+      "endNodeId": "B",
+      "materialId": "M",
+      "sectionId": "S",
+      "type": "Frame2D"
+    },
+    {
+      "id": "BC",
+      "startNodeId": "B",
+      "endNodeId": "C",
+      "materialId": "M",
+      "sectionId": "S",
+      "type": "Frame2D"
+    }
+  ],
+  "supports": [
+    {
+      "id": "A_HINGE",
+      "nodeId": "A",
+      "restrainedUx": true,
+      "restrainedUy": true,
+      "restrainedRz": false,
+      "type": "Hinge"
+    },
+    {
+      "id": "B_ROLLER",
+      "nodeId": "B",
+      "restrainedUx": false,
+      "restrainedUy": true,
+      "restrainedRz": false,
+      "type": "SimpleSupport"
+    }
+  ],
+  "loadCases": [
+    {
+      "id": "LC1",
+      "name": "G7 independent UDL pattern"
+    }
+  ],
+  "loads": [
+    {
+      "id": "G7_Q_AB",
+      "loadCaseId": "LC1",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "AB",
+      "direction": "GlobalY",
+      "value": -5.0
+    },
+    {
+      "id": "G7_Q_BC",
+      "loadCaseId": "LC1",
+      "type": "UniformDistributedLoad",
+      "targetType": "Member",
+      "targetId": "BC",
+      "direction": "GlobalY",
+      "value": -5.0
+    }
+  ]
+}

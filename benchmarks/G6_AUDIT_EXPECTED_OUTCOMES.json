@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "G6.v1",
+  "purpose": "Expectations for independent G6 audit test fixtures; NOT executed normative verification",
+  "baseline": "G5 GATE PASSED user-confirmed",
+  "cases": [
+    {"id": "N01", "scope": "only FEM reactions/moment", "expectedAudit": "Incomplete", "reason": "No timber resistance/stability/SLE schedule is covered"},
+    {"id": "N02", "scope": "G2 bending and shear at distinct sections", "expectedAudit": "Incomplete", "reason": "Lateral stability, bearings and full station coverage not established"},
+    {"id": "N03", "scope": "G2 net-section tension", "expectedAudit": "Incomplete", "reason": "Connections/eccentricities not established"},
+    {"id": "N04", "scope": "G2 compression + idealized G4 column", "expectedAudit": "Incomplete", "reason": "External proof of actual bracing and connections required"},
+    {"id": "N05", "scope": "G3 tension and bending", "expectedAudit": "Incomplete", "reason": "Stability and connections not automatically covered"},
+    {"id": "N06", "scope": "G3 compression and bending", "expectedAudit": "Incomplete", "reason": "Combined instability remains outside pure G4 scopes"},
+    {"id": "N07", "scope": "G5 deflection", "expectedAudit": "Incomplete", "reason": "Unsupported effects, limit adoption, vibrations or joint slip as applicable"},
+    {"id": "N08", "scope": "steel IPE200 elastic bending", "expectedAudit": "Use existing M91D steel EC3 audit; NOT G6 timber", "reason": "NTC timber G6 deliberately rejects steel or EC3 results"},
+    {"id": "N09", "scope": "failed NTC timber bending", "expectedAudit": "FailedWithinDeclaredScope", "reason": "Valid local failure dominates missing checks"}
+  ],
+  "important": "Predicted audit expectations from M92-N6 design specification. Actual G6 audits require caller-authored plans and real DesignCheckReport outputs; this file is not a .NET test fixture."
+}

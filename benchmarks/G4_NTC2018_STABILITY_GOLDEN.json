@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "document": "NTC2018 DM17/01/2018 §§4.4.8.2.1–2 (pure elementary checks, independently calculated)",
+  "cases": [
+    {
+      "id": "G4-C24-COLUMN-3000",
+      "material": "C24",
+      "widthMm": 100,
+      "depthMm": 200,
+      "Nkn": -100,
+      "Vkn": 0,
+      "MzKnm": 0,
+      "effectiveLengthsMm": {
+        "y": 3000,
+        "z": 3000
+      },
+      "E005Mpa": 7400,
+      "fckMpa": 21,
+      "kmod": 0.8,
+      "gammaM": 1.5,
+      "lambdaRelY": 0.8811012084487254,
+      "lambdaRelZ": 1.7622024168974508,
+      "kcritY": 0.77435502754381,
+      "kcritZ": 0.2845664913473406,
+      "utilization": 1.568802318624587,
+      "status": "Failed",
+      "notes": "verified ideal effective lengths assumed; geometry and supports externally specified; not whole-member approval"
+    },
+    {
+      "id": "G4-C24-BEAM-CRIT12",
+      "material": "C24",
+      "widthMm": 100,
+      "depthMm": 200,
+      "Nkn": 0,
+      "Vkn": 0,
+      "MzKnm": 3,
+      "sigmaMcritMpa": 12,
+      "kcritM": 0.5,
+      "utilization": 0.7031249999999999,
+      "status": "Passed",
+      "notes": "externally verified sigma_mcrit is an input, not FEM-derived or independently certified by G4"
+    }
+  ]
+}

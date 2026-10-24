@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Description>Independent EC5 and NTC 2018 timber checks with explicit coefficient provenance; no full member compliance.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\StructuralSolver2D.Verification\StructuralSolver2D.Verification.csproj" />
+    <ProjectReference Include="..\StructuralSolver2D.Catalogs\StructuralSolver2D.Catalogs.csproj" />
+  </ItemGroup>
+</Project>

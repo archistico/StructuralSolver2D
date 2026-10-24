@@ -8,7 +8,7 @@ Baseline: M55 full ZIP (user confirmed M55 .NET tests passed; no TRX logs attach
 - **Production static solver / public API / CLI / viewer / M55 numerical algorithm:** no changes.
 - **New regression suite:** `tests/StructuralSolver2D.Analysis.Tests/Dynamics/ModalBenchmarkM56Tests.cs` — end-to-end M53/54/55 analytical references, mesh convergence, mode-family MAC, shear matrix, axial truss, coordinate and scaling invariance and explicit failure cases.
 - **Benchmark assets:** `benchmarks/modal/README.md`, 14 geometric reference fixtures, a shear matrix fixture, independently derived continuous analytical references and reproducible scripts.
-- **Documentation:** `docs/structural/roadmap.md`, `docs/theory/modal-analysis.md`, `docs/structural/development-plan.md`, `README.md`, `CHANGELOG.md`, `ai-handoff.md`.
+- **Documentation:** `docs/structural/roadmap.md`, `docs/theory/modal-analysis.md`, `docs/structural/development-plan.md`, `README.md`, `CHANGELOG.md`, `HANDOFF_NUOVA_CHAT.md`.
 - **Test command:** `scripts/run-m56-tests.ps1` — full Release build, dedicated M56 tests, all Dynamics tests and entire solution regression.
 
 ## Checks performed in packaging environment

@@ -1,0 +1,59 @@
+{
+  "milestone": "G5",
+  "material": "C24",
+  "code": "NTC 2018 4.4.7, 2.5.3; Circolare C4.4.7 [C4.4.3]",
+  "benchmark": {
+    "geometry": {
+      "bMm": 100,
+      "hMm": 200,
+      "spanMm": 4000,
+      "IstrongMm4": 66666666.666666664
+    },
+    "material": {
+      "EmeanMpa": 11000.0,
+      "GmeanMpa": 690
+    },
+    "loads": {
+      "G1_kN_per_m": 0.5,
+      "Q1_residential_kN_per_m": 0.7,
+      "W_accompanying_wind_kN_per_m": 0.2
+    },
+    "loadDeflectionMm": {
+      "G1": 2.272727272727273,
+      "Q1": 3.1818181818181817,
+      "W": 0.9090909090909091
+    },
+    "psi": {
+      "Q1_leading_psi0": 0.7,
+      "Q1_leading_psi2": 0.3,
+      "W_accompanying_psi0": 0.6,
+      "W_accompanying_psi2": 0
+    },
+    "serviceClass": 1,
+    "kdef": 0.6,
+    "camberMm": 1.0,
+    "rareMm": 6.0,
+    "variableInstantRareMm": 3.727272727272727,
+    "totalInstantNetMm": 5.0,
+    "totalFinalNetMm": 6.936363636363636,
+    "variableLimitL300Mm": 13.333333333333334,
+    "finalLimitL200Mm": 20.0,
+    "variableUtilization": 0.27954545454545454,
+    "finalUtilization": 0.3468181818181818,
+    "formulas": [
+      "u_i=5*q_i*L^4/(384*Emean*I)",
+      "uRare=G+Q1+psi0,W*W",
+      "uVarRare=Q1+psi0,W*W",
+      "uFinal=G*(1+kdef)+Q1*(1+psi2,Q1*kdef)+W*(psi0,W+psi2,W*kdef)-u0"
+    ]
+  },
+  "overloadScenario": {
+    "G_kN_per_m": 2,
+    "Q1_kN_per_m": 3,
+    "W_kN_per_m": 1,
+    "rareMm": 25.454545454545453,
+    "finalMm": 32.36363636363637,
+    "finalUtilization": 1.6181818181818184
+  },
+  "scope": "Independent closed-form Euler-Bernoulli elastic contributions only; production G5 consumes declared FEM case deflections with external evidence, does not calculate EI or validate physical bracing and connections."
+}

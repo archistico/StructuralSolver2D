@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "documentId": "DM 17 gennaio 2018",
+  "editionId": "NTC2018",
+  "sourceDescription": "NTC 2018 GU n. 42 20/02/2018, pp. 137-139; Circolare n.7/2019, C4.4.6 and C4.4.8.1.9; declared applicability only",
+  "kmodSource": "NTC 2018, 4.4.6, Tabella 4.4.IV",
+  "gammaSource": "NTC 2018, 4.4.6, Tabella 4.4.III",
+  "crackSource": "Circolare 21 gennaio 2019 n.7, C4.4.8.1.9",
+  "kmodRows": [
+    {
+      "kind": "SolidSoftwood",
+      "serviceClass": 1,
+      "permanent": 0.6,
+      "longTerm": 0.7,
+      "mediumTerm": 0.8,
+      "shortTerm": 0.9,
+      "instantaneous": 1.1
+    },
+    {
+      "kind": "SolidSoftwood",
+      "serviceClass": 2,
+      "permanent": 0.6,
+      "longTerm": 0.7,
+      "mediumTerm": 0.8,
+      "shortTerm": 0.9,
+      "instantaneous": 1.1
+    },
+    {
+      "kind": "SolidSoftwood",
+      "serviceClass": 3,
+      "permanent": 0.5,
+      "longTerm": 0.55,
+      "mediumTerm": 0.65,
+      "shortTerm": 0.7,
+      "instantaneous": 0.9
+    },
+    {
+      "kind": "HomogeneousGlulam",
+      "serviceClass": 1,
+      "permanent": 0.6,
+      "longTerm": 0.7,
+      "mediumTerm": 0.8,
+      "shortTerm": 0.9,
+      "instantaneous": 1.1
+    },
+    {
+      "kind": "HomogeneousGlulam",
+      "serviceClass": 2,
+      "permanent": 0.6,
+      "longTerm": 0.7,
+      "mediumTerm": 0.8,
+      "shortTerm": 0.9,
+      "instantaneous": 1.1
+    },
+    {
+      "kind": "HomogeneousGlulam",
+      "serviceClass": 3,
+      "permanent": 0.5,
+      "longTerm": 0.55,
+      "mediumTerm": 0.65,
+      "shortTerm": 0.7,
+      "instantaneous": 0.9
+    }
+  ],
+  "gammaRows": [
+    {
+      "kind": "SolidSoftwood",
+      "fundamentalColumnA": 1.5,
+      "fundamentalColumnB": 1.45
+    },
+    {
+      "kind": "HomogeneousGlulam",
+      "fundamentalColumnA": 1.45,
+      "fundamentalColumnB": 1.35
+    }
+  ]
+}

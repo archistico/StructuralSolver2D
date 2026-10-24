@@ -36,12 +36,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StructuralSolver2D.Catalogs
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StructuralSolver2D.Verification.Steel", "src\StructuralSolver2D.Verification.Steel\StructuralSolver2D.Verification.Steel.csproj", "{A89AC369-B574-475C-A040-6B97AB864829}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StructuralSolver2D.Verification.Timber", "src\StructuralSolver2D.Verification.Timber\StructuralSolver2D.Verification.Timber.csproj", "{F8BB1C4A-D20C-4F16-93B6-EB6C6C4B9C12}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F8BB1C4A-D20C-4F16-93B6-EB6C6C4B9C12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8BB1C4A-D20C-4F16-93B6-EB6C6C4B9C12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8BB1C4A-D20C-4F16-93B6-EB6C6C4B9C12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8BB1C4A-D20C-4F16-93B6-EB6C6C4B9C12}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A89AC369-B574-475C-A040-6B97AB864829}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A89AC369-B574-475C-A040-6B97AB864829}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A89AC369-B574-475C-A040-6B97AB864829}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -107,6 +113,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{F8BB1C4A-D20C-4F16-93B6-EB6C6C4B9C12} = {7F89FB21-ED89-5B5F-BDEE-6C6279E9CD05}
 		{A89AC369-B574-475C-A040-6B97AB864829} = {7F89FB21-ED89-5B5F-BDEE-6C6279E9CD05}
 		{71E90088-AF70-48B7-B030-67D1C17437A1} = {7F89FB21-ED89-5B5F-BDEE-6C6279E9CD05}
 		{71E90088-AF70-48B7-B030-67D1C17437A2} = {B53CFE07-EEDA-5A4B-96F1-C1D330AC75E9}

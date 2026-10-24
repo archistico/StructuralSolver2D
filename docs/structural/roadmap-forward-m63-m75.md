@@ -36,7 +36,7 @@ M63–M66 hanno superato le suite C# confermate dall’utente. **M67 implementat
 - Conservare il progetto .NET 8 e la separazione `Core` / `Analysis` / `Reporting` / `Cli`. Non accoppiare `Analysis` a OpenCad2D né ad alcuna libreria UI.
 - Ogni `scripts/run-m*-tests.ps1` deve invocare **come prima azione operativa** `scripts/clean-project-build.ps1`, il quale rimuove solamente le cartelle `bin`/`obj` appartenenti ai progetti MSBuild, poi build Release + test mirati + intera regressione.
 - Nessuna tolleranza deve essere allargata soltanto per far passare un benchmark. Ogni calcolo nuovo richiede scala fisica, controlli su valori non finiti, casi degeneri e almeno un riferimento indipendente.
-- Salvare ad ogni incremento il **progetto ZIP completo** e aggiornare `docs/structural/roadmap.md`, `ai-handoff.md`, `CHANGELOG.md`, `development-plan.md` se pertinente. Gli script di test non devono introdurre carichi statici fittizi negli esempi dinamici.
+- Salvare ad ogni incremento il **progetto ZIP completo** e aggiornare `docs/structural/roadmap.md`, `HANDOFF_NUOVA_CHAT.md`, `CHANGELOG.md`, `development-plan.md` se pertinente. Gli script di test non devono introdurre carichi statici fittizi negli esempi dinamici.
 
 ## 1. Priorità e dipendenze
 
