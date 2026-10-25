@@ -1,6 +1,6 @@
 # Visione di prodotto — StructuralSolver2D
 
-**Aggiornata al 24/10/2026 (G7 gate superato).** La pianificazione operativa aggiornata è in [roadmap.md](roadmap.md); la versione precedente della visione con checkpoint storici è conservata in [archivio](../archive/vision-and-roadmap_PRE_G7.md).
+**Visione confermata il 25/10/2026 (checkpoint documentale P0-F0).** Lo stato software aggiornato è in [CURRENT_STATE](CURRENT_STATE.md), la pianificazione operativa in [roadmap.md](roadmap.md) e le [regole C#/separazione normativa](ENGINEERING_AND_VALIDATION_RULES.md) governano i prossimi incrementi. Una versione precedente è conservata in [archivio](../archive/vision-and-roadmap_PRE_G7.md).
 
 ## Missione
 
@@ -18,4 +18,4 @@ Inclusi elementi monodimensionali in modelli piani; strumenti di validazione; ca
 4. Report chiari: `Passed` nel proprio campo, `Failed` per superamento, `Unsupported` per regola assente, `NotApplicable` solo con motivazione fisica verificabile.
 5. **GUI C#/Avalonia esclusivamente dopo** la maturazione del motore, delle verifiche e della documentazione.
 
-L'ultima baseline software collaudata è **G7**; nessuna certificazione generale di sicurezza delle opere è implicata. Fonte di verità per il prossimo lavoro: [roadmap corrente](roadmap.md) e [handoff](../../HANDOFF_NUOVA_CHAT.md).
+L'ultima baseline software è **P0-D2C2**, con test .NET **PASS dichiarati dall'autrice**. F0 modifica esclusivamente la documentazione. Nessuna certificazione generale di sicurezza delle opere è implicata. Il prossimo lavoro è **F1.1 G8B**, confronti indipendenti in C#/.NET; la GUI resta ultima.

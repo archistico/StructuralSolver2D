@@ -1,5 +1,7 @@
 # P0-A — Priorità tecniche e criteri di accettazione P0-B…P0-E
 
+> **Nota storica P0-F0:** backlog originario P0-A, conservato come fonte del ragionamento iniziale. Sono superate le istruzioni che prevedevano nuovi script Python o confronti Python/C#; per i prossimi lavori valgono soltanto i nuovi strumenti **C#/.NET** previsti da [roadmap](roadmap.md) e [regole di sviluppo](ENGINEERING_AND_VALIDATION_RULES.md).
+
 **25 ottobre 2026.** Backlog dedotto da [audit](P0_A_AUDIT_TECNICO.md) e [matrice](P0_A_MATRICE_COPERTURA.md). Non autorizza ancora nuove formule o attestazioni normative. Tutti i ticket richiedono test positivi **e negativi**, golden indipendenti e mantenimento degli esiti G7.
 
 ## Principi architetturali per tutti i ticket

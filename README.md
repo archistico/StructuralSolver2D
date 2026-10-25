@@ -2,14 +2,14 @@
 
 **Motore FEM strutturale 2D open source in C# / .NET 8** per lo studio di travi, reticolari e telai piani in acciaio e legno. Il progetto è destinato alla didattica, alla ricerca e a valutazioni preliminari **con limiti espliciti**. La versione corrente non costituisce uno strumento certificato per attestare la sicurezza di un’opera.
 
-> **Stato al 24 ottobre 2026:** milestone **G7 GATE PASSED**, confermata dall’utente su Windows. Le prove verificano le funzionalità coperte dalla suite, **non** la completezza delle combinazioni normative, delle verifiche di membratura o della modellazione fisica. Nessuna GUI desktop è stata avviata.
+> **Stato al 25 ottobre 2026:** ultimo codice **P0-D2C2**, test .NET **PASS confermati dall'autrice**, senza log allegato. **P0-F0** aggiorna solo la documentazione. Per stato, limiti e gate vedere [stato corrente](docs/structural/CURRENT_STATE.md). Nessuna GUI desktop è stata avviata.
 
 ## Cosa fa il progetto
 
 - **FEM 2D:** modelli di travi, telai (`Frame2D`) e reticolari (`Truss2D`), carichi e combinazioni manuali, spostamenti, reazioni e sollecitazioni `N`, `V`, `M`.
 - **Analisi e risultati:** funzioni elastiche statiche, dinamiche e metodi avanzati in ambiti delimitati; post-processing, diagrammi, report e viewer HTML.
-- **Acciaio:** cataloghi e verifiche **parziali** EC3 per le famiglie effettivamente implementate (M89–M91); audit della copertura M91-D.
-- **Legno:** verifiche parziali EC5 M92-A/B e regole **native NTC 2018** G1–G5; audit NTC legno G6; benchmark integrati G7.
+- **Acciaio:** cataloghi e verifiche **parziali, separate** EC3 (M89–M91) e NTC 2018 (D1, D0–D0M8, D2A–D2C2).
+- **Legno:** verifiche **parziali e distinte** EC5 M92-A/B e NTC 2018 G1–G7.
 - **Validazione:** test xUnit, benchmark di equilibrio, proprietà numeriche, casi limite e confronti con riferimenti indipendenti.
 
 **Non fa automaticamente:** certificazione NTC/Eurocodici dell’intera asta o struttura, generazione e verifica *completa* di tutte le combinazioni di progetto, accertamento dei collegamenti e dei ritegni reali, stabilità spaziale a partire dal solo modello piano. Alcune funzioni numeriche sono volutamente sperimentali o circoscritte; non vanno interpretate come analisi non lineare generale.
@@ -47,7 +47,7 @@ Eseguire da **un'estrazione pulita** dello ZIP completo:
 .\scripts\run-g7-tests.ps1
 ```
 
-Il primo script confronta i file con `RELEASE_SHA256SUMS.txt`; il secondo migra fuori da `examples/` eventuali due vecchi JSON G8B di **dati di riferimento** lasciati da estrazioni sovrapposte (backup in `.g8b-legacy-backup/`), pulisce le build di progetto, compila in Release e avvia benchmark e regressioni. Il **gate G7 è stato dichiarato superato dall'utente**; una nuova modifica richiederà un nuovo collaudo. Lo script mantiene il nome G7 perché valida la baseline software, anche dopo il riordino documentale.
+Il primo script confronta i file con `RELEASE_SHA256SUMS.txt`; il secondo gestisce eventuali vecchi JSON G8B lasciati da estrazioni sovrapposte, pulisce le build, compila in Release e avvia regressioni. Sono **script Windows già presenti** nella baseline: ogni **nuovo** runner o script di progetto sarà in **C#/.NET**. Il collaudo fino a D2C2 è confermato dall'autrice; F0 non cambia il codice. Il nome G7 identifica lo storico runner.
 
 ## Architettura
 
@@ -68,7 +68,9 @@ Le unità del modello FEM devono essere coerenti nel sistema **kN–m–s**. Per
 | Documento | A cosa serve |
 |---|---|
 | [CHANGELOG.md](CHANGELOG.md) | Cronologia sintetica dei progressi, con esito dei gate |
-| [Roadmap aggiornata](docs/structural/roadmap.md) | Priorità, limitazioni e fasi successive a G7 |
+| [Stato corrente](docs/structural/CURRENT_STATE.md) | Milestone, test confermati e lacune ancora aperte |
+| [Roadmap aggiornata](docs/structural/roadmap.md) | Priorità, dipendenze e criteri dei prossimi gate |
+| [Regole di sviluppo](docs/structural/ENGINEERING_AND_VALIDATION_RULES.md) | C#/.NET per nuovi script/test e NTC/EC3/EC5 distinti |
 | [Handoff nuova chat](HANDOFF_NUOVA_CHAT.md) | Stato operativo da aggiornare in **ogni nuova consegna** |
 | [Manuale di validazione](docs/G7_MANUALE_VALIDAZIONE_INDIPENDENTE.md) | Fonti, benchmark G7 e prove effettivamente eseguite |
 | [Audit legno](docs/structural/G6_IMPLEMENTATION_GUIDE.md) | Come leggere gli esiti di copertura NTC |

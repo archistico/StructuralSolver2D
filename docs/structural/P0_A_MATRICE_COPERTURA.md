@@ -1,5 +1,7 @@
 # P0-A — Matrice verificabile di copertura e gap
 
+> **Nota storica P0-F0:** questa è la matrice prodotta nella fase di audit P0-A, **non** il censimento corrente dopo D2C2. Alcune righe che citano funzioni NTC acciaio ancora mancanti sono state superate dai checkpoint successivi. Per lo stato autorevole, vedere [CURRENT_STATE](CURRENT_STATE.md) e [roadmap](roadmap.md). Conservata senza riscrivere le evidenze dell'audit.
+
 **25/10/2026 — Stato di ispezione statico, non nuovo gate Windows.** Leggere insieme a [`P0_A_AUDIT_TECNICO.md`](P0_A_AUDIT_TECNICO.md) e [`P0_A_PRIORITA_E_CRITERI_DI_TEST.md`](P0_A_PRIORITA_E_CRITERI_DI_TEST.md).
 
 ## Stati, gravità e lettura corretta

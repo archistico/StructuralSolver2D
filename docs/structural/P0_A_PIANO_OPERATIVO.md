@@ -1,5 +1,7 @@
 # P0-A — Piano operativo di audit tecnico FEM e verifiche normative
 
+> **Nota storica P0-F0:** piano iniziale dell'audit, con checkpoint e «prossimi» riferiti al periodo P0-A. **Non governa la sequenza attuale.** Usare [CURRENT_STATE](CURRENT_STATE.md), [roadmap](roadmap.md) e [regole tecniche](ENGINEERING_AND_VALIDATION_RULES.md).
+
 **Piano originario P0-HANDOFF del 25/10/2026. Stato aggiornato:** P0-A completato documentalmente il 25/10/2026. Risultati nei tre file P0_A_AUDIT_TECNICO.md, P0_A_MATRICE_COPERTURA.md e P0_A_PRIORITA_E_CRITERI_DI_TEST.md nella stessa directory. P0-B1 completato come specifica e golden in P0_B1_CONTRATTO_AZIONI_NTC2018.md; prossima P0-B2. Nessun nuovo gate .NET.
 **Baseline:** G7 GATE PASSED, archivio corrente P0-HANDOFF derivato da G8B FIX2.  
 **Non si richiede implementazione immediata di nuove formule.** Prima serve un quadro verificabile di capacità, limiti e lacune.

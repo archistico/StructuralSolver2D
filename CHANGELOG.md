@@ -2,6 +2,26 @@
 
 Registro **sintetico e cronologico**. Ogni stato «gate superato» è basato sulle conferme dei test Windows dell'utente, non su una certificazione della conformità normativa dell'opera. I dettagli delle milestone si trovano in `docs/structural/` e nell'[archivio](docs/archive/README.md).
 
+## 25 ottobre 2026 — P0-F0: documentazione, piano F0–F10 e politica C#/.NET (nessuna modifica al codice)
+
+- **Conferma successiva dell'autrice:** anche il gate **P0-D2C2 e precedenti è PASS per i test .NET su Windows**, senza log numerico allegato. Questo **aggiorna** lo stato «D2C2 in attesa» riportato nella voce storica sottostante; non si modificano retroattivamente le note scritte al rilascio originario.
+- Nuovi documenti autorevoli: [stato corrente](docs/structural/CURRENT_STATE.md), [roadmap F0–F10](docs/structural/roadmap.md), [regole tecniche e normative](docs/structural/ENGINEERING_AND_VALIDATION_RULES.md) e [piano approfondito](docs/structural/PIANO_DETTAGLIATO_POST_D2C2.md). Handoff e messaggio di ripresa sintetizzati; vecchie versioni conservate in `docs/archive/`.
+- Decisioni approvate: **NTC 2018, EC3 e EC5 come profili distinti e versionati**; tutto il nuovo codice, test, benchmark eseguibile, runner e script **in C#/.NET**. Script Python preesistenti solo storici; nessuna nuova dipendenza da Python. Runner PowerShell preesistenti lasciati invariati; nuovi runner C#.
+- Prossimo checkpoint **F1.1 G8B**: 16 scenari, confronti xUnit/C# con riferimenti indipendenti congelati; prima di aggiungere nuove formule normative. **F0 non aggiunge né esegue test .NET**; i 4.203/4.203 golden Python restano un dato storico di D2C2.
+
+## 25 ottobre 2026 — P0-D2C2: interazione sezionale M–V, acciaio NTC2018 (gate .NET D2C1 PASS; D2C2 in attesa)
+
+- **Conferma autrice «test passati» per D2C1 e precedenti .NET**, senza log numerici; i nuovi xUnit D2C2 **PENDING** perché `dotnet` non disponibile qui.
+- Nuova regola `Ntc2018SteelBendingShearInteractionRuleD2C2`: NTC §4.2.4.1.2.6 [4.2.30]–[4.2.32], IPE/HEA/HEB doppiamente simmetrici senza fori, sezione FEM SLU con **N=0, Vy≠0, Mz≠0** simultanei alla stessa ascissa/lato/combinazione. Taglio fino a metà VcRd senza riduzione di flessione, oltre metà `rho=(2VEd/VcRd−1)²` e riduzione forte `Wpl,y−rho Aw²/(4tw)` con `gammaM0=1,05` **solo classi 1/2**. `Aw` geometrica distinta da `Av`, documentata e usata con limite superiore prudenziale; `Wpl` indipendente distinto da `Wel`; classe 3 solo ramo V basso, classe 4 o classe 3 taglio alto bloccati. V>VcRd fallisce senza prolungare rho. Instabilità dell'anima schermata con NTC [4.2.27], η=1, geometria conservativa.
+- Nuovi test `D2/Ntc2018SteelBendingShearD2C2Tests.cs`, benchmark `p0d2c2/verify_p0d2c2_ntc_bending_shear.py`: **946/946 golden autonomi PASS; 4.203/4.203 golden totali PASS in 15 script**. Non sono test compilati C#. [Rapporto e fonti](docs/structural/P0_D2C2_INTERAZIONE_FLESSIONE_TAGLIO_NTC2018.md). Nessuna stabilità d'asta/anima calcolata, N–M–V, torsione, conformità membri/opere; FEM/Core, cataloghi e GUI invariati. Prossimi E/C3/C4/D3; GUI solo P3.
+
+## 25 ottobre 2026 — P0-D2C1: taglio puro nel piano dell'anima NTC2018 (.NET pending)
+
+- **Nuova conferma utente:** «test ok» per le milestone D2A+D2B e regressioni Windows precedenti, senza log allegato. Nuovi test D2C1 **non ancora confermati**.
+- Nuova regola `Ntc2018SteelPureShearResistanceRuleD2C1`: NTC2018 §4.2.4.1.2.4 [4.2.16–18], area di taglio web `Av=A−2btf+(tw+2r)tf`, `Vc,Rd=Av fyk/(sqrt(3) γM0)` con `γM0=1,05`; FEM a un solo punto/lato/combinazione e **N=Mz=0, Vy≠0**. Laminati IPE/HEA/HEB nominali doppiamente simmetrici senza fori, direzione di Vy attestata, prova indipendente numerica di Av entro 0,1% e scelta della minore. Ambito rigorosamente sezionale.
+- Schermo NTC [4.2.27] **di instabilità dell'anima non irrigidita** con η=1, `hw_upper=h−2tf`: sopra soglia **NotApplicable**, senza calcolare una resistenza che ometta instabilità. Richiesta esplicita esclusione delle azioni spaziali/torsione. Non implementati N–V/M–V, instabilità, giunti o copertura di membro/opera; **nessun PASS sezionale equivale a un'asta verificata**.
+- Esempi numerici IPE200 S235 `Av=1399,6 mm²`, `Vc,Rd≈180,8514 kN` e HEA280 S355 `Av=3174 mm²`, `Vc,Rd≈619,5628 kN`. Nuovi xUnit `D2/Ntc2018SteelPureShearD2C1Tests.cs` **PENDING .NET**; **848/848 golden aritmetici indipendenti PASS** e **3.257/3.257** regressioni Python R2–D2C1 PASS su **14 script**. FEM/Core, NTC precedenti, EC3, legno e GUI invariati. [Rapporto D2C1](docs/structural/P0_D2C1_TAGLIO_PURO_SEZIONE_NTC2018.md). Prossimo D2C2 interazione M–V delimitata, poi E/C3/C4/D3; **GUI esclusivamente P3**.
+
 ## 25 ottobre 2026 — P0-D2B: flessione pura di una sezione acciaio, normativa NTC2018 (gate .NET pending)
 
 - Nuova regola `Ntc2018SteelPureBendingResistanceRuleD2B`: NTC2018 §4.2.4.1.2.3 [4.2.11–14], SLU, γM0=1,05; solo FEM combinazione/stazione/lato provati, `Mz!=0`, `N=Vy=0` simultanei e profilo I/H nominale senza fori. Classificazione NTC nativa D0; **classe 1/2 Wpl da fonte indipendente obbligatoria**, classe 3 Wel,min esterno incrociato con OPPO Wx entro 0,1% e scelta conservativa, classe 4 senza Weff rifiutata. Wpl mai inferito dal catalogo o da Wel. Verifica sezionale e non di stabilità flesso-torsionale, membro o struttura.
