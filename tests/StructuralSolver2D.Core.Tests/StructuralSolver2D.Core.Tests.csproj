@@ -20,6 +20,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\StructuralSolver2D.Core\StructuralSolver2D.Core.csproj" />
+    <ProjectReference Include="..\..\src\StructuralSolver2D.Combinations\StructuralSolver2D.Combinations.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\benchmarks\independent\p0b\P0B1_NTC2018_ACTION_GOLDEN.json"
+          Link="P0B1_NTC2018_ACTION_GOLDEN.json"
+          CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

@@ -8,6 +8,8 @@ Project("{66A26720-8FB5-11D2-AA7E-00C04F688DDE}") = "tests", "tests", "{B53CFE07
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StructuralSolver2D.Core", "src\StructuralSolver2D.Core\StructuralSolver2D.Core.csproj", "{A9210603-8630-5074-A3D7-24229910CD1D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StructuralSolver2D.Combinations", "src\StructuralSolver2D.Combinations\StructuralSolver2D.Combinations.csproj", "{EEA017D2-F938-45B4-B830-9C13CE34E1A1}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StructuralSolver2D.Analysis", "src\StructuralSolver2D.Analysis\StructuralSolver2D.Analysis.csproj", "{63AF4AE6-019C-5145-83C2-A165328D03D3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StructuralSolver2D.Reporting", "src\StructuralSolver2D.Reporting\StructuralSolver2D.Reporting.csproj", "{94B14D6C-C60B-5560-9D0D-2B0C157D110A}"
@@ -44,6 +46,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EEA017D2-F938-45B4-B830-9C13CE34E1A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EEA017D2-F938-45B4-B830-9C13CE34E1A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EEA017D2-F938-45B4-B830-9C13CE34E1A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EEA017D2-F938-45B4-B830-9C13CE34E1A1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F8BB1C4A-D20C-4F16-93B6-EB6C6C4B9C12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F8BB1C4A-D20C-4F16-93B6-EB6C6C4B9C12}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F8BB1C4A-D20C-4F16-93B6-EB6C6C4B9C12}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -113,6 +119,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{EEA017D2-F938-45B4-B830-9C13CE34E1A1} = {7F89FB21-ED89-5B5F-BDEE-6C6279E9CD05}
 		{F8BB1C4A-D20C-4F16-93B6-EB6C6C4B9C12} = {7F89FB21-ED89-5B5F-BDEE-6C6279E9CD05}
 		{A89AC369-B574-475C-A040-6B97AB864829} = {7F89FB21-ED89-5B5F-BDEE-6C6279E9CD05}
 		{71E90088-AF70-48B7-B030-67D1C17437A1} = {7F89FB21-ED89-5B5F-BDEE-6C6279E9CD05}

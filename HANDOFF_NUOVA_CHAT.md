@@ -1,11 +1,17 @@
 # StructuralSolver2D — HANDOFF NUOVA CHAT
 
-**Checkpoint operativo: P0-HANDOFF (25 ottobre 2026)**  
-**Origine:** progetto FULL G8B FIX2; **ultima suite confermata dall'utente:** `G7 GATE PASSED`.  
-**Prossima attività concordata:** **P0-A — audit tecnico completo del FEM, delle verifiche normative e dei limiti fisici**, prima di introdurre nuove funzioni.  
-**Natura di questa consegna:** *solo documentazione*. Non implica un nuovo gate software e non costituisce attestazione di conformità delle strutture.
+**Checkpoint operativo: P0-C2A ESTREMI DIAGNOSTICI AFFINI, TEST WINDOWS IN ATTESA (25 ottobre 2026)**  
+**Origine:** G8B FIX2 + audit P0-A; **gate Windows confermati dall'utente:** G7, P0-B2, P0-B3, P0-B4 e P0-C1 FIX1 nei rispettivi perimetri.  
+**P0-A completato documentalmente:** audit, matrice e backlog testabile nei tre documenti P0_A in docs/structural.  
+**P0-B1 completato come specifica e riferimento aritmetico:** docs/structural/P0_B1_CONTRATTO_AZIONI_NTC2018.md, benchmarks/independent/p0b; 14 casi positivi e 10 mutazioni negative verificati con Python.  
+**P0-B2 GATE PASSED (conferma dell'utente: «test passati», senza log numerico allegato)** per i test richiesti dopo il precedente checkpoint. Modulo di azioni tipizzate e JSON confermato nel perimetro B2; non un generatore completo.  
+**P0-B3 GATE PASS confermato dall'utente («tutti i test passati», senza log numerico):** coefficienti γ/ψ, quattro famiglie STR A1/SLE, scenari espliciti e confronto dei golden B1. Vedere docs/structural/P0_B3_GENERATORE_COMBINAZIONI_CANDIDATE.md.  
+**P0-B4 GATE PASS confermato dall'utente («test passati», senza contatori):** validazione del **piano finito dichiarato per effetto**, fingerprint dei reali input FEM e termini nel Core; non dimostra esaustività globale. Vedere docs/structural/P0_B4_AUDIT_INSIEME_DICHIARATO.md.  
+**P0-C1 FIX1 GATE PASS confermato dall'utente («test passati»), senza nuovo log numerico allegato:** nel primo log l'unico test C1 fallito selezionava x=0 invece del salto x=2; FIX1 ha corretto **solo il test**, senza toccare produzione. Leggere docs/structural/P0_C1_AUDIT_SOLLECITAZIONI_CONCOMITANTI.md.  
+**P0-C2A ora implementato, test .NET NUOVI IN ATTESA:** nuovo `FemAffineUtilizationExtremaC2A` in `Verification.Integration`, massimo analitico di **sole metriche matematiche dichiarate** nei tratti con N/V/M affini del Frame2D con carichi puntuali, nessun distribuito/selfweight sull'asta. Per carichi fuori scope torna `ScreeningIncomplete`. Zero formule o pass normativi attribuiti. Vedere docs/structural/P0_C2A_MASSIMI_UTILIZZO_DIAGNOSTICO_AFFINE.md.  
+**Prossimo: gate Windows P0-C2A** (nuovi test + regressione G7); poi C2B/C2C/C3/C4 e P0-E/D. Avalonia soltanto P3.
 
-> **Istruzione essenziale per la nuova chat:** leggere tutto questo documento, poi `docs/structural/P0_A_PIANO_OPERATIVO.md`, la roadmap, il README e il changelog. Esaminare **il codice effettivo** prima di affermare che una capacità esiste. Non ricominciare da G1, non rifare G8B e non partire dalla GUI. Il lavoro successivo è P0-A.
+> **Istruzione essenziale per la nuova chat:** leggere handoff, rapporti P0_A, contratti P0-B, manuale C1 e **P0_C2A_MASSIMI_UTILIZZO_DIAGNOSTICO_AFFINE.md**, poi roadmap, README e changelog. **C1 FIX1 superato su conferma utente**. Eseguire i nuovi test C2A su Windows e regressione G7; soltanto dopo iniziare C2B. Conservare G7/G8B; nessuna GUI.
 
 ## 1. Obiettivo, ambito e vincoli inderogabili
 
@@ -23,7 +29,7 @@ Un esito positivo di **una singola regola** o di **una singola sezione** non sig
 
 ## 2. Baseline: cosa prendere in carico e cosa è veramente passato
 
-- **Archivio FULL consigliato per proseguire dopo questo handoff:** `StructuralSolver2D_P0_HANDOFF_2026-10-25_FULL.zip`, che è G8B FIX2 con *soltanto* handoff, roadmap, changelog e piano P0-A aggiornati; nessun sorgente, test, modello FEM, script o riferimento numerico modificato.
+- **Archivio FULL consigliato:** StructuralSolver2D_P0C2A_ESTREMI_AFFINI_2026-10-25_FULL.zip. Include P0-A/B1/B2/B3/B4/C1 FIX1, codice/test C2A e manifest SHA; nessuna modifica a motore FEM, G8B, benchmark storici, Core/Analysis/Verification/CLI/Reporting di produzione.
 - **Archivio tecnico precedente da cui deriva:** `StructuralSolver2D_G8B_FIX2_REPAIR_ESEMPI_RESIDUI_2026-10-25_FULL.zip`.
 - **Ultima baseline algoritmica collaudata:** G7. L'utente ha ribadito **«G7 GATE PASSED» anche dopo la sequenza G8B FIX2**; questa è la conferma della suite G7, non una certificazione del confronto numerico G8B e non un nuovo gate nominato G8B.
 - **G8B:** modelli e script di confronto predisposti. I **16 report della casetta, i 2 viewer e il confronto valore per valore con il riferimento Python** non hanno ancora una conferma esplicita dell'utente. Non dichiararli validati senza output.
@@ -46,19 +52,26 @@ Un esito positivo di **una singola regola** o di **una singola sezione** non sig
 | G7 | **PASS** | Benchmark B13/B14 e test integrazione G1→G2/G3→G6 + regressioni |
 | G7-DOC1 | Solo documentazione | README, roadmap, changelog e handoff razionalizzati |
 | G8A/G8B FIX2 | Esempi e manutenzione | Casetta e dati indipendenti; suite G7 confermata, **confronto dedicato G8B ancora da completare** |
-| P0-A | **Non iniziato** | Prossimo lavoro |
+| P0-A | **Completato documentalmente** | Audit codice/test e matrice di copertura; nessun nuovo gate .NET |
+| P0-B1 | **Specifica e golden aritmetici completati** | 14/14 casi positivi e 10/10 controlli negativi Python; generatore .NET assente |
+| P0-B2 | **GATE PASS confermato dall'utente** | Test C# del contratto azioni/JSON e regressioni richieste dichiarati passati; nessun log analitico allegato |
+| P0-B3 | **GATE PASS confermato dall'utente** | 14 golden B1 integrati in xUnit, tabelle γ/ψ, scenari e omissioni; senza log numerico allegato |
+| P0-B4 | **GATE PASS confermato dall'utente** | Insieme finito di combinazioni dichiarate per effetto, verifica termini presenti nel Core/fingerprint; non esaustività normativa |
+| P0-C1 FIX1 | **GATE PASS confermato dall'utente** | Unico test precedente errato sul lato del carico a x=2 corretto senza toccare l'algoritmo; nuova conferma «test passati», senza log allegato |
+| P0-C2A | **Codice/test predisposti, gate .NET IN ATTESA** | Massimi di **indicatori diagnostici** sotto ipotesi affini; distribuiti/selfweight marcati `ScreeningIncomplete`, **NON** conformità normativa o asta verificata |
 
 ## 3. Architettura: directory da conoscere
 
 | Percorso | Ruolo e cautela |
 |---|---|
 | `src/StructuralSolver2D.Core/` | Modelli di geometria, nodi, aste, vincoli, materiali, sezioni, carichi e contratti |
+| `src/StructuralSolver2D.Combinations/` | P0-B2 azioni/validator/JSON, P0-B3 candidati NTC/manifesto, P0-B4 audit **del piano dichiarato** e fingerprint Core; sola dipendenza verso Core; nessun audit normativo globale |
 | `src/StructuralSolver2D.Analysis/` | Risolutore FEM 2D, analisi e postprocessing; non confondere esperimenti avanzati con validazione generale |
 | `src/StructuralSolver2D.Catalogs/` | Cataloghi materiali/profili e geometrie; provenienza e approssimazioni da verificare |
 | `src/StructuralSolver2D.Verification/` | Motore comune, contratti, esiti (`Passed`, `Failed`, `Unsupported`, ecc.) |
 | `src/StructuralSolver2D.Verification.Steel/` | Regole **parziali** EC3 M89–M91, stabilità e audit M91-D |
 | `src/StructuralSolver2D.Verification.Timber/` | Regole EC5 M92 e NTC2018 G1–G6 |
-| `src/StructuralSolver2D.Verification.Integration/` | Collegamento tra FEM e verifiche, da ispezionare in P0-A |
+| `src/StructuralSolver2D.Verification.Integration/` | Bridge FEM M87-B/C, audit C1 N/V/M concomitanti e C2A massimi di due indicatori matematici sui soli tratti affini; nessuna regola normativa nuova |
 | `src/StructuralSolver2D.Reporting/` | Report, grafici e formati di esportazione |
 | `src/StructuralSolver2D.Cli/` | CLI `analyze`, `report`, `export-viewer` e altri comandi |
 | `tests/` | xUnit e test di regressione separati per modulo |
@@ -127,6 +140,9 @@ Da estrazione nuova del pacchetto, nella cartella principale `StructuralSolver2D
 # benchmark G7 + regressioni Core, Analysis, Verification, Catalogs, Reporting, CLI
 .\scripts\run-g7-tests.ps1
 
+# Gate NUOVO P0-C2A (non eseguito nell'ambiente privo di SDK .NET)
+dotnet test .\tests\StructuralSolver2D.Verification.Tests\StructuralSolver2D.Verification.Tests.csproj -c Release --filter 'FullyQualifiedName~FemAffineUtilizationExtremaC2ATests' --logger 'console;verbosity=normal'
+
 # Dimostrazione della casetta G8B: 16 report e 2 viewer, NON un gate normativo
 .\scripts\run-g8b-house-demo.ps1
 
@@ -136,9 +152,23 @@ Get-ChildItem .\examples\mixed\g8b-house -Filter *.json | Select-Object Name
 
 L'esecuzione di uno script di test, il numero di test passati e l'eventuale confronto fra risultanze .NET e valori Python vanno sempre **registrati nel changelog/handoff** senza inferenze. `RELEASE_SHA256SUMS.txt` è verificato per i file presenti nel manifest; una scansione separata deve escludere file estranei dalla distribuzione.
 
-## 8. P0 — piano approvato; dove iniziare senza ulteriori chiarimenti
+## 8. P0 — stato corrente: P0-B2/B3/B4/C1 passati, P0-C2A da collaudare
 
-L'utente ha scelto di passare a **P0** dopo G7. **Non** introdurre subito altro codice di calcolo: iniziare da **P0-A**, audit tecnico e matrice di copertura. Dettaglio operativo e criteri di completamento: **[`docs/structural/P0_A_PIANO_OPERATIVO.md`](docs/structural/P0_A_PIANO_OPERATIVO.md)**.
+**Aggiornamento autorevole 25/10/2026, P0-C2A:** l'utente ha dichiarato **«test passati»** per FULL P0-C1 FIX1: registrato **GATE C1 PASS** senza dati numerici di questa seconda esecuzione. Implementato in `Verification.Integration` `FemAffineUtilizationExtremaC2A`: modello Frame2D primo ordine con soli carichi concentrati/nodali/settlement sul membro, riconoscimento salti e valori N/V/M ai due lati; massimo analitico dei **soli** indici diagnostici `|N|/Ns+|V|/Vs+|M|/Ms` e `|(N/Ns)(M/Ms)|`. Per carichi uniformi, variabili linearmente o SelfWeight attivi restituisce `ScreeningIncomplete`, nessun massimo. Il supporto a un massimo **normativo** completo richiede metodi per ogni regola in P0-C2C e copertura C3. Nuovi xUnit C2A con golden manuali e caso matematico interno; SDK .NET assente localmente, gate Windows richiesto. Guida docs/structural/P0_C2A_MASSIMI_UTILIZZO_DIAGNOSTICO_AFFINE.md. Dopo: **C2B distribuiti**, **C2C metriche normative**, C3/C4/E/D. Test storico C1 527/528 pre-FIX1 resta documentato ma superato dalla conferma attuale.
+
+**Aggiornamento autorevole 25/10/2026, P0-C1 FIX1:** letto log Windows `dotnet-20261025-014719-25108-2fab4f16.log`: compilazione Release **0 warning, 0 errori**. Suite FEM G7 **3/3**, integrazione G7 **3/3**, Verification **527/528**; unico fallimento `AContinuousSectionAtAConcentratedMemberLoad_CannotBeValidated` (atteso `Invalid`, ottenuto `MatchedDeclaredStations`). Il test selezionava per errore `plan.Stations[0]` e `requests[0]` (x=0 già `Continuous`), quindi la mutazione era un no-op; il carico concentrato era a x=2 nella stazione **indice 1**. Corretto il test, aggiunta asserzione esatta `DistanceMetres=2` e controllo positivo della stazione continua valida a x=0. **Il codice di produzione resta identico al P0-C1 originale**; suite FIX1 da ripetere interamente. Non promuovere C1 a PASS sulla base di 527/528. La porzione P0-C1 precedente sotto è storica.
+
+**Aggiornamento autorevole 25/10/2026, P0-C1:** l'utente ha confermato **«test passati»** per il precedente FULL P0-B4, che passa a **GATE PASS** (senza log/contatori allegati). In P0-C1 implementato un audit conservativo `FemConcomitantStationAuditorC1`: piano di stazioni/target/regole per membro e edizione, controllo combinazioni e lati, riesecuzione analisi per ogni target e confronto delle **tre** sollecitazioni firmate (N/V/M) a stessa sezione; rifiuto di copie erronee da altri inviluppi. I nuovi xUnit verificano anche che la completezza dell'asta e un massimo di utilizzo tra stazioni **NON** siano mai dedotti dal pass C1. **Test .NET nuovi da eseguire su Windows**, SDK assente qui. Dettaglio: docs/structural/P0_C1_AUDIT_SOLLECITAZIONI_CONCOMITANTI.md. Dopo gate C1: **C2 massimo di utilizzo continuo**, **C3 obblighi membro/regole**, C4 reporting, quindi E/D. Lo stato precedente di B4 riportato sotto è storico.
+
+**Aggiornamento autorevole 25/10/2026, P0-B4:** l'utente ha confermato **«tutti i test passati»** per il precedente checkpoint P0-B3; registrato **B3 GATE PASS**, senza output numerico allegato. Implementato l'auditor B4 separato, che richiede un piano *finito dichiarato* per un solo effetto, verifica guide/alternative/classificazione e confronta i fattori delle `StructuralModel.LoadCombinations` reali con la baseline e i SHA-256 degli input Core (incluse geometria, carichi, sezioni, materiali, vincoli, peso unitario, release). Nuovi xUnit positivi, negativi e mutazioni. **Non compilato .NET qui**; gate Windows B4 e regressione G7 da eseguire. La validazione del piano non scopre automaticamente i casi fisici/normativi omessi: non dichiarare «insieme globale completo», «membro Passed» o «edificio verificato». Dettaglio: docs/structural/P0_B4_AUDIT_INSIEME_DICHIARATO.md. **Dopo il gate B4: P0-C stazioni critiche/concomitanza N/V/M, P0-E limiti esterni, P0-D ampliamento normativo.**
+
+**Aggiornamento autorevole 25/10/2026:** P0-A è chiuso documentalmente. P0-B1 ha fissato da fonte primaria NTC 2018 le tabelle γ STR A1, ψ e le equazioni SLU/SLE entro ambito dichiarato. Il controllo Python ha superato **14/14 scenari aritmetici** e rilevato **10/10 alterazioni volontarie**: non è un test del generatore C# né del FEM. Il validatore attuale respinge fattori zero: il nuovo contratto richiede **omissione tracciata nel manifesto** senza mutare le combinazioni manuali. La favorevolezza dipende dall'effetto; le alternative vento ± e le guide richiedono audit. P0-B2 implementa modelli e validator tipizzati senza toccare G7. Il riferimento Python G8B ha riprodotto 16/16 scenari nei campi controllati; manca ancora il confronto .NET ↔ Python e la conferma CLI dei report.
+
+**Implementazione successiva P0-B2, stesso giorno:** aggiunto StructuralSolver2D.Combinations con ActionInventory, categorie NTC e provenienza, gruppi alternativi, ActionInventoryValidator e ActionInventoryJsonSerializer; la soluzione e Core.Tests hanno riferimenti al modulo. Test xUnit nuovi predisposti; SDK dotnet assente qui, quindi **compilazione e gate Windows NON confermati**. Core e sue combinazioni manuali sono invariati; G7 resta ultimo gate precedente confermato. Prima azione: eseguire su Windows il comando dotnet test B2, poi scripts/run-g7-tests.ps1 (istruzioni in P0_B2_CONTRATTO_AZIONI_E_VALIDAZIONE.md).
+
+**Aggiornamento autorevole successivo (25/10/2026):** l'utente ha dichiarato **«test passati»** in risposta a P0-B2; registrato come gate B2 confermato senza contatori del log. P0-B3 aggiunge Ntc2018BuildingActionCoefficients e Ntc2018BuildingCombinationGenerator: quattro famiglie non sismiche per edifici STR A1/SLE, scelta favorevolezza per effetto esplicita, omissione ψ0/ψ1/ψ2=0 e alternative tracciate. Il generatore restituisce **solo un candidato** e un manifesto con FullCombinationSetAudited=false; P0-B4 deve ancora dimostrare completezza e fingerprint FEM. Nuovi xUnit confrontano 14/14 golden indipendenti B1 senza cambiarli, ma **B3 NON ha ancora gate .NET**. P0-C/E/D e GUI P3 invariati.
+
+**Storia:** il piano iniziale chiedeva P0-A dopo G7, ormai completato. Il contratto P0-B1 e i golden numerici sono le specifiche di ingresso obbligatorie per P0-B2/B3/B4. Dettaglio dei gap: docs/structural/P0_A_PRIORITA_E_CRITERI_DI_TEST.md.
 
 - **P0-A — Audit tecnico completo:** inventario dimostrabile del FEM, carichi, stabilità, cataloghi, combinazioni, verifiche acciaio/legno e reporting; collegare ogni capacità a implementazione e test; classificare supportato/validato, parziale, mancante, esterno, non applicabile. Identificare gap P0-B…P0-E.
 - **P0-B — Combinazioni normative SLU/SLE:** implementazione solo dopo specifica, fonti e test indipendenti, gestione gruppi di azioni, ψ/γ, alternanza azione guida, favorevoli/sfavorevoli, risultati tracciabili.
@@ -148,7 +178,7 @@ L'utente ha scelto di passare a **P0** dopo G7. **Non** introdurre subito altro 
 
 Poi **P1** Timoshenko/ulteriori benchmark e accuratezza; **P2** consolidamento API/report; **P3** GUI Avalonia solo alla fine. Nessun passo autorizza certificare la casetta.
 
-### Accettazione P0-A
+### Accettazione P0-A (criterio storico già soddisfatto documentalmente)
 
 Il deliverable iniziale dovrebbe essere **documentale**, con matrice di copertura *basata sul codice*, riferimenti esatti a file e test, gravità del rischio, esempio minimo dimostrativo, prerequisiti e milestone proposta. Non inventare capacità basandosi su titoli, README o checklist storiche. Non compilare una regola solo perché esiste una classe chiamata “verify”. La matrice deve indicare anche **come verificare il gap** e quali decisioni architetturali sono necessarie per P0-B…E.
 
@@ -177,6 +207,8 @@ Materiale secondario L1/L2/L3 relativo al libro e PDF normativi possono essere a
 - La nuova chat deve distinguere chiaramente **risultati osservati** dai **risultati attesi/teorici** e gli **esiti delle regole** dalle attestazioni professionali.
 - Prima di cambiare le assunzioni della casetta, preservare una baseline confrontabile dei quattro modelli G8B; le ipotesi di vento/neve e le sezioni non sono un progetto reale.
 
-## 11. Frase pronta per avviare la nuova conversazione
+## 11. Messaggio di ripresa corrente (P0-C2A)
+
+**Usare ora questa richiesta di ripresa:** Continuare dal FULL P0-C2A ESTREMI AFFINI. Leggere HANDOFF, P0_C2A_MASSIMI_UTILIZZO_DIAGNOSTICO_AFFINE, C1, contratti P0-B e rapporti P0-A, roadmap/changelog. **P0-B2/B3/B4/C1 FIX1 passati per conferma utente. Testare ora C2A su Windows** con `FemAffineUtilizationExtremaC2ATests` e `scripts/run-g7-tests.ps1`. C2A tratta solo due metriche matematiche per tratti affini, non verifica normativa. Dopo gate C2A: C2B distribuiti, C2C funzioni normative, C3/C4/E/D, GUI Avalonia soltanto P3. Il testo seguente è storico.
 
 > Continuiamo StructuralSolver2D dal pacchetto FULL P0-HANDOFF che allego. Leggi prima `HANDOFF_NUOVA_CHAT.md`, poi `docs/structural/P0_A_PIANO_OPERATIVO.md`, `docs/structural/roadmap.md` e `CHANGELOG.md`. La suite G7 è stata confermata `G7 GATE PASSED`; la demo G8B non va scambiata per una verifica normativa. **Inizia P0-A: audit tecnico rigoroso del FEM e della copertura EC3/EC5/NTC**, confrontando codice, test, benchmark e limiti del modello, e produci una matrice delle lacune con priorità e azioni concrete. Mantieni codice e gate collaudati, aggiorna handoff/changelog/roadmap, rimanda le modifiche normative a dopo l'audit e la GUI Avalonia all'ultima fase. Non chiedermi di ripetere decisioni già contenute nel pacchetto.

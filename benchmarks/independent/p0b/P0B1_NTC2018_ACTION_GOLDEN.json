@@ -1,0 +1,131 @@
+{
+  "schema": "p0b1-independent-action-arithmetic-v1",
+  "scope": "NTC2018 building STR A1 non-seismic / SLE, illustrative scalar linear effects only",
+  "normativeSource": "https://www.gazzettaufficiale.it/eli/gu/2018/02/20/42/so/8/sg/pdf",
+  "normativeReferences": ["2.5.I", "2.5.3 [2.5.1]-[2.5.4]", "2.6.I column A1"],
+  "gammaSTR_A1": {
+    "G1": {"favorable": "1.0", "unfavorable": "1.3"},
+    "G2": {"favorable": "0.8", "unfavorable": "1.5"},
+    "Q": {"favorable": "0.0", "unfavorable": "1.5"}
+  },
+  "psi": {
+    "A": ["0.7", "0.5", "0.3"],
+    "B": ["0.7", "0.5", "0.3"],
+    "C": ["0.7", "0.7", "0.6"],
+    "D": ["0.7", "0.7", "0.6"],
+    "E": ["1.0", "0.9", "0.8"],
+    "F": ["0.7", "0.7", "0.6"],
+    "G": ["0.7", "0.5", "0.3"],
+    "H": ["0.0", "0.0", "0.0"],
+    "WIND": ["0.6", "0.2", "0.0"],
+    "SNOW_LOW": ["0.5", "0.2", "0.0"],
+    "SNOW_HIGH": ["0.7", "0.5", "0.2"],
+    "TEMPERATURE": ["0.6", "0.5", "0.0"]
+  },
+  "unsupportedPsiWithoutExternalDetermination": ["I", "K"],
+  "actions": {
+    "G1": {"kind": "G1", "effect": "10"},
+    "G2": {"kind": "G2", "effect": "4"},
+    "QA": {"kind": "Q", "category": "A", "effect": "6"},
+    "WIND_PLUS": {"kind": "Q", "category": "WIND", "effect": "5", "alternativeGroup": "WIND_DIRECTION"},
+    "WIND_MINUS": {"kind": "Q", "category": "WIND", "effect": "-5", "alternativeGroup": "WIND_DIRECTION"},
+    "SNOW": {"kind": "Q", "category": "SNOW_LOW", "effect": "3"},
+    "G1_UP": {"kind": "G1", "effect": "-10"},
+    "G2_UP": {"kind": "G2", "effect": "-4"},
+    "QA_DOWN": {"kind": "Q", "category": "A", "effect": "-6"},
+    "WIND_UP": {"kind": "Q", "category": "WIND", "effect": "12"},
+    "QH": {"kind": "Q", "category": "H", "effect": "2"}
+  },
+  "caseNotes": [
+    "Favorable ids are engineering-supplied for the single scalar effect, never guessed from load direction.",
+    "Omitted actions are retained in the golden manifest but absent from FEM combination terms.",
+    "An absent G2 with physical evidence differs from a zero-factor G2 and from a Q omitted as favorable."
+  ],
+  "cases": [
+    {
+      "id": "B1-01-ULS-LEAD-A",
+      "family": "ULS_STR_A1", "present": ["G1", "G2", "QA", "WIND_PLUS", "SNOW"], "lead": "QA", "favorable": [],
+      "factors": {"G1": "1.3", "G2": "1.5", "QA": "1.5", "WIND_PLUS": "0.9", "SNOW": "0.75"}, "omitted": {},
+      "expectedEffect": "34.75", "handCalculation": "13 + 6 + 9 + 4.5 + 2.25 = 34.75"
+    },
+    {
+      "id": "B1-02-ULS-LEAD-WIND",
+      "family": "ULS_STR_A1", "present": ["G1", "G2", "QA", "WIND_PLUS", "SNOW"], "lead": "WIND_PLUS", "favorable": [],
+      "factors": {"G1": "1.3", "G2": "1.5", "QA": "1.05", "WIND_PLUS": "1.5", "SNOW": "0.75"}, "omitted": {},
+      "expectedEffect": "35.05", "handCalculation": "13 + 6 + 6.3 + 7.5 + 2.25 = 35.05"
+    },
+    {
+      "id": "B1-03-ULS-LEAD-SNOW",
+      "family": "ULS_STR_A1", "present": ["G1", "G2", "QA", "WIND_PLUS", "SNOW"], "lead": "SNOW", "favorable": [],
+      "factors": {"G1": "1.3", "G2": "1.5", "QA": "1.05", "WIND_PLUS": "0.9", "SNOW": "1.5"}, "omitted": {},
+      "expectedEffect": "34.3", "handCalculation": "13 + 6 + 6.3 + 4.5 + 4.5 = 34.3"
+    },
+    {
+      "id": "B1-04-SLE-RARE-LEAD-A",
+      "family": "SLS_RARE", "present": ["G1", "G2", "QA", "WIND_PLUS", "SNOW"], "lead": "QA", "favorable": [],
+      "factors": {"G1": "1", "G2": "1", "QA": "1", "WIND_PLUS": "0.6", "SNOW": "0.5"}, "omitted": {},
+      "expectedEffect": "24.5", "handCalculation": "10 + 4 + 6 + 3 + 1.5 = 24.5"
+    },
+    {
+      "id": "B1-05-SLE-RARE-LEAD-WIND",
+      "family": "SLS_RARE", "present": ["G1", "G2", "QA", "WIND_PLUS", "SNOW"], "lead": "WIND_PLUS", "favorable": [],
+      "factors": {"G1": "1", "G2": "1", "QA": "0.7", "WIND_PLUS": "1", "SNOW": "0.5"}, "omitted": {},
+      "expectedEffect": "24.7", "handCalculation": "10 + 4 + 4.2 + 5 + 1.5 = 24.7"
+    },
+    {
+      "id": "B1-06-SLE-FREQ-LEAD-A",
+      "family": "SLS_FREQUENT", "present": ["G1", "G2", "QA", "WIND_PLUS", "SNOW"], "lead": "QA", "favorable": [],
+      "factors": {"G1": "1", "G2": "1", "QA": "0.5"}, "omitted": {"WIND_PLUS": "PsiZero", "SNOW": "PsiZero"},
+      "expectedEffect": "17", "handCalculation": "10 + 4 + 0.5*6 = 17"
+    },
+    {
+      "id": "B1-07-SLE-FREQ-LEAD-WIND",
+      "family": "SLS_FREQUENT", "present": ["G1", "G2", "QA", "WIND_PLUS", "SNOW"], "lead": "WIND_PLUS", "favorable": [],
+      "factors": {"G1": "1", "G2": "1", "QA": "0.3", "WIND_PLUS": "0.2"}, "omitted": {"SNOW": "PsiZero"},
+      "expectedEffect": "16.8", "handCalculation": "10 + 4 + 0.3*6 + 0.2*5 = 16.8"
+    },
+    {
+      "id": "B1-08-SLE-QUASI",
+      "family": "SLS_QUASI_PERMANENT", "present": ["G1", "G2", "QA", "WIND_PLUS", "SNOW"], "lead": null, "favorable": [],
+      "factors": {"G1": "1", "G2": "1", "QA": "0.3"}, "omitted": {"WIND_PLUS": "PsiZero", "SNOW": "PsiZero"},
+      "expectedEffect": "15.8", "handCalculation": "10 + 4 + 0.3*6 = 15.8"
+    },
+    {
+      "id": "B1-09-ULS-UPLIFT",
+      "family": "ULS_STR_A1", "present": ["G1_UP", "G2_UP", "QA_DOWN", "WIND_UP"], "lead": "WIND_UP", "favorable": ["G1_UP", "G2_UP", "QA_DOWN"],
+      "factors": {"G1_UP": "1.0", "G2_UP": "0.8", "WIND_UP": "1.5"}, "omitted": {"QA_DOWN": "Favorable"},
+      "expectedEffect": "4.8", "handCalculation": "1.0*(-10) + 0.8*(-4) + 1.5*12 = 4.8"
+    },
+    {
+      "id": "B1-10-ULS-G2-PHYSICALLY-ABSENT",
+      "family": "ULS_STR_A1", "present": ["G1", "QA"], "lead": "QA", "favorable": [],
+      "absentByEvidence": {"G2": "Illustrative transient stage: documented nonstructural element not installed"},
+      "factors": {"G1": "1.3", "QA": "1.5"}, "omitted": {},
+      "expectedEffect": "22", "handCalculation": "1.3*10 + 1.5*6 = 22"
+    },
+    {
+      "id": "B1-11-ULS-WIND-MINUS-FAVORABLE",
+      "family": "ULS_STR_A1", "present": ["G1", "G2", "QA", "WIND_MINUS"], "lead": "QA", "favorable": ["WIND_MINUS"],
+      "factors": {"G1": "1.3", "G2": "1.5", "QA": "1.5"}, "omitted": {"WIND_MINUS": "Favorable"},
+      "expectedEffect": "28", "handCalculation": "13 + 6 + 9 = 28; wind with negative scalar effect omitted"
+    },
+    {
+      "id": "B1-12-ULS-PERMANENTS-ONLY",
+      "family": "ULS_STR_A1", "present": ["G1", "G2"], "lead": null, "favorable": [],
+      "factors": {"G1": "1.3", "G2": "1.5"}, "omitted": {},
+      "expectedEffect": "19", "handCalculation": "1.3*10 + 1.5*4 = 19"
+    },
+    {
+      "id": "B1-13-SLE-RARE-ROOF-H-LEAD",
+      "family": "SLS_RARE", "present": ["G1", "G2", "QH"], "lead": "QH", "favorable": [],
+      "factors": {"G1": "1", "G2": "1", "QH": "1"}, "omitted": {},
+      "expectedEffect": "16", "handCalculation": "10 + 4 + 2 = 16 (psi0 for H does not reduce a leading rare variable)"
+    },
+    {
+      "id": "B1-14-SLE-FREQ-ROOF-H-LEAD",
+      "family": "SLS_FREQUENT", "present": ["G1", "G2", "QH"], "lead": "QH", "favorable": [],
+      "factors": {"G1": "1", "G2": "1"}, "omitted": {"QH": "PsiZero"},
+      "expectedEffect": "14", "handCalculation": "10 + 4 = 14 (psi1 of H is zero)"
+    }
+  ]
+}
