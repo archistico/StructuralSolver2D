@@ -1,6 +1,6 @@
 # P0-C2A — Ricerca analitica di massimi per indicatori affini delimitati
 
-**25 ottobre 2026 — codice C# e xUnit predisposti, gate Windows da eseguire.** Primo passo di P0-C2, non sostituisce le regole di verifica EC3/EC5/NTC.
+**25 ottobre 2026 — GATE PASS confermato dall'utente per C2A («test passati», senza log numerico); estensione C2B successiva separata.** Primo passo di P0-C2, non sostituisce le regole di verifica EC3/EC5/NTC.
 
 ## Perché questa fase è necessaria
 

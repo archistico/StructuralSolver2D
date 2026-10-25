@@ -3,7 +3,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Description>Scoped, fail-closed Eurocode 3 steel cross-section checks; not a complete member compliance engine.</Description>
+    <Description>Scoped, fail-closed Eurocode 3 and native NTC 2018 steel checks; not a complete member compliance engine.</Description>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\StructuralSolver2D.Verification\StructuralSolver2D.Verification.csproj" />
