@@ -18,4 +18,4 @@ Inclusi elementi monodimensionali in modelli piani; strumenti di validazione; ca
 4. Report chiari: `Passed` nel proprio campo, `Failed` per superamento, `Unsupported` per regola assente, `NotApplicable` solo con motivazione fisica verificabile.
 5. **GUI C#/Avalonia esclusivamente dopo** la maturazione del motore, delle verifiche e della documentazione.
 
-L'ultima baseline software è **P0-D2C2**, con test .NET **PASS dichiarati dall'autrice**. F0 modifica esclusivamente la documentazione. Nessuna certificazione generale di sicurezza delle opere è implicata. Il prossimo lavoro è **F1.1 G8B**, confronti indipendenti in C#/.NET; la GUI resta ultima.
+L'ultimo gate .NET **confermato** è **P0-D2C2**, con test **PASS dichiarati dall'autrice**. F0 ha aggiornato solo la documentazione; F1.1-A introduce i primi confronti indipendenti G8B **in C#/.NET, ancora PENDING su Windows**. Nessuna certificazione generale di sicurezza delle opere è implicata; la GUI resta ultima.

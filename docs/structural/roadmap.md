@@ -1,6 +1,6 @@
 # StructuralSolver2D — Roadmap operativa
 
-**25 ottobre 2026 — baseline P0-D2C2; checkpoint documentale P0-F0.** I test .NET di D2C2 e dei precedenti sono **PASS su conferma dell'autrice**, senza log allegato. Nessun nuovo test .NET è stato introdotto in F0. I dettagli di ambito e stato sono in [CURRENT_STATE](CURRENT_STATE.md), le decisioni vincolanti in [ENGINEERING_AND_VALIDATION_RULES](ENGINEERING_AND_VALIDATION_RULES.md) e il ragionamento completo nel [piano dettagliato F0–F10](PIANO_DETTAGLIATO_POST_D2C2.md).
+**25 ottobre 2026 — ultimo gate .NET confermato dall'autrice P0-F1E; F1.2-A, 12 benchmark analitici C# pronti, build e test PENDING.** Corretto in F1.2-A il warning `xUnit2031` emerso nei test F1E. Manca ancora il JSON `proposed` F1D per il congelamento del riferimento statico. I dettagli di ambito e stato sono in [CURRENT_STATE](CURRENT_STATE.md), le decisioni vincolanti in [ENGINEERING_AND_VALIDATION_RULES](ENGINEERING_AND_VALIDATION_RULES.md) e il ragionamento completo nel [piano dettagliato F0–F10](PIANO_DETTAGLIATO_POST_D2C2.md).
 
 ## Vincoli di esecuzione
 
@@ -15,7 +15,7 @@
 | Fase | Obiettivo | Consegna principale | Condizione di chiusura (*gate*) | Stato |
 |---|---|---|---|---|
 | **F0** | Allineare documentazione e decisioni | Stato corrente, roadmap, policy C#, handoff, storico archiviato | Nessuna modifica di codice; riferimenti univoci; manifest ZIP integro | **Completata (solo documentazione)** |
-| **F1** | Validazione numerica FEM integrata | **F1.1 G8B: 4 varianti × 4 combinazioni = 16 scenari**, poi casi di orientamento/release/scale | Confronto C# di spostamenti, reazioni e N/V/M con attesi indipendenti congelati; controprove falliscono quando si altera l'input | **Prossima** |
+| **F1** | Validazione numerica FEM integrata | **F1.1 G8B: 4 varianti × 4 combinazioni = 16 scenari**, poi casi di orientamento/release/scale | Confronto C# di spostamenti, reazioni e N/V/M con attesi indipendenti congelati; controprove falliscono quando si altera l'input | **In corso — F1.1-A/B/C/D-FIX1/E PASS riferiti; F1.2-A .NET PENDING; golden F1D da ricevere** |
 | **F2** | Applicabilità e dati fisici esterni | Contratti tipizzati per ancoraggi, ritegni, controventi, collegamenti e limiti 2D | Mancanza di evidenze/validità produce `MissingData` o `Incomplete`, non `Passed` | Da fare |
 | **F3** | Completezza delle combinazioni nel dominio dichiarato | Generazione/audit SLU STR e SLE **non sismici**, scenari e azioni alternative | Nessuna combinazione dovuta persa; segni/favorevolezza/fattori zero e fingerprint verificati con controprove | Da fare |
 | **F4** | Massimi di utilizzo lungo le aste | Funzione `η(x)` e stazioni governanti per regola/segmento provabile | Massimo verificato dove matematicamente possibile; altrove `ScreeningIncomplete` | Da fare |
@@ -35,6 +35,20 @@
 5. Eseguire `dotnet build` e `dotnet test` sulla soluzione completa. Riportare i risultati reali: **PASS confermato**, **FAIL** o **PENDING** se non eseguiti, senza inventare conteggi.
 
 **Gate F1.1:** 16/16 confronti senza scarti inspiegati e controprove correttamente rilevate; registrare i limiti del modello 2D ideale. **Non introdurre nuove formule normative, GUI o script Python in F1.1.**
+
+**Avanzamento F1.1-A — PASS riferito dall'autrice:** test C# dei 16 scenari, spostamenti, reazioni, equilibrio e N/V/M **delle colonne inferiori**, con controprove e SHA256 degli attesi. Leggere [rapporto F1.1-A](F1_1A_G8B_VALIDAZIONE_CSHARP_16_SCENARI.md).
+
+**Avanzamento F1.1-B — PASS riferito dall'autrice:** formule analitiche **indipendenti** `N/V/M` delle due mensole, equilibrio di tutti i Frame2D e dei nodi non vincolati, legge assiale degli X-brace Truss2D e controprova con carico modificato. **Questi controlli di equilibrio NON sono golden numerici assoluti indipendenti per tutte le aste.** Leggere [rapporto F1.1-B](F1_1B_G8B_SOLLECITAZIONI_EQUILIBRIO_CSHARP.md).
+
+**Avanzamento F1.1-C — PASS riferito dall'autrice:** il riferimento C# variazionale (quadratura di energia/carichi + Cholesky) è **autonomo** rispetto alle matrici e al solver produttivi. Per ogni scenario riproduce prima gli spostamenti/reazioni del **golden storico con SHA256 bloccato**, poi confronta tutti i nodi e `N/V/M` a cinque stazioni di ogni asta. I quattro JSON G8B sono protetti da hash. **I valori per tutte le aste non sono ancora congelati come JSON autonomo**: sono calcolati nei test da dati congelati. Vedere [rapporto F1.1-C](F1_1C_G8B_RIFERIMENTO_VARIAZIONALE_CSHARP.md).
+
+**Avanzamento F1.1-D — FIX1 PASS riferito dall'autrice:** nuovo programma standalone **C#/.NET 8** nella soluzione. Riesegue l'oracolo storico con input SHA256-bloccati; produce solo tramite comando esplicito un JSON **proposto** con forze alle estremità, N/V/M a cinque stazioni, DOF e reazioni per **336 membri-scenario / 1.680 stazioni**. Non sovrascrive file ed è verificabile byte per byte. Il JSON **non è stato trasmesso in questa conversazione**: mancano revisione, hash fissato e test contro il golden statico. Vedere [F1.1-D](F1_1D_G8B_ESPORTAZIONE_GOLDEN_NVM_CSHARP.md).
+
+**Avanzamento F1.1-E — PASS riferito dall'autrice:** 37 test C# nei **16 scenari** per geometria SVG delle polilinee N/V/M con normale locale firmata, tabelle Markdown confrontate con F1C, frecce di vento/gravità, payload HTML e controprova di segno del momento. Unico warning `xUnit2031` su `Assert.Single(Where(...))`, corretto nel successivo F1.2-A senza cambiare il significato dell'asserzione. FEM, esportatori, esempi e moduli normativi invariati. Vedere [F1.1-E](F1_1E_G8B_VALIDAZIONE_VIEWER_REPORT_CSHARP.md).
+
+**Avanzamento F1.2-A — 12 nuovi test C# pronti, .NET PENDING:** sei mensole inclinate con carichi concentrati assiali/trasversali di segno opposto, quattro travi inclinate a due release con carico uniforme `LocalY` negativo e carrello globale verticale, una combinazione di carico con coefficiente negativo e una controprova d'inversione. Attesi da formule chiuse di Euler–Bernoulli e statica, non dal FEM di produzione; confronto di spostamenti, rotazioni, reazioni e N/V/M alle cinque sezioni. **Nessuna modifica a `src/`**. Il sottogruppo successivo F1.2-B dovrà esplorare release singole, orientamento dei supporti e altre azioni locali; F1.3 svilupperà prove di robustezza e scala. Vedere [F1.2-A](F1_2A_ORIENTAMENTO_CARICHI_RELEASE_ANALITICI_CSHARP.md).
+
+**Per chiudere F1.1:** ricevere il JSON F1D proposto dal PC Windows, revisionarlo, **congelare hash e valori in test xUnit C#** ed eseguire il controllo incrociato con il golden statico. **F1E è già PASS**; parallelamente F1.2-A deve essere collaudato, poi seguono altri carichi/orientamenti/release F1.2 e **F1.3** robustezza. Senza il golden statico approvato non dichiarare il gate F1.1 completo.
 
 ## Prerequisiti decisivi
 

@@ -2,6 +2,55 @@
 
 Registro **sintetico e cronologico**. Ogni stato «gate superato» è basato sulle conferme dei test Windows dell'utente, non su una certificazione della conformità normativa dell'opera. I dettagli delle milestone si trovano in `docs/structural/` e nell'[archivio](docs/archive/README.md).
 
+## 25 ottobre 2026 — P0-F1.2-A: riferimenti analitici su orientamento, segno e release (.NET PENDING)
+
+- **F1E PASS comunicato dall'autrice** («test passati», senza log allegato): confermati i 37 nuovi casi viewer/report. Segnalato un solo warning `xUnit2031` in `G8BViewerReportF1ETests.cs`; corretto usando `Assert.Single(collection, predicate)` anziché `Assert.Single(collection.Where(predicate))`, con identica condizione e senza variazioni al test fisico.
+- Nuova classe xUnit `F12AInclinedAnalyticalReferenceTests.cs` con **12 casi**: sei mensole con aste ruotate e forze locali assiali/trasversali firmate; quattro travi inclinate a doppia release, `LocalY` negativo e carrello verticale globale; una combinazione con coefficiente negativo; una controprova d'inversione della forza trasversale. Controlla spostamenti, rotazione, reazioni, estremità e `N/V/M` in cinque sezioni con **formule chiuse e statica, senza usare il FEM di produzione per gli attesi**.
+- I nuovi test sono **.NET PENDING** perché l'SDK non è presente nel sistema di confezionamento; occorre collaudo Windows sulla soluzione completa. **Nessuna modifica ai sorgenti `src/`, modelli G8B, JSON golden esistenti o regole NTC 2018/EC3/EC5**. Dettagli in [F1.2-A](docs/structural/F1_2A_ORIENTAMENTO_CARICHI_RELEASE_ANALITICI_CSHARP.md).
+- Il JSON proposto F1D e il suo SHA256 **non sono stati ricevuti**: F1.1 non è ancora completo. Prossimi: gate F1.2-A Windows, congelamento golden F1D, sottogruppi residui F1.2 e robustezza F1.3; GUI ultima fase.
+
+## 25 ottobre 2026 — P0-F1E: verifiche indipendenti di SVG, viewer HTML e report Markdown (.NET PENDING)
+
+- **F1D-FIX1 PASS confermato dall'autrice** («test passati», senza log); rimane **non ricevuto** il JSON F1D proposto con SHA256, quindi nessun nuovo golden statico congelato.
+- Aggiunta `G8BViewerReportF1ETests.cs`: 16 casi SVG con coordinate `N/V/M` firmate e normale locale rispetto al riferimento F1C; 16 casi Markdown su sei forze di estremità e cinque stazioni per ogni asta; 2 casi vento, 1 gravità, 1 HTML (payload numerico e switch carichi), 1 controprova con inversione `M`. **37 test parametrizzati/fattuali nuovi, tutti .NET PENDING** per assenza SDK nel confezionamento.
+- Aggiornato soltanto il riferimento `StructuralSolver2D.Reporting` del progetto xUnit e reso accessibile nel test assembly il loader SHA-bloccato F1C. **Nessun codice `src/` di produzione, modello o golden storico alterato.** Aggiunta [documentazione F1E](docs/structural/F1_1E_G8B_VALIDAZIONE_VIEWER_REPORT_CSHARP.md); stato, roadmap, handoff allineati, README conciso.
+- Prossimo: gate F1E su Windows e consegna JSON F1D+SHA256, revisione e golden fisso in test C#. Gate F1.1 ancora aperto; niente Python nuovo, norme EC3/EC5/NTC distinte e GUI soltanto alla fine.
+
+## 25 ottobre 2026 — P0-F1D-FIX1: correzione hash atteso del modello G8B senza controventi
+
+- Primo avvio Windows di `--output` e `--verify` F1D: **FAIL riproducibile** sul confronto SHA256 di `g8b-b_riferimento-senza-controventi.json`. L'hash atteso trascritto in `Program.cs` era lungo 56 caratteri anziché 64, mentre il file distribuito e il valore già validato nei test F1C avevano hash corretto. Il controllo ha impedito la creazione del JSON proposto.
+- Corretto **solo il valore letterale** nel programma F1D e aggiunta una guardia C# che rifiuta hash attesi di lunghezza/formato non SHA256. Riesaminati manualmente gli altri quattro SHA256 contro i file effettivi: coincidono.
+- La **versione FIX1 richiede un nuovo avvio Windows** di `--output` e `--verify` e resta PENDING; nessun risultato N/V/M nuovo è stato congelato. `src/`, test, modelli e benchmark invariati. Conservata la precedente distribuzione come checkpoint storico.
+
+## 25 ottobre 2026 — P0-F1D: esportatore C# del golden N/V/M G8B (build/export PENDING)
+
+- **P0-F1C PASS confermato dall'autrice** («test passati»), senza log numerico. I test F1A/F1B/C restano convalidati nel dominio dichiarato; il nuovo F1D **non è ancora stato compilato/eseguito** nell'ambiente di confezionamento privo di SDK .NET.
+- Aggiunto alla soluzione il progetto eseguibile **C#/.NET 8** `tools/StructuralSolver2D.G8BReferenceF1D`: riutilizza per collegamento del sorgente il secondo risolutore **indipendente F1C**, controlla SHA256 dei quattro modelli e del vecchio golden, ricalcola e verifica le 16 soluzioni storiche **prima** di consentire l'esportazione.
+- Comandi espliciti `--output` e `--verify`: JSON `proposed-unreviewed` deterministico con spostamenti, reazioni, azioni N/V/M di estremità e cinque stazioni per tutte le aste (**336 membro-scenari / 1.680 stazioni**), hash SHA256 a stampa e **nessuna sovrascrittura** (`FileMode.CreateNew`). Il JSON numerico **non è incluso**, perché richiede l'esecuzione Windows; il futuro golden bloccato non viene inventato.
+- Nuovo [manuale F1.1-D](docs/structural/F1_1D_G8B_ESPORTAZIONE_GOLDEN_NVM_CSHARP.md), stato/roadmap/handoff aggiornati e README essenziale. **Nessuna modifica** a FEM `src/`, modelli G8B, golden storico, moduli NTC/EC3/EC5 o GUI. Prossimo: esportazione e verifica Windows, revisione del file, fissaggio hash e test xUnit contro dati statici, confronto viewer/report; poi F1.2/F1.3.
+
+## 25 ottobre 2026 — P0-F1C: riferimento variazionale C# per le sollecitazioni G8B (nuovi test PENDING)
+
+- **P0-F1B PASS confermato dall'autrice** («test passati»), senza log numerico. **F1C aggiunge test PENDING** finché l'autrice non avrà eseguito build e regressioni sul PC Windows; `dotnet` non è disponibile nell'ambiente di confezionamento.
+- Nuovo `G8BVariationalReferenceF1C.cs` **soltanto nei test**: risolve i quattro modelli misti con quadratura a quattro punti dell'energia assiale/flessionale degli elementi, carichi uniformi integrati autonomamente, truss assiali e peso proprio nodale, montaggio 3 DOF/nodo e soluzione **Cholesky** autonoma. Non chiama il solver, le matrici o l'espansore di carichi di produzione.
+- Nuovo `G8BIndependentMemberF1CTests.cs`: **32 casi parametrizzati** e una controprova. Primo confronto obbligatorio della soluzione alternativa con il golden numerico storico SHA256-bloccato; poi confronto indipendente di **tutti i DOF nodali**, **tutte le forze di estremità** e `N/V/M` in **cinque sezioni di ogni asta** nei 16 scenari. Hash bloccati anche per tutti e quattro i JSON dei modelli.
+- Documento tecnico [F1.1-C](docs/structural/F1_1C_G8B_RIFERIMENTO_VARIAZIONALE_CSHARP.md). Attesi numerici su tutte le aste generati dinamicamente dal secondo risolutore, non ancora congelati in un golden statico completo: possibile F1.1-D con esportazione in C# dopo PASS.
+- `src/`, JSON G8B, golden numerico storico, profili normativi NTC/EC3/EC5 e GUI **invariati**. Solo codice di test e documentazione C#/.NET; nessun nuovo script Python/PowerShell/Bash.
+
+## 25 ottobre 2026 — P0-F1B: sbalzi, travi, copertura e diagonali G8B (nuovi test PENDING)
+
+- **Conferma dell'autrice: P0-F1A PASS** («test passati»), senza log numerico allegato. I test aggiunti in **F1B sono PENDING** in attesa del suo nuovo collaudo Windows; `dotnet` non è disponibile nel sistema di confezionamento.
+- Nuova classe `G8BMemberForceF1BTests.cs`: 16 scenari × 4 famiglie di test C# (= **64 casi parametrizzati**) e una controprova negativa. Valori di `N/V/M` **analitici e assoluti** a cinque stazioni dei due sbalzi, identità di equilibrio/integrale per tutti i 18 elementi Frame2D comprese travi e puntoni di tetto inclinati, equilibrio di 11 nodi privi di vincoli inclusi i carichi nodali da peso proprio Truss2D, sforzo assiale Hooke e `V=M=0` sulle X-brace ideali.
+- La controprova modifica il carico permanente di una mensola, mentre i valori attesi rimangono fissi. **Solo gli sbalzi** ricevono in F1B attesi N/V/M di ampiezza indipendente; gli altri controlli di equilibrio e Hooke non sono nuovi golden numerici autonomi. Il golden congelato F1A rimane invariato.
+- Nuovo [rapporto F1.1-B](docs/structural/F1_1B_G8B_SOLLECITAZIONI_EQUILIBRIO_CSHARP.md); stato, roadmap e handoff aggiornati, README mantenuto essenziale. Nessuna modifica a `src/`, modelli, verifiche normative NTC/EC3/EC5 o GUI; nessun nuovo Python/PowerShell/Bash nel progetto. Prossimi: collaudo F1B, ulteriori golden indipendenti F1.1-C, viewer/report, F1.2/F1.3.
+
+## 25 ottobre 2026 — P0-F1A: confronto G8B 16 scenari in C#/.NET (nuovi test PENDING)
+
+- **Ultimo gate confermato: D2C2 PASS dall'autrice**, senza log numerico. F1A aggiunge test xUnit C# ma **non è stato eseguito** in questo ambiente, privo di SDK .NET 8: **PENDING**, non PASS.
+- Nuovo test `G8BIndependentReferenceF1ATests.cs`: **4 modelli × 4 combinazioni = 16** confronti contro JSON indipendente immutato, SHA256 bloccato, spostamenti nodali e massimi, reazioni di quattro appoggi, risultanti globali e controlli locali **N/V/M delle colonne inferiori** ottenuti da Hooke/equilibrio del corpo libero con dati già congelati. Controprove su forza del vento (+10 kN), omissione dell'azione vento nella combinazione e release flessionale alterata.
+- Dataset originario Python **non modificato e mai eseguito** in F1A; harness, formule di controllo e controprove sono esclusivamente C#/.NET. `Analysis.Tests.csproj` distribuisce esempi e golden nei file di output per test riproducibili, senza un runner aggiuntivo.
+- Nuovo [rapporto F1.1-A](docs/structural/F1_1A_G8B_VALIDAZIONE_CSHARP_16_SCENARI.md), stato, roadmap e handoff aggiornati. **Nessuna modifica** a `src/`, modelli/esempi JSON, generatori/solver o verifiche NTC/EC3/EC5. Resta F1.1-B: test Windows e golden per N/V/M dei membri non ancora coperti; GUI ultima fase.
+
 ## 25 ottobre 2026 — P0-F0: documentazione, piano F0–F10 e politica C#/.NET (nessuna modifica al codice)
 
 - **Conferma successiva dell'autrice:** anche il gate **P0-D2C2 e precedenti è PASS per i test .NET su Windows**, senza log numerico allegato. Questo **aggiorna** lo stato «D2C2 in attesa» riportato nella voce storica sottostante; non si modificano retroattivamente le note scritte al rilascio originario.

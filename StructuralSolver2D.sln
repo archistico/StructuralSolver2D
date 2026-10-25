@@ -26,6 +26,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StructuralSolver2D.Cli.Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StructuralSolver2D.PerformanceM73", "tools\StructuralSolver2D.PerformanceM73\StructuralSolver2D.PerformanceM73.csproj", "{EDBA0BC2-0102-4F8B-A89D-6CE1A6B27300}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StructuralSolver2D.G8BReferenceF1D", "tools\StructuralSolver2D.G8BReferenceF1D\StructuralSolver2D.G8BReferenceF1D.csproj", "{CF5CF7D2-F1D0-4D3E-9B53-739EAA11F1D0}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StructuralSolver2D.Verification", "src\StructuralSolver2D.Verification\StructuralSolver2D.Verification.csproj", "{00B087A1-AE47-4E9C-9C58-E18203004887}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StructuralSolver2D.Verification.Tests", "tests\StructuralSolver2D.Verification.Tests\StructuralSolver2D.Verification.Tests.csproj", "{00B087A2-AE47-4E9C-9C58-E18203004887}"
@@ -106,6 +108,10 @@ Global
 		{EDBA0BC2-0102-4F8B-A89D-6CE1A6B27300}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EDBA0BC2-0102-4F8B-A89D-6CE1A6B27300}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EDBA0BC2-0102-4F8B-A89D-6CE1A6B27300}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF5CF7D2-F1D0-4D3E-9B53-739EAA11F1D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF5CF7D2-F1D0-4D3E-9B53-739EAA11F1D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF5CF7D2-F1D0-4D3E-9B53-739EAA11F1D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF5CF7D2-F1D0-4D3E-9B53-739EAA11F1D0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{00B087A1-AE47-4E9C-9C58-E18203004887}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{00B087A1-AE47-4E9C-9C58-E18203004887}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00B087A1-AE47-4E9C-9C58-E18203004887}.Release|Any CPU.ActiveCfg = Release|Any CPU

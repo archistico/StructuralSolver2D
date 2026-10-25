@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/StructuralSolver2D.Core/StructuralSolver2D.Core.csproj" />
+    <ProjectReference Include="../../src/StructuralSolver2D.Cli/StructuralSolver2D.Cli.csproj" />
+
+    <!-- One shared, independently implemented reference algorithm: the same
+         code used and validated by F1C tests. Never link production FEM. -->
+    <Compile Include="../../tests/StructuralSolver2D.Analysis.Tests/Benchmarks/G8BVariationalReferenceF1C.cs"
+             Link="IndependentReference/G8BVariationalReferenceF1C.cs" />
+  </ItemGroup>
+</Project>

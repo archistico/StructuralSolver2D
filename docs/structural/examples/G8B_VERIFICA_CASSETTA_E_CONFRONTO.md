@@ -1,6 +1,6 @@
 # G8B — Confronto di casetta a 2 piani: controventi e sezioni
 
-**Stato:** esempio didattico + benchmark elastico indipendente. **Baseline software:** G7 GATE PASSED. **Gate G8B Windows:** non ancora eseguito. Il confronto non implica che l'analisi sia normativa o che le sezioni siano sufficienti.
+**Stato al 25/10/2026:** esempio didattico e riferimento elastico indipendente. **F1.1-A** ha introdotto il confronto automatico in **C#/.NET** sui 16 scenari ([rapporto F1A](../F1_1A_G8B_VALIDAZIONE_CSHARP_16_SCENARI.md)) con **PASS riferito dall'autrice**. **F1.1-B** ha aggiunto le formule analitiche dei balconi e controlli di equilibrio ([rapporto F1B](../F1_1B_G8B_SOLLECITAZIONI_EQUILIBRIO_CSHARP.md)), **PASS riferito dall'autrice**. **F1.1-C** ha introdotto il secondo risolutore C# ([rapporto F1C](../F1_1C_G8B_RIFERIMENTO_VARIAZIONALE_CSHARP.md)), anch'esso **PASS riferito dall'autrice**. **F1.1-D** prepara [un esportatore C# del golden N/V/M completo](../F1_1D_G8B_ESPORTAZIONE_GOLDEN_NVM_CSHARP.md), **non ancora eseguito**. Il confronto non implica che l'analisi sia normativa o che le sezioni siano sufficienti. I passaggi storici seguenti descrivono l'origine del benchmark e non autorizzano nuovo Python.
 
 ## 1. Obiettivo e geometria
 
@@ -48,7 +48,7 @@ I pesi propri calcolati esclusivamente da A×lunghezza×γ sono: **A 29,884 kN**
 
 ## 5. Confronto elastico indipendente, NON un risultato del CLI
 
-È stata realizzata una seconda implementazione minima in Python/NumPy (`benchmarks/independent/g8b-house/independent_frame2d_reference.py`), separata dal motore C#. Calcola la matrice delle travi di Euler–Bernoulli, delle aste reticolari e i carichi consistenti. Questo è un **riferimento numerico esplorativo indipendente**; non è un benchmark normativo certificato.
+Nella fase storica G8B era stata realizzata una seconda implementazione minima in Python/NumPy (`benchmarks/independent/g8b-house/independent_frame2d_reference.py`), separata dal motore C#. Il codice storico è **congelato** e non deve essere eseguito o modificato per i prossimi gate. I risultati JSON già pubblicati costituiscono il **riferimento numerico esplorativo indipendente e statico** usato ora dai test C#; non è un benchmark normativo certificato.
 
 Con le combinazioni **illustrative manuali** `ULS_WIND_POS`, il risultato sullo **spostamento orizzontale del colmo** è:
 
@@ -76,7 +76,7 @@ Lo script prova quattro modelli × quattro combinazioni e genera **16 report Mar
 .\scripts\run-g7-tests.ps1
 ```
 
-I risultati autonomi del CLI devono essere confrontati con il JSON indipendente per **stessa combinazione, stesse unità, stesse condizioni di vincolo**. Non vi è ancora alcun G8B GATE PASSED; i 16 risultati non sono stati prodotti da .NET nell'ambiente dell'assistente.
+Il test F1A confronta i **16 scenari** in C# per spostamenti, reazioni, equilibrio e alcuni N/V/M delle colonne inferiori (**PASS riferito dall'autrice**). F1B aggiunge attesi N/V/M analitici delle due mensole, oltre a equilibri e identità delle altre aste (**PASS riferito dall'autrice**). F1C aggiunge un risolutore indipendente variazionale per confrontare tutti i nodi e N/V/M delle aste (**PASS riferito dall'autrice**). **Il gate G8B completo non è ancora chiuso**: F1D deve esportare in C# il nuovo golden statico, farne rivedere i valori e l'hash e consentire controlli di viewer/report.
 
 ## 7. Dimensionamento progressivo richiesto
 

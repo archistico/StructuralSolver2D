@@ -22,7 +22,17 @@
     <ProjectReference Include="..\..\src\StructuralSolver2D.Core\StructuralSolver2D.Core.csproj" />
     <ProjectReference Include="..\..\src\StructuralSolver2D.Analysis\StructuralSolver2D.Analysis.csproj" />
     <ProjectReference Include="..\..\src\StructuralSolver2D.Cli\StructuralSolver2D.Cli.csproj" />
+    <ProjectReference Include="..\..\src\StructuralSolver2D.Reporting\StructuralSolver2D.Reporting.csproj" />
     <ProjectReference Include="..\..\tools\StructuralSolver2D.PerformanceM73\StructuralSolver2D.PerformanceM73.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="../../examples/mixed/g8b-house/*.json"
+             Link="G8B/Examples/%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../../benchmarks/independent/g8b-house/g8b-risultati-elastici-indipendenti.json"
+             Link="G8B/g8b-risultati-elastici-indipendenti.json"
+             CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

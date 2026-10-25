@@ -1,22 +1,27 @@
 # StructuralSolver2D — Stato corrente verificabile
 
-**Aggiornamento: 25 ottobre 2026 — P0-F0, riordino della sola documentazione.** Il più recente **checkpoint con modifiche al codice** è **P0-D2C2** (`StructuralSolver2D_P0D2C2_INTERAZIONE_M_V_NTC2018_2026-10-25_FULL.zip`). Il checkpoint documentale F0 contiene lo stesso codice. Per la direzione del progetto leggere [visione 2D](vision-and-roadmap-2d.md); per le prossime attività [roadmap](roadmap.md) e [piano dettagliato](PIANO_DETTAGLIATO_POST_D2C2.md); per le decisioni vincolanti [regole di sviluppo](ENGINEERING_AND_VALIDATION_RULES.md).
+**Aggiornamento: 25 ottobre 2026 — P0-F1.2-A, benchmark analitici C# per orientamento, carichi locali e release.** L'ultimo **gate .NET confermato dall'autrice** è **P0-F1E** («test passati», senza log allegato), con un avviso non bloccante `xUnit2031` corretto in questo checkpoint. **F1.2-A aggiunge 12 casi xUnit ancora da compilare e provare; i sorgenti FEM di produzione non cambiano.** Per la direzione del progetto leggere [visione 2D](vision-and-roadmap-2d.md); per le prossime attività [roadmap](roadmap.md), [rapporti F1A](F1_1A_G8B_VALIDAZIONE_CSHARP_16_SCENARI.md), [F1B](F1_1B_G8B_SOLLECITAZIONI_EQUILIBRIO_CSHARP.md), [F1C](F1_1C_G8B_RIFERIMENTO_VARIAZIONALE_CSHARP.md), [F1D](F1_1D_G8B_ESPORTAZIONE_GOLDEN_NVM_CSHARP.md), [F1E](F1_1E_G8B_VALIDAZIONE_VIEWER_REPORT_CSHARP.md), [F1.2-A](F1_2A_ORIENTAMENTO_CARICHI_RELEASE_ANALITICI_CSHARP.md) e [piano dettagliato](PIANO_DETTAGLIATO_POST_D2C2.md); per le decisioni vincolanti [regole di sviluppo](ENGINEERING_AND_VALIDATION_RULES.md).
 
 ## Ultima conferma e test
 
 | Cosa | Stato esatto | Limite dell'affermazione |
 |---|---|---|
-| Gate .NET e regressioni fino a **P0-D2C2** | **PASS dichiarato dall'autrice** («test passati») | Conferma testuale, senza log/numero di test; non è una certificazione di sicurezza strutturale |
-| Nuovi test .NET nel checkpoint **P0-F0** | **Nessuno** | Solo documentazione; la sorgente/test xUnit coincidono con P0-D2C2 |
+| Gate .NET e regressioni fino a **P0-F1E** | **PASS dichiarato dall'autrice** («test passati») | Comprende F1A–F1D-FIX1 e i 37 nuovi casi F1E sul suo PC; conferma testuale senza log completo; non certifica una struttura |
+| Programma C# standalone **P0-F1D-FIX1** | **PASS riferito, JSON NON RICEVUTO** | Hash incompleto del primo avvio corretto; non abbiamo il file `proposed` né il suo SHA256 e perciò nessun golden statico completo approvato |
+| Suite di post-processing **P0-F1E** | **PASS riferito dall'autrice; warning xUnit2031 corretto in F1.2-A** | 16 scenari SVG, 16 Markdown, frecce dei carichi, viewer HTML e controprova del segno; la correzione riguarda solo un'asserzione xUnit |
+| Benchmark analitici **P0-F1.2-A** | **12 NUOVI TEST C# — .NET PENDING** | Sei mensole ruotate, quattro travi inclinate a due release, combinazione con fattore negativo e controprova di carico invertito; SDK non presente qui |
 | Regressione aritmetica indipendente R2–D2C2 | **4.203/4.203 PASS in 15 script** nel checkpoint D2C2 | Numeri storici derivati da strumenti Python; **non** sono esecuzioni C# né nuovi test F0 |
-| Manifest SHA256 F0 | **Verificato durante il confezionamento** | Controlla l'integrità dei file; non è un'esecuzione dei test .NET |
-| Esempio G8B, confronto automatico completo con riferimento indipendente | **Ancora da realizzare** | I test generali confermati non dimostrano l'equivalenza numerica di tutte le 16 simulazioni |
+| Manifest SHA256 F1.2-A | **Rigenerato e verificato in fase di confezionamento** | Verifica byte per byte dei file distribuiti, distinta dai test FEM .NET |
+| G8B, confronto dei 16 scenari con riferimento indipendente congelato | **F1A — PASS comunicato dall'autrice** | U/reazioni/equilibrio e N/V/M colonne inferiori, dati indipendenti SHA256 bloccati |
+| G8B, nuovi controlli di aste, sbalzi, nodi e diagonali | **F1B — PASS comunicato dall'autrice** | Valori assoluti indipendenti per i balconi; per altre aste equilibrio/identità fisiche |
+| G8B, risolutore variazionale di controllo e N/V/M su tutte le aste | **F1C — PASS comunicato dall'autrice** | Quadratura + Cholesky indipendenti ancorati al golden storico. Forze N/V/M ricalcolate in test; il golden statico per tutte le aste resta da esportare |
+| G8B, export statico 336 membri-scenario e 1.680 stazioni | **F1D-FIX1 — PASS riferito, golden non ancora congelato** | Tool C# con verifica input e golden storico; manca consegna del JSON e hash definitivo |
 
 ## Capacità effettive e lacune prioritarie
 
 | Modulo | Implementato e collaudato nel perimetro dichiarato | Da completare |
 |---|---|---|
-| **FEM Core/Analysis** | Frame2D Euler–Bernoulli, Truss2D, modelli misti, vincoli/release/molle/cedimenti, carichi, peso proprio esplicito, reazioni e N/V/M; benchmark e casi limite | Equivalenza end-to-end C#↔golden indipendenti G8B; confini fisici su supporti/controventi; performance/solver opzionali solo se motivati |
+| **FEM Core/Analysis** | Frame2D Euler–Bernoulli, Truss2D, modelli misti, vincoli/release/molle/cedimenti, carichi, peso proprio esplicito, reazioni e N/V/M; benchmark e casi limite; F1E PASS riferito | Ricevere e congelare il JSON statico N/V/M F1D; provare F1.2-A, quindi orientamenti/release residui e robustezza; confini fisici su supporti/controventi; performance/solver opzionali solo se motivati |
 | **Azioni e combinazioni P0-B1–B4** | Inventario azioni tipizzato, candidati ULS/SLE nel dominio supportato, audit su insieme *dichiarato* e fingerprint | Esaustività del dominio applicabile, alternative/azioni guida, condizioni di favore e scenari non supportati |
 | **FEM→verifiche P0-C1–C2C1** | Snapshot concomitanti N/V/M, ascissa e lato esatti, diagnostici e audit locali, primo caso reale EC3 a N di trazione costante | Massimi continui di utilizzo `η(x)` per regola, inventario completo degli obblighi di membratura e report aggregato |
 | **Acciaio EC3 M89–M91** | Regole pure/sezionali, classificazione e alcuni controlli di instabilità con dati esterni | Copertura parziale di interazioni e instabilità; classi/prodotti/assi fuori campo; **non** equivalenti a NTC |
@@ -41,7 +46,7 @@
 
 ## Prossimo checkpoint tecnico
 
-**F1.1 — 16 scenari G8B**, confronto automatico del FEM di produzione con riferimenti numerici indipendenti e congelati tramite **test in C#/.NET**: spostamenti, reazioni e N/V/M a stazioni concordate, convenzioni e tolleranze prima dell'esecuzione, input alterato intenzionalmente per verificare che il confronto fallisca. **Non aggiungere formule normative o Python.** Successivi: **F2 evidenze fisiche → F3 completezza combinazioni → F4 massimi di utilizzo → F5 copertura e report → F6/F7 norme → F8 prestazioni → F9 API/release → F10 GUI**.
+**F1E è PASS dichiarato dall'autrice.** Nel FULL F1.2-A è stato corretto il warning `xUnit2031` e sono pronti 12 benchmark nuovi confrontati con formule chiuse di trave ed equilibrio. **Eseguire build/test F1.2-A su Windows; consegnare il JSON `proposed` prodotto da F1D con SHA256** per revisione e congelamento numerico immutabile. **Il gate F1.1 resta aperto** finché il golden statico completo non sarà approvato e vincolato a nuovi test. Poi completare i sottogruppi restanti di **F1.2** orientamenti/carichi/release e **F1.3** robustezza. Nessuna nuova formula normativa o Python. Successivi: **F2 evidenze fisiche → F3 completezza combinazioni → F4 massimi di utilizzo → F5 copertura e report → F6/F7 norme → F8 prestazioni → F9 API/release → F10 GUI**.
 
 ## Collocazione documentale
 

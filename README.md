@@ -2,7 +2,7 @@
 
 **Motore FEM strutturale 2D open source in C# / .NET 8** per lo studio di travi, reticolari e telai piani in acciaio e legno. Il progetto è destinato alla didattica, alla ricerca e a valutazioni preliminari **con limiti espliciti**. La versione corrente non costituisce uno strumento certificato per attestare la sicurezza di un’opera.
 
-> **Stato al 25 ottobre 2026:** ultimo codice **P0-D2C2**, test .NET **PASS confermati dall'autrice**, senza log allegato. **P0-F0** aggiorna solo la documentazione. Per stato, limiti e gate vedere [stato corrente](docs/structural/CURRENT_STATE.md). Nessuna GUI desktop è stata avviata.
+> **Stato al 25 ottobre 2026:** ultimo gate .NET **P0-F1E PASS** riferito dall'autrice; i nuovi test analitici **P0-F1.2-A attendono collaudo**. Il golden statico G8B completo è ancora da ricevere e approvare. Dettagli in [stato corrente](docs/structural/CURRENT_STATE.md). Nessuna GUI desktop è stata avviata.
 
 ## Cosa fa il progetto
 
@@ -36,7 +36,7 @@ Per esportare un viewer HTML:
 dotnet run --project src/StructuralSolver2D.Cli -- export-viewer examples/beams/simple-supported-beam.json reports/beam.html
 ```
 
-Gli [esempi](examples/README.md) servono all'apprendimento; i [benchmark](benchmarks/README.md) contengono casi di riferimento per le regressioni. È incluso anche un esempio di **casetta a due piani acciaio-legno** in `examples/mixed/two-storey-steel-house-timber-roof.json`, sviluppato in **quattro varianti G8B** con/senza controventi e differenti sezioni (`examples/mixed/g8b-house/`). La guida G8B è in `docs/structural/examples/G8B_VERIFICA_CASSETTA_E_CONFRONTO.md`; lo script Windows `scripts/run-g8b-house-demo.ps1` genera report e viewer. Il confronto G8B non è ancora stato collaudato sul PC. Non confondere esempi illustrativi e verifiche normative complete.
+Gli [esempi](examples/README.md) servono all'apprendimento; i [benchmark](benchmarks/README.md) contengono casi di riferimento per le regressioni. È incluso anche un esempio di **casetta a due piani acciaio-legno** in `examples/mixed/two-storey-steel-house-timber-roof.json`, sviluppato in **quattro varianti G8B** con/senza controventi e differenti sezioni (`examples/mixed/g8b-house/`). La guida G8B è in `docs/structural/examples/G8B_VERIFICA_CASSETTA_E_CONFRONTO.md`; lo script Windows `scripts/run-g8b-house-demo.ps1` genera report e viewer. I test F1A–F1E sono confermati dall'autrice; il golden definitivo e i nuovi F1.2-A restano aperti. Non confondere esempi illustrativi e verifiche normative complete.
 
 ## Collaudo della versione corrente
 
@@ -47,7 +47,7 @@ Eseguire da **un'estrazione pulita** dello ZIP completo:
 .\scripts\run-g7-tests.ps1
 ```
 
-Il primo script confronta i file con `RELEASE_SHA256SUMS.txt`; il secondo gestisce eventuali vecchi JSON G8B lasciati da estrazioni sovrapposte, pulisce le build, compila in Release e avvia regressioni. Sono **script Windows già presenti** nella baseline: ogni **nuovo** runner o script di progetto sarà in **C#/.NET**. Il collaudo fino a D2C2 è confermato dall'autrice; F0 non cambia il codice. Il nome G7 identifica lo storico runner.
+Il primo script confronta i file con `RELEASE_SHA256SUMS.txt`; il secondo gestisce eventuali vecchi JSON G8B lasciati da estrazioni sovrapposte, pulisce le build, compila in Release e avvia regressioni. Sono **script Windows già presenti** nella baseline: ogni **nuovo** runner o script di progetto sarà in **C#/.NET**. Il collaudo fino a F1E è confermato dall'autrice; i nuovi test F1.2-A attendono esecuzione. Il nome G7 identifica lo storico runner.
 
 ## Architettura
 
@@ -71,6 +71,7 @@ Le unità del modello FEM devono essere coerenti nel sistema **kN–m–s**. Per
 | [Stato corrente](docs/structural/CURRENT_STATE.md) | Milestone, test confermati e lacune ancora aperte |
 | [Roadmap aggiornata](docs/structural/roadmap.md) | Priorità, dipendenze e criteri dei prossimi gate |
 | [Regole di sviluppo](docs/structural/ENGINEERING_AND_VALIDATION_RULES.md) | C#/.NET per nuovi script/test e NTC/EC3/EC5 distinti |
+| [Validazione G8B F1C e generatore F1D](docs/structural/F1_1D_G8B_ESPORTAZIONE_GOLDEN_NVM_CSHARP.md) | Procedura C# per esportare il golden N/V/M proposto, con riferimento al [metodo indipendente F1C](docs/structural/F1_1C_G8B_RIFERIMENTO_VARIAZIONALE_CSHARP.md) |
 | [Handoff nuova chat](HANDOFF_NUOVA_CHAT.md) | Stato operativo da aggiornare in **ogni nuova consegna** |
 | [Manuale di validazione](docs/G7_MANUALE_VALIDAZIONE_INDIPENDENTE.md) | Fonti, benchmark G7 e prove effettivamente eseguite |
 | [Audit legno](docs/structural/G6_IMPLEMENTATION_GUIDE.md) | Come leggere gli esiti di copertura NTC |
